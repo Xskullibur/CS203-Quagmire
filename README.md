@@ -3,6 +3,7 @@
 ## 📹 Video Setup Instructions
 After you have downloaded all the necessary [prerequisites](#prerequisites), run docker desktop and follow the instructions.
 
+Visual guide for the lazy developers:
 https://github.com/user-attachments/assets/360b0e55-d038-4fdd-9af1-a2011a716650
 
 ## Table of Contents
