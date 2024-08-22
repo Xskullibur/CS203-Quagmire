@@ -1,5 +1,8 @@
 # G1T3 Project
 
+## Video Setup Instructions
+https://github.com/user-attachments/assets/360b0e55-d038-4fdd-9af1-a2011a716650
+
 ## Table of Contents
 1. [Introduction](#introduction)
 2. [Project Structure](#project-structure)
