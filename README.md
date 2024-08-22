@@ -115,6 +115,15 @@ For local frontend development:
 2. Run `npm install` (or `yarn install`)
 3. Start the development server with `npm run dev` (or `yarn dev`)
 
+### Code Structure
+- Follow the package structure as outlined in the [Project Structure](#project-structure) section.
+- Organize backend code into layers: controllers, services, repositories, and models.
+    - Controller: For REST controllers
+    - Service: For business logic
+    - Repository: For database interactions
+    - Model: For entity classes
+- Place cross-cutting concerns in the `common` package.
+
 ## Testing
 
 ### Backend Testing
