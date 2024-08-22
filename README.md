@@ -1,7 +1,6 @@
 # G1T3 Project
 
 ## Video Setup Instructions
-📹 [Video Setup Instructions]
 https://github.com/user-attachments/assets/360b0e55-d038-4fdd-9af1-a2011a716650
 
 ## Table of Contents
