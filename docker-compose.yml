@@ -13,6 +13,10 @@ services:
       - SPRING_DATASOURCE_PASSWORD=rootpassword
     depends_on:
       - db
+    volumes:
+      - ./backend:/app
+      - ~/.m2:/root/.m2
+    command: ./mvnw spring-boot:run -Dmaven.test.skip=true
 
   frontend:
     build:
@@ -24,6 +28,10 @@ services:
       - NEXT_PUBLIC_API_URL=http://localhost:8080
     depends_on:
       - backend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    command: npm run dev
 
   db:
     image: mysql:8.0

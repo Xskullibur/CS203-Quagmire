@@ -5,8 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
 public class G1T3Application {
-	public static void main(String[] args) {
-		SpringApplication.run(G1T3Application.class, args);
-	}
-
+    public static void main(String[] args) {
+        SpringApplication.run(G1T3Application.class, args);
+    }
 }
