@@ -1,0 +1,25 @@
+# Node.js
+node_modules/
+
+# Java
+*.class
+*.jar
+*.war
+
+# Gradle
+.gradle/
+build/
+
+# IDE-specific files
+.idea/
+.vscode/
+
+# Docker
+*.env
+
+# Logs
+*.log
+
+# OS-specific
+.DS_Store
+Thumbs.db
