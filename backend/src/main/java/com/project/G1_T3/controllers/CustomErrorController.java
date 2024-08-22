@@ -12,7 +12,7 @@ public class CustomErrorController implements ErrorController {
     @ResponseBody
     public String handleError() {
         // You can add logging here
-        return "An error occurred. Please try again or contact support if the problem persists.";
+        return "walao, 404 bro";
     }
 
     public String getErrorPath() {
