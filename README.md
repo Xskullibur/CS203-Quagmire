@@ -1,4 +1,4 @@
-# G1T3 Project
+# G1T3 Project (name still TBC)
 
 ## 📹 Video Setup Instructions
 After you have downloaded all the necessary [prerequisites](#prerequisites), run docker desktop and follow the instructions.
