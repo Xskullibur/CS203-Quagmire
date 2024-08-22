@@ -29,11 +29,13 @@ g1-t3/
 │   ├── src/
 │   ├── pom.xml
 │   └── Dockerfile
+│   └── ...
 ├── frontend/            # Next.js application
 │   ├── src/
 │   ├── public/
 │   ├── package.json
 │   └── Dockerfile
+│   └── ...
 ├── database/            # Database-related files
 ├── docker-compose.yml
 └── README.md
@@ -51,7 +53,7 @@ g1-t3/
   - React 18
   - TypeScript
 - Database:
-  - MySQL 8.0
+  - TBC but probably MySQL 8.0
 - DevOps:
   - Docker
   - Docker Compose
@@ -69,7 +71,7 @@ Before you begin, ensure you have the following installed on your system:
 
 1. Clone the repository:
    ```
-   git clone https://github.com/your-username/g1-t3.git
+   git clone https://github.com/ceewaigithub/g1-t3.git
    cd g1-t3
    ```
 
@@ -124,11 +126,7 @@ npm run test
 
 ## Deployment
 
-[Instructions for deploying the application to a production environment]
-
-## Contributing
-
-We welcome contributions to the G1T3 project. Please read our [CONTRIBUTING.md](CONTRIBUTING.md) file for details on our code of conduct and the process for submitting pull requests.
+TBC - prob AWS
 
 ## License
 
