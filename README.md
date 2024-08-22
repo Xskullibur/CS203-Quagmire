@@ -1,6 +1,7 @@
 # G1T3 Project
 
-## Video Setup Instructions
+## 📹 Video Setup Instructions
+[Video Setup Instructions]
 https://github.com/user-attachments/assets/360b0e55-d038-4fdd-9af1-a2011a716650
 
 ## Table of Contents
@@ -20,7 +21,7 @@ https://github.com/user-attachments/assets/360b0e55-d038-4fdd-9af1-a2011a716650
 
 Welcome to the G1T3 project. This application is a full-stack solution that combines a Spring Boot backend with a Next.js frontend, orchestrated using Docker for easy development and deployment.
 
-<span style="color:blue">**Brief description of what the application does, its main features, and its purpose**</span>
+**Brief description of what the application does, its main features, and its purpose**
 
 ## Project Structure
 
@@ -47,28 +48,28 @@ g1-t3/
 ## Technologies Used
 
 - Backend:
-    - <span style="color:green">Java 17</span>
-    - <span style="color:green">Spring Boot 3.x</span>
-    - <span style="color:green">Spring Data JPA</span>
-    - <span style="color:green">Spring Security</span>
+    - Java 17
+    - Spring Boot 3.x
+    - Spring Data JPA
+    - Spring Security
 - Frontend:
-    - <span style="color:green">Next.js 13</span>
-    - <span style="color:green">React 18</span>
-    - <span style="color:green">TypeScript</span>
+    - Next.js 13
+    - React 18
+    - TypeScript
 - Database:
-    - <span style="color:green">TBC but probably MySQL 8.0</span>
+    - TBC but probably MySQL 8.0
 - DevOps:
-    - <span style="color:green">Docker</span>
-    - <span style="color:green">Docker Compose</span>
+    - Docker
+    - Docker Compose
 
 ## Prerequisites
 
 Before you begin, ensure you have the following installed on your system:
-- <span style="color:purple">Docker</span>
-- <span style="color:purple">Docker Compose</span>
-- <span style="color:purple">Java Development Kit (JDK) 17 (for local development)</span>
-- <span style="color:purple">Node.js 18 or later (for local development)</span>
-- <span style="color:purple">npm or yarn (for local development)</span>
+- Docker
+- Docker Compose
+- Java Development Kit (JDK) 17 (for local development)
+- Node.js 18 or later (for local development)
+- npm or yarn (for local development)
 
 ## Setup and Installation
 
@@ -134,5 +135,4 @@ TBC - prob AWS
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
-
 
