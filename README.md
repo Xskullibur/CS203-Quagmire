@@ -1,6 +1,8 @@
 # G1T3 Project
 
 ## 📹 Video Setup Instructions
+After you have downloaded all the necessary [prerequisites](#prerequisites), run docker desktop and follow the instructions.
+
 https://github.com/user-attachments/assets/360b0e55-d038-4fdd-9af1-a2011a716650
 
 ## Table of Contents
@@ -18,7 +20,7 @@ https://github.com/user-attachments/assets/360b0e55-d038-4fdd-9af1-a2011a716650
 
 ## Introduction
 
-Welcome to the G1T3 project. This application is a full-stack solution that combines a Spring Boot backend with a Next.js frontend, orchestrated using Docker for easy development and deployment.
+Welcome to the G1T3 project (Name TBC pls come up and update once we think of smt). This application is a full-stack solution that combines a Spring Boot backend with a Next.js frontend, orchestrated using Docker for easy development and deployment, (we will probably host it on AWS but not cfm)
 
 **Brief description of what the application does, its main features, and its purpose**
 
@@ -63,7 +65,7 @@ g1-t3/
 
 ## Prerequisites
 
-Before you begin, ensure you have the following installed on your system:
+Before you begin, please ensure you have the following installed on your system:
 - Docker
 - Docker Compose
 - Java Development Kit (JDK) 17 (for local development)
