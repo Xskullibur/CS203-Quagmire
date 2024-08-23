@@ -26,6 +26,8 @@ services:
       - "3000:3000"
     environment:
       - NEXT_PUBLIC_API_URL=http://localhost:8080
+      - NODE_ENV=development      # TODO: Remove this line in production
+      - WATCHPACK_POLLING=true    # TODO: Remove this line in production
     depends_on:
       - backend
     volumes:
