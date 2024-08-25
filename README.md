@@ -26,6 +26,26 @@ Welcome to the G1T3 project (Name TBC pls come up and update once we think of sm
 
 **Brief description of what the application does, its main features, and its purpose**
 
+## CI/CD Pipeline (TBC)
+```mermaid
+graph TD
+    A([Source Code Repository]) --> B([Local Development])
+    B --> C[/SonarLint Analysis/]
+    C --> D{Pass all Checks?}
+    D --> |No| B
+    D --> |Yes| E[Git Commit + Push]
+    E --> F([GitHub])
+    F --> G[Trigger GitHub Actions]
+    G --> H[Build Code]
+    H --> I[Run Unit Tests]
+    I --> J[/SonarQube Analysis/]
+    J --> K{Pass All Checks?}
+    K -->|Yes| L[Deploy to Staging]
+    L --> M[Deploy to Production]
+    K -->|No| N[Fail Build]
+    N --> B
+```
+
 ## Project Structure
 
 The project is organized into three main components:
