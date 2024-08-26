@@ -24,7 +24,15 @@ https://github.com/user-attachments/assets/360b0e55-d038-4fdd-9af1-a2011a716650
 
 Welcome to the G1T3 project (Name TBC pls come up and update once we think of smt). This application is a full-stack solution that combines a Spring Boot backend with a Next.js frontend, orchestrated using Docker for easy development and deployment, (we will probably host it on AWS but not cfm)
 
-**Brief description of what the application does, its main features, and its purpose**
+Members:
+1. (Product Owner)
+2. (Scrum Master)
+3. 
+4. 
+5. 
+6. 
+
+**Brief description**
 
 ## Project Structure
 
@@ -147,4 +155,3 @@ TBC - prob AWS
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
-
