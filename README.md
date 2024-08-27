@@ -85,9 +85,13 @@ g1-t3/
 ## Technologies Used
 ### Stack:
 **P**ostgresSQL: Relational Database
+
 **O**penShift: Microservice Management/ Orchestration
+
 **R**eact: State Management
+
 **N**extjs: Frontend
+
 **S**pringBoot: Backend
 
 ### At a glance:
