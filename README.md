@@ -54,6 +54,10 @@ graph TD
     N --> B
 ```
 
+## DB Schema
+Link:
+https://dbdiagram.io/d/G1-T3-66cdd59ecf8e2d1d1cffe232
+
 ## Project Structure
 
 The project is organized into three main components:
