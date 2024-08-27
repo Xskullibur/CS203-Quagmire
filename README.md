@@ -55,6 +55,8 @@ graph TD
 ```
 
 ## DB Schema
+![G1-T3](https://github.com/user-attachments/assets/cd8f3fc2-0097-4aca-a3cf-5339cbc5c136)
+
 Link:
 https://dbdiagram.io/d/G1-T3-66cdd59ecf8e2d1d1cffe232
 
