@@ -84,11 +84,28 @@ g1-t3/
 
 ## Technologies Used
 ### Stack:
-**P**ostgresSQL: Relational Database\
-**O**penShift: Microservice Management/ Orchestration\
-**R**eact: State Management\
-**N**extjs: Frontend\
-**S**pringBoot: Backend
+<div align="center">
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <div><strong>P</strong></div>
+    <div>PostgresSQL: Relational Database</div>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <div><strong>O</strong></div>
+    <div>OpenShift: Microservice Management/ Orchestration</div>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <div><strong>R</strong></div>
+    <div>React: State Management</div>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <div><strong>N</strong></div>
+    <div>Next.js: Frontend</div>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <div><strong>S</strong></div>
+    <div>SpringBoot: Backend</div>
+  </div>
+</div>
 
 ### At a glance:
 - Backend:
