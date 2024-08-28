@@ -7,10 +7,8 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8080:8080"
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/g1t3db
-      - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=rootpassword
+    env_file:
+      - docker.env
     depends_on:
       - db
     volumes:
@@ -37,9 +35,8 @@ services:
 
   db:
     image: mysql:8.0
-    environment:
-      - MYSQL_ROOT_PASSWORD=rootpassword
-      - MYSQL_DATABASE=g1t3db
+    env_file:
+      - docker.env
     ports:
       - "3306:3306"
     volumes:
