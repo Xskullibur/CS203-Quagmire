@@ -1,5 +1,4 @@
 version: '3.8'
-
 services:
   backend:
     build:
@@ -8,15 +7,25 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/g1t3db
-      - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=rootpassword
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/g1t3
+      - SPRING_DATASOURCE_USERNAME=g1t3
+      - SPRING_DATASOURCE_PASSWORD=g1t3
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.PostgreSQLDialect
+      - SPRING_JPA_SHOW_SQL=true
     depends_on:
       - db
     volumes:
       - ./backend:/app
       - ~/.m2:/root/.m2
-    command: ./mvnw spring-boot:run -Dmaven.test.skip=true
+    command: >
+      sh -c "
+        while ! nc -z db 5432; do
+          echo 'Waiting for database to be available...'
+          sleep 1
+        done
+        ./mvnw spring-boot:run -Dmaven.test.skip=true
+      "
 
   frontend:
     build:
@@ -34,14 +43,15 @@ services:
     command: npm run dev
 
   db:
-    image: mysql:8.0
+    image: postgres:14
     environment:
-      - MYSQL_ROOT_PASSWORD=rootpassword
-      - MYSQL_DATABASE=g1t3db
+      - POSTGRES_USER=g1t3
+      - POSTGRES_PASSWORD=g1t3
+      - POSTGRES_DB=g1t3
     ports:
-      - "3306:3306"
+      - "5432:5432"
     volumes:
-      - mysql_data:/var/lib/mysql
+      - postgres_data:/var/lib/postgresql/data
 
 volumes:
-  mysql_data:
+  postgres_data:
