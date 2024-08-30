@@ -6,12 +6,15 @@ services:
     ports:
       - "8080:8080"
     env_file:
-      - docker.env
+      - ./docker.env
     environment:
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
       - SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.PostgreSQLDialect
       - SPRING_JPA_SHOW_SQL=true
       - CORS_ALLOWED_ORIGINS=http://localhost:3000
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/g1t3
+      - SPRING_DATASOURCE_USERNAME=g1t3
+      - SPRING_DATASOURCE_PASSWORD=g1t3
     depends_on:
       db:
         condition: service_healthy
@@ -35,7 +38,7 @@ services:
       - "3000:3000"
     environment:
       - NEXT_PUBLIC_API_URL=http://localhost:3000
-      - NEXT_PUBLIC_SPRINGBOOT_API_URL=http://backend:8080
+      - NEXT_PUBLIC_SPRINGBOOT_API_URL=http://localhost:8080
       - NODE_ENV=development      # TODO: Remove this line in production
       - WATCHPACK_POLLING=true    # TODO: Remove this line in production
     depends_on:
@@ -46,20 +49,36 @@ services:
       - ./.docker/initdb:/docker-entrypoint-initdb.d
     command: npm run dev
 
+  # db:
+  #   image: postgres
+  #   restart: always
+  #   user: root
+  #   env_file:
+  #     - ./docker.env
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "pg_isready"]
+  #     interval: 1s
+  #     timeout: 5s
+  #     retries: 10
+  #   ports:
+  #     - "5432:5432"
+  #   volumes:
+  #     - pgdata:/var/lib/postgresql/data
   db:
     image: postgres
-    restart: always
-    env_file:
-      - docker.env
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready"]
-      interval: 1s
-      timeout: 5s
-      retries: 10
+    environment:
+      - POSTGRES_USER=g1t3
+      - POSTGRES_PASSWORD=g1t3
+      - POSTGRES_DB=g1t3
     ports:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U g1t3"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
 volumes:
   pgdata:

@@ -10,8 +10,10 @@ export default function MenuBar() {
           <Link href="/" className="text-primary hover:text-muted-foreground transition">Home</Link>
           <Link href="/about" className="text-primary hover:text-muted-foreground transition">About</Link>
           <Link href="/schedule" className="text-primary hover:text-muted-foreground transition">Schedule</Link>
-          <Link href="/participants" className="text-primary hover:text-muted-foreground transition">Participants</Link>
+          <Link href="/tournament" className="text-primary hover:text-muted-foreground transition">Tournaments</Link>
           <Link href="/profile" className="text-primary hover:text-muted-foreground transition">Profile</Link>
+          <Link href="/auth/login" className="text-primary hover:text-muted-foreground transition">Login</Link>
+          <Link href="/auth/register" className="text-primary hover:text-muted-foreground transition">Register</Link>
         </div>
       </div>
     </nav>
