@@ -13,7 +13,14 @@ services:
     volumes:
       - ./backend:/app
       - ~/.m2:/root/.m2
-    command: ./mvnw spring-boot:run -Dmaven.test.skip=true
+    command: >
+      sh -c "
+        while ! nc -z db 5432; do
+          echo 'Waiting for database to be available...'
+          sleep 1
+        done
+        ./mvnw spring-boot:run -Dmaven.test.skip=true
+      "
 
   frontend:
     build:

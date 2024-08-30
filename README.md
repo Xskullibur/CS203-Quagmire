@@ -24,7 +24,15 @@ https://github.com/user-attachments/assets/360b0e55-d038-4fdd-9af1-a2011a716650
 
 Welcome to the G1T3 project (Name TBC pls come up and update once we think of smt). This application is a full-stack solution that combines a Spring Boot backend with a Next.js frontend, orchestrated using Docker for easy development and deployment, (we will probably host it on AWS but not cfm)
 
-**Brief description of what the application does, its main features, and its purpose**
+Members:
+1. (Product Owner)
+2. (Scrum Master)
+3. 
+4. 
+5. 
+6. 
+
+**Brief description**
 
 ## CI/CD Pipeline (TBC)
 ```mermaid
@@ -45,6 +53,12 @@ graph TD
     K -->|No| N[Fail Build]
     N --> B
 ```
+
+## DB Schema
+![G1-T3](https://github.com/user-attachments/assets/cd8f3fc2-0097-4aca-a3cf-5339cbc5c136)
+
+Link:
+https://dbdiagram.io/d/G1-T3-66cdd59ecf8e2d1d1cffe232
 
 ## Project Structure
 
@@ -69,7 +83,31 @@ g1-t3/
 ```
 
 ## Technologies Used
+### Stack:
+<div align="center">
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <div><strong>P</strong></div>
+    <div>PostgresSQL: Relational Database</div>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <div><strong>O</strong></div>
+    <div>OpenShift: Microservice Management/ Orchestration</div>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <div><strong>R</strong></div>
+    <div>React: State Management</div>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <div><strong>N</strong></div>
+    <div>Next.js: Frontend</div>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <div><strong>S</strong></div>
+    <div>SpringBoot: Backend</div>
+  </div>
+</div>
 
+### At a glance:
 - Backend:
     - Java 17
     - Spring Boot 3.x
@@ -80,7 +118,7 @@ g1-t3/
     - React 18
     - TypeScript
 - Database:
-    - TBC but probably MySQL 8.0
+    - TBC but probably MySQL 8.0 or PostgresSQL
 - DevOps:
     - Docker
     - Docker Compose
@@ -93,6 +131,7 @@ Before you begin, please ensure you have the following installed on your system:
 - Java Development Kit (JDK) 17 (for local development)
 - Node.js 18 or later (for local development)
 - npm or yarn (for local development)
+- PostgreSQL
 
 ## Setup and Installation
 
@@ -180,4 +219,3 @@ TBC - prob AWS
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
-
