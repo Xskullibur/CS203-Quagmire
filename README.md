@@ -141,11 +141,12 @@ Before you begin, please ensure you have the following installed on your system:
 2. Configure environment variables:
     ```sh
     DB_USERNAME=postgres
-    DB_PASSWORD=<insert-password>
+    DB_PASSWORD=<insert-COMPLEX-password>
 
     POSTGRES_PASSWORD=$DB_PASSWORD
     POSTGRES_USER=$DB_USERNAME
     POSTGRES_DB=g1t3db
+    PGUSER=$DB_USERNAME
 
     SPRING_DATASOURCE_USERNAME=$DB_USERNAME
     SPRING_DATASOURCE_PASSWORD=$DB_PASSWORD
