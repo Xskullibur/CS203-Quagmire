@@ -7,6 +7,10 @@ services:
       - "8080:8080"
     env_file:
       - docker.env
+    environment:
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.PostgreSQLDialect
+      - SPRING_JPA_SHOW_SQL=true
     depends_on:
       db:
         condition: service_healthy
