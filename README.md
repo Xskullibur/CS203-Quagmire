@@ -139,8 +139,21 @@ Before you begin, please ensure you have the following installed on your system:
      ```
 
 2. Configure environment variables:
-     - Create a `.env` file in the root directory
-     - Add necessary environment variables (e.g., database credentials, API keys)
+    ```sh
+    DB_USERNAME=postgres
+    DB_PASSWORD=<insert-password>
+
+    POSTGRES_PASSWORD=$DB_PASSWORD
+    POSTGRES_USER=$DB_USERNAME
+    POSTGRES_DB=g1t3db
+
+    SPRING_DATASOURCE_USERNAME=$DB_USERNAME
+    SPRING_DATASOURCE_PASSWORD=$DB_PASSWORD
+    SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/$POSTGRES_DB
+    ```
+    - Create a `docker.env` file in the root directory
+    - Add necessary environment variables (e.g., database credentials, API keys)
+    
 
 3. Build and start the Docker containers:
      ```

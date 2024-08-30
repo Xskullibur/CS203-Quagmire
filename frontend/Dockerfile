@@ -14,6 +14,9 @@ COPY . .
 # Build the app
 RUN npm run build
 
+# CMD ["npm", "start"]
+CMD ["npm", "run", "dev"]
+
 # Production image, copy all the files and run next
 FROM node:18-alpine AS runner
 
