@@ -15,7 +15,6 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 
-
 @Entity
 @Getter
 @Setter
@@ -48,4 +47,7 @@ public class User {
     private LocalDateTime updatedAt;
 
     // Getters, setters, and other methods...
+    public Long getId() {
+        return userId;
+    }
 }

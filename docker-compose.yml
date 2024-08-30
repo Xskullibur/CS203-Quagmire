@@ -13,6 +13,7 @@ services:
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
       - SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.PostgreSQLDialect
       - SPRING_JPA_SHOW_SQL=true
+      - CORS_ALLOWED_ORIGINS=http://localhost:3000
     depends_on:
       - db
     volumes:
@@ -34,13 +35,15 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - NEXT_PUBLIC_API_URL=http://localhost:8080
+      - NEXT_PUBLIC_API_URL=http://localhost:3000
+      - NEXT_PUBLIC_SPRINGBOOT_API_URL=http://backend:8080
     depends_on:
       - backend
     volumes:
       - ./frontend:/app
       - /app/node_modules
-    command: npm run dev
+      - /app/.next
+    command: npm start
 
   db:
     image: postgres:14

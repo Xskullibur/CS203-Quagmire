@@ -1,4 +1,4 @@
-# G1T3 Project (name still TBC)
+# Hand Hathaway (HH)
 
 ## 📹 Video Setup Instructions
 After you have downloaded all the necessary [prerequisites](#prerequisites), run docker desktop and follow the instructions.
@@ -22,15 +22,16 @@ https://github.com/user-attachments/assets/360b0e55-d038-4fdd-9af1-a2011a716650
 
 ## Introduction
 
-Welcome to the G1T3 project (Name TBC pls come up and update once we think of smt). This application is a full-stack solution that combines a Spring Boot backend with a Next.js frontend, orchestrated using Docker for easy development and deployment, (we will probably host it on AWS but not cfm)
+Welcome to the G1T3's Hand Hathaway (HH). Our app is an arm wrestling tournament application that matches against each other using a sophisticated matchmaking algorithm.
+This application is a full-stack solution that combines a Spring Boot backend with a Next.js frontend, orchestrated using Docker for easy development and deployment, (we will probably host it on AWS but not cfm)
 
 Members:
-1. (Product Owner)
-2. (Scrum Master)
-3. 
-4. 
-5. 
-6. 
+1. Sara Chen Yi Hsin (Product Owner, Developer)
+2. Safir Ahamed Mohammed Nibras Abdulla (Scrum Master, Developer)
+3. Liu Chi Heng (QA Specialist, Developer)
+4. Foo Kee Juan (DevOps Specialist, Developer)
+5. Alson Sim Wei Jie (Security Specialist, Developer)
+6. Ong Chong Yong (Project Manager, Developer)
 
 **Brief description**
 
@@ -86,12 +87,8 @@ g1-t3/
 ### Stack:
 <div align="center">
   <div style="display: flex; flex-direction: column; align-items: center;">
-    <div><strong>P</strong></div>
+    <div><strong>Po</strong></div>
     <div>PostgresSQL: Relational Database</div>
-  </div>
-  <div style="display: flex; flex-direction: column; align-items: center;">
-    <div><strong>O</strong></div>
-    <div>OpenShift: Microservice Management/ Orchestration</div>
   </div>
   <div style="display: flex; flex-direction: column; align-items: center;">
     <div><strong>R</strong></div>
