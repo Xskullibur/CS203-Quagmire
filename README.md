@@ -115,7 +115,7 @@ g1-t3/
     - React 18
     - TypeScript
 - Database:
-    - TBC but probably MySQL 8.0 or PostgresSQL
+    - PostgresSQL 14
 - DevOps:
     - Docker
     - Docker Compose
@@ -128,7 +128,7 @@ Before you begin, please ensure you have the following installed on your system:
 - Java Development Kit (JDK) 17 (for local development)
 - Node.js 18 or later (for local development)
 - npm or yarn (for local development)
-- PostgreSQL
+- PostgreSQL 14
 
 ## Setup and Installation
 
