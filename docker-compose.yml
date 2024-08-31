@@ -6,7 +6,7 @@ services:
     ports:
       - "8080:8080"
     env_file:
-      - ./docker.env
+      - docker.env
     environment:
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
       - SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.PostgreSQLDialect
@@ -24,6 +24,8 @@ services:
           echo 'Waiting for database to be available...'
           sleep 1
         done
+        echo 'Database is available, waiting 5 more seconds for full initialization...'
+        sleep 5
         ./mvnw spring-boot:run -Dmaven.test.skip=true
       "
 
@@ -48,7 +50,6 @@ services:
 
   db:
     image: postgres
-    user: root
     env_file:
       - docker.env
     healthcheck:
@@ -60,6 +61,7 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+      - ./.docker/initdb:/docker-entrypoint-initdb.d
 
 volumes:
   pgdata:

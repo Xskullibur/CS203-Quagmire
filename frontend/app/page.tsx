@@ -4,7 +4,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-accent to-primary/20 text-foreground">
+    <div className="min-h-screen bg-gradient-to-br from-background via-muted to-muted/20 text-foreground">
       <main className="pt-20 p-8 flex flex-col items-center align-center">
         <section className="text-center h-[85vh] content-center">
           <h1 className="text-6xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-primary to-muted-foreground">Hand Hathaway <span className="text-black">💪</span></h1>

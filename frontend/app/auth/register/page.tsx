@@ -4,6 +4,9 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 
 const API_URL = `${process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL}`;
 
@@ -50,58 +53,66 @@ const Register: React.FC = () => {
     };
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-background">
-            <h2 className="text-2xl font-bold mb-4 text-foreground">Register</h2>
-            <form className="w-80" onSubmit={handleSubmit}>
-                <div className="mb-4">
-                    <label className="block text-foreground">Username</label>
-                    <input
-                        type="text"
-                        name="username"
-                        value={formData.username}
-                        onChange={handleChange}
-                        className="w-full p-2 border border-border rounded-md"
-                        style={{ backgroundColor: "hsl(var(--input))", borderRadius: "calc(var(--radius) - 4px)" }}
-                    />
-                </div>
-                <div className="mb-4">
-                    <label className="block text-foreground">Email</label>
-                    <input
-                        type="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        className="w-full p-2 border border-border rounded-md"
-                        style={{ backgroundColor: "hsl(var(--input))", borderRadius: "calc(var(--radius) - 4px)" }}
-                    />
-                </div>
-                <div className="mb-4">
-                    <label className="block text-foreground">Password</label>
-                    <input
-                        type="password"
-                        name="password"
-                        value={formData.password}
-                        onChange={handleChange}
-                        className="w-full p-2 border border-border rounded-md"
-                        style={{ backgroundColor: "hsl(var(--input))", borderRadius: "calc(var(--radius) - 4px)" }}
-                    />
-                </div>
-                <div className="mb-4">
-                    <label className="block text-foreground">Confirm Password</label>
-                    <input
-                        type="password"
-                        name="confirmPassword"
-                        value={formData.confirmPassword}
-                        onChange={handleConfirmPassword}
-                        className="w-full p-2 border border-border rounded-md"
-                        style={{ backgroundColor: "hsl(var(--input))", borderRadius: "calc(var(--radius) - 4px)" }}
-                    />
-                </div>
-                <button className='registerBtn transform transition duration-300 hover:scale-105 hover:cursor-pointer w-full p-2 bg-primary text-primary-foreground rounded-md hover:bg-primary-foreground hover:text-primary' type="submit" disabled>
-                    Register
-                </button>
-                <p className='passwordError text-destructive' style={{ display: 'none' }}>Passwords do not match</p>
-            </form>
+        <div className="flex items-center justify-center min-h-screen bg-zinc-900">
+            <div className="w-96 p-6 bg-zinc-900 rounded-lg shadow-md relative 
+        overflow-hidden backdrop-blur-sm hover:backdrop-blur-md transition 
+        duration-300 z-10 border border-zinc-700 hover:border-zinc-400 hover:bg-zinc-800/50 shadow-zinc-800">
+                <div className="absolute inset-0 bg-gradient-radial from-zinc-700/30 to-transparent opacity-50 pointer-events-none" />
+                <h2 className="text-2xl font-bold mb-6 text-white">Register</h2>
+                <form onSubmit={handleSubmit}>
+                    <div className="mb-4">
+                        <Input
+                            type="text"
+                            name="username"
+                            placeholder="Username"
+                            value={formData.username}
+                            onChange={handleChange}
+                            className="bg-transparent border-b border-zinc-600 text-white placeholder-zinc-500 transition duration-300"
+                        />
+                    </div>
+                    <div className="mb-4">
+                        <Input
+                            type="email"
+                            name="email"
+                            placeholder="Email"
+                            value={formData.email}
+                            onChange={handleChange}
+                            className="bg-transparent border-b border-zinc-600 text-white placeholder-zinc-500 transition duration-300"
+                        />
+                    </div>
+                    <div className="mb-4">
+                        <Input
+                            type="password"
+                            name="password"
+                            placeholder="Password"
+                            value={formData.password}
+                            onChange={handleChange}
+                            className="bg-transparent border-b border-zinc-600 text-white placeholder-zinc-500 transition duration-300"
+                        />
+                    </div>
+                    <div className="mb-6">
+                        <Input
+                            type="password"
+                            name="confirmPassword"
+                            placeholder="Confirm Password"
+                            value={formData.confirmPassword}
+                            onChange={handleConfirmPassword}
+                            className="bg-transparent border-b border-zinc-600 text-white placeholder-zinc-500 transition duration-300"
+                        />
+                    </div>
+                    <Button type="submit" className="registerBtn w-full bg-primary hover:bg-accent text-black hover:text-white transition duration-300">
+                        Register
+                    </Button>
+                    <p className='passwordError text-destructive' style={{ display: 'none' }}>Passwords do not match</p>
+                    <div className="mt-4 text-center">
+                        <Link href="/auth/login">
+                            <span className="text-primary hover:text-zinc-400 transition duration-300 font-semibold text-sm">
+                                Already have an account? Login here.
+                            </span>
+                        </Link>
+                    </div>
+                </form>
+            </div>
         </div>
     );
 };
