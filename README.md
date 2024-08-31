@@ -194,7 +194,14 @@ For local frontend development:
     - Model: For entity classes
 - Place cross-cutting concerns in the `common` package.
 
-## Testing
+Here's a visual demonstration for the lazy folks:
+- Make sure you have PostgreSQL running in the background.
+
+https://github.com/user-attachments/assets/52b48925-78ab-4131-9473-6207c444ef5d
+
+^ After doing your local development, make sure your code compiles from **Docker** too
+
+## Testing (WIP)
 
 ### Backend Testing
 To run backend tests:
