@@ -45,7 +45,6 @@ services:
     volumes:
       - ./frontend:/app
       - /app/node_modules
-      - ./.docker/initdb:/docker-entrypoint-initdb.d
     command: npm run dev
 
   db:
