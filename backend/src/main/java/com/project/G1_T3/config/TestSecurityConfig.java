@@ -13,20 +13,13 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import jakarta.annotation.PostConstruct;
-
 import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
-@Profile("!test")
-public class SecurityConfig {
-    private static final Logger logger = LoggerFactory.getLogger(SecurityConfig.class);
-    
-    @PostConstruct
-    public void init() {
-        logger.info("SecurityConfig initialized");
-    }
+@Profile("test")
+public class TestSecurityConfig {
+    private static final Logger logger = LoggerFactory.getLogger(TestSecurityConfig.class);
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -36,7 +29,7 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/authentication/**").permitAll()
+                        .requestMatchers("/authentication/**", "/test/**").permitAll()
                         .anyRequest().authenticated())
                 .httpBasic(httpBasic -> {
                 });

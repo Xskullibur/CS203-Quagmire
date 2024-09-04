@@ -47,7 +47,7 @@ const Login: React.FC = () => {
                 <div className="absolute inset-0 bg-gradient-radial from-zinc-700/30 to-transparent opacity-50 pointer-events-none" />
                 <h2 className="text-2xl font-bold mb-6 text-white">Login</h2>
                 {error && (
-                    <Alert variant="destructive" className="mb-4">
+                    <Alert variant="destructive" className="mb-4 alert">
                         <AlertDescription>{error}</AlertDescription>
                     </Alert>
                 )}

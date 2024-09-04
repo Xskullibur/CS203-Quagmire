@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "cypress:open": "cypress open",
+    "cypress:run": "cypress run",
+    "test": "docker-compose up -d && cypress run && docker-compose down"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.1.0",
@@ -24,6 +27,7 @@
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "cypress": "^13.14.1",
     "eslint": "^8",
     "eslint-config-next": "14.2.6",
     "postcss": "^8",
