@@ -12,6 +12,10 @@
     "test": "docker-compose up -d && cypress run && docker-compose down"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^6.6.0",
+    "@fortawesome/free-brands-svg-icons": "^6.6.0",
+    "@fortawesome/free-solid-svg-icons": "^6.6.0",
+    "@fortawesome/react-fontawesome": "^0.2.2",
     "@radix-ui/react-slot": "^1.1.0",
     "axios": "^1.7.5",
     "class-variance-authority": "^0.7.0",
