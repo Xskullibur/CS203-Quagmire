@@ -46,7 +46,7 @@ const Register: React.FC = () => {
                 router.push('/auth/login');
             }
         } catch (error: any) {
-            if (error.response && error.response.data) {
+            if (error?.response?.data) {
                 setError(error.response.data);
             } else {
                 setError('Registration failed. Please try again.');
