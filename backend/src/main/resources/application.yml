@@ -17,3 +17,7 @@ spring:
             # ddl-auto: update          # Uncomment for production
         show-sql: true
         database: postgresql
+
+jwt:
+    secret-key: "b94801bb5520b2b660fe5a88c59b219366d6e3919c2630a32be2d41bc3d676de"
+    expiration-time: 864000000

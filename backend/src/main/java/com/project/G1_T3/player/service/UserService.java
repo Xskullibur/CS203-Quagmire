@@ -1,6 +1,7 @@
 package com.project.G1_T3.player.service;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -10,11 +11,6 @@ import com.project.G1_T3.player.model.User;
 import com.project.G1_T3.player.model.UserRole;
 import com.project.G1_T3.player.repository.UserRepository;
 
-/**
- * This class represents a service for managing user-related operations.
- * It provides methods for registering a user and checking if a user already
- * exists.
- */
 @Service
 public class UserService {
 
@@ -45,5 +41,4 @@ public class UserService {
     public boolean existsByEmail(String email) {
         return userRepository.existsByEmail(email);
     }
-
 }
