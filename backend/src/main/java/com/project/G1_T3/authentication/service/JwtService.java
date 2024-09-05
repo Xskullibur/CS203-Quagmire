@@ -63,7 +63,6 @@ public class JwtService {
 
     public String generateToken(User userDetails) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("username", userDetails.getUsername());
         return generateToken(claims, userDetails);
     }
 
@@ -79,7 +78,7 @@ public class JwtService {
         return Jwts
                 .builder()
                 .setClaims(extraClaims)
-                .setSubject(userDetails.getId().toString())
+                .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + expiration))
                 .setHeaderParam("typ", "JWT")
