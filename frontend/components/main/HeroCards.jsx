@@ -52,7 +52,7 @@ const HeroCards = () => {
     return (
         <div
             ref={cardsRef}
-            className="flex flex-wrap gap-4 w-[calc(100%-20px)] m-16 mx-auto justify-center"
+            className="flex flex-wrap gap-2 w-[calc(100%-10vw)] m-16 mx-auto justify-center"
         >
             <Card
                 icon={faBuilding}

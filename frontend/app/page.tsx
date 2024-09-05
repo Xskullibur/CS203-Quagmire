@@ -1,11 +1,10 @@
 'use client';
 
-import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import HeroSection from "../components/main/HeroSection";
 import HeroCards from "../components/main/HeroCards";
 import { HeroBrands } from "../components/main/HeroBrands";
 import PreFooter from "../components/main/PreFooter";
+import TournamentCardViewerCarousel from "../components/tournaments/TournamentCardViewerCarousel";
 
 export default function Home() {
   return (
@@ -14,9 +13,9 @@ export default function Home() {
         <HeroSection />
         <HeroBrands />
         <HeroCards />
-
-        <PreFooter />
+        <TournamentCardViewerCarousel />
       </main>
+      <PreFooter />
     </div>
   );
 }

@@ -32,7 +32,7 @@ export default function MenuBar() {
             <Link href="/tournaments" className="text-sm text-white hover:text-gray-600 transition">Tournaments</Link>
             <Link href="/profile" className="text-sm text-white hover:text-gray-600 transition">Profile</Link>
             <Link href="/auth/login" className="text-sm text-white hover:text-gray-600 transition">Log in</Link>
-            <Link href="/auth/register" className="text-sm bg-zinc-900 text-white px-4 py-2 rounded-full hover:bg-gray-700 transition">Sign up</Link>
+            <Link href="/auth/register" className="text-sm bg-zinc-500 text-white px-4 py-2 rounded-full hover:bg-gray-700 transition">Sign up</Link>
           </div>
         </div>
       </nav>

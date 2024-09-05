@@ -1,18 +1,23 @@
-// components/main/PreFooter.jsx
+import { Button } from "@/components/ui/button";
+import MagicText from "@/components/ui/MagicText";
+
 export default function PreFooter() {
     return (
-        <section className="pre-footer w-full py-24 px-24 bg-[linear-gradient(0deg,#141516 55.66%,var(--color-bg-primary) 100%)]">
-            <div className="container mx-auto px-4">
-                <div className="flex justify-between items-center">
-                    <h2 className="text-white text-5xl font-bold leading-tight">
-                        Interested in hosting<br />
+        <section className="w-full py-24 px-4 md:px-24 bg-gradient-to-b from-background via-background to-[#141516]">
+            <div className="container mx-auto">
+                <div className="flex flex-col md:flex-row justify-between items-center gap-8">
+                    <h2 className="text-foreground text-3xl md:text-4xl font-bold leading-tight text-center md:text-left group">
+                        Interested in{' '}
+                        <MagicText className="text-3xl md:text-4xl font-bold">
+                            hosting
+                        </MagicText>
+                        <br />
                         your own tournaments?
                     </h2>
-                    <div className="space-x-4">
-                        <button className="bg-white text-black px-4 py-2 rounded-full">
+                    <div>
+                        <Button size="lg" variant="secondary" className="rounded-full">
                             Get started
-                        </button>
-
+                        </Button>
                     </div>
                 </div>
             </div>
