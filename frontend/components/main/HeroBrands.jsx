@@ -63,8 +63,8 @@ export function HeroBrands() {
                                     <Image
                                         src={brand.logoUrl}
                                         alt={brand.name}
-                                        layout="fill"
-                                        objectFit="contain"
+                                        fill
+                                        style={{ objectFit: 'contain' }}
                                     />
                                 </div>
                             </div>

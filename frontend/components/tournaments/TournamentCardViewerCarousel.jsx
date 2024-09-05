@@ -31,8 +31,8 @@ const TournamentCardViewerCarousel = () => {
     };
 
     return (
-        <div className="flex flex-col items-center justify-center text-white p-4 w-full">
-            <h2 className="text-2xl md:text-3xl font-bold mb-4 text-center">Featured Tournaments</h2>
+        <div className="flex flex-col items-center justify-center text-white p-4 w-full my-16">
+            <p className="text-sm text-center mb-8 font-mono text-zinc-400">Featured Tournaments</p>
             <div className="relative w-full max-w-7xl overflow-x-hidden">
                 <motion.div
                     className="flex space-x-8"

@@ -43,6 +43,7 @@ const HeroCards = () => {
         };
 
         cards.addEventListener("mousemove", handleMouseMove);
+        
 
         return () => {
             cards.removeEventListener("mousemove", handleMouseMove);
@@ -52,7 +53,7 @@ const HeroCards = () => {
     return (
         <div
             ref={cardsRef}
-            className="flex flex-wrap gap-2 w-[calc(100%-10vw)] m-16 mx-auto justify-center"
+            className="flex flex-wrap gap-2 w-[calc(100%-10vw)] m-16 mx-auto justify-center px-16"
         >
             <Card
                 icon={faBuilding}
