@@ -2,9 +2,11 @@ package com.project.G1_T3.player.service;
 
 import java.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.project.G1_T3.authentication.model.UserDTO;
 import com.project.G1_T3.player.model.User;
 import com.project.G1_T3.player.model.UserRole;
 import com.project.G1_T3.player.repository.UserRepository;
@@ -38,5 +40,10 @@ public class UserService {
 
     public boolean existsByEmail(String email) {
         return userRepository.existsByEmail(email);
+    }
+
+    public UserDTO getUserDTOByUsername(String username) {
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException(username));
+        return new UserDTO(user.getId(), user.getUsername(), user.getEmail());
     }
 }
