@@ -20,7 +20,7 @@ const MagicText = ({ children, className = '' }) => {
             star.style.setProperty("--star-left", newLeft);
             star.style.setProperty("--star-top", newTop);
             star.style.animation = "none";
-            void star.offsetWidth; // Trigger reflow
+            star.offsetWidth; // Trigger reflow
             star.style.animation = null; // Reset to default
         };
 
