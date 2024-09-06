@@ -31,7 +31,7 @@ const Login: React.FC = () => {
                 router.push('/profile');
             }
         } catch (error: any) {
-            if (error.response && error.response.data) {
+            if (error?.response?.data) {
                 setError(error.response.data);
             } else {
                 setError('Login failed. Please try again.');

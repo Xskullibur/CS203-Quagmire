@@ -5,7 +5,6 @@ import HeroCards from "../components/main/HeroCards";
 import { HeroBrands } from "../components/main/HeroBrands";
 import PreFooter from "../components/main/PreFooter";
 import TournamentCardViewerCarousel from "../components/tournaments/TournamentCardViewerCarousel";
-import AmbientLight from "../components/layout/AmbientLight";
 
 export default function Home() {
   return (
