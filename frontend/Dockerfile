@@ -1,7 +1,7 @@
 FROM node:18.17.0-alpine AS builder
 
-RUN apk add --no-cache libc6-compat \
-    && apk update
+RUN apk update && \
+    apk add --no-cache libc6-compat
 
 # Create app directory
 WORKDIR /app
