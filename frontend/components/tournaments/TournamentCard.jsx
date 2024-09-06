@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { formatDate } from '@/utils/dateFormatter';
 import { motion } from 'framer-motion';
+import PropTypes from 'prop-types';
 
 const TournamentCard = ({ tournament }) => {
     return (
@@ -35,6 +36,18 @@ const TournamentCard = ({ tournament }) => {
             </Card>
         </motion.div>
     );
+};
+
+TournamentCard.propTypes = {
+    tournament: PropTypes.shape({
+        name: PropTypes.string.isRequired,
+        description: PropTypes.string.isRequired,
+        start_date: PropTypes.string.isRequired,
+        end_date: PropTypes.string.isRequired,
+        registration_deadline: PropTypes.string.isRequired,
+        max_participants: PropTypes.number.isRequired,
+        status: PropTypes.string.isRequired,
+    }).isRequired,
 };
 
 export default TournamentCard;

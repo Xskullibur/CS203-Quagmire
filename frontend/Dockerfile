@@ -1,7 +1,7 @@
 FROM node:18.17.0-alpine AS builder
 
-RUN apk add --no-cache libc6-compat
-RUN apk update
+RUN apk add --no-cache libc6-compat \
+    && apk update
 
 # Create app directory
 WORKDIR /app
@@ -10,19 +10,14 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies safely
-RUN npm ci --ignore-scripts
-
-# If framer-motion is still missing, install it explicitly
-RUN if ! [ -d "node_modules/framer-motion" ]; then npm install framer-motion --ignore-scripts; fi
+RUN npm ci --ignore-scripts \
+    && if ! [ -d "node_modules/framer-motion" ]; then npm install framer-motion --ignore-scripts; fi
 
 # Copy the rest of the code
 COPY . .
 
-# Print the contents of node_modules to verify installation
-RUN ls -la node_modules | grep framer-motion
-
-# Build the app
-RUN npm run build
+# Print the contents of node_modules to verify installation, then build the app
+RUN ls -la node_modules | grep framer-motion && npm run build
 
 # Production image, copy all the files and run next
 FROM node:18.17.0-alpine AS runner

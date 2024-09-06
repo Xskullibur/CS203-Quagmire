@@ -30,11 +30,11 @@ export default function Footer() {
             <div className="mb-8 sm:mb-0">
               <h3 className="font-semibold mb-4">Product</h3>
               <ul className="space-y-2">
-                <li><a href="#" className="text-[#ffffffb3] hover:text-white">Features</a></li>
-                <li><a href="#" className="text-[#ffffffb3] hover:text-white">Integrations</a></li>
-                <li><a href="#" className="text-[#ffffffb3] hover:text-white">Changelog</a></li>
-                <li><a href="#" className="text-[#ffffffb3] hover:text-white">Docs</a></li>
-                <li><a href="#" className="text-[#ffffffb3] hover:text-white">Downloads</a></li>
+                <li><a href="/" className="text-[#ffffffb3] hover:text-white">Features</a></li>
+                <li><a href="/" className="text-[#ffffffb3] hover:text-white">Integrations</a></li>
+                <li><a href="/" className="text-[#ffffffb3] hover:text-white">Changelog</a></li>
+                <li><a href="/" className="text-[#ffffffb3] hover:text-white">Docs</a></li>
+                <li><a href="/" className="text-[#ffffffb3] hover:text-white">Downloads</a></li>
               </ul>
             </div>
           </div>

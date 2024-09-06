@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBuilding, faWarehouse, faStore, faLandmark, faMapMarked } from '@fortawesome/free-solid-svg-icons';
+import PropTypes from 'prop-types';
 
 const Card = ({ icon, title, description }) => {
     return (
@@ -25,6 +26,12 @@ const Card = ({ icon, title, description }) => {
     );
 };
 
+Card.propTypes = {
+    icon: PropTypes.object.isRequired,
+    title: PropTypes.string.isRequired,
+    description: PropTypes.string.isRequired,
+};
+
 const HeroCards = () => {
     const cardsRef = useRef(null);
 
@@ -43,7 +50,7 @@ const HeroCards = () => {
         };
 
         cards.addEventListener("mousemove", handleMouseMove);
-        
+
 
         return () => {
             cards.removeEventListener("mousemove", handleMouseMove);

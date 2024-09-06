@@ -53,9 +53,13 @@ export default function HeroSection() {
                             Tournament
                         </Button>
                     </motion.div>
-                    <div className="flex justify-center font-mono text-sm text-muted-foreground">
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.8, duration: 0.8 }}
+                        className="flex justify-center font-mono text-sm text-muted-foreground">
                         <p>Start your journey today</p>
-                    </div>
+                    </motion.div>
                 </motion.div>
                 <motion.div
                     className="relative w-full max-w-5xl"

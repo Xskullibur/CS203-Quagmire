@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import PropTypes from 'prop-types';
 
 const MagicText = ({ children, className = '' }) => {
     const magicRef = useRef(null);
@@ -8,23 +9,28 @@ const MagicText = ({ children, className = '' }) => {
         if (!magic) return;
 
         const animate = (star) => {
-            const rect = magic.getBoundingClientRect();
-            star.style.setProperty("--star-left", `${Math.random() * 110 - 5}%`);
-            star.style.setProperty("--star-top", `${Math.random() * 120 - 20}%`);
+            const newLeft = `${Math.floor(Math.random() * 110 - 5)}%`;
+            const newTop = `${Math.floor(Math.random() * 120 - 20)}%`;
+            star.style.setProperty("--star-left", newLeft);
+            star.style.setProperty("--star-top", newTop);
             star.style.animation = "none";
-            star.offsetHeight;
-            star.style.animation = "";
+            star.offsetHeight; // Trigger reflow
+            star.style.animation = null; // Reset to default
         };
 
         let intervals = [];
 
+        const animateStarWithDelay = (star, delay) => {
+            setTimeout(() => {
+                animate(star);
+                intervals.push(setInterval(() => animate(star), 1000));
+            }, delay);
+        };
+
         const onMouseEnter = () => {
             const stars = magic.querySelectorAll(".magic-star");
             stars.forEach((star, index) => {
-                setTimeout(() => {
-                    animate(star);
-                    intervals.push(setInterval(() => animate(star), 1000));
-                }, index * 300);
+                animateStarWithDelay(star, index * 300);
             });
         };
 
@@ -57,6 +63,11 @@ const MagicText = ({ children, className = '' }) => {
             </span>
         </span>
     );
+};
+
+MagicText.propTypes = {
+    children: PropTypes.node.isRequired,
+    className: PropTypes.string
 };
 
 export default MagicText;
