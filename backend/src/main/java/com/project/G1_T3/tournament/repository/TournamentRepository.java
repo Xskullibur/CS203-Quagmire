@@ -21,7 +21,7 @@ public interface TournamentRepository extends JpaRepository<Tournament, Long> {
 
     List<Tournament> findByDateBetween(LocalDateTime startDate, LocalDateTime endDate);
 
-    List<Tournament> findByDateAfter(LocalDateTime date);
+    Page<Tournament> findByDateAfter(LocalDateTime date, Pageable pageable);
 
     @Query("SELECT t FROM Tournament t WHERE t.name LIKE %:name%")
     List<Tournament> searchByName(@Param("name") String name);

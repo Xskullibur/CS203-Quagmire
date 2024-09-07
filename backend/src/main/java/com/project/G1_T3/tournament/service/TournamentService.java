@@ -1,31 +1,18 @@
 package com.project.G1_T3.tournament.service;
 
 import com.project.G1_T3.tournament.model.Tournament;
-import com.project.G1_T3.tournament.repository.TournamentRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
-import java.util.Optional;
 
-public class TournamentService {
-    
-    @Autowired
-    private TournamentRepository tournamentRepository;
+public interface TournamentService {
 
-    public List<Tournament> getAllTournaments() {
-        return tournamentRepository.findAll();
-    }
+    List<Tournament> findAllTournaments();    // Get all tournaments
 
-    public Optional<Tournament> getTournamentById(Long id) {
-        return tournamentRepository.findById(id);
-    }
+    Tournament findTournamentById(Long id);   // Find a specific tournament by ID
 
-    public Tournament saveTournament(Tournament tournament) {
-        return tournamentRepository.save(tournament);
-    }
+    Page<Tournament> findUpcomingTournaments(Pageable pageable);  // Find upcoming tournaments, paginated
 
-    public void deleteTournament(Long id) {
-        tournamentRepository.deleteById(id);
-    }
+    List<Tournament> findTournamentsByLocation(String location);  // Filter tournaments by location
 }
