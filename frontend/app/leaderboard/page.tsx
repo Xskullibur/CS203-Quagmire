@@ -2,13 +2,14 @@
 
 import React from 'react';
 import { LeaderboardPosition } from '@/components/ui/leaderboardPosition';
-import {data} from '@/app/leaderboard/db.js';
+import { Card } from '@/components/ui/card'
+import { data } from '@/app/leaderboard/db.js';
 
-data.sort((a,b)=> {
-    if(a.score < b.score){
-        return -1;
+data.sort((a, b) => {
+    if (a.score < b.score) {
+        return 1;
     } else {
-        return 1
+        return -1
     }
 });
 
@@ -18,12 +19,11 @@ export default function Leaderboard() {
             <h2 className="text-2xl font-bold mb-4">Leaderboard</h2>
             <div className="w-4/5 h-auto bg-card">
                 <ul>
-                    <li>
-                        <LeaderboardPosition name="name" position="position" rating="rating"></LeaderboardPosition>
-                    </li>
-                    <li>
-            
-                    </li>
+                    {data.map((user, idx) => (
+                        <li>
+                            <LeaderboardPosition key={idx} name={user.name} position={idx} rating={user.score} image={user.img}></LeaderboardPosition>
+                        </li>
+                    ))}
                 </ul>
 
             </div>
