@@ -2,8 +2,8 @@ package com.project.G1_T3.authentication.controller;
 
 import com.project.G1_T3.authentication.model.UserDTO;
 import com.project.G1_T3.authentication.service.JwtService;
-import com.project.G1_T3.player.service.CustomUserDetailsService;
-import com.project.G1_T3.player.service.UserService;
+import com.project.G1_T3.user.service.CustomUserDetailsService;
+import com.project.G1_T3.user.service.UserService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

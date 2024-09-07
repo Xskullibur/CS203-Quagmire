@@ -15,7 +15,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import com.project.G1_T3.authentication.service.JwtService;
-import com.project.G1_T3.player.service.CustomUserDetailsService;
+import com.project.G1_T3.user.service.CustomUserDetailsService;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

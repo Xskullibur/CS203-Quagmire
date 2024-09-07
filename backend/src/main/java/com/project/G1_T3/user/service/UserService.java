@@ -1,4 +1,4 @@
-package com.project.G1_T3.player.service;
+package com.project.G1_T3.user.service;
 
 import java.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,9 +7,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.project.G1_T3.authentication.model.UserDTO;
-import com.project.G1_T3.player.model.User;
-import com.project.G1_T3.player.model.UserRole;
-import com.project.G1_T3.player.repository.UserRepository;
+import com.project.G1_T3.user.model.User;
+import com.project.G1_T3.user.model.UserRole;
+import com.project.G1_T3.user.repository.UserRepository;
 
 @Service
 public class UserService {

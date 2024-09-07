@@ -1,6 +1,5 @@
 package com.project.G1_T3.authentication.controller;
 
-import com.project.G1_T3.player.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -9,6 +8,7 @@ import com.project.G1_T3.authentication.model.LoginResponseDTO;
 import com.project.G1_T3.authentication.model.UserDTO;
 import com.project.G1_T3.authentication.service.AuthService;
 import com.project.G1_T3.authentication.service.JwtService;
+import com.project.G1_T3.user.model.User;
 
 import java.util.Optional;
 

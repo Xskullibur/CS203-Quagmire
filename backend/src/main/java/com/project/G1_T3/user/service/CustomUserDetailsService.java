@@ -1,4 +1,4 @@
-package com.project.G1_T3.player.service;
+package com.project.G1_T3.user.service;
 
 import java.util.Optional;
 
@@ -8,8 +8,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import com.project.G1_T3.player.model.User;
-import com.project.G1_T3.player.repository.UserRepository;
+import com.project.G1_T3.user.model.User;
+import com.project.G1_T3.user.repository.UserRepository;
 
 
 @Service

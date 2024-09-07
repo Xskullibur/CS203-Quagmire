@@ -9,7 +9,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Service;
 
-import com.project.G1_T3.player.model.User;
+import com.project.G1_T3.user.model.User;
 
 @Service
 public class AuthService {

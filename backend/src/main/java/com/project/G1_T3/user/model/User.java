@@ -1,4 +1,4 @@
-package com.project.G1_T3.player.model;
+package com.project.G1_T3.user.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

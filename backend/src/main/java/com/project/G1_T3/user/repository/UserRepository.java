@@ -1,8 +1,9 @@
-package com.project.G1_T3.player.repository;
+package com.project.G1_T3.user.repository;
 
-import com.project.G1_T3.player.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+
+import com.project.G1_T3.user.model.User;
 
 import java.util.Optional;
 import java.util.UUID;
