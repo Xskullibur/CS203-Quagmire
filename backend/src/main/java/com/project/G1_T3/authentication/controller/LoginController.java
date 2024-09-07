@@ -35,7 +35,8 @@ public class LoginController {
             UserDTO userDTO = new UserDTO(
                     user.getId(),
                     user.getUsername(),
-                    user.getEmail());
+                    user.getEmail(),
+                    user.getRole());
 
             LoginResponseDTO response = new LoginResponseDTO(userDTO, token);
 

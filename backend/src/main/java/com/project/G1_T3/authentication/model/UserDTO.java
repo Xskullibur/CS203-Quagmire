@@ -2,15 +2,19 @@ package com.project.G1_T3.authentication.model;
 
 import java.util.UUID;
 
+import com.project.G1_T3.user.model.UserRole;
+
 public class UserDTO {
     private String userId;
     private String username;
     private String email;
+    private UserRole role;
 
-    public UserDTO(UUID userId, String username, String email) {
+    public UserDTO(UUID userId, String username, String email, UserRole role) {
         this.userId = userId.toString();
         this.username = username;
         this.email = email;
+        this.role = role;
     }
 
     // Getters and setters
@@ -36,5 +40,13 @@ public class UserDTO {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public UserRole getRole() {
+        return role;
+    }
+
+    public void setRole(UserRole role) {
+        this.role = role;
     }
 }
