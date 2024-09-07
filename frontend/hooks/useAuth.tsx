@@ -36,13 +36,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const validateToken = async (token: string) => {
     try {
-      const response = await axios.get(
+      const response = await axios.post(
         new URL("/authentication/validate-token", API_URL).toString(),
+        {},
         {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          }
         }
       );
-      setUser(response.data.user);
+      setUser(response.data);
     } catch (error) {
       console.error("Token validation failed:", error);
       Cookies.remove(AUTH_TOKEN);
