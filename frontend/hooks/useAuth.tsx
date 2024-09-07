@@ -80,7 +80,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const logout = useCallback(() => {
     Cookies.remove(AUTH_TOKEN);
     setUser(null);
-    router.push("/login");
+    router.push("/auth/login");
   }, [setUser, router]);
 
   const isAuthenticated = useCallback(() => {
