@@ -1,5 +1,7 @@
 package com.project.G1_T3.authentication.model;
 
+import com.project.G1_T3.user.model.UserDTO;
+
 public class LoginResponseDTO {
     private UserDTO user;
     private String token;

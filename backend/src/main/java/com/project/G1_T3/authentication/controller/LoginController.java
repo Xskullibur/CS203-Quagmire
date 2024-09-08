@@ -5,10 +5,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.project.G1_T3.authentication.model.LoginRequest;
 import com.project.G1_T3.authentication.model.LoginResponseDTO;
-import com.project.G1_T3.authentication.model.UserDTO;
 import com.project.G1_T3.authentication.service.AuthService;
 import com.project.G1_T3.authentication.service.JwtService;
 import com.project.G1_T3.user.model.User;
+import com.project.G1_T3.user.model.UserDTO;
 
 import java.util.Optional;
 
@@ -32,12 +32,7 @@ public class LoginController {
             User user = userOptional.get();
             String token = jwtService.generateToken(user);
 
-            UserDTO userDTO = new UserDTO(
-                    user.getId(),
-                    user.getUsername(),
-                    user.getEmail(),
-                    user.getRole());
-
+            UserDTO userDTO = UserDTO.fromUser(user);
             LoginResponseDTO response = new LoginResponseDTO(userDTO, token);
 
             return ResponseEntity.ok().body(response);
