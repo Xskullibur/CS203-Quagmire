@@ -1,23 +1,36 @@
-package com.project.G1_T3.authentication.model;
+package com.project.G1_T3.user.model;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
-
-import com.project.G1_T3.user.model.UserRole;
 
 public class UserDTO {
     private String userId;
     private String username;
     private String email;
     private UserRole role;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
-    public UserDTO(UUID userId, String username, String email, UserRole role) {
+    public UserDTO(UUID userId, String username, String email, UserRole role, LocalDateTime createdAt,
+            LocalDateTime updatedAt) {
         this.userId = userId.toString();
         this.username = username;
         this.email = email;
         this.role = role;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
     }
 
-    // Getters and setters
+    public static UserDTO fromUser(User user) {
+        return new UserDTO(
+                user.getId(),
+                user.getUsername(),
+                user.getEmail(),
+                user.getRole(),
+                user.getCreatedAt(),
+                user.getUpdatedAt());
+    }
+
     public String getUserId() {
         return userId;
     }
@@ -46,7 +59,11 @@ public class UserDTO {
         return role;
     }
 
-    public void setRole(UserRole role) {
-        this.role = role;
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
     }
 }
