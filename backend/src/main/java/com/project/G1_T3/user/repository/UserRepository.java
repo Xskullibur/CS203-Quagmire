@@ -4,7 +4,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import com.project.G1_T3.user.model.UserDTO;
 import com.project.G1_T3.user.model.User;
 
 import java.util.List;
