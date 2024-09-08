@@ -15,4 +15,10 @@ public interface TournamentService {
     Page<Tournament> findUpcomingTournaments(Pageable pageable);  // Find upcoming tournaments, paginated
 
     List<Tournament> findTournamentsByLocation(String location);  // Filter tournaments by location
+
+    Page<Tournament> getAllTournaments(Pageable pageable);
+
+    List<Tournament> searchByName(String name);
+
+    Tournament createTournament(Tournament tournament);
 }

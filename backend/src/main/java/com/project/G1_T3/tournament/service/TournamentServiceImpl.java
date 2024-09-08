@@ -43,4 +43,20 @@ public class TournamentServiceImpl implements TournamentService {
     public List<Tournament> findTournamentsByLocation(String location) {
         return tournamentRepository.findByLocation(location);
     }
+    
+    @Override
+    public Page<Tournament> getAllTournaments(Pageable pageable) {
+        return tournamentRepository.findAll(pageable);
+    }
+
+    @Override
+    public List<Tournament> searchByName(String name) {
+        return tournamentRepository.searchByName(name);
+    }
+
+    @Override
+    public Tournament createTournament(Tournament tournament) {
+        return tournamentRepository.save(tournament);
+    }
 }
+
