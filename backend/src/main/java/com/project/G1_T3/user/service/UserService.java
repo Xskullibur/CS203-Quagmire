@@ -1,13 +1,17 @@
 package com.project.G1_T3.user.service;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.project.G1_T3.authentication.model.UserDTO;
 import com.project.G1_T3.user.model.User;
+import com.project.G1_T3.user.model.UserDTO;
 import com.project.G1_T3.user.model.UserRole;
 import com.project.G1_T3.user.repository.UserRepository;
 
@@ -42,8 +46,16 @@ public class UserService {
         return userRepository.existsByEmail(email);
     }
 
+    public List<UserDTO> getAllUsers() {
+        return userRepository.findAllUsersWithoutPassword()
+            .stream()
+            .map(UserDTO::fromUser)
+            .collect(Collectors.toList());
+    }
+
     public UserDTO getUserDTOByUsername(String username) {
-        User user = userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException(username));
-        return new UserDTO(user.getId(), user.getUsername(), user.getEmail(), user.getRole());
+        return userRepository.findByUsername(username)
+                .map(UserDTO::fromUser)
+                .orElseThrow(() -> new UsernameNotFoundException(username));
     }
 }
