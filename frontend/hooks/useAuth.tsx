@@ -1,9 +1,9 @@
 import { useState, useEffect, useContext, createContext, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import axios, { AxiosResponse } from "axios";
+import { AxiosResponse } from "axios";
 import Cookies from "js-cookie";
 import { User } from "@/models/user";
-import { UserRole } from "@/models/user-role";
+import axiosInstance from "@/lib/axios";
 
 interface AuthContextType {
   user: User | null;
@@ -37,14 +37,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const validateToken = async (token: string) => {
     try {
-      const response = await axios.post(
-        new URL("/authentication/validate-token", API_URL).toString(),
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          }
-        }
+      const response = await axiosInstance.post(
+        new URL("/authentication/validate-token", API_URL).toString()
       );
       setUser(response.data);
     } catch (error) {
@@ -57,7 +51,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const login = async (username: string, password: string) => {
     try {
-      const response = await axios.post(
+      const response = await axiosInstance.post(
         new URL("/authentication/login", API_URL).toString(),
         {
           username,
