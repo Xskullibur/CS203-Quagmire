@@ -3,11 +3,12 @@ import { useRouter } from "next/navigation";
 import axios, { AxiosResponse } from "axios";
 import Cookies from "js-cookie";
 import { User } from "@/models/user";
+import { UserRole } from "@/models/user-role";
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<AxiosResponse<any, any>>;
+  login: (email: string, password: string) => Promise<{user: User;response: AxiosResponse<any, any>;}>;
   logout: () => void;
   isAuthenticated: () => boolean;
 }
@@ -63,14 +64,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
           password,
         }
       );
+
       const { token, user } = response.data;
+      
       Cookies.set(AUTH_TOKEN, token, {
         secure: true,
         sameSite: "Lax",
         expires: 10,
       });
+      
       setUser(user);
-      return response;
+      setLoading(false);
+      return {user, response};
     } catch (error) {
       console.error("Login failed:", error);
       throw error;

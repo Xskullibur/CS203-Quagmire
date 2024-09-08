@@ -1,10 +1,12 @@
+// frontend/app/admin/dashboard/page.tsx
 "use client";
 
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import withAuth from '@/hooks/withAuth';
+import { UserRole } from '@/models/user-role';
 
-const Profile: React.FC = () => {
+const AdminDashboard: React.FC = () => {
     const { user } = useAuth();
     const [username, setUsername] = useState('Guest');
 
@@ -15,10 +17,10 @@ const Profile: React.FC = () => {
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen">
-            <h2 className="text-2xl font-bold mb-4">Profile</h2>
+            <h2 className="text-2xl font-bold mb-4">Admin Dashboard</h2>
             <p>Welcome, {username}!</p>
         </div>
     );
 }
 
-export default withAuth(Profile);
+export default withAuth(AdminDashboard, UserRole.ADMIN);

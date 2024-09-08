@@ -8,8 +8,6 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
 
-const API_URL = `${process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL}`;
-
 const Login: React.FC = () => {
   const [formData, setFormData] = useState({ username: "", password: "" });
   const router = useRouter();
@@ -22,9 +20,9 @@ const Login: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await login(formData.username, formData.password);
+      const {user, response} = await login(formData.username, formData.password);
       if (response.status === 200) {
-        router.push("/profile");
+        router.push(user?.role === "ADMIN" ? "/admin/dashboard" : "/profile");
       } else {
         alert("Invalid credentials");
       }
