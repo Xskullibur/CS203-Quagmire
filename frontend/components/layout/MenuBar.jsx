@@ -19,7 +19,7 @@ export default function MenuBar() {
       <div className="fixed top-4 left-0 right-0 mx-auto w-11/12 max-w-6xl z-50">
         <nav className={`
           px-6 py-2 rounded-full transition-all duration-200
-          ${isScrolled ? 'bg-zinc-900/85 backdrop-blur-sm border border-zinc-700' : 'bg-transparent'}
+          ${isScrolled ? 'bg-zinc-900/70 backdrop-blur-xl border border-zinc-800/60' : 'bg-transparent'}
         `}>
           <div className="flex items-center justify-between">
             <Link href="/" className="text-xl font-bold text-white hover:text-gray-600 transition">HH</Link>

@@ -12,14 +12,16 @@ export default function HeroSection() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8 }}
                 >
-                    <motion.span
-                        className="text-6xl"
+                    <motion.img
+                        className="w-[5vw] h-auto mx-auto rounded-full"
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
                         transition={{ delay: 0.2, type: 'spring', stiffness: 260, damping: 20 }}
-                    >
-                        💪
-                    </motion.span>
+                        src="/heroGIF.gif" // Change the image source to a GIF file
+                        alt="Hand Hathaway GIF"
+                        width={200}
+                        height={200}
+                    />
                     <motion.h1
                         className="text-4xl md:text-6xl font-bold mb-4 mt-4 bg-clip-text text-transparent bg-gradient-to-r from-primary-pink to-secondary-blue"
                         initial={{ opacity: 0 }}

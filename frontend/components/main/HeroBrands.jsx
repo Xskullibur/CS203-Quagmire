@@ -61,6 +61,7 @@ export function HeroBrands() {
                             <div key={`${brand.name}-${index}`} className="inline-block">
                                 <div className="w-48 h-48 relative">
                                     <Image
+                                        className='opacity-85 hover:opacity-100 transition-opacity duration-300'
                                         src={brand.logoUrl}
                                         alt={brand.name}
                                         fill

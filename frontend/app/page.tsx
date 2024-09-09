@@ -4,6 +4,7 @@ import HeroSection from "../components/main/HeroSection";
 import HeroCards from "../components/main/HeroCards";
 import { HeroBrands } from "../components/main/HeroBrands";
 import PreFooter from "../components/main/PreFooter";
+import HeroVideos from "../components/main/HeroVideos";
 import TournamentCardViewerCarousel from "../components/tournaments/TournamentCardViewerCarousel";
 
 export default function Home() {
@@ -14,6 +15,7 @@ export default function Home() {
         <HeroBrands />
         <TournamentCardViewerCarousel />
         <HeroCards />
+        <HeroVideos />
       </main>
       <PreFooter />
     </div>
