@@ -6,6 +6,7 @@ import com.project.G1_T3.player.service.PlayerProfileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -15,6 +16,7 @@ public class PlayerProfileController {
     @Autowired
     private PlayerProfileService playerProfileService;
 
+    @PostMapping("/create") // Map to URL for creating player profile
     @ResponseStatus(HttpStatus.CREATED)
     public PlayerProfile create(@RequestBody PlayerProfile playerProfile){
         return playerProfileService.save(playerProfile);
