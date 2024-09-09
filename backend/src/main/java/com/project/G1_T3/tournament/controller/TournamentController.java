@@ -8,11 +8,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
+// @CrossOrigin(origins = "http://localhost:3000")
 @RestController
-@RequestMapping("/api/tournaments")
+@RequestMapping("/tournament")
 public class TournamentController {
 
     @Autowired
