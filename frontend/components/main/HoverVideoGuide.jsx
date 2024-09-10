@@ -10,7 +10,7 @@ const HoverVideoGuide = ({ steps }) => {
 
     useEffect(() => {
         const checkMobile = () => {
-            setIsMobile(window.innerWidth < 1024); // Assuming 1024px is the breakpoint for lg
+            setIsMobile(window.innerWidth < 1024);
         };
 
         checkMobile();
@@ -91,13 +91,13 @@ const HoverVideoGuide = ({ steps }) => {
                 </div>
                 <div className="w-full lg:w-1/2 mt-8 lg:mt-0 lg:sticky lg:top-8">
                     <motion.div
-                        className="w-full rounded-lg overflow-hidden shadow-lg shadow-zinc-800"
+                        className="w-full rounded-lg overflow-hidden shadow-lg shadow-zinc-800 relative"
                         animate={!isMobile ? {
                             y: `${activeIndex * 4}rem`
                         } : {}}
                         transition={{ duration: 0.3 }}
                     >
-                        <div className="relative w-full pt-[56.25%]">
+                        <div className="relative w-full pt-[56.25%] z-10">
                             <video
                                 ref={videoRef}
                                 src={activeStep.videoUrl}

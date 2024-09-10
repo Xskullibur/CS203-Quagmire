@@ -1,39 +1,54 @@
 import Image from 'next/image';
 import { Button } from "@/components/ui/button";
 import { motion } from 'framer-motion';
+import { useEffect, useState } from 'react';
 
 export default function HeroSection() {
+    const [shouldAnimate, setShouldAnimate] = useState(false);
+
+    useEffect(() => {
+        // Set a small timeout to ensure the component is fully mounted
+        const timer = setTimeout(() => setShouldAnimate(true), 100);
+        return () => clearTimeout(timer);
+    }, []);
+
+    const fadeInUp = {
+        hidden: { opacity: 0, y: 20 },
+        visible: { opacity: 1, y: 0 }
+    };
+
     return (
         <div className="flex flex-col items-center justify-center min-h-screen w-full text-foreground p-4">
             <div className="bg-[radial-gradient(circle closest-side, #292826 16%, #181716 58%)]">
                 <motion.div
                     className="text-center mb-8 mt-8"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
+                    initial="hidden"
+                    animate={shouldAnimate ? "visible" : "hidden"}
+                    variants={fadeInUp}
                     transition={{ duration: 0.8 }}
                 >
                     <motion.img
                         className="w-[5vw] h-auto mx-auto rounded-full"
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
+                        variants={{
+                            hidden: { scale: 0 },
+                            visible: { scale: 1 }
+                        }}
                         transition={{ delay: 0.2, type: 'spring', stiffness: 260, damping: 20 }}
-                        src="/heroGIF.gif" // Change the image source to a GIF file
+                        src="/heroGIF.gif"
                         alt="Hand Hathaway GIF"
                         width={200}
                         height={200}
                     />
                     <motion.h1
                         className="text-4xl md:text-6xl font-bold mb-4 mt-4 bg-clip-text text-transparent bg-gradient-to-r from-primary-pink to-secondary-blue"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
+                        variants={fadeInUp}
                         transition={{ delay: 0.4, duration: 0.8 }}
                     >
                         Hand Hathaway
                     </motion.h1>
                     <motion.p
                         className="text-xl text-muted-foreground mb-8"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
+                        variants={fadeInUp}
                         transition={{ delay: 0.6, duration: 0.8 }}
                     >
                         Welcome to the ultimate arm wrestling platform
@@ -44,8 +59,7 @@ export default function HeroSection() {
                     </motion.p>
                     <motion.div
                         className="mb-8 flex flex-col sm:flex-row justify-center gap-4"
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
+                        variants={fadeInUp}
                         transition={{ delay: 0.8, duration: 0.8 }}
                     >
                         <Button size="lg" variant="outline" className="text-primary hover:bg-primary/80 hover:text-primary-foreground transition transform hover:-translate-y-0.5 hover:shadow-lg duration-200">
@@ -56,9 +70,8 @@ export default function HeroSection() {
                         </Button>
                     </motion.div>
                     <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.8, duration: 0.8 }}
+                        variants={fadeInUp}
+                        transition={{ delay: 1, duration: 0.8 }}
                         className="flex justify-center font-mono text-sm text-muted-foreground">
                         <p>Start your journey today</p>
                     </motion.div>
@@ -66,8 +79,8 @@ export default function HeroSection() {
                 <motion.div
                     className="relative w-full max-w-5xl"
                     initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 1, duration: 0.8 }}
+                    animate={shouldAnimate ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.9 }}
+                    transition={{ delay: 1.2, duration: 0.8 }}
                 >
                     <Image
                         src="/linear.png"
