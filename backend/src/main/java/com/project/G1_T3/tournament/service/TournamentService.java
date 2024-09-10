@@ -12,7 +12,9 @@ public interface TournamentService {
 
     Tournament findTournamentById(Long id);   // Find a specific tournament by ID
 
-    Page<Tournament> findUpcomingTournaments(Pageable pageable);  // Find upcoming tournaments, paginated
+    Page<Tournament> findUpcomingTournaments(Pageable pageable);
+
+    Page<Tournament> findPastTournaments(Pageable pageable);
 
     List<Tournament> findTournamentsByLocation(String location);  // Filter tournaments by location
 

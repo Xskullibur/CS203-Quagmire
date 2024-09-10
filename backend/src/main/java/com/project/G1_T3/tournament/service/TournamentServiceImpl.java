@@ -40,6 +40,12 @@ public class TournamentServiceImpl implements TournamentService {
     }
 
     @Override
+    public Page<Tournament> findPastTournaments(Pageable pageable) {
+        // Fetch upcoming tournaments (with pagination)
+        return tournamentRepository.findByDateBefore(LocalDateTime.now(), pageable);
+    }
+
+    @Override
     public List<Tournament> findTournamentsByLocation(String location) {
         return tournamentRepository.findByLocation(location);
     }

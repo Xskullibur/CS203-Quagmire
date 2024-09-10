@@ -39,6 +39,13 @@ public class TournamentController {
         return ResponseEntity.ok(tournaments);
     }
 
+    // Get past tournaments with pagination
+    @GetMapping("/past")
+    public ResponseEntity<Page<Tournament>> getPastTournaments(Pageable pageable) {
+        Page<Tournament> tournaments = tournamentService.findPastTournaments(pageable);
+        return ResponseEntity.ok(tournaments);
+    }
+
     // Create a new tournament
     @PostMapping
     public ResponseEntity<Tournament> createTournament(@RequestBody Tournament tournament) {

@@ -23,6 +23,8 @@ public interface TournamentRepository extends JpaRepository<Tournament, Long> {
 
     Page<Tournament> findByDateAfter(LocalDateTime date, Pageable pageable);
 
+    Page<Tournament> findByDateBefore(LocalDateTime date, Pageable pageable);
+
     @Query("SELECT t FROM Tournament t WHERE t.name LIKE %:name%")
     List<Tournament> searchByName(@Param("name") String name);
 
