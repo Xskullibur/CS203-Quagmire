@@ -24,7 +24,7 @@ public class PlayerProfile {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer profileId;
+    private Long profileId;
 
     @Column(name = "user_id", nullable = false)
     private Long userId;
@@ -48,7 +48,7 @@ public class PlayerProfile {
     private Float currentRating;
 
     // Getters, setters, and other methods...
-    public Integer getProfileId() {
+    public Long getProfileId() {
         return profileId;
     }
 
