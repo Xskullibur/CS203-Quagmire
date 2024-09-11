@@ -7,25 +7,25 @@ import org.springframework.stereotype.Repository;
 import com.project.G1_T3.player.model.PlayerProfile;
 
 import java.util.List;
- 
-@Repository 
-public interface PlayerProfileRepository extends JpaRepository<PlayerProfile, Integer> { 
+
+@Repository
+public interface PlayerProfileRepository extends JpaRepository<PlayerProfile, Integer> {
 
     List<PlayerProfile> findTop10ByOrderByCurrentRatingDesc();
 
+    // Fetch PlayerProfile by user ID
+    PlayerProfile findByUserId(Long id);
+
     PlayerProfile getPlayerProfileByUserId(long userId);
-    
-     @Query(value = "select t1.position\n" + //
-                "from player_profiles pp1,\n" + //
-                "(select \n" + //
-                "row_number() over (order by pp2.current_rating desc) as position,\n" + //
-                "pp2.user_id uid, pp2.current_rating \n" + //
-                "from player_profiles pp2\n" + //
-                "order by current_rating desc) as t1\n" + //
-                "where t1.uid = pp1.user_id and t1.uid = :userId",
-                nativeQuery = true)
+
+    @Query(value = "select t1.position\n" + //
+            "from player_profiles pp1,\n" + //
+            "(select \n" + //
+            "row_number() over (order by pp2.current_rating desc) as position,\n" + //
+            "pp2.user_id uid, pp2.current_rating \n" + //
+            "from player_profiles pp2\n" + //
+            "order by current_rating desc) as t1\n" + //
+            "where t1.uid = pp1.user_id and t1.uid = :userId", nativeQuery = true)
     public Long getPositionOfPlayer(@Param("userId") long userId);
-
-
 
 }
