@@ -4,6 +4,17 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { addDays, format } from "date-fns"
+import { Calendar as CalendarIcon } from "lucide-react"
+import { DateRange } from "react-day-picker"
+import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
+import { Calendar } from "@/components/ui/calendar"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 
 interface Tournament {
     id: number;
@@ -22,34 +33,29 @@ const TournamentHeader: React.FC = () => (
 );
 
 const TournamentTabs: React.FC<{ currentTab: 'upcoming' | 'past'; setCurrentTab: (tab: 'upcoming' | 'past') => void }> = ({ currentTab, setCurrentTab }) => (
-    // <div className="flex justify-center bg-background/10 w-full py-2">
-    //     <button
-    //         onClick={() => setCurrentTab('upcoming')}
-    //         className={`px-4 py-2 mx-2 ${currentTab === 'upcoming' ? 'bg-white text-black' : 'bg-gray-500 text-black'}`}
-    //     >
-    //         Upcoming Tournaments
-    //     </button>
-    //     <button
-    //         onClick={() => setCurrentTab('past')}
-    //         className={`px-4 py-2 mx-2 ${currentTab === 'past' ? 'bg-white text-black' : 'bg-gray-500 text-black'}`}
-    //     >
-    //         Past Tournaments
-    //     </button>
-    // </div>
 
     <div>
         <Tabs defaultValue={currentTab} className="w-full max-w-md">
             <TabsList className="flex justify-center w-full">
-                <TabsTrigger value="account" onClick={() => setCurrentTab('upcoming')}>
+                <TabsTrigger value="upcoming" onClick={() => setCurrentTab('upcoming')}>
                     Upcoming
                 </TabsTrigger>
-                <TabsTrigger value="password" onClick={() => setCurrentTab('past')}>
+                <TabsTrigger value="past" onClick={() => setCurrentTab('past')}>
                     Past
                 </TabsTrigger>
             </TabsList>
             </Tabs>
     </div>
 );
+
+export function DatePickerWithRange({
+    className,
+  }: React.HTMLAttributes<HTMLDivElement>) {
+    const [date, setDate] = React.useState<DateRange | undefined>({
+      from: new Date(2022, 0, 20),
+      to: addDays(new Date(2022, 0, 20), 20),
+    })
+    }
 
 const TournamentPage: React.FC = () => {
     const [tournaments, setTournaments] = useState<Tournament[]>([]);
