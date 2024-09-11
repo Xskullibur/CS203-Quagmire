@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import MenuBar from "@/components/layout/MenuBar";
+import Footer from "@/components/layout/Footer";
+import AmbientLight from "@/components/layout/AmbientLight";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -17,8 +19,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <link rel="icon" href="/favicon.svg" />
+      <body className={inter.className}>
+        <AmbientLight />
+        <MenuBar />
+        {children}
+        <Footer />
+      </body>
 
-      <body className={inter.className}><MenuBar />{children}</body>
     </html>
   );
 }

@@ -20,7 +20,7 @@
     --secondary-foreground: 0 0% 100%;
     --muted: 0 0% 13%;
     --muted-foreground: 0 0% 63.9%;
-    --accent: 0 0% 14.9%;
+    --accent: 270 50% 80%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 100%;
@@ -33,6 +33,8 @@
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
+    --primary-pink: #f2afc7;
+    --secondary-blue: #acb8f5;
   }
 }
 
@@ -40,7 +42,90 @@
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@media (max-width: 1000px) {
+  .card {
+    @apply w-[calc(50%-4px)] flex-shrink;
+  }
+}
+
+@media (max-width: 500px) {
+  .card {
+    @apply h-[180px];
+  }
+
+  .card .card-image {
+    @apply h-[80px];
+  }
+
+  .card .card-image>i {
+    @apply text-[3em];
+  }
+
+  .card .card-info-wrapper {
+    @apply px-[10px];
+  }
+
+  .card .card-info>i {
+    @apply text-[0.8em];
+  }
+
+  .card .card-info-title>h3 {
+    @apply text-[0.9em];
+  }
+
+  .card .card-info-title>h4 {
+    @apply text-[0.8em] mt-[4px];
+  }
+}
+
+@media (max-width: 320px) {
+  .card {
+    @apply w-full;
+  }
+}
+
+::-moz-selection {
+  /* Code for Firefox */
+  @apply bg-accent text-accent-foreground;
+}
+
+::selection {
+  @apply bg-accent text-accent-foreground;
+}
+
+@keyframes scale {
+
+  from,
+  to {
+    transform: scale(0);
+  }
+
+  50% {
+    transform: scale(1);
+  }
+}
+
+.magic-star {
+  animation: scale 700ms ease forwards;
+}
+
+.magic:hover .magic-star {
+  animation: scale 700ms ease forwards;
+}
+
+@layer utilities {
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
 }
