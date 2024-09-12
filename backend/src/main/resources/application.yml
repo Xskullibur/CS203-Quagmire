@@ -1,0 +1,22 @@
+spring:
+    application:
+        name: "G1-T3"
+
+    datasource:
+        url: jdbc:postgresql://localhost:5432/g1t3
+        driver-class-name: org.postgresql.Driver
+        username: postgres
+        password: P@ssw0rd
+
+    jpa:
+        properties:
+            hibernate:
+                format-sql: true
+        hibernate:
+            ddl-auto: update          # Uncomment for production
+        show-sql: true
+        database: postgresql
+
+jwt:
+    secret-key: "b94801bb5520b2b660fe5a88c59b219366d6e3919c2630a32be2d41bc3d676de"
+    expiration-time: 864000000

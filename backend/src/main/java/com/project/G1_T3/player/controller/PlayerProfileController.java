@@ -6,7 +6,6 @@ import com.project.G1_T3.player.service.PlayerProfileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -23,7 +22,7 @@ public class PlayerProfileController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<PlayerProfile> getUserById(@PathVariable Long id){
+    public ResponseEntity<PlayerProfile> getUserById(@PathVariable String id){
         PlayerProfile playerProfile = playerProfileService.findByUserId(id);
         return ResponseEntity.ok(playerProfile);
     }

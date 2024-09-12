@@ -1,11 +1,11 @@
 'use client'
 
 import React, { useState } from 'react';
-import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import axiosInstance from '@/lib/axios';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const API_URL = `${process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL}`;
@@ -41,13 +41,13 @@ const Register: React.FC = () => {
             return;
         }
         try {
-            const response = await axios.post(new URL('/authentication/register', API_URL).toString(), formData);
+            const response = await axiosInstance.post(new URL('/authentication/register', API_URL).toString(), formData);
             if (response.status === 201) {
                 router.push('/auth/login');
             }
         } catch (error: any) {
             if (error?.response?.data) {
-                setError(error.response.data);
+                setError(error.response.data.description);
             } else {
                 setError('Registration failed. Please try again.');
             }

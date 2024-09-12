@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import MenuBar from "@/components/layout/MenuBar";
-import Footer from "@/components/layout/Footer";
-import AmbientLight from "@/components/layout/AmbientLight";
+import ClientLayout from "./client-layout";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -21,12 +19,8 @@ export default function RootLayout({
     <html lang="en">
       <link rel="icon" href="/favicon.svg" />
       <body className={inter.className}>
-        <AmbientLight />
-        <MenuBar />
-        {children}
-        <Footer />
+        <ClientLayout>{children}</ClientLayout>
       </body>
-
     </html>
   );
 }
