@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
+import axios from "axios";
 
 const Login: React.FC = () => {
   const [formData, setFormData] = useState({ username: "", password: "" });
@@ -20,14 +21,14 @@ const Login: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const {user, response} = await login(formData.username, formData.password);
-      if (response.status === 200) {
-        router.push(user?.role === "ADMIN" ? "/admin/dashboard" : "/profile");
-      } else {
-        alert("Invalid credentials");
-      }
+      const { user } = await login(formData.username, formData.password);
+      router.push(user?.role === "ADMIN" ? "/admin/dashboard" : "/profile");
     } catch (error: any) {
-      alert("Login failed");
+      if (axios.isAxiosError(error)) {
+        alert(`Registration failed: ${error.response?.data.description}`);
+      } else {
+        alert(`Registration failed: ${error.message}`);
+      }
     }
   };
 

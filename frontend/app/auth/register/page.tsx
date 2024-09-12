@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import axiosInstance from '@/lib/axios';
+import axios from 'axios';
 
 const API_URL = `${process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL}`;
 
@@ -41,14 +42,14 @@ const Register: React.FC = () => {
             return;
         }
         try {
-            const response = await axiosInstance.post(new URL('/authentication/register', API_URL).toString(), formData);
-            if (response.status === 201) {
-                router.push('/auth/login');
-            } else {
-                alert('Registration failed');
-            }
+            await axiosInstance.post(new URL('/authentication/register', API_URL).toString(), formData);
+            router.push('/auth/login');
         } catch (error: any) {
-            alert('Registration failed');
+            if (axios.isAxiosError(error)) {
+                alert(`Registration failed: ${error.response?.data.description}`);
+            } else {
+                alert(`Registration failed: ${error.message}`);
+            }
         }
     };
 
