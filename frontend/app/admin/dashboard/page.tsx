@@ -1,13 +1,13 @@
-// frontend/app/admin/dashboard/page.tsx
 "use client";
-
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import withAuth from "@/hooks/withAuth";
 import { UserRole } from "@/models/user-role";
 import { User } from "@/models/user";
 import UserTable from "./user-table";
 import axiosInstance from "@/lib/axios";
+
+const API_URL = `${process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL}`;
 
 const AdminDashboard: React.FC = () => {
   const { user } = useAuth();
@@ -17,39 +17,36 @@ const AdminDashboard: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
-  const API_URL = `${process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL}`;
-
   useEffect(() => {
     const storedUsername = user?.username ?? "Guest";
     setUsername(storedUsername);
   }, [user]);
 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        setLoading(true);
-        const response = await axiosInstance.post(
-          new URL("/admin/get-users", API_URL).toString()
-        );
-
-        if (response.status !== 200) {
-          throw new Error("Failed to fetch users");
-        }
-
-        const data = await response.data;
-        setUsers(data);
-      } catch (error) {
-        alert("Failed to retieve");
-      } finally {
-        setLoading(false);
+  const fetchUsers = useCallback(async () => {
+    try {
+      setLoading(true);
+      const response = await axiosInstance.post(
+        new URL("/admin/get-users", API_URL).toString()
+      );
+      if (response.status !== 200) {
+        throw new Error("Failed to fetch users");
       }
-    };
-
-    fetchUsers();
+      setUsers(response.data);
+    } catch (error) {
+      console.error("Failed to retrieve users:", error);
+      alert("Failed to retrieve users. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]);
 
   const handleEditUser = (user: User) => {
     alert(`Editing ${user.username}`);
+    // Uncomment these lines when ready to implement editing
     // setSelectedUser(user);
     // setShowModal(true);
   };
@@ -64,6 +61,7 @@ const AdminDashboard: React.FC = () => {
 
   const handleDeleteUser = (user: User) => {
     alert(`Deleting ${user.username}`);
+    // Uncomment this line when ready to implement deletion
     // setUsers(users.filter((u) => u.userId !== user.userId));
   };
 
@@ -71,11 +69,15 @@ const AdminDashboard: React.FC = () => {
     <div className="flex flex-col items-center justify-center min-h-screen">
       <h2 className="text-2xl font-bold mb-4">Admin Dashboard</h2>
       <p>Welcome, {username}!</p>
-      <UserTable
-        users={users}
-        onEdit={handleEditUser}
-        onDelete={handleDeleteUser}
-      />
+      {loading ? (
+        <p>Loading users...</p>
+      ) : (
+        <UserTable
+          users={users}
+          onEdit={handleEditUser}
+          onDelete={handleDeleteUser}
+        />
+      )}
       {/* Add pagination controls here */}
     </div>
   );

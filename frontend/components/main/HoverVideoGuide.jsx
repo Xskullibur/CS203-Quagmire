@@ -20,6 +20,7 @@ const HoverVideoGuide = ({ steps }) => {
     }, []);
 
     useEffect(() => {
+        const currentSectionRef = sectionRef.current;
         const observer = new IntersectionObserver(
             (entries) => {
                 if (entries[0].isIntersecting) {
@@ -30,13 +31,13 @@ const HoverVideoGuide = ({ steps }) => {
             { threshold: 0.1 }
         );
 
-        if (sectionRef.current) {
-            observer.observe(sectionRef.current);
+        if (currentSectionRef) {
+            observer.observe(currentSectionRef);
         }
 
         return () => {
-            if (sectionRef.current) {
-                observer.unobserve(sectionRef.current);
+            if (currentSectionRef) {
+                observer.unobserve(currentSectionRef);
             }
         };
     }, [steps]);
@@ -79,8 +80,8 @@ const HoverVideoGuide = ({ steps }) => {
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ duration: 0.5, delay: 0.1 * index }}
                             className={`p-4 rounded-lg transition-all duration-300 cursor-pointer ${activeStep === step
-                                ? 'bg-zinc-800 text-white border border-zinc-700'
-                                : 'text-white hover:bg-zinc-900'
+                                    ? 'bg-zinc-800 text-white border border-zinc-700'
+                                    : 'text-white hover:bg-zinc-900'
                                 }`}
                             onClick={() => handleStepClick(step, index)}
                         >

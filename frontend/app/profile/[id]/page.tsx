@@ -5,7 +5,7 @@ import React, { useState, useEffect } from 'react';
 
 const Profile = () => {
     // Handles dynamic route params
-    const { id } = useParams(); 
+    const { id } = useParams();
     const [userData, setUserData] = useState<any>(null);
 
     useEffect(() => {
@@ -25,10 +25,10 @@ const Profile = () => {
 
     return (
         <div className="bg-[#212121] text-white min-h-screen p-8 flex flex-col items-center justify-center">
-            <h1 className="text-4xl font-bold mb-8">{userData.firstName} {userData.lastName}'s Profile</h1>
-            
+            <h1 className="text-4xl font-bold mb-8">{userData.firstName} {userData.lastName}&pos;s Profile</h1>
+
             <div className="grid grid-cols-2 gap-8 w-full max-w-6xl">
-                
+
                 {/* Personal Info */}
                 <div className="bg-[#171717] p-6 rounded-lg shadow-md">
                     <h2 className="text-2xl font-semibold mb-4">Personal Info</h2>
