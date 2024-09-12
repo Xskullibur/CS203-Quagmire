@@ -8,7 +8,7 @@ import axiosInstance from "@/lib/axios";
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<{user: User;response: AxiosResponse<any, any>;}>;
+  login: (email: string, password: string) => Promise<{ user: User; response: AxiosResponse<any, any>; }>;
   logout: () => void;
   isAuthenticated: () => boolean;
 }
@@ -60,16 +60,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       );
 
       const { token, user } = response.data;
-      
+
       Cookies.set(AUTH_TOKEN, token, {
         secure: true,
         sameSite: "Lax",
         expires: 10,
       });
-      
+
       setUser(user);
       setLoading(false);
-      return {user, response};
+      return { user, response };
     } catch (error) {
       console.error("Login failed:", error);
       throw error;
