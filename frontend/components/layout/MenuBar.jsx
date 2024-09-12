@@ -28,6 +28,7 @@ export default function MenuBar() {
             <div className="hidden md:flex absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
               <div className="flex items-center space-x-6">
                 <Link href="/tournaments" className="text-sm text-white hover:text-gray-600 transition">Tournaments</Link>
+                <Link href="/leaderboard" className="text-sm text-white hover:text-gray-600 transition">Leaderboard</Link>
                 {user?.role === 'ADMIN' && (
                   <Link href="/admin/dashboard" className="text-sm text-white hover:text-gray-600 transition">Dashboard</Link>
                 )}
@@ -43,7 +44,7 @@ export default function MenuBar() {
             </button>
 
             <div className="hidden md:flex items-center space-x-6">
-              {!isAuthenticated() ? (
+              {!isAuthenticated ? (
                 <>
                   <Link href="/auth/login" className="text-sm text-white hover:text-gray-600 transition">Log in</Link>
                   <Link href="/auth/register" className="text-sm bg-zinc-500 text-white px-4 py-2 rounded-full hover:bg-gray-700 transition">Sign up</Link>
@@ -77,7 +78,7 @@ export default function MenuBar() {
           </button>
           <div className="flex flex-col items-center space-y-8">
             <Link href="/tournaments" className="text-xl text-white hover:text-gray-400 transition" onClick={() => setIsMenuOpen(false)}>Tournaments</Link>
-            {isAuthenticated() && (
+            {isAuthenticated && (
               <>
                 <Link href="/profile" className="text-xl text-white hover:text-gray-400 transition" onClick={() => setIsMenuOpen(false)}>Profile</Link>
                 <Link href="/queue" className="text-xl text-white hover:text-gray-400 transition" onClick={() => setIsMenuOpen(false)}>Queue</Link>
@@ -86,7 +87,7 @@ export default function MenuBar() {
             {user?.role === 'ADMIN' && (
               <Link href="/admin/dashboard" className="text-xl text-white hover:text-gray-400 transition" onClick={() => setIsMenuOpen(false)}>Dashboard</Link>
             )}
-            {!isAuthenticated() ? (
+            {!isAuthenticated ? (
               <>
                 <Link href="/auth/login" className="text-xl text-white hover:text-gray-400 transition" onClick={() => setIsMenuOpen(false)}>Log in</Link>
                 <Link href="/auth/register" className="text-xl bg-zinc-500 text-white px-6 py-2 rounded-full hover:bg-gray-700 transition" onClick={() => setIsMenuOpen(false)}>Sign up</Link>

@@ -10,7 +10,7 @@ const withAuth = (WrappedComponent: React.FC, requiredRole?: UserRole) => {
 
     useEffect(() => {
       if (!loading) {
-        if (!isAuthenticated()) {
+        if (!isAuthenticated) {
           router.push("/auth/login");
         } else if (requiredRole && user?.role !== requiredRole) {
           router.push("/not-found");
@@ -18,7 +18,7 @@ const withAuth = (WrappedComponent: React.FC, requiredRole?: UserRole) => {
       }
     }, [loading, isAuthenticated, user, router]);
 
-    if (loading || !isAuthenticated() || (requiredRole && user?.role !== requiredRole)) {
+    if (loading || !isAuthenticated || (requiredRole && user?.role !== requiredRole)) {
       return <div>Loading...</div>;
     }
 
