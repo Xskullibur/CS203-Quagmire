@@ -2,7 +2,10 @@ package com.project.G1_T3.common.exception;
 
 import java.nio.file.AccessDeniedException;
 
-import org.springframework.http.HttpStatusCode;
+import javax.crypto.spec.DESKeySpec;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.ProblemDetail;
 import org.springframework.security.authentication.AccountStatusException;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -14,42 +17,56 @@ import io.jsonwebtoken.ExpiredJwtException;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    private static final String DESC = "description";
+
+    @ExceptionHandler(UsernameAlreadyTakenException.class)
+    public ResponseEntity<ProblemDetail> handleUsernameAlreadyTakenException(UsernameAlreadyTakenException e) {
+        ProblemDetail errorDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, e.getMessage());
+        errorDetail.setProperty(DESC, "The username is already taken");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDetail);
+    }
+
+    @ExceptionHandler(EmailAlreadyInUseException.class)
+    public ResponseEntity<ProblemDetail> handleEmailAlreadyInUseException(EmailAlreadyInUseException e) {
+        ProblemDetail errorDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, e.getMessage());
+        errorDetail.setProperty(DESC, "The email is already in use");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDetail);
+    }
+
     @ExceptionHandler(Exception.class)
-    public ProblemDetail handleSecurityException(Exception exception) {
+    public ResponseEntity<ProblemDetail> handleSecurityException(Exception exception) {
 
         ProblemDetail errorDetail = null;
-        final String DESC = "description";
 
-        // TODO: Log this some where useful
         exception.printStackTrace();
 
         if (exception instanceof BadCredentialsException) {
-            errorDetail = ProblemDetail.forStatusAndDetail(HttpStatusCode.valueOf(401), exception.getMessage());
+            errorDetail = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, exception.getMessage());
             errorDetail.setProperty(DESC, "The username or password is incorrect");
-
-            return errorDetail;
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorDetail);
         }
 
         if (exception instanceof AccountStatusException) {
-            errorDetail = ProblemDetail.forStatusAndDetail(HttpStatusCode.valueOf(403), exception.getMessage());
+            errorDetail = ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, exception.getMessage());
             errorDetail.setProperty(DESC, "The account is locked");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorDetail);
         }
 
         if (exception instanceof AccessDeniedException) {
-            errorDetail = ProblemDetail.forStatusAndDetail(HttpStatusCode.valueOf(403), exception.getMessage());
+            errorDetail = ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, exception.getMessage());
             errorDetail.setProperty(DESC, "You are not authorized to access this resource");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorDetail);
         }
 
         if (exception instanceof ExpiredJwtException) {
-            errorDetail = ProblemDetail.forStatusAndDetail(HttpStatusCode.valueOf(403), exception.getMessage());
+            errorDetail = ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, exception.getMessage());
             errorDetail.setProperty(DESC, "The JWT token has expired");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorDetail);
         }
 
-        if (errorDetail == null) {
-            errorDetail = ProblemDetail.forStatusAndDetail(HttpStatusCode.valueOf(500), exception.getMessage());
-            errorDetail.setProperty(DESC, "Unknown internal server error.");
-        }
-
-        return errorDetail;
+        // Default case for unknown exceptions
+        errorDetail = ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, exception.getMessage());
+        errorDetail.setProperty(DESC, "Unknown internal server error.");
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorDetail);
     }
 }

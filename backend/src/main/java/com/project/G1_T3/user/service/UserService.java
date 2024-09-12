@@ -9,6 +9,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.project.G1_T3.common.exception.EmailAlreadyInUseException;
+import com.project.G1_T3.common.exception.UsernameAlreadyTakenException;
 import com.project.G1_T3.user.model.User;
 import com.project.G1_T3.user.model.UserDTO;
 import com.project.G1_T3.user.model.UserRole;
@@ -24,6 +26,14 @@ public class UserService {
     private PasswordEncoder passwordEncoder;
 
     public void registerUser(String username, String email, String password) {
+
+        if (existsByUsername(username)) {
+            throw new UsernameAlreadyTakenException("Username is already taken");
+        }
+        if (existsByEmail(email)) {
+            throw new EmailAlreadyInUseException("Email is already in use");
+        }
+
         // Create new user
         User newUser = new User();
         newUser.setUsername(username);

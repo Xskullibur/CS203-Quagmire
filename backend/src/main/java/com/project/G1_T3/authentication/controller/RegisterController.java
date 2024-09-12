@@ -1,5 +1,6 @@
 package com.project.G1_T3.authentication.controller;
 
+import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,15 +16,7 @@ public class RegisterController {
     private UserService userService;
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody RegisterRequest registerRequest) {
-
-        // Check if username or email already exists
-        if (userService.existsByUsername(registerRequest.getUsername())) {
-            return ResponseEntity.badRequest().body("Username is already taken");
-        }
-        if (userService.existsByEmail(registerRequest.getEmail())) {
-            return ResponseEntity.badRequest().body("Email is already in use");
-        }
+    public ResponseEntity<?> registerUser(@RequestBody RegisterRequest registerRequest) throws BadRequestException {
 
         userService.registerUser(
                 registerRequest.getUsername(),

@@ -10,8 +10,6 @@ import com.project.G1_T3.authentication.service.JwtService;
 import com.project.G1_T3.user.model.User;
 import com.project.G1_T3.user.model.UserDTO;
 
-import java.util.Optional;
-
 @RestController
 @RequestMapping("/authentication")
 public class LoginController {
@@ -25,19 +23,14 @@ public class LoginController {
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@RequestBody LoginRequest loginRequest) {
 
-        Optional<User> userOptional = authService.authenticateUser(loginRequest.getUsername(),
+        User user = authService.authenticateUser(
+                loginRequest.getUsername(),
                 loginRequest.getPassword());
 
-        if (userOptional.isPresent()) {
-            User user = userOptional.get();
-            String token = jwtService.generateToken(user);
+        String token = jwtService.generateToken(user);
+        UserDTO userDTO = UserDTO.fromUser(user);
+        LoginResponseDTO response = new LoginResponseDTO(userDTO, token);
 
-            UserDTO userDTO = UserDTO.fromUser(user);
-            LoginResponseDTO response = new LoginResponseDTO(userDTO, token);
-
-            return ResponseEntity.ok().body(response);
-        }
-
-        return ResponseEntity.badRequest().body("Invalid username or password");
+        return ResponseEntity.ok().body(response);
     }
 }
