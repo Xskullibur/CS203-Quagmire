@@ -10,6 +10,7 @@ export default function MenuBar() {
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
+      document.getElementsByClassName('logo')[0].classList.toggle('text-accent', window.scrollY > 10);
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
@@ -23,7 +24,7 @@ export default function MenuBar() {
           ${isScrolled ? 'bg-zinc-900/70 backdrop-blur-xl border border-zinc-800/60' : 'bg-transparent'}
         `}>
           <div className="flex items-center justify-between">
-            <Link href="/" className="text-md font-bold font-mono text-white hover:text-gray-600 transition">Quagmire</Link>
+            <Link href="/" className="logo text-md font-bold font-mono text-white hover:text-gray-600 transition">Quagmire</Link>
 
             <div className="hidden md:flex absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
               <div className="flex items-center space-x-6">

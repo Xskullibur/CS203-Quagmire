@@ -4,17 +4,6 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { addDays, format } from "date-fns"
-import { Calendar as CalendarIcon } from "lucide-react"
-import { DateRange } from "react-day-picker"
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Calendar } from "@/components/ui/calendar"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
 
 interface Tournament {
     id: number;
@@ -33,7 +22,6 @@ const TournamentHeader: React.FC = () => (
 );
 
 const TournamentTabs: React.FC<{ currentTab: 'upcoming' | 'past'; setCurrentTab: (tab: 'upcoming' | 'past') => void }> = ({ currentTab, setCurrentTab }) => (
-
     <div>
         <Tabs defaultValue={currentTab} className="w-full max-w-md">
             <TabsList className="flex justify-center w-full">
@@ -44,18 +32,9 @@ const TournamentTabs: React.FC<{ currentTab: 'upcoming' | 'past'; setCurrentTab:
                     Past
                 </TabsTrigger>
             </TabsList>
-            </Tabs>
+        </Tabs>
     </div>
 );
-
-export function DatePickerWithRange({
-    className,
-  }: React.HTMLAttributes<HTMLDivElement>) {
-    const [date, setDate] = React.useState<DateRange | undefined>({
-      from: new Date(2022, 0, 20),
-      to: addDays(new Date(2022, 0, 20), 20),
-    })
-    }
 
 const TournamentPage: React.FC = () => {
     const [tournaments, setTournaments] = useState<Tournament[]>([]);
@@ -88,26 +67,17 @@ const TournamentPage: React.FC = () => {
     }, [currentTab]);
 
     return (
-        <div className="flex flex-col items-center min-h-screen pt-20"> {/* Add padding to account for MenuBar */}
-            {/* Persistent Header */}
+        <div className="flex flex-col items-center min-h-screen pt-20">
             <TournamentHeader />
-
-            {/* Persistent Tabs */}
             <TournamentTabs currentTab={currentTab} setCurrentTab={setCurrentTab} />
-
-            {/* Display loading, error, or tournaments based on state */}
             <div className="flex flex-col items-center w-full p-4">
                 {loading && <p className="text-lg text-gray-500">Loading...</p>}
-
                 {error && <p className="text-lg text-red-500">Error: {error}</p>}
-
                 {!loading && !error && tournaments.length === 0 && (
                     <p className="text-lg text-gray-500">
                         {currentTab === 'upcoming' ? 'No upcoming tournaments available.' : 'No past tournaments available.'}
                     </p>
                 )}
-
-                {/* Conditionally render tournaments */}
                 {!loading && !error && tournaments.map(tournament => (
                     <Card key={tournament.id} className="mb-4 w-full max-w-md">
                         <CardHeader>
