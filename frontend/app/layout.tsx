@@ -6,7 +6,7 @@ import ClientLayout from "./client-layout";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Hand Hathaway",
+  title: "Quagmire",
   description: "The state-of-the-art arm wrestling tournament application!",
 };
 

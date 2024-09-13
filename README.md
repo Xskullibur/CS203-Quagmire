@@ -1,4 +1,4 @@
-# Hand Hathaway (HH)
+# Quagmire
 
 ## 📹 Video Setup Instructions
 After you have downloaded all the necessary [prerequisites](#prerequisites), run docker desktop and follow the instructions.
@@ -22,7 +22,7 @@ https://github.com/user-attachments/assets/360b0e55-d038-4fdd-9af1-a2011a716650
 
 ## Introduction
 
-Welcome to the G1T3's Hand Hathaway (HH). Our app is an arm wrestling tournament application that matches against each other using a sophisticated matchmaking algorithm.
+Welcome to the G1T3's Quagmire. Our app is an arm wrestling tournament application that matches against each other using a sophisticated matchmaking algorithm.
 This application is a full-stack solution that combines a Spring Boot backend with a Next.js frontend, orchestrated using Docker for easy development and deployment, (we will probably host it on AWS but not cfm)
 
 Members:

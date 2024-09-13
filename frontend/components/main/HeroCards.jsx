@@ -93,6 +93,7 @@ const HeroCards = () => {
                 description="Find your way around."
             />
             {/* Add more Card components here */}
+            <div className="circular-gradient bg-gradient-to-b from-black to-white"></div>
         </div>
     );
 };

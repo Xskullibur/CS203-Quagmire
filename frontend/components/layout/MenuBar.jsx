@@ -23,7 +23,7 @@ export default function MenuBar() {
           ${isScrolled ? 'bg-zinc-900/70 backdrop-blur-xl border border-zinc-800/60' : 'bg-transparent'}
         `}>
           <div className="flex items-center justify-between">
-            <Link href="/" className="text-xl font-bold text-white hover:text-gray-600 transition">HH</Link>
+            <Link href="/" className="text-md font-bold font-mono text-white hover:text-gray-600 transition">Quagmire</Link>
 
             <div className="hidden md:flex absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
               <div className="flex items-center space-x-6">

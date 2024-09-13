@@ -10,7 +10,7 @@ export default function Footer() {
         <div className="border-t border-[#ffffff1a] pt-8 md:pt-16">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 text-center">
             <div className="mb-8 sm:mb-0">
-              <p className="font-semibold mb-4">Hand Hathaway</p>
+              <p className="font-semibold mb-4 font-mono">Quagmire</p>
               {/* Social Icons */}
               <div className="flex justify-center space-x-4 mt-4">
                 <Button className="bg-[#ffffff1a] text-white hover:bg-[#ffffff2a]">
