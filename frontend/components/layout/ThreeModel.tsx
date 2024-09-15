@@ -69,6 +69,7 @@ const ThreeModel: React.FC<ThreeModelProps> = memo(({ modelUrl, zoomLength, posi
     return (
         <Canvas camera={{ position: position, zoom: zoomLength }}>
             <Suspense fallback={null}>
+                <ambientLight intensity={0.75} />
                 <RotatingModel url={modelUrl} modelPosition={modelPosition} />
             </Suspense>
         </Canvas>
