@@ -83,7 +83,7 @@ export default function HeroSection() {
                     transition={{ delay: 1.2, duration: 0.8 }}
                 >
                     <Image
-                        src="/linear.png"
+                        src="/headerImg.png"
                         alt="Hero image"
                         width={1920}
                         height={1080}
