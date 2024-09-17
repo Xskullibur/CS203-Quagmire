@@ -63,4 +63,12 @@ public class PlayerProfile {
     public Float getELO() {
         return currentRating;
     }
+
+    public double getRating() {
+        return currentRating;
+    }
+
+    public void setRating(Float rating) {
+        this.currentRating = rating;
+    }
 }

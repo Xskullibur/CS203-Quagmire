@@ -9,8 +9,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies safely
-RUN npm ci --ignore-scripts \
-    && if ! [ -d "node_modules/framer-motion" ]; then npm install framer-motion --ignore-scripts; fi
+RUN npm i
 
 # Copy the rest of the code
 COPY . .
