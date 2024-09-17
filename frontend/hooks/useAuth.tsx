@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext, createContext, useMemo, useCallback } from "react";
+import { useState, useEffect, useContext, createContext, useMemo, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { AxiosResponse } from "axios";
 import Cookies from "js-cookie";
@@ -22,8 +22,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const router = useRouter();
+  const tokenValidationAttempted = useRef(false);
 
   useEffect(() => {
+
+    const validateToken = async (token: string) => {
+
+      if (tokenValidationAttempted.current) return;
+      tokenValidationAttempted.current = true;
+
+      try {
+        const response = await axiosInstance.post(`${API_URL}/authentication/validate-token`, { token });
+        setUser(response.data);
+        setIsAuthenticated(true);
+      } catch (error) {
+        console.error("Token validation failed:", error);
+        Cookies.remove(AUTH_TOKEN);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     const token = Cookies.get(AUTH_TOKEN);
     if (token) {
       validateToken(token);
@@ -31,19 +50,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setLoading(false);
     }
   }, []);
-
-  const validateToken = async (token: string) => {
-    try {
-      const response = await axiosInstance.post(`${API_URL}/authentication/validate-token`, { token });
-      setUser(response.data);
-      setIsAuthenticated(true);
-    } catch (error) {
-      console.error("Token validation failed:", error);
-      Cookies.remove(AUTH_TOKEN);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const login = async (username: string, password: string) => {
     try {
@@ -79,7 +85,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     login,
     logout,
     isAuthenticated,
-  }), [user, loading, logout, isAuthenticated]);
+  }), [user, loading, logout]);
 
   return (
     <AuthContext.Provider value={providerValue}>
