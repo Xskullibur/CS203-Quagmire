@@ -42,5 +42,11 @@ public class LeaderboardController {
         long userId = u.get().getId();
      
         return leaderboardService.getPlayerInfo(userId); 
-    } 
+    }
+
+    @GetMapping("user/{userId}") 
+    public LeaderboardPlayerProfile getPlayerInfo(@PathVariable long userId) { 
+     
+        return leaderboardService.getPlayerInfo(userId); 
+    }
 }
