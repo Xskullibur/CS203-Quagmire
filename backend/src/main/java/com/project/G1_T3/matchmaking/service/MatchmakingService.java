@@ -13,8 +13,8 @@ public class MatchmakingService {
     private final ConcurrentMap<UUID, PlayerProfile> playerPool = new ConcurrentHashMap<>();
 
     public void addPlayerToQueue(PlayerProfile player) {
-        System.out.println("Adding player to queue: " + player.getFirstName() + " (ID: " + player.getUserId() + ")");
-        playerPool.put(player.getUserId(), player);
+        System.out.println("Adding player to queue: " + player.getFirstName() + " (ID: " + player.getProfileId() + ")");
+        playerPool.put(player.getProfileId(), player);
         System.out.println("Player added. Current queue size: " + playerPool.size());
         printQueueStatus();
     }
@@ -24,21 +24,24 @@ public class MatchmakingService {
         printQueueStatus(); // Print queue status when a player is removed
     }
 
+    // TODO: Implement a proper matchmaking algorithm
+    // Temporary method to find a match
+    // Once we have a proper matchmaking algorithm, this method will be replaced
     public Match findMatch() {
         if (playerPool.size() < 2) {
             return null;
         }
 
         PlayerProfile player1 = playerPool.values().iterator().next();
-        playerPool.remove(player1.getUserId());
+        playerPool.remove(player1.getProfileId());
 
         PlayerProfile player2 = playerPool.values().iterator().next();
-        playerPool.remove(player2.getUserId());
+        playerPool.remove(player2.getProfileId());
 
         Match match = new Match();
         match.setGameType(Match.GameType.SOLO);
-        match.setPlayer1Id(player1.getUserId());
-        match.setPlayer2Id(player2.getUserId());
+        match.setPlayer1Id(player1.getProfileId());
+        match.setPlayer2Id(player2.getProfileId());
         match.setStatus(Match.MatchStatus.SCHEDULED);
 
         return match;
@@ -48,7 +51,7 @@ public class MatchmakingService {
         System.out.println("Current players in queue: " + playerPool.size());
         for (PlayerProfile player : playerPool.values()) {
             System.out.println("Player: " + player.getFirstName() + " " + player.getLastName() + " (ID: "
-                    + player.getUserId() + ")");
+                    + player.getProfileId() + ")");
         }
         System.out.println("--------------------");
     }

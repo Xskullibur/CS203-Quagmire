@@ -29,25 +29,29 @@ public class PlayerProfile {
     @Column(name = "user_id", nullable = false)
     private UUID userId;
 
-    @Column(name = "first_name")
+    @Column(name = "first_name", nullable = true)
     private String firstName;
 
-    @Column(name = "last_name")
+    @Column(name = "last_name", nullable = true)
     private String lastName;
 
-    @Column(name = "date_of_birth")
+    @Column(name = "date_of_birth", nullable = true)
     private LocalDate dateOfBirth; // Use java.time.LocalDate for DATE fields
 
-    @Column(name = "country")
+    @Column(name = "country", nullable = true)
     private String country;
 
     @Column(name = "bio", columnDefinition = "TEXT")
     private String bio;
 
     @Column(name = "current_rating")
-    private Float currentRating;
+    private Float currentRating = 0.0f;
 
     // Getters, setters, and other methods...
+    public UUID getUserId() {
+        return userId;
+    }
+
     public UUID getProfileId() {
         return profileId;
     }
@@ -66,6 +70,10 @@ public class PlayerProfile {
 
     public double getRating() {
         return currentRating;
+    }
+
+    public void setUserId(UUID userId) {
+        this.userId = userId;
     }
 
     public void setRating(Float rating) {

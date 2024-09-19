@@ -36,7 +36,6 @@ public class AuthenticationController {
                 final UserDTO userDTO = userService.getUserDTOByUsername(jwtUsername);
                 return ResponseEntity.ok(userDTO);
             } else {
-
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");
             }
 

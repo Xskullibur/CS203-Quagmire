@@ -31,16 +31,16 @@ public class MatchChecker {
 
         Match match = matchmakingService.findMatch();
         if (match != null) {
-            PlayerProfile player1 = playerProfileRepository.findByUserId(match.getPlayer1Id());
-            PlayerProfile player2 = playerProfileRepository.findByUserId(match.getPlayer2Id());
+            PlayerProfile player1 = playerProfileRepository.findByProfileId(match.getPlayer1Id());
+            PlayerProfile player2 = playerProfileRepository.findByProfileId(match.getPlayer2Id());
 
             // Create custom messages for each player
             MatchNotification notificationForPlayer1 = new MatchNotification(match, player2.getFirstName());
             MatchNotification notificationForPlayer2 = new MatchNotification(match, player1.getFirstName());
 
             // Send personalized notifications to players
-            messagingTemplate.convertAndSend("/topic/solo/match/" + match.getPlayer1Id(), notificationForPlayer1);
-            messagingTemplate.convertAndSend("/topic/solo/match/" + match.getPlayer2Id(), notificationForPlayer2);
+            messagingTemplate.convertAndSend("/topic/solo/match/" + player1.getUserId(), notificationForPlayer1);
+            messagingTemplate.convertAndSend("/topic/solo/match/" + player2.getUserId(), notificationForPlayer2);
 
             System.out.println("Match found: " + player1.getFirstName() + " vs " + player2.getFirstName());
         }
