@@ -13,12 +13,13 @@ import { LeaderboardPosition } from '@/components/ui/leaderboardPosition';
 //         return -1
 //     }
 // });
+const API_URL = `${process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL}`;
 
 export default function Leaderboard() {
     const [data, setData] = useState([]);
 
     useEffect(() => {
-        fetch("http://localhost:8080/leaderboard ") // Your Spring Boot backend URL
+        fetch( API_URL+"/leaderboard") // Your Spring Boot backend URL
             .then((response) => response.json())
             .then((result) => {
                 setData(result);
