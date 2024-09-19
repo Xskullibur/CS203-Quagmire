@@ -1,58 +1,86 @@
 package com.project.G1_T3.matchmaking.service;
 
 import com.project.G1_T3.matchmaking.model.Match;
+import com.project.G1_T3.matchmaking.model.QueuedPlayer;
 import com.project.G1_T3.player.model.PlayerProfile;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Comparator;
 
+@Slf4j
 @Service
 public class MatchmakingService {
-    private final ConcurrentMap<UUID, PlayerProfile> playerPool = new ConcurrentHashMap<>();
+    private final ConcurrentMap<UUID, QueuedPlayer> playerQueue = new ConcurrentHashMap<>();
+    private final MatchmakingAlgorithm matchmakingAlgorithm;
+    private final MeetingPointService meetingPointService;
 
-    public void addPlayerToQueue(PlayerProfile player) {
-        System.out.println("Adding player to queue: " + player.getFirstName() + " (ID: " + player.getProfileId() + ")");
-        playerPool.put(player.getProfileId(), player);
-        System.out.println("Player added. Current queue size: " + playerPool.size());
-        printQueueStatus();
+    public MatchmakingService(MatchmakingAlgorithm matchmakingAlgorithm, MeetingPointService meetingPointService) {
+        this.matchmakingAlgorithm = matchmakingAlgorithm;
+        this.meetingPointService = meetingPointService;
+    }
+
+    public void addPlayerToQueue(PlayerProfile player, double latitude, double longitude) {
+        log.info("Adding player to queue: {} (ID: {})", player.getUserId(), player.getProfileId());
+        QueuedPlayer queuedPlayer = new QueuedPlayer(player, latitude, longitude);
+        playerQueue.put(player.getProfileId(), queuedPlayer);
+        log.info("Player added. Current queue size: {}", playerQueue.size());
     }
 
     public void removePlayerFromQueue(UUID playerId) {
-        playerPool.remove(playerId);
-        printQueueStatus(); // Print queue status when a player is removed
+        log.info("Removing player from queue: {}", playerId);
+        playerQueue.remove(playerId);
+        log.info("Player removed. Current queue size: {}", playerQueue.size());
     }
 
-    // TODO: Implement a proper matchmaking algorithm
-    // Temporary method to find a match
-    // Once we have a proper matchmaking algorithm, this method will be replaced
     public Match findMatch() {
-        if (playerPool.size() < 2) {
+        if (playerQueue.size() < 2) {
+            log.debug("Not enough players in queue for matching");
             return null;
         }
 
-        PlayerProfile player1 = playerPool.values().iterator().next();
-        playerPool.remove(player1.getProfileId());
+        List<QueuedPlayer> players = new ArrayList<>(playerQueue.values());
+        players.sort(Comparator.comparingDouble(QueuedPlayer::getPriority).reversed());
 
-        PlayerProfile player2 = playerPool.values().iterator().next();
-        playerPool.remove(player2.getProfileId());
+        for (int i = 0; i < players.size() - 1; i++) {
+            QueuedPlayer player1 = players.get(i);
+            QueuedPlayer player2 = players.get(i + 1);
 
-        Match match = new Match();
-        match.setGameType(Match.GameType.SOLO);
-        match.setPlayer1Id(player1.getProfileId());
-        match.setPlayer2Id(player2.getProfileId());
-        match.setStatus(Match.MatchStatus.SCHEDULED);
+            if (matchmakingAlgorithm.isGoodMatch(player1, player2)) {
+                playerQueue.remove(player1.getPlayer().getProfileId());
+                playerQueue.remove(player2.getPlayer().getProfileId());
 
-        return match;
+                double[] meetingPoint = meetingPointService.findMeetingPoint(player1, player2);
+
+                Match match = new Match();
+                match.setGameType(Match.GameType.SOLO);
+                match.setPlayer1Id(player1.getPlayer().getProfileId());
+                match.setPlayer2Id(player2.getPlayer().getProfileId());
+                match.setStatus(Match.MatchStatus.SCHEDULED);
+                match.setMeetingLatitude(meetingPoint[0]);
+                match.setMeetingLongitude(meetingPoint[1]);
+
+                log.info("Match found: {} vs {}", player1.getPlayer().getUserId(), player2.getPlayer().getUserId());
+                return match;
+            }
+        }
+
+        log.debug("No suitable match found in this iteration");
+        return null;
     }
 
     public void printQueueStatus() {
-        System.out.println("Current players in queue: " + playerPool.size());
-        for (PlayerProfile player : playerPool.values()) {
-            System.out.println("Player: " + player.getFirstName() + " " + player.getLastName() + " (ID: "
-                    + player.getProfileId() + ")");
-        }
-        System.out.println("--------------------");
+        log.debug("Current players in queue: {}", playerQueue.size());
+        playerQueue.values().forEach(player -> log.debug("Player: {} (ID: {}), Priority: {}, Current Rating: {}",
+                player.getPlayer().getUserId(),
+                player.getPlayer().getProfileId(),
+                player.getPriority(),
+                player.getPlayer().getCurrentRating()));
+        log.debug("--------------------");
     }
 }

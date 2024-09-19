@@ -37,6 +37,12 @@ public class Match {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @Column(name = "meetingLatitude")
+    private double meetingLatitude;
+
+    @Column(name = "meetingLongitude")
+    private double meetingLongitude;
+
     public enum GameType {
         SOLO, TOURNAMENT
     }
@@ -94,6 +100,22 @@ public class Match {
 
     public MatchStatus getStatus() {
         return status;
+    }
+
+    public void setMeetingLatitude(double meetingLatitude) {
+        this.meetingLatitude = meetingLatitude;
+    }
+
+    public void setMeetingLongitude(double meetingLongitude) {
+        this.meetingLongitude = meetingLongitude;
+    }
+
+    public double getMeetingLatitude() {
+        return meetingLatitude;
+    }
+
+    public double getMeetingLongitude() {
+        return meetingLongitude;
     }
 
 }

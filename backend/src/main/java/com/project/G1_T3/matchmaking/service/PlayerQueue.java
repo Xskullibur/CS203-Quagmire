@@ -49,7 +49,7 @@ public class PlayerQueue {
 
         public double getPriority() {
             long waitTime = System.currentTimeMillis() - joinTime;
-            return player.getRating() + (waitTime / 1000.0);
+            return player.getCurrentRating() + (waitTime / 1000.0);
         }
     }
 }
