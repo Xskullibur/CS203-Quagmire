@@ -1,194 +1,136 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import axios from 'axios';
-import { Card, CardHeader, CardDescription, CardContent, CardTitle } from '@/components/ui/card';
-import QueueManagement from '@/components/matches/QueueManagement';
-import { useAuth } from '@/hooks/useAuth';
-import withAuth from '@/hooks/withAuth';
-import dynamic from 'next/dynamic';
+import React, { useState, useEffect } from 'react';
+import { useWebSocket } from '@/hooks/useWebSocket';
+import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import ProfilePlayerCard from '@/components/matches/ProfilePlayerCard';
 import { PlayerProfile } from '@/types/player';
-import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { useGeolocation } from '@/hooks/useGeolocation'; // Create this custom hook
 
-const MatchMap = dynamic(() => import('@/components/matches/MatchMap'), { ssr: false });
+interface QueueManagementProps {
+    playerId: string;
+    onMatchFound: (matchFound: boolean, opponentName: string, meetingPoint: [number, number], opponentProfile: PlayerProfile) => void;
+}
 
-const API_URL = `${process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL}`;
+interface MatchNotification {
+    match: {
+        meetingLatitude: number;
+        meetingLongitude: number;
+    };
+    opponentName: string;
+    opponentProfile: PlayerProfile;
+}
 
-const Match: React.FC = () => {
-    const { user } = useAuth();
-    const [playerId, setPlayerId] = useState<string | null>(null);
+const QueueManagement: React.FC<QueueManagementProps> = ({ playerId, onMatchFound }) => {
+    const [inQueue, setInQueue] = useState(false);
+    const [queueTime, setQueueTime] = useState(0);
     const [matchFound, setMatchFound] = useState(false);
     const [opponentName, setOpponentName] = useState('');
-    const [meetingPoint, setMeetingPoint] = useState<[number, number] | null>(null);
-    const [playerLocation, setPlayerLocation] = useState<[number, number] | null>(null);
-    const [opponentProfile, setOpponentProfile] = useState<PlayerProfile | null>(null);
-    const [activeMatch, setActiveMatch] = useState<any | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [showLocationAlert, setShowLocationAlert] = useState(false);
-    const [playerProfile, setPlayerProfile] = useState<PlayerProfile | null>(null);
+    const { client, connected } = useWebSocket();
+    const { location } = useGeolocation(); // Use the custom geolocation hook
 
     useEffect(() => {
-        if (user?.userId) {
-            setPlayerId(user.userId);
-            checkForActiveMatch(user.userId);
-            fetchPlayerProfile(user.userId);
-        }
-    }, [user]);
-
-    const fetchPlayerProfile = async (userId: string) => {
-        try {
-            const response = await axios.get(`${API_URL}/profile/${userId}`);
-            setPlayerProfile(response.data);
-        } catch (error) {
-            console.error("Error fetching player profile:", error);
-        }
-    };
-
-    const checkForActiveMatch = async (userId: string) => {
-        try {
-            setLoading(true);
-            const response = await axios.get(`${API_URL}/matches/current/${userId}`);
-            if (response.data) {
-                setActiveMatch(response.data);
-                setMatchFound(true);
-                setOpponentName(response.data.player1Id === userId ? response.data.player2Name : response.data.player1Name);
-                setMeetingPoint([response.data.meetingLatitude, response.data.meetingLongitude]);
-                // Fetch opponent profile
-                const opponentId = response.data.player1Id === userId ? response.data.player2Id : response.data.player1Id;
-                const opponentProfileResponse = await axios.get(`${API_URL}/profile/${opponentId}`);
-                setOpponentProfile(opponentProfileResponse.data);
-            }
-        } catch (error) {
-            console.error("Error checking for active match:", error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const getLocation = useCallback(() => {
-        if (typeof window !== 'undefined' && navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    setPlayerLocation([position.coords.latitude, position.coords.longitude]);
-                },
-                (error) => {
-                    console.error("Error getting location:", error);
-                    setShowLocationAlert(true);
+        if (client && connected) {
+            const subscription = client.subscribe(`/topic/solo/match/${playerId}`, (message) => {
+                try {
+                    const notification: MatchNotification = JSON.parse(message.body);
+                    console.log('Match found:', notification);
+                    setMatchFound(true);
+                    setInQueue(false);
+                    setOpponentName(notification.opponentName);
+                    onMatchFound(true, notification.opponentName, [notification.match.meetingLatitude, notification.match.meetingLongitude], notification.opponentProfile);
+                } catch (error) {
+                    console.error('Error parsing match data:', error);
                 }
-            );
+            });
+
+            return () => {
+                subscription.unsubscribe();
+            };
         }
-    }, []);
+    }, [client, connected, playerId]);
 
     useEffect(() => {
-        getLocation();
-    }, [getLocation]);
+        let interval: NodeJS.Timeout;
+        if (inQueue) {
+            interval = setInterval(() => {
+                setQueueTime((prevTime) => prevTime + 1);
+            }, 1000);
+        } else {
+            setQueueTime(0);
+        }
+        return () => clearInterval(interval);
+    }, [inQueue]);
 
-    const handleMatchFound = useCallback((opponent: string, meeting: [number, number], profile: PlayerProfile) => {
-        setMatchFound(true);
-        setOpponentName(opponent);
-        setMeetingPoint(meeting);
-        setOpponentProfile(profile);
-    }, []);
+    useEffect(() => {
+        if (client && connected) {
+            const subscription = client.subscribe(`/topic/solo/match/${playerId}`, (message) => {
+                try {
+                    const match = JSON.parse(message.body);
+                    console.log('Match found:', match);
+                    setMatchFound(true);
+                    setInQueue(false);
+                    setOpponentName(match.opponentName);
+                    onMatchFound(true, match.opponentName, [match.meetingLatitude, match.meetingLongitude], match.opponentProfile);
+                } catch (error) {
+                    console.error('Error parsing match data:', error);
+                }
+            });
 
-    const handleEnableLocation = useCallback(() => {
-        window.location.reload();
-    }, []);
+            return () => {
+                subscription.unsubscribe();
+            };
+        }
+    }, [client, connected, playerId]);
 
-    if (loading) {
-        return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
-    }
+    const joinQueue = () => {
+        if (client && connected && location) {
+            console.log('Sending join queue request for player:', playerId);
+            client.publish({
+                destination: '/app/solo/queue',
+                body: JSON.stringify({
+                    playerId: playerId,
+                    location: {
+                        latitude: location.latitude,
+                        longitude: location.longitude
+                    }
+                })
+            });
+            setInQueue(true);
+        } else {
+            console.error('Cannot join queue: client not connected or location not available');
+        }
+    };
 
-    if (!playerId) {
-        return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
-    }
+    const leaveQueue = () => {
+        if (client && connected) {
+            client.publish({ destination: '/app/solo/dequeue', body: playerId });
+            setInQueue(false);
+        }
+    };
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen p-4">
-            <h2 className="text-3xl font-bold text-center mb-8 text-zinc-400">Run the 1s</h2>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl">
-                {/* Player Profile Card */}
-                {playerProfile && (
-                    <Card className="col-span-1">
-                        <CardHeader>
-                            <CardTitle className="text-xl text-center">Your Profile</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <ProfilePlayerCard profile={playerProfile} name={user?.username || ''} />
-                        </CardContent>
-                    </Card>
-                )}
-
-                {/* Match Queue Card */}
-                <Card className="col-span-1">
-                    <CardHeader>
-                        <CardTitle className="text-2xl text-center">Match Queue</CardTitle>
-                        <CardDescription className='text-center'>Time to Box!</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        {activeMatch ? (
-                            <Alert className='text-center'>
-                                <AlertTitle>Active Match in Progress</AlertTitle>
-                                <AlertDescription>
-                                    You have an active match against {opponentName}. Please complete it before joining a new queue.
-                                </AlertDescription>
-                            </Alert>
-                        ) : matchFound ? (
-                            <Alert className='text-center'>
-                                <AlertTitle>Match Found!</AlertTitle>
-                                <AlertDescription>
-                                    Prepare for your arm wrestling match against {opponentName}.
-                                </AlertDescription>
-                            </Alert>
-                        ) : (
-                            <QueueManagement playerId={playerId} onMatchFound={handleMatchFound} />
-                        )}
-                    </CardContent>
-                </Card>
-
-                {/* Opponent Profile Card */}
-                {(matchFound || activeMatch) && opponentProfile && (
-                    <Card className="col-span-1">
-                        <CardHeader>
-                            <CardTitle className="text-xl text-center">Opponent</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <ProfilePlayerCard profile={opponentProfile} name={opponentName} />
-                        </CardContent>
-                    </Card>
-                )}
-
-                {/* Meeting Point Map Card */}
-                {(matchFound || activeMatch) && playerLocation && meetingPoint && (
-                    <Card className="col-span-1">
-                        <CardHeader>
-                            <CardTitle className="text-xl text-center">Meeting Point</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <MatchMap
-                                meetingPoint={meetingPoint}
-                                playerLocation={playerLocation}
-                            />
-                        </CardContent>
-                    </Card>
-                )}
-            </div>
-
-            <AlertDialog open={showLocationAlert} onOpenChange={setShowLocationAlert}>
-                <AlertDialogContent>
-                    <AlertDialogHeader>
-                        <AlertDialogTitle>Location Access Required</AlertDialogTitle>
-                        <AlertDialogDescription>
-                            To match you with nearby players, we need access to your location. Without this, you won't be able to join the queue. Would you like to enable location access?
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogAction onClick={handleEnableLocation}>Enable Location</AlertDialogAction>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
+        <div className="p-4">
+            {matchFound ? (
+                <Alert>
+                    <AlertTitle>Match Found!</AlertTitle>
+                    <AlertDescription>
+                        Prepare for your arm wrestling match against {opponentName}.
+                    </AlertDescription>
+                </Alert>
+            ) : inQueue ? (
+                <div>
+                    <p>In Queue: {Math.floor(queueTime / 60)}:{queueTime % 60 < 10 ? '0' : ''}{queueTime % 60}</p>
+                    <Button onClick={leaveQueue}>Leave Queue</Button>
+                </div>
+            ) : (
+                <Button variant="outline"
+                    onClick={joinQueue}
+                    className='hover:text-muted'
+                    disabled={!connected}>
+                    Join Queue
+                </Button>
+            )}
         </div>
     );
 };
 
-export default withAuth(Match);
+export default QueueManagement;

@@ -11,6 +11,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import ProfilePlayerCard from '@/components/matches/ProfilePlayerCard';
 import { PlayerProfile } from '@/types/player';
 import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { Button } from '@/components/ui/button';
 
 const MatchMap = dynamic(() => import('@/components/matches/MatchMap'), { ssr: false });
 
@@ -28,6 +29,8 @@ const Match: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [showLocationAlert, setShowLocationAlert] = useState(false);
     const [playerProfile, setPlayerProfile] = useState<PlayerProfile | null>(null);
+    const [locationError, setLocationError] = useState<string | null>(null);
+    const [isLocationEnabled, setIsLocationEnabled] = useState(false);
 
     useEffect(() => {
         if (user?.userId) {
@@ -48,24 +51,59 @@ const Match: React.FC = () => {
 
     const checkForActiveMatch = async (userId: string) => {
         try {
+            console.log("Checking for active match for user:", userId);
             setLoading(true);
             const response = await axios.get(`${API_URL}/matches/current/${userId}`);
+            console.log("Active match API response:", response.data);
+
             if (response.data) {
-                setActiveMatch(response.data);
+                const match = response.data;
+                setActiveMatch(match);
                 setMatchFound(true);
-                setOpponentName(response.data.player1Id === userId ? response.data.player2Name : response.data.player1Name);
-                setMeetingPoint([response.data.meetingLatitude, response.data.meetingLongitude]);
-                // Fetch opponent profile
-                const opponentId = response.data.player1Id === userId ? response.data.player2Id : response.data.player1Id;
-                const opponentProfileResponse = await axios.get(`${API_URL}/profile/${opponentId}`);
-                setOpponentProfile(opponentProfileResponse.data);
+                const isPlayer1 = match.player1Id === userId;
+                const opponentId = isPlayer1 ? match.player2Id : match.player1Id;
+                console.log("Match found. Opponent ID:", opponentId, "Opponent Name:", opponentName);
+                setMeetingPoint([match.meetingLatitude, match.meetingLongitude]);
+                await fetchOpponentProfile(opponentId);
+            } else {
+                console.log("No active match found");
+                setActiveMatch(null);
+                setMatchFound(false);
+                setOpponentProfile(null);
             }
         } catch (error) {
             console.error("Error checking for active match:", error);
+            setActiveMatch(null);
+            setMatchFound(false);
+            setOpponentProfile(null);
         } finally {
             setLoading(false);
         }
     };
+
+    const fetchOpponentProfile = async (opponentId: string) => {
+        try {
+            console.log("Fetching profile for opponent ID:", opponentId);
+            const response = await axios.get(`${API_URL}/profile/player/${opponentId}`);
+            console.log("Opponent profile response:", response.data);
+            setOpponentName(response.data.firstName);
+            setOpponentProfile(response.data);
+        } catch (error) {
+            console.error("Error fetching opponent profile:", error);
+            setOpponentProfile(null);
+        }
+    };
+
+    useEffect(() => {
+        if (user?.userId) {
+            console.log("User ID available, checking for active match");
+            setPlayerId(user.userId);
+            checkForActiveMatch(user.userId);
+            fetchPlayerProfile(user.userId);
+        } else {
+            console.log("No user ID available");
+        }
+    }, [user]);
 
     const getLocation = useCallback(() => {
         if (typeof window !== 'undefined' && navigator.geolocation) {
@@ -73,34 +111,40 @@ const Match: React.FC = () => {
                 (position) => {
                     setPlayerLocation([position.coords.latitude, position.coords.longitude]);
                     setShowLocationAlert(false);
+                    setLocationError(null);
+                    setIsLocationEnabled(true);
                 },
                 (error) => {
                     console.error("Error getting location:", error);
                     setShowLocationAlert(true);
+                    setLocationError(error.message);
+                    setIsLocationEnabled(false);
                 },
-                { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
             );
         } else {
             setShowLocationAlert(true);
+            setLocationError("Geolocation is not supported by this browser.");
+            setIsLocationEnabled(false);
         }
     }, []);
 
     useEffect(() => {
         getLocation();
-        const intervalId = setInterval(getLocation, 10000); // Check location every 10 seconds
+        const intervalId = setInterval(getLocation, 10000);
         return () => clearInterval(intervalId);
     }, [getLocation]);
 
-    const handleMatchFound = useCallback((opponent: string, meeting: [number, number], profile: PlayerProfile) => {
-        setMatchFound(true);
+    const handleEnableLocation = () => {
+        getLocation();
+    };
+
+    const handleMatchFound = useCallback((matchFound: boolean, opponent: string, meeting: [number, number], profile: PlayerProfile) => {
+        setMatchFound(matchFound);
         setOpponentName(opponent);
         setMeetingPoint(meeting);
         setOpponentProfile(profile);
     }, []);
-
-    const handleEnableLocation = useCallback(() => {
-        getLocation();
-    }, [getLocation]);
 
     if (loading) {
         return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
@@ -108,6 +152,29 @@ const Match: React.FC = () => {
 
     if (!playerId) {
         return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
+    }
+
+    if (!isLocationEnabled) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-screen p-4">
+                <AlertDialog open={true}>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>Precise Location Access Required</AlertDialogTitle>
+                            <AlertDialogDescription>
+                                To match you with nearby players and provide accurate directions, we need access to your precise location. Please enable precise location access in your browser settings.
+                                {locationError && <p className="text-red-500 mt-2">Error: {locationError}</p>}
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                            <Button variant="outline" onClick={handleEnableLocation}>
+                                Try Again
+                            </Button>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
+            </div>
+        );
     }
 
     return (
@@ -154,8 +221,7 @@ const Match: React.FC = () => {
                     </CardContent>
                 </Card>
 
-                {/* Opponent Profile Card */}
-                {(matchFound || activeMatch) && opponentProfile && (
+                {(activeMatch || matchFound) && opponentProfile ? (
                     <Card className="col-span-1">
                         <CardHeader>
                             <CardTitle className="text-xl text-center">Opponent</CardTitle>
@@ -164,10 +230,22 @@ const Match: React.FC = () => {
                             <ProfilePlayerCard profile={opponentProfile} name={opponentName} />
                         </CardContent>
                     </Card>
-                )}
+                ) : (activeMatch || matchFound) ? (
+                    <Card className="col-span-1">
+                        <CardHeader>
+                            <CardTitle className="text-xl text-center">Opponent</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <p>Loading opponent profile...</p>
+                            <p>Active Match: {JSON.stringify(activeMatch)}</p>
+                            <p>Match Found: {matchFound.toString()}</p>
+                            <p>Opponent Name: {opponentName}</p>
+                        </CardContent>
+                    </Card>
+                ) : null}
 
                 {/* Meeting Point Map Card */}
-                {(matchFound || activeMatch) && playerLocation && meetingPoint && (
+                {(activeMatch || matchFound) && playerLocation && meetingPoint && (
                     <Card className="col-span-1">
                         <CardHeader>
                             <CardTitle className="text-xl text-center">Meeting Point</CardTitle>
@@ -181,20 +259,6 @@ const Match: React.FC = () => {
                     </Card>
                 )}
             </div>
-
-            <AlertDialog open={showLocationAlert} onOpenChange={setShowLocationAlert}>
-                <AlertDialogContent>
-                    <AlertDialogHeader>
-                        <AlertDialogTitle>Precise Location Access Required</AlertDialogTitle>
-                        <AlertDialogDescription>
-                            To match you with nearby players and provide accurate directions, we need access to your precise location. Please enable precise location access in your browser settings.
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogAction onClick={handleEnableLocation}>Try Again</AlertDialogAction>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
         </div>
     );
 };

@@ -28,7 +28,8 @@ public class SoloQueueController {
             PlayerProfile profile = playerProfileRepository.findByUserId(playerUUID);
             if (profile != null) {
                 if (queueRequest.getLocation() != null) {
-                    matchmakingService.addPlayerToQueue(profile, queueRequest.getLocation().getLatitude(),
+                    matchmakingService.addPlayerToQueue(profile,
+                            queueRequest.getLocation().getLatitude(),
                             queueRequest.getLocation().getLongitude());
                 } else {
                     System.out.println("Location is null for player ID: " + queueRequest.getPlayerId());
