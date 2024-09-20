@@ -1,6 +1,8 @@
 package com.project.G1_T3.authentication.service;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
@@ -89,22 +91,18 @@ public class JwtService {
 
     public void validateToken(String token, UserDetails userDetails) {
 
-        final String username = extractUsername(token);
+        try {
+            final String username = extractUsername(token);
 
-        if (!username.equals(userDetails.getUsername())) {
-            throw new InvalidTokenException("Invalid token: username mismatch", token);
+            if (!username.equals(userDetails.getUsername())) {
+                throw new InvalidTokenException("Invalid token: username mismatch", token);
+            }
+
+        } catch (ExpiredJwtException e) {
+            throw new InvalidTokenException("Token has expired", token);
+        } catch (JwtException | IllegalArgumentException e) {
+            throw new InvalidTokenException("Invalid token", token);
         }
-        if (isTokenExpired(token)) {
-            throw new InvalidTokenException("Token expired", token);
-        }
-    }
-
-    private boolean isTokenExpired(String token) {
-        return extractExpiration(token).before(new Date());
-    }
-
-    private Date extractExpiration(String token) {
-        return extractClaim(token, Claims::getExpiration);
     }
 
 }
