@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import com.project.G1_T3.common.exception.InvalidTokenException;
 import com.project.G1_T3.user.model.User;
 
 import java.security.Key;
@@ -86,9 +87,16 @@ public class JwtService {
                 .compact();
     }
 
-    public boolean isTokenValid(String token, UserDetails userDetails) {
+    public void validateToken(String token, UserDetails userDetails) {
+
         final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
+
+        if (!username.equals(userDetails.getUsername())) {
+            throw new InvalidTokenException("Invalid token: username mismatch", token);
+        }
+        if (isTokenExpired(token)) {
+            throw new InvalidTokenException("Token expired", token);
+        }
     }
 
     private boolean isTokenExpired(String token) {
