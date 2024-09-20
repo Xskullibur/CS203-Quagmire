@@ -1,16 +1,13 @@
-package com.project.G1_T3.authentication.controller;
+package com.project.G1_T3.authentication.service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
-import com.project.G1_T3.authentication.service.JwtService;
 import com.project.G1_T3.common.exception.InvalidTokenException;
 import com.project.G1_T3.user.model.UserDTO;
 import com.project.G1_T3.user.service.CustomUserDetailsService;
@@ -19,10 +16,10 @@ import com.project.G1_T3.user.service.UserService;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-class AuthenticationControllerTest {
+class AuthServiceTest {
 
     @InjectMocks
-    private AuthenticationController authenticationController;
+    private AuthService authService;
 
     @Mock
     private JwtService jwtService;
@@ -52,10 +49,9 @@ class AuthenticationControllerTest {
         doNothing().when(jwtService).validateToken(jwtToken, userDetails);
         when(userService.getUserDTOByUsername(username)).thenReturn(userDTO);
 
-        ResponseEntity<?> response = authenticationController.validateToken(token);
+        UserDTO responseBody = authService.validateToken(token);
 
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(userDTO, response.getBody());
+        assertEquals(userDTO, responseBody);
     }
 
     @Test
@@ -68,7 +64,7 @@ class AuthenticationControllerTest {
         when(userDetailsService.loadUserByUsername(username))
                 .thenThrow(new UsernameNotFoundException("User not found"));
 
-        assertThrows(InvalidTokenException.class, () -> authenticationController.validateToken(token));
+        assertThrows(InvalidTokenException.class, () -> authService.validateToken(token));
     }
 
     @Test
@@ -83,6 +79,6 @@ class AuthenticationControllerTest {
         doThrow(new InvalidTokenException("Invalid token", jwtToken)).when(jwtService).validateToken(jwtToken,
                 userDetails);
 
-        assertThrows(InvalidTokenException.class, () -> authenticationController.validateToken(token));
+        assertThrows(InvalidTokenException.class, () -> authService.validateToken(token));
     }
 }
