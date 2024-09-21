@@ -4,6 +4,7 @@ import com.project.G1_T3.authentication.model.RegisterRequest;
 import com.project.G1_T3.common.exception.EmailAlreadyInUseException;
 import com.project.G1_T3.common.exception.UsernameAlreadyTakenException;
 import com.project.G1_T3.common.exception.GlobalExceptionHandler;
+import com.project.G1_T3.user.model.UserRole;
 import com.project.G1_T3.user.service.UserService;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -42,7 +43,9 @@ class RegisterControllerTest {
         request.setEmail("test@example.com");
         request.setPassword("password");
 
-        doNothing().when(userService).registerUser(anyString(), anyString(), anyString());
+        UserRole role = UserRole.PLAYER;
+
+        doNothing().when(userService).registerUser(anyString(), anyString(), anyString(), role);
 
         ResponseEntity<?> response = registerController.registerUser(request);
 
@@ -51,7 +54,8 @@ class RegisterControllerTest {
         verify(userService, times(1)).registerUser(
             request.getUsername(),
             request.getEmail(),
-            request.getPassword()
+            request.getPassword(),
+            role
         );
     }
     
@@ -61,9 +65,11 @@ class RegisterControllerTest {
         request.setUsername("existinguser");
         request.setEmail("test@example.com");
         request.setPassword("password");
+
+        UserRole role = UserRole.PLAYER;
     
         doThrow(new UsernameAlreadyTakenException("Username is already taken"))
-            .when(userService).registerUser(anyString(), anyString(), anyString());
+            .when(userService).registerUser(anyString(), anyString(), anyString(), role);
     
         try {
             registerController.registerUser(request);
@@ -86,8 +92,10 @@ class RegisterControllerTest {
         request.setEmail("existing@example.com");
         request.setPassword("password");
     
+        UserRole role = UserRole.PLAYER;
+
         doThrow(new EmailAlreadyInUseException("Email is already in use"))
-            .when(userService).registerUser(anyString(), anyString(), anyString());
+            .when(userService).registerUser(anyString(), anyString(), anyString(), role);
     
         try {
             registerController.registerUser(request);

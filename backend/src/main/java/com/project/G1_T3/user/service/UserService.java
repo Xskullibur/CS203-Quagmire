@@ -6,10 +6,12 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.project.G1_T3.authentication.service.PasswordGeneratorService;
 import com.project.G1_T3.common.exception.EmailAlreadyInUseException;
 import com.project.G1_T3.common.exception.UsernameAlreadyTakenException;
 import com.project.G1_T3.user.model.User;
@@ -26,7 +28,7 @@ public class UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public void registerUser(String username, String email, String password) {
+    public void registerUser(String username, String email, String password, UserRole role) {
 
         if (existsByUsername(username)) {
             throw new UsernameAlreadyTakenException("Username is already taken");
@@ -40,7 +42,7 @@ public class UserService {
         newUser.setUsername(username);
         newUser.setEmail(email);
         newUser.setPasswordHash(passwordEncoder.encode(password));
-        newUser.setRole(UserRole.PLAYER); // Set default role
+        newUser.setRole(role);
         newUser.setCreatedAt(LocalDateTime.now());
         newUser.setUpdatedAt(LocalDateTime.now());
 
