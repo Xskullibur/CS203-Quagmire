@@ -1,9 +1,11 @@
 package com.project.G1_T3.player.model;
 
+import com.project.G1_T3.tournament.model.Tournament;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 
 import lombok.AllArgsConstructor;
@@ -12,7 +14,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
-import java.util.UUID;
+import java.util.*;
 
 @Entity
 @Getter
@@ -47,20 +49,8 @@ public class PlayerProfile {
     @Column(name = "current_rating")
     private Float currentRating;
 
-    // Getters, setters, and other methods...
-    public UUID getProfileId() {
-        return profileId;
-    }
+     @ManyToMany(mappedBy="authors")
+    private Set<Tournament> tournaments= new HashSet<>();
 
-    public String getFirstName() {
-        return firstName;
-    }
 
-    public String getLastName() {
-        return lastName;
-    }
-
-    public Float getELO() {
-        return currentRating;
-    }
 }

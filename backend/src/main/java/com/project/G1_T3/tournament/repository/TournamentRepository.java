@@ -1,5 +1,6 @@
 package com.project.G1_T3.tournament.repository;
 
+import com.project.G1_T3.player.model.PlayerProfile;
 import com.project.G1_T3.tournament.model.Tournament;
 
 import java.time.LocalDateTime;
@@ -15,6 +16,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface TournamentRepository extends JpaRepository<Tournament, Long> {
     
+    Optional<Tournament> findById(long id);
+
     List<Tournament> findByName(String name);
 
     List<Tournament> findByLocation(String location);
@@ -33,6 +36,8 @@ public interface TournamentRepository extends JpaRepository<Tournament, Long> {
 
     @Query("SELECT t FROM Tournament t WHERE t.location = :city")
     List<Tournament> findByCity(@Param("city") String city);
+
+    Set<PlayerProfile> getPlayers(Long tournamentID);
 
     Page<Tournament> findAll(Pageable pageable);
 }

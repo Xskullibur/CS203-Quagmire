@@ -30,7 +30,7 @@ public class LeaderboardService {
                 .map(profile -> new LeaderboardPlayerProfile(profile.getProfileId(),
                         profile.getFirstName(),
                         profile.getLastName(),
-                        profile.getELO()))
+                        profile.getCurrentRating()))
                 .collect(Collectors.toList());
 
         return top10Players;
