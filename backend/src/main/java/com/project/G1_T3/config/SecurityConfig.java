@@ -73,8 +73,8 @@ public class SecurityConfig {
                         .requestMatchers("/profile/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/user/**").hasAnyRole("USER", "ADMIN")
-                        .requestMatchers("/tournament/**").permitAll()
-                        .anyRequest().authenticated())
+                        .requestMatchers("/tournament/**").permitAll())
+                       // .anyRequest().authenticated())
                 .httpBasic(Customizer.withDefaults())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 
 const API_URL = `${process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL}`;
+const WEB_URL = `${process.env.NEXT_PUBLIC_API_URL}`
 
 
 const CreateTournament = () => {
@@ -48,7 +49,7 @@ const CreateTournament = () => {
       });
 
       if (res.ok) {
-        router.push(API_URL + '/tournaments'); // Redirect after successful creation
+        router.push(WEB_URL + '/tournaments'); // Redirect after successful creation
       } else {
         alert('Error creating tournament');
       }
