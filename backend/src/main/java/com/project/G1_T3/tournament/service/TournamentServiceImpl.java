@@ -20,6 +20,9 @@ public class TournamentServiceImpl implements TournamentService {
     private TournamentRepository tournamentRepository;
 
     @Autowired
+    private PlayerProfileRepository playerProfileRepository;
+
+    @Autowired
     public TournamentServiceImpl(TournamentRepository tournamentRepository) {
         this.tournamentRepository = tournamentRepository;
     }
@@ -83,17 +86,8 @@ public class TournamentServiceImpl implements TournamentService {
     }
 
     public Tournament updateTournament(Long id, Tournament updatedTournament) {
-        // Find the tournament by id
-        Tournament existingTournament = tournamentRepository.findById(id).get();
-
-        // Update fields
-        existingTournament.setName(updatedTournament.getName());
-        existingTournament.setDescription(updatedTournament.getDescription());
-        existingTournament.setLocation(updatedTournament.getLocation());
-        existingTournament.setDate(updatedTournament.getDate());
-    
-        // Save the updated tournament
-        return tournamentRepository.save(existingTournament);
+       updatedTournament.setId(id);
+       return tournamentRepository.update(id, updatedTournament);
     }
     
     // Add this method

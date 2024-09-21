@@ -18,6 +18,7 @@ public interface TournamentRepository extends JpaRepository<Tournament, Long> {
     
     Optional<Tournament> findById(long id);
 
+    Tournament update(Long id, Tournament newTournament);
 
     // Find tournaments by name
     List<Tournament> findByName(String name);
