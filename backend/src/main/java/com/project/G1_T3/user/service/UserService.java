@@ -6,12 +6,10 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.project.G1_T3.authentication.service.PasswordGeneratorService;
 import com.project.G1_T3.common.exception.EmailAlreadyInUseException;
 import com.project.G1_T3.common.exception.UsernameAlreadyTakenException;
 import com.project.G1_T3.user.model.User;
