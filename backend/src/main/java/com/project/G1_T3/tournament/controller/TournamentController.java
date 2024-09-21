@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 
-// @CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/tournament")
 public class TournamentController {
@@ -47,6 +46,16 @@ public class TournamentController {
         return ResponseEntity.ok(tournaments);
     }
 
+    // Get tournament by ID
+    @GetMapping("/{id}")
+    public ResponseEntity<Tournament> getTournamentById(@PathVariable Long id) {
+        Tournament tournament = tournamentService.getTournamentById(id);
+        if (tournament == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(tournament);
+    }
+
     // Create a new tournament
     @PostMapping
     public ResponseEntity<Tournament> createTournament(@RequestBody Tournament tournament) {
@@ -79,4 +88,3 @@ public class TournamentController {
 
     
 }
-

@@ -20,9 +20,6 @@ public class TournamentServiceImpl implements TournamentService {
     private TournamentRepository tournamentRepository;
 
     @Autowired
-    private PlayerProfileRepository playerProfileRepository;
-
-    @Autowired
     public TournamentServiceImpl(TournamentRepository tournamentRepository) {
         this.tournamentRepository = tournamentRepository;
     }
@@ -40,21 +37,24 @@ public class TournamentServiceImpl implements TournamentService {
 
     @Override
     public Page<Tournament> findUpcomingTournaments(Pageable pageable) {
-        // Fetch upcoming tournaments (with pagination)
-        return tournamentRepository.findByDateAfter(LocalDateTime.now(), pageable);
+        return tournamentRepository.findByStartDateAfter(LocalDateTime.now(), pageable);
     }
 
     @Override
     public Page<Tournament> findPastTournaments(Pageable pageable) {
-        // Fetch upcoming tournaments (with pagination)
-        return tournamentRepository.findByDateBefore(LocalDateTime.now(), pageable);
+        return tournamentRepository.findByEndDateBefore(LocalDateTime.now(), pageable);
+    }
+
+    @Override
+    public Page<Tournament> findTournamentsByDeadline(Pageable pageable, LocalDateTime deadline) {
+        return tournamentRepository.findByDeadlineBefore(deadline, pageable);
     }
 
     @Override
     public List<Tournament> findTournamentsByLocation(String location) {
         return tournamentRepository.findByLocation(location);
     }
-    
+
     @Override
     public Page<Tournament> getAllTournaments(Pageable pageable) {
         return tournamentRepository.findAll(pageable);
@@ -95,5 +95,10 @@ public class TournamentServiceImpl implements TournamentService {
         // Save the updated tournament
         return tournamentRepository.save(existingTournament);
     }
+    
+    // Add this method
+    public Tournament getTournamentById(Long id) {
+        return tournamentRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Tournament not found with id: " + id));
+    }
 }
-
