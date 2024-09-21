@@ -64,6 +64,7 @@ module.exports = {
         },
         success: {
           DEFAULT: "hsl(var(--success))",
+          foreground: "hsl(var(--success-foreground))",
         },
         boxShadow: {
           sm: 'var(--tw-shadow-sm)',
