@@ -28,4 +28,6 @@ public interface TournamentService {
     Set<PlayerProfile> getPlayersInTournament(Long tournamentId);
 
     Tournament addPlayerToTournament(Long tournamentId, UUID user_id);
+
+    Tournament updateTournament(Long tournamentId, Tournament updatedTournament);
 }

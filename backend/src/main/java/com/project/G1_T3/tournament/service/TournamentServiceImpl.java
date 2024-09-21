@@ -81,5 +81,19 @@ public class TournamentServiceImpl implements TournamentService {
         tournament.getPlayers().add(player);
         return tournamentRepository.save(tournament);
     }
+
+    public Tournament updateTournament(Long id, Tournament updatedTournament) {
+        // Find the tournament by id
+        Tournament existingTournament = tournamentRepository.findById(id).get();
+
+        // Update fields
+        existingTournament.setName(updatedTournament.getName());
+        existingTournament.setDescription(updatedTournament.getDescription());
+        existingTournament.setLocation(updatedTournament.getLocation());
+        existingTournament.setDate(updatedTournament.getDate());
+    
+        // Save the updated tournament
+        return tournamentRepository.save(existingTournament);
+    }
 }
 

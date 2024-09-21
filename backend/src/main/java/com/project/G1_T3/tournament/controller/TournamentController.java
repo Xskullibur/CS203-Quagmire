@@ -10,7 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
-import java.util.UUID;
 
 // @CrossOrigin(origins = "http://localhost:3000")
 @RestController
@@ -53,6 +52,14 @@ public class TournamentController {
     public ResponseEntity<Tournament> createTournament(@RequestBody Tournament tournament) {
         Tournament createdTournament = tournamentService.createTournament(tournament);
         return ResponseEntity.ok(createdTournament);
+    }
+
+    // Update an existing tournament
+    @PutMapping("/{id}")
+    public ResponseEntity<Tournament> updateTournament(
+            @PathVariable Long id, @RequestBody Tournament updatedTournament) {
+        Tournament tournament = tournamentService.updateTournament(id, updatedTournament);
+        return ResponseEntity.ok(tournament);
     }
 
     // Add a player to a tournament
