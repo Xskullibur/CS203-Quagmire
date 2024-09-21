@@ -1,8 +1,7 @@
-"use client"; // Add this line to make this a client component
-
+"use client";
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Button } from "@/components/ui/button"; // Import your Button component
+import { Button } from "@/components/ui/button";
 
 interface Tournament {
     name: string;
@@ -14,21 +13,28 @@ interface Tournament {
 }
 
 const TournamentDetails: React.FC<{ params: { id: string } }> = ({ params }) => {
-    const { id } = params; // Get the tournament ID from the URL parameters
+    const { id } = params;
     const [tournament, setTournament] = useState<Tournament | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
+    const [registrationClosed, setRegistrationClosed] = useState<boolean>(false);
 
     useEffect(() => {
         const fetchTournamentDetails = async () => {
-            if (!id) return; // Ensure ID is available
+            if (!id) return;
 
             setLoading(true);
             setError(null);
 
             try {
                 const response = await axios.get(`${process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL}/tournament/${id}`);
-                setTournament(response.data);
+                const tournamentData = response.data;
+                setTournament(tournamentData);
+
+                const currentDate = new Date();
+                const deadlineDate = new Date(tournamentData.deadline);
+                setRegistrationClosed(currentDate > deadlineDate);
+
             } catch (error) {
                 console.error('Error fetching tournament details:', error);
                 setError('Failed to load tournament details. Please try again.');
@@ -43,8 +49,6 @@ const TournamentDetails: React.FC<{ params: { id: string } }> = ({ params }) => 
     if (loading) return <p className="text-lg text-gray-500">Loading...</p>;
     if (error) return <p className="text-lg text-red-500">Error: {error}</p>;
     if (!tournament) return <p className="text-lg text-gray-500">Tournament not found.</p>;
-
-    const isRegistrationOpen = new Date(tournament.deadline) > new Date();
 
     return (
         <div className="flex flex-col items-center min-h-screen pt-20">
@@ -61,16 +65,26 @@ const TournamentDetails: React.FC<{ params: { id: string } }> = ({ params }) => 
                 <p className="text-base">{tournament.description}</p>
                 <h2 className="mt-4 text-lg font-semibold">Registration Deadline:</h2>
                 <p className="text-base">{new Date(tournament.deadline).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}</p>
+                <div className="flex justify-center w-full">
+                    <Button 
+                        variant={registrationClosed ? "outline" : "default"} 
+                        disabled={registrationClosed} 
+                        className="mt-4 flex justify-center w-auto"
+                    >
+                        {registrationClosed ? "Registration Closed" : "Register Now"}
+                    </Button>
+                </div>
             </div>
 
-            {/* Button for registration */}
-            <div className="mt-8">
-                <Button 
-                    variant={isRegistrationOpen ? "default" : "outline"} 
-                    disabled={!isRegistrationOpen}
-                >
-                    {isRegistrationOpen ? "Register now" : "Registration closed"}
-                </Button>
+            {/* Register Button */}
+            <div className="mt-4">
+                {/* Horizontal line */}
+                <hr className="w-full my-4 border-t border-gray-300" />
+
+                {/* Tournament Draw Heading */}
+                <h2 className="text-2xl font-semibold my-8 text-center">Tournament Draw</h2>
+
+                <p className="text-center text-gray-500">Draw has yet to be released</p>
             </div>
         </div>
     );
