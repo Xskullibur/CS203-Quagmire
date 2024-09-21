@@ -4,6 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.UUID;
+
 import com.project.G1_T3.player.model.PlayerProfile;
 
 @Getter
@@ -11,21 +14,21 @@ import com.project.G1_T3.player.model.PlayerProfile;
 @NoArgsConstructor
 @AllArgsConstructor
 public class LeaderboardPlayerProfile {
-    
-    Long profileId;
+
+    UUID profileId;
     String firstName;
     String lastName;
     Float ELO;
     Long position;
 
-    public LeaderboardPlayerProfile(Long profileId, String firstName, String lastName, Float eLO) {
+    public LeaderboardPlayerProfile(UUID profileId, String firstName, String lastName, Float eLO) {
         this.profileId = profileId;
         this.firstName = firstName;
         this.lastName = lastName;
         ELO = eLO;
     }
 
-    public LeaderboardPlayerProfile(PlayerProfile player, Long p){
+    public LeaderboardPlayerProfile(PlayerProfile player, Long p) {
         profileId = player.getProfileId();
         firstName = player.getFirstName();
         lastName = player.getLastName();
@@ -33,5 +36,4 @@ public class LeaderboardPlayerProfile {
         position = p;
     }
 
-    
 }

@@ -38,7 +38,7 @@ const Profile = () => {
 
     return (
         <div className="bg-[#212121] text-white min-h-screen p-8 flex flex-col items-center justify-center">
-            <h1 className="text-4xl font-bold mb-8">{userData.firstName} {userData.lastName}'s Profile</h1>
+            <h1 className="text-4xl font-bold mb-8">{userData.firstName} {userData.lastName}&apos;s Profile</h1>
 
             <div className="grid grid-cols-2 gap-8 w-full max-w-6xl">
 

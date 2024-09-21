@@ -22,7 +22,7 @@ public class PlayerProfileController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<PlayerProfile> getUserById(@PathVariable Long id){
+    public ResponseEntity<PlayerProfile> getUserById(@PathVariable String id){
         PlayerProfile playerProfile = playerProfileService.findByUserId(id);
         return ResponseEntity.ok(playerProfile);
     }

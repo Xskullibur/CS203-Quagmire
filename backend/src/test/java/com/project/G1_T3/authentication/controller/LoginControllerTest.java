@@ -1,23 +1,29 @@
 package com.project.G1_T3.authentication.controller;
 
 import com.project.G1_T3.authentication.model.LoginRequest;
-import com.project.G1_T3.authentication.model.LoginResponse;
-import com.project.G1_T3.player.model.User;
-import com.project.G1_T3.player.repository.UserRepository;
+import com.project.G1_T3.authentication.model.LoginResponseDTO;
+import com.project.G1_T3.authentication.service.AuthService;
+import com.project.G1_T3.authentication.service.JwtService;
+import com.project.G1_T3.common.exception.GlobalExceptionHandler;
+import com.project.G1_T3.user.model.User;
+import com.project.G1_T3.user.model.UserRole;
+import com.project.G1_T3.user.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
-
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
@@ -29,37 +35,46 @@ class LoginControllerTest {
     @Mock
     private PasswordEncoder passwordEncoder;
 
+    @Mock
+    private AuthService authService;
+
+    @Mock
+    private JwtService jwtService;
+
     @InjectMocks
     private LoginController loginController;
+
+    private GlobalExceptionHandler globalExceptionHandler;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+        globalExceptionHandler = new GlobalExceptionHandler();
     }
 
     @Test
-    void testLoginUser_Success() {
+    void testLoginUser_ValidCredentials() {
         LoginRequest request = new LoginRequest();
         request.setUsername("testuser");
-        request.setPassword("password");
+        request.setPassword("correctpassword");
 
-        User user = new User();
-        user.setId(1L);
-        user.setUsername("testuser");
-        user.setPasswordHash("encodedPassword");
+        User mockUser = new User();
+        mockUser.setId("cccccccc-cccc-cccc-cccc-cccccccccccc");
+        mockUser.setUsername("testuser");
+        mockUser.setPasswordHash(passwordEncoder.encode("correctpassword"));
 
-        when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(user));
-        when(passwordEncoder.matches(anyString(), anyString())).thenReturn(true);
+        when(authService.authenticateUser(anyString(), anyString())).thenReturn(mockUser);
+        when(jwtService.generateToken(any(User.class))).thenReturn("mocked-jwt-token");
 
         ResponseEntity<?> response = loginController.loginUser(request);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertTrue(response.getBody() instanceof LoginResponse);
-        LoginResponse loginResponse = (LoginResponse) response.getBody();
-        assertNotNull(loginResponse);
-        assertEquals("1", loginResponse.getUserId());
-        assertEquals("testuser", loginResponse.getUsername());
-        assertTrue(loginResponse.getToken().length() > 0);
+        assertTrue(response.getBody() instanceof LoginResponseDTO);
+        LoginResponseDTO responseDTO = (LoginResponseDTO) response.getBody();
+        assertNotNull(responseDTO);
+        assertEquals("mocked-jwt-token", responseDTO.getToken());
+        assertNotNull(responseDTO.getUser());
+        assertEquals("testuser", responseDTO.getUser().getUsername());
     }
 
     @Test
@@ -68,12 +83,17 @@ class LoginControllerTest {
         request.setUsername("testuser");
         request.setPassword("wrongpassword");
 
-        when(userRepository.findByUsername("testuser")).thenReturn(Optional.empty());
+        when(authService.authenticateUser(anyString(), anyString()))
+                .thenThrow(new BadCredentialsException("Invalid credentials"));
 
-        ResponseEntity<?> response = loginController.loginUser(request);
+        ResponseEntity<ProblemDetail> response = globalExceptionHandler.handleSecurityException(
+                new BadCredentialsException("Invalid credentials"));
 
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertEquals("Invalid username or password", response.getBody());
+        assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
+        ProblemDetail problemDetail = response.getBody();
+        assertNotNull(problemDetail);
+        assertEquals("Invalid credentials", problemDetail.getDetail());
+        assertEquals("The username or password is incorrect", problemDetail.getProperties().get("description"));
     }
 
     @Test
@@ -83,15 +103,26 @@ class LoginControllerTest {
         request.setPassword("wrongpassword");
 
         User user = new User();
+        user.setId("cccccccc-cccc-cccc-cccc-cccccccccccc");
         user.setUsername("testuser");
+        user.setEmail("testuser@gmail.com");
+        user.setRole(UserRole.PLAYER);
         user.setPasswordHash("encodedPassword");
 
-        when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(user));
-        when(passwordEncoder.matches(anyString(), anyString())).thenReturn(false);
+        when(authService.authenticateUser(anyString(), anyString()))
+                .thenThrow(new BadCredentialsException("Invalid username or password"));
 
-        ResponseEntity<?> response = loginController.loginUser(request);
+        try {
+            loginController.loginUser(request);
+            fail("Expected BadCredentialsException was not thrown");
+        } catch (BadCredentialsException e) {
+            ResponseEntity<ProblemDetail> response = globalExceptionHandler.handleSecurityException(e);
 
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertEquals("Invalid username or password", response.getBody());
+            assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
+            ProblemDetail problemDetail = response.getBody();
+            assertNotNull(problemDetail);
+            assertEquals("Invalid username or password", problemDetail.getDetail());
+            assertEquals("The username or password is incorrect", problemDetail.getProperties().get("description"));
+        }
     }
 }

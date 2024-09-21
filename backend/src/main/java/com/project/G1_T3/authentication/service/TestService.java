@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.project.G1_T3.player.repository.UserRepository;
+import com.project.G1_T3.user.repository.UserRepository;
 
 @Service
 @Profile("test")

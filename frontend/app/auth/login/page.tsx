@@ -1,19 +1,18 @@
 'use client'
 
-import React, { useState } from 'react';
-import axios from 'axios';
+import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { useAuth } from "@/hooks/useAuth";
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
-const API_URL = `${process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL}`;
-
 const Login: React.FC = () => {
-    const [formData, setFormData] = useState({ username: '', password: '' });
+    const [formData, setFormData] = useState({ username: "", password: "" });
     const [error, setError] = useState<string | null>(null);
     const router = useRouter();
+    const { login } = useAuth();
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -23,16 +22,13 @@ const Login: React.FC = () => {
         e.preventDefault();
         setError(null);
         try {
-            const response = await axios.post(new URL('/authentication/login', API_URL).toString(), formData);
+            const { user, response } = await login(formData.username, formData.password);
             if (response.status === 200) {
-                localStorage.setItem('userId', response.data.userId);
-                localStorage.setItem('username', response.data.username);
-                localStorage.setItem('token', response.data.token);
-                router.push('/profile');
+                router.push(user?.role === "ADMIN" ? "/admin/dashboard" : "/profile");
             }
         } catch (error: any) {
             if (error?.response?.data) {
-                setError(error.response.data);
+                setError(error.response.data.description);
             } else {
                 setError('Login failed. Please try again.');
             }

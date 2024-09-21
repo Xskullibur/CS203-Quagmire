@@ -3,7 +3,6 @@ package com.project.G1_T3.player.model;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
@@ -13,6 +12,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 @Entity
 @Getter
@@ -23,11 +23,11 @@ import java.time.LocalDate;
 public class PlayerProfile {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long profileId;
+    @GeneratedValue()
+    private UUID profileId;
 
     @Column(name = "user_id", nullable = false)
-    private Long userId;
+    private UUID userId;
 
     @Column(name = "first_name")
     private String firstName;
@@ -48,7 +48,7 @@ public class PlayerProfile {
     private Float currentRating;
 
     // Getters, setters, and other methods...
-    public Long getProfileId() {
+    public UUID getProfileId() {
         return profileId;
     }
 

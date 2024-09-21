@@ -35,16 +35,16 @@ export default function HeroSection() {
                         }}
                         transition={{ delay: 0.2, type: 'spring', stiffness: 260, damping: 20 }}
                         src="/heroGIF.gif"
-                        alt="Hand Hathaway GIF"
+                        alt="Quagmire GIF"
                         width={200}
                         height={200}
                     />
                     <motion.h1
-                        className="text-4xl md:text-6xl font-bold mb-4 mt-4 bg-clip-text text-transparent bg-gradient-to-r from-primary-pink to-secondary-blue"
+                        className="text-4xl md:text-6xl pb-4 font-bold mb-4 mt-4 bg-clip-text text-transparent bg-gradient-to-r from-primary-pink to-secondary-blue line-height-1.5"
                         variants={fadeInUp}
                         transition={{ delay: 0.4, duration: 0.8 }}
                     >
-                        Hand Hathaway
+                        Quagmire
                     </motion.h1>
                     <motion.p
                         className="text-xl text-muted-foreground mb-8"
@@ -83,7 +83,7 @@ export default function HeroSection() {
                     transition={{ delay: 1.2, duration: 0.8 }}
                 >
                     <Image
-                        src="/linear.png"
+                        src="/headerImg.png"
                         alt="Hero image"
                         width={1920}
                         height={1080}

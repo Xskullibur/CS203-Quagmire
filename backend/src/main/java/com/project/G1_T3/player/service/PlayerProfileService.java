@@ -19,8 +19,8 @@ public class PlayerProfileService {
         return playerProfileRepository.findAll();
     }
 
-    public PlayerProfile findByUserId(Long id){
-        return playerProfileRepository.findByUserId(id);
+    public PlayerProfile findByUserId(String id){
+        return playerProfileRepository.findByUserId(UUID.fromString(id));
     }
 
     public PlayerProfile save(PlayerProfile profile){
