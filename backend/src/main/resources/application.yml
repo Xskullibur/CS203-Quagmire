@@ -1,6 +1,6 @@
 spring:
     application:
-        name: "G1-T3"
+        name: 'G1-T3'
 
     datasource:
         url: jdbc:postgresql://localhost:5432/g1t3
@@ -13,20 +13,31 @@ spring:
             hibernate:
                 format-sql: true
         hibernate:
-            ddl-auto: update          # Uncomment for production
+            ddl-auto: update # Uncomment for production
         # show-sql: true
         database: postgresql
 
 logging:
-  level:
-    org:
-      hibernate:
-        SQL: DEBUG
-        type:
-          descriptor:
-            sql:
-              BasicBinder: TRACE
+    level:
+        org:
+            hibernate:
+                SQL: DEBUG
+                type:
+                    descriptor:
+                        sql:
+                            BasicBinder: TRACE
 
 jwt:
-    secret-key: "b94801bb5520b2b660fe5a88c59b219366d6e3919c2630a32be2d41bc3d676de"
+    secret-key: 'b94801bb5520b2b660fe5a88c59b219366d6e3919c2630a32be2d41bc3d676de'
     expiration-time: 864000000
+
+password:
+    policy:
+        min-length: 12
+        max-length: 128
+        require-uppercase: true
+        require-lowercase: true
+        require-numbers: true
+        require-special-chars: true
+        lockout-attempts: 5
+        lockout-duration-minutes: 30
