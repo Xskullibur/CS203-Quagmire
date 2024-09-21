@@ -47,12 +47,12 @@ const TournamentDetails: React.FC<{ params: { id: string } }> = ({ params }) => 
     return (
         <div className="flex flex-col items-center min-h-screen pt-20">
             <h1 className="text-3xl font-bold text-center">{tournament.name}</h1>
-            <p className="text-xl text-center">{`${new Date(tournament.startDate).toLocaleDateString()} - ${new Date(tournament.endDate).toLocaleDateString()}`}</p>
+            <p className="text-xl text-center">{`${new Date(tournament.startDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })} - ${new Date(tournament.endDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}`}</p>
             <div className="mt-8 max-w-xl w-full">
                 <h2 className="text-lg font-semibold">Description:</h2>
                 <p className="text-base">{tournament.description}</p>
                 <h2 className="mt-4 text-lg font-semibold">Registration Deadline:</h2>
-                <p className="text-base">{new Date(tournament.deadline).toLocaleDateString()}</p>
+                <p className="text-base">{new Date(tournament.deadline).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}</p>
             </div>
         </div>
     );

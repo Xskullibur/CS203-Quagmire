@@ -15,10 +15,10 @@ const NewCard = ({ tournament, className }) => {
                 <CardContent className="flex-grow p-4 flex flex-col justify-between">
                     <div className="space-y-2 text-sm">
                         <div className="grid grid-cols-2 gap-2">
-                            <p><span className="font-medium">Start:</span> {formatDate(tournament.startDate)}</p>
-                            <p><span className="font-medium">End:</span> {formatDate(tournament.endDate)}</p>
+                            <p><span className="font-medium">Start:</span> {new Date(tournament.startDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}</p>
+                            <p><span className="font-medium">End:</span> {new Date(tournament.endDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}</p>
                         </div>
-                        <p><span className="font-medium">Registration:</span> {formatDate(tournament.deadline)}</p>
+                        <p><span className="font-medium">Registration:</span> {new Date(tournament.deadline).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}</p>
                         <p><span className="font-medium">Location:</span> {tournament.location}</p>
                     </div>
                 </CardContent>
