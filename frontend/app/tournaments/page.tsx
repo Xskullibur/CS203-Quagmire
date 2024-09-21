@@ -2,15 +2,16 @@
 
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import NewCard from "@/components/tournaments/NewCard"; // Update the import to your new card component
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface Tournament {
     id: number;
     name: string;
     location: string;
-    description: string;
-    date: string;
+    start_date: string;
+    end_date: string;
+    registration_deadline: string;
 }
 
 const API_URL = `${process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL}/tournament`;
@@ -79,16 +80,7 @@ const TournamentPage: React.FC = () => {
                     </p>
                 )}
                 {!loading && !error && tournaments.map(tournament => (
-                    <Card key={tournament.id} className="mb-4 w-full max-w-md">
-                        <CardHeader>
-                            <CardTitle className="text-xl">{tournament.name}</CardTitle>
-                            <CardDescription>{tournament.description}</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <p className="text-lg">Location: {tournament.location}</p>
-                            <p className="text-lg">Date: {new Date(tournament.date).toLocaleDateString()}</p>
-                        </CardContent>
-                    </Card>
+                    <NewCard key={tournament.id} tournament={tournament} className="mb-4 w-full max-w-xl" /> // Use NewCard here
                 ))}
             </div>
         </div>
