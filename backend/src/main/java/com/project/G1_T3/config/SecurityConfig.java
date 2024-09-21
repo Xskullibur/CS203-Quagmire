@@ -2,12 +2,14 @@ package com.project.G1_T3.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -33,6 +35,11 @@ public class SecurityConfig {
                         .anyRequest().permitAll())
                         // .requestMatchers("/authentication/**").permitAll()
                         // .anyRequest().authenticated())
+                        
+                        // For editing profile
+                        // .requestMatchers("/profile/**").permitAll()
+                        // .requestMatchers(HttpMethod.PUT, "/profile/**/edit").authenticated()
+                // Is a JwtAuthenticationFilter required?
                 .httpBasic(httpBasic -> {
                 });
 

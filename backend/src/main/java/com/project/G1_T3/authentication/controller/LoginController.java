@@ -41,7 +41,7 @@ public class LoginController {
             User user = userOptional.get();
             if (passwordEncoder.matches(loginRequest.getPassword(), user.getPasswordHash())) {
                 String token = Jwts.builder()
-                        .setSubject(user.getId().toString())
+                        .setSubject(user.getId().toString()) // Include userId in the token
                         .claim("username", user.getUsername())
                         .setIssuedAt(new Date())
                         .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
@@ -51,7 +51,7 @@ public class LoginController {
                 LoginResponse response = new LoginResponse(
                     user.getId().toString(),
                     user.getUsername(),
-                    token
+                    token // Sends the JWT token back to the client
                 );
     
                 return ResponseEntity.ok().body(response);

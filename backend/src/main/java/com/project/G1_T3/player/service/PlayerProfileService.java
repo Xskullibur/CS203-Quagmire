@@ -27,4 +27,28 @@ public class PlayerProfileService {
         return playerProfileRepository.save(profile);
     }
 
+    // For editing profile
+    public PlayerProfile updateProfile(Long id, PlayerProfile profileUpdates) {
+        PlayerProfile existingProfile = playerProfileRepository.findByUserId(id);
+        
+        // Update fields
+        if (profileUpdates.getFirstName() != null) {
+            existingProfile.setFirstName(profileUpdates.getFirstName());
+        }
+        if (profileUpdates.getLastName() != null) {
+            existingProfile.setLastName(profileUpdates.getLastName());
+        }
+        if (profileUpdates.getBio() != null) {
+            existingProfile.setBio(profileUpdates.getBio());
+        }
+        if (profileUpdates.getCountry() != null) {
+            existingProfile.setCountry(profileUpdates.getCountry());
+        }
+        if (profileUpdates.getDateOfBirth() != null) {
+            existingProfile.setDateOfBirth(profileUpdates.getDateOfBirth());
+        }
+
+        // Save the updated profile
+        return playerProfileRepository.save(existingProfile);
+    }
 }

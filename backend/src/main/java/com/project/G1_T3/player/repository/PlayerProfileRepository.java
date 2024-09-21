@@ -5,7 +5,6 @@ import org.springframework.stereotype.Repository;
 import com.project.G1_T3.player.model.PlayerProfile;
 
 import java.util.List;
-import java.util.Optional;
 
  
 // @Repository 
@@ -17,7 +16,7 @@ import java.util.Optional;
 // }
 
 @Repository
-public interface PlayerProfileRepository extends JpaRepository<PlayerProfile, Integer> {  // Changed Integer to Long
+public interface PlayerProfileRepository extends JpaRepository<PlayerProfile, Integer> {  
 
     List<PlayerProfile> findTop10ByOrderByCurrentRatingDesc(); 
 
