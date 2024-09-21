@@ -3,6 +3,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Button } from "@/components/ui/button";
 import { formatDate } from '@/utils/dateFormatter';
 import { motion } from 'framer-motion';
+import Link from 'next/link'; 
 import PropTypes from 'prop-types';
 
 const NewCard = ({ tournament, className }) => {
@@ -12,7 +13,7 @@ const NewCard = ({ tournament, className }) => {
             className={`h-full ${className}`}
         >
             <Card className="h-full flex flex-col border-border overflow-x-hidden
-                 bg-primary-foregorund hover:shadow-[0_0_15px_rgba(200,200,200,0.1)] transition 
+                 bg-primary-foreground hover:shadow-[0_0_15px_rgba(200,200,200,0.1)] transition 
                  duration-200 ease-in-out transform hover:bg-zinc-900">
                 <CardHeader className="space-y-1 p-4">
                     <CardTitle className="text-lg md:text-xl font-semibold">{tournament.name}</CardTitle>
@@ -26,10 +27,11 @@ const NewCard = ({ tournament, className }) => {
                     <p><span className="font-medium">Location:</span> {tournament.location}</p>
                 </CardContent>
                 <CardFooter className="p-4">
-                    <Button size="sm" variant="primary" className="w-full rounded-full
-                        transition duration-200 ease-in-out transform hover:-translate-y-0.5 hover:shadow-lg border">
-                        View Tournament
-                    </Button>
+                    <Link href={`/tournaments/${tournament.id}`} className="w-full">
+                        <Button size="sm" variant="primary" className="w-full rounded-full transform hover:-translate-y-0.5 hover:shadow-lg border">
+                            View Tournament
+                        </Button>
+                    </Link>
                 </CardFooter>
             </Card>
         </motion.div>

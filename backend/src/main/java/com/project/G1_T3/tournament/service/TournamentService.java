@@ -9,21 +9,24 @@ import java.util.List;
 
 public interface TournamentService {
 
-    List<Tournament> findAllTournaments();    // Get all tournaments
+    List<Tournament> findAllTournaments(); // Get all tournaments
 
-    Tournament findTournamentById(Long id);   // Find a specific tournament by ID
+    Tournament findTournamentById(Long id); // Find a specific tournament by ID
 
-    Page<Tournament> findUpcomingTournaments(Pageable pageable);  // Fetch tournaments starting after now
+    Page<Tournament> findUpcomingTournaments(Pageable pageable); // Fetch tournaments starting after now
 
-    Page<Tournament> findPastTournaments(Pageable pageable);      // Fetch tournaments ending before now
+    Page<Tournament> findPastTournaments(Pageable pageable); // Fetch tournaments ending before now
 
-    Page<Tournament> findTournamentsByDeadline(Pageable pageable, LocalDateTime deadline);  // Fetch tournaments with a deadline before a specific date
+    Page<Tournament> findTournamentsByDeadline(Pageable pageable, LocalDateTime deadline); // Fetch tournaments with a deadline before a specific date
 
-    List<Tournament> findTournamentsByLocation(String location);  // Filter tournaments by location
+    List<Tournament> findTournamentsByLocation(String location); // Filter tournaments by location
 
     Page<Tournament> getAllTournaments(Pageable pageable);
 
     List<Tournament> searchByName(String name);
 
     Tournament createTournament(Tournament tournament);
+    
+    // Add this method
+    Tournament getTournamentById(Long id); // Get tournament by ID
 }

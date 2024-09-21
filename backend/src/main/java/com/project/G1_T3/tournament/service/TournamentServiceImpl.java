@@ -34,19 +34,16 @@ public class TournamentServiceImpl implements TournamentService {
 
     @Override
     public Page<Tournament> findUpcomingTournaments(Pageable pageable) {
-        // Fetch tournaments starting after the current date
         return tournamentRepository.findByStartDateAfter(LocalDateTime.now(), pageable);
     }
 
     @Override
     public Page<Tournament> findPastTournaments(Pageable pageable) {
-        // Fetch tournaments ending before the current date
         return tournamentRepository.findByEndDateBefore(LocalDateTime.now(), pageable);
     }
 
     @Override
     public Page<Tournament> findTournamentsByDeadline(Pageable pageable, LocalDateTime deadline) {
-        // Fetch tournaments with deadlines before a specific date
         return tournamentRepository.findByDeadlineBefore(deadline, pageable);
     }
 
@@ -68,5 +65,11 @@ public class TournamentServiceImpl implements TournamentService {
     @Override
     public Tournament createTournament(Tournament tournament) {
         return tournamentRepository.save(tournament);
+    }
+    
+    // Add this method
+    public Tournament getTournamentById(Long id) {
+        return tournamentRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Tournament not found with id: " + id));
     }
 }
