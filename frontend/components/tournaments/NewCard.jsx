@@ -8,23 +8,19 @@ import PropTypes from 'prop-types';
 
 const NewCard = ({ tournament, className }) => {
     return (
-        <motion.div
-            transition={{ duration: 0.2 }}
-            className={`h-full ${className}`}
-        >
-            <Card className="h-full flex flex-col border-border overflow-x-hidden
-                 bg-primary-foreground hover:shadow-[0_0_15px_rgba(200,200,200,0.1)] transition 
-                 duration-200 ease-in-out transform hover:bg-zinc-900">
+            <Card className="flex flex-col border-border overflow-hidden bg-primary-foreground hover:shadow-[0_0_15px_rgba(200,200,200,0.1)] transition duration-200 ease-in-out transform hover:bg-zinc-900 min-h-[250px]">
                 <CardHeader className="space-y-1 p-4">
                     <CardTitle className="text-lg md:text-xl font-semibold">{tournament.name}</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-2 text-sm flex-grow p-4">
-                    <div className="grid grid-cols-2 gap-2">
-                        <p><span className="font-medium">Start:</span> {new Date(tournament.startDate).toLocaleDateString()}</p>
-                        <p><span className="font-medium">End:</span> {new Date(tournament.endDate).toLocaleDateString()}</p>
+                <CardContent className="flex-grow p-4 flex flex-col justify-between">
+                    <div className="space-y-2 text-sm">
+                        <div className="grid grid-cols-2 gap-2">
+                            <p><span className="font-medium">Start:</span> {formatDate(tournament.startDate)}</p>
+                            <p><span className="font-medium">End:</span> {formatDate(tournament.endDate)}</p>
+                        </div>
+                        <p><span className="font-medium">Registration:</span> {formatDate(tournament.deadline)}</p>
+                        <p><span className="font-medium">Location:</span> {tournament.location}</p>
                     </div>
-                    <p><span className="font-medium">Registration:</span> {new Date(tournament.deadline).toLocaleDateString()}</p>
-                    <p><span className="font-medium">Location:</span> {tournament.location}</p>
                 </CardContent>
                 <CardFooter className="p-4">
                     <Link href={`/tournaments/${tournament.id}`} className="w-full">
@@ -34,7 +30,6 @@ const NewCard = ({ tournament, className }) => {
                     </Link>
                 </CardFooter>
             </Card>
-        </motion.div>
     );
 };
 

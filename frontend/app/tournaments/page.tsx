@@ -79,9 +79,11 @@ const TournamentPage: React.FC = () => {
                         {currentTab === 'upcoming' ? 'No upcoming tournaments available.' : 'No past tournaments available.'}
                     </p>
                 )}
-                {!loading && !error && tournaments.map(tournament => (
-                    <NewCard key={tournament.id} tournament={tournament} className="mb-4 w-full max-w-xl" /> // Use NewCard here
-                ))}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full"> 
+                    {!loading && !error && tournaments.map(tournament => (
+                        <NewCard key={tournament.id} tournament={tournament} className="w-full" /> // Use NewCard here
+                    ))}
+                </div>
             </div>
         </div>
     );
