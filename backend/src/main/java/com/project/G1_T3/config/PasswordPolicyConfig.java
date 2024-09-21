@@ -16,8 +16,6 @@ public class PasswordPolicyConfig {
     private int lockoutAttempts;
     private int lockoutDurationMinutes;
 
-    // Getters and Setters
-
     public int getMinLength() {
         return minLength;
     }
