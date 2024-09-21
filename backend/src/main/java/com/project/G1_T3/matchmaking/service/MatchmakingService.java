@@ -28,7 +28,7 @@ public class MatchmakingService {
     public void addPlayerToQueue(PlayerProfile player, double latitude, double longitude) {
         log.info("Adding player to queue: {} (ID: {})", player.getUserId(), player.getProfileId());
         QueuedPlayer queuedPlayer = new QueuedPlayer(player, latitude, longitude);
-        playerQueue.put(player.getProfileId(), queuedPlayer);
+        playerQueue.put(player.getUserId(), queuedPlayer);
         log.info("Player added. Current queue size: {}", playerQueue.size());
     }
 
@@ -52,8 +52,8 @@ public class MatchmakingService {
             QueuedPlayer player2 = players.get(i + 1);
 
             if (matchmakingAlgorithm.isGoodMatch(player1, player2)) {
-                playerQueue.remove(player1.getPlayer().getProfileId());
-                playerQueue.remove(player2.getPlayer().getProfileId());
+                playerQueue.remove(player1.getPlayer().getUserId());
+                playerQueue.remove(player2.getPlayer().getUserId());
 
                 double[] meetingPoint = meetingPointService.findMeetingPoint(player1, player2);
 

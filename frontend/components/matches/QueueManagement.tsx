@@ -46,7 +46,7 @@ const QueueManagement: React.FC<QueueManagementProps> = ({ playerId, onMatchFoun
                 subscription.unsubscribe();
             };
         }
-    }, [client, connected, playerId]);
+    }, [client, connected, playerId, onMatchFound]);
 
     useEffect(() => {
         let interval: NodeJS.Timeout;
@@ -59,27 +59,6 @@ const QueueManagement: React.FC<QueueManagementProps> = ({ playerId, onMatchFoun
         }
         return () => clearInterval(interval);
     }, [inQueue]);
-
-    useEffect(() => {
-        if (client && connected) {
-            const subscription = client.subscribe(`/topic/solo/match/${playerId}`, (message) => {
-                try {
-                    const match = JSON.parse(message.body);
-                    console.log('Match found:', match);
-                    setMatchFound(true);
-                    setInQueue(false);
-                    setOpponentName(match.opponentName);
-                    onMatchFound(true, match.opponentName, [match.meetingLatitude, match.meetingLongitude], match.opponentProfile);
-                } catch (error) {
-                    console.error('Error parsing match data:', error);
-                }
-            });
-
-            return () => {
-                subscription.unsubscribe();
-            };
-        }
-    }, [client, connected, playerId]);
 
     const leaveQueue = () => {
         if (client && connected) {
