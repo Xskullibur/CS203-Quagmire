@@ -17,7 +17,6 @@ public class TournamentServiceImpl implements TournamentService {
     @Autowired
     private TournamentRepository tournamentRepository;
 
-    @Autowired
     public TournamentServiceImpl(TournamentRepository tournamentRepository) {
         this.tournamentRepository = tournamentRepository;
     }
@@ -35,21 +34,27 @@ public class TournamentServiceImpl implements TournamentService {
 
     @Override
     public Page<Tournament> findUpcomingTournaments(Pageable pageable) {
-        // Fetch upcoming tournaments (with pagination)
-        return tournamentRepository.findByDateAfter(LocalDateTime.now(), pageable);
+        // Fetch tournaments starting after the current date
+        return tournamentRepository.findByStartDateAfter(LocalDateTime.now(), pageable);
     }
 
     @Override
     public Page<Tournament> findPastTournaments(Pageable pageable) {
-        // Fetch upcoming tournaments (with pagination)
-        return tournamentRepository.findByDateBefore(LocalDateTime.now(), pageable);
+        // Fetch tournaments ending before the current date
+        return tournamentRepository.findByEndDateBefore(LocalDateTime.now(), pageable);
+    }
+
+    @Override
+    public Page<Tournament> findTournamentsByDeadline(Pageable pageable, LocalDateTime deadline) {
+        // Fetch tournaments with deadlines before a specific date
+        return tournamentRepository.findByDeadlineBefore(deadline, pageable);
     }
 
     @Override
     public List<Tournament> findTournamentsByLocation(String location) {
         return tournamentRepository.findByLocation(location);
     }
-    
+
     @Override
     public Page<Tournament> getAllTournaments(Pageable pageable) {
         return tournamentRepository.findAll(pageable);
@@ -65,4 +70,3 @@ public class TournamentServiceImpl implements TournamentService {
         return tournamentRepository.save(tournament);
     }
 }
-

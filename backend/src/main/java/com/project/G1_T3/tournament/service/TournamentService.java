@@ -4,6 +4,7 @@ import com.project.G1_T3.tournament.model.Tournament;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface TournamentService {
@@ -12,9 +13,11 @@ public interface TournamentService {
 
     Tournament findTournamentById(Long id);   // Find a specific tournament by ID
 
-    Page<Tournament> findUpcomingTournaments(Pageable pageable);
+    Page<Tournament> findUpcomingTournaments(Pageable pageable);  // Fetch tournaments starting after now
 
-    Page<Tournament> findPastTournaments(Pageable pageable);
+    Page<Tournament> findPastTournaments(Pageable pageable);      // Fetch tournaments ending before now
+
+    Page<Tournament> findTournamentsByDeadline(Pageable pageable, LocalDateTime deadline);  // Fetch tournaments with a deadline before a specific date
 
     List<Tournament> findTournamentsByLocation(String location);  // Filter tournaments by location
 
