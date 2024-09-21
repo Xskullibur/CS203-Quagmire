@@ -7,10 +7,10 @@ import axios from 'axios';
 
 interface Tournament {
     name: string;
-    start_date: string;
-    end_date: string;
+    startDate: string;
+    endDate: string;
     description: string;
-    registration_deadline: string;
+    deadline: string;
 }
 
 const TournamentDetails: React.FC<{ params: { id: string } }> = ({ params }) => {
@@ -47,12 +47,12 @@ const TournamentDetails: React.FC<{ params: { id: string } }> = ({ params }) => 
     return (
         <div className="flex flex-col items-center min-h-screen pt-20">
             <h1 className="text-3xl font-bold text-center">{tournament.name}</h1>
-            <p className="text-xl text-center">{`${new Date(tournament.start_date).toLocaleDateString()} - ${new Date(tournament.end_date).toLocaleDateString()}`}</p>
+            <p className="text-xl text-center">{`${new Date(tournament.startDate).toLocaleDateString()} - ${new Date(tournament.endDate).toLocaleDateString()}`}</p>
             <div className="mt-8 max-w-xl w-full">
                 <h2 className="text-lg font-semibold">Description:</h2>
                 <p className="text-base">{tournament.description}</p>
                 <h2 className="mt-4 text-lg font-semibold">Registration Deadline:</h2>
-                <p className="text-base">{new Date(tournament.registration_deadline).toLocaleDateString()}</p>
+                <p className="text-base">{new Date(tournament.deadline).toLocaleDateString()}</p>
             </div>
         </div>
     );

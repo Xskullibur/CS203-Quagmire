@@ -9,9 +9,9 @@ interface Tournament {
     id: number;
     name: string;
     location: string;
-    start_date: string;
-    end_date: string;
-    registration_deadline: string;
+    startDate: string;
+    endDate: string;
+    deadline: string;
 }
 
 const API_URL = `${process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL}/tournament`;

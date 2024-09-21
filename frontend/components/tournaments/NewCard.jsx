@@ -20,10 +20,10 @@ const NewCard = ({ tournament, className }) => {
                 </CardHeader>
                 <CardContent className="space-y-2 text-sm flex-grow p-4">
                     <div className="grid grid-cols-2 gap-2">
-                        <p><span className="font-medium">Start:</span> {formatDate(tournament.start_date)}</p>
-                        <p><span className="font-medium">End:</span> {formatDate(tournament.end_date)}</p>
+                        <p><span className="font-medium">Start:</span> {new Date(tournament.startDate).toLocaleDateString()}</p>
+                        <p><span className="font-medium">End:</span> {new Date(tournament.endDate).toLocaleDateString()}</p>
                     </div>
-                    <p><span className="font-medium">Registration:</span> {formatDate(tournament.registration_deadline)}</p>
+                    <p><span className="font-medium">Registration:</span> {new Date(tournament.deadline).toLocaleDateString()}</p>
                     <p><span className="font-medium">Location:</span> {tournament.location}</p>
                 </CardContent>
                 <CardFooter className="p-4">
@@ -42,9 +42,9 @@ NewCard.propTypes = {
     tournament: PropTypes.shape({
         name: PropTypes.string.isRequired,
         location: PropTypes.string.isRequired,
-        start_date: PropTypes.string.isRequired,
-        end_date: PropTypes.string.isRequired,
-        registration_deadline: PropTypes.string.isRequired,
+        startDate: PropTypes.string.isRequired,
+        endDate: PropTypes.string.isRequired,
+        deadline: PropTypes.string.isRequired,
     }).isRequired,
 };
 
