@@ -28,7 +28,7 @@ public interface TournamentService {
 
     Tournament createTournament(Tournament tournament);
 
-    Set<PlayerProfile> getPlayersInTournament(Long tournamentId);
+    Set<PlayerProfile> getPlayers(Long tournamentId);
 
     Tournament addPlayerToTournament(Long tournamentId, UUID user_id);
 

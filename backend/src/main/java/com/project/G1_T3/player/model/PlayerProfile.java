@@ -1,20 +1,23 @@
 package com.project.G1_T3.player.model;
 
+import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
+
 import com.project.G1_T3.tournament.model.Tournament;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.time.LocalDate;
-import java.util.*;
 
 @Entity
 @Getter
@@ -49,8 +52,7 @@ public class PlayerProfile {
     @Column(name = "current_rating")
     private Float currentRating;
 
-     @ManyToMany(mappedBy="authors")
-    private Set<Tournament> tournaments= new HashSet<>();
-
+    @ManyToMany(mappedBy = "players", cascade = CascadeType.ALL)
+    private Set<Tournament> tournaments = new HashSet<>();
 
 }

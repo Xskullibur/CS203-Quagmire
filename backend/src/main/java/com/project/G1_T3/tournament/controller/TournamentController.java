@@ -82,7 +82,7 @@ public class TournamentController {
     // Get all players in a tournament
     @GetMapping("/{tournamentId}/players")
     public ResponseEntity<Set<PlayerProfile>> getPlayersInTournament(@PathVariable Long tournamentId) {
-        Set<PlayerProfile> players = tournamentService.getPlayersInTournament(tournamentId);
+        Set<PlayerProfile> players = tournamentService.getPlayers(tournamentId);
         return ResponseEntity.ok(players);
     }
 

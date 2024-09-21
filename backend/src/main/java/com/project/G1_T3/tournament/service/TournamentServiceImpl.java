@@ -73,7 +73,7 @@ public class TournamentServiceImpl implements TournamentService {
         return tournamentRepository.save(tournament);
     }
 
-    public Set<PlayerProfile> getPlayersInTournament(Long tournamentId) {
+    public Set<PlayerProfile> getPlayers(Long tournamentId) {
         Tournament tournament = tournamentRepository.findById(tournamentId).get();
         return tournament.getPlayers();
     }
@@ -87,7 +87,7 @@ public class TournamentServiceImpl implements TournamentService {
 
     public Tournament updateTournament(Long id, Tournament updatedTournament) {
        updatedTournament.setId(id);
-       return tournamentRepository.update(id, updatedTournament);
+       return tournamentRepository.save(updatedTournament);
     }
     
     // Add this method
