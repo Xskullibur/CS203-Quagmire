@@ -3,7 +3,7 @@ import { useWebSocket } from '@/hooks/useWebSocket';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { PlayerProfile } from '@/types/player';
-import { useGeolocation } from '@/hooks/useGeolocation'; // Create this custom hook
+import { useGeolocation } from '@/hooks/useGeolocation';
 
 interface QueueManagementProps {
     playerId: string;
@@ -25,7 +25,7 @@ const QueueManagement: React.FC<QueueManagementProps> = ({ playerId, onMatchFoun
     const [matchFound, setMatchFound] = useState(false);
     const [opponentName, setOpponentName] = useState('');
     const { client, connected } = useWebSocket();
-    const { location } = useGeolocation(); // Use the custom geolocation hook
+    const { location } = useGeolocation();
 
     useEffect(() => {
         if (client && connected) {
@@ -81,6 +81,23 @@ const QueueManagement: React.FC<QueueManagementProps> = ({ playerId, onMatchFoun
         }
     }, [client, connected, playerId]);
 
+    const leaveQueue = () => {
+        if (client && connected) {
+            client.publish({ destination: '/app/solo/dequeue', body: playerId });
+            setInQueue(false);
+        }
+    };
+
+    useEffect(() => {
+        // This effect will run when the component mounts
+        // and clean up (dequeue) when the component unmounts
+        return () => {
+            if (inQueue) {
+                leaveQueue();
+            }
+        };
+    }, [inQueue]);
+
     const joinQueue = () => {
         if (client && connected && location) {
             console.log('Sending join queue request for player:', playerId);
@@ -97,13 +114,6 @@ const QueueManagement: React.FC<QueueManagementProps> = ({ playerId, onMatchFoun
             setInQueue(true);
         } else {
             console.error('Cannot join queue: client not connected or location not available');
-        }
-    };
-
-    const leaveQueue = () => {
-        if (client && connected) {
-            client.publish({ destination: '/app/solo/dequeue', body: playerId });
-            setInQueue(false);
         }
     };
 
