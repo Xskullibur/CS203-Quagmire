@@ -11,6 +11,10 @@ public class UserDTO {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
+    public UserDTO() {
+        super();
+    }
+
     public UserDTO(UUID userId, String username, String email, UserRole role, LocalDateTime createdAt,
             LocalDateTime updatedAt) {
         this.userId = userId.toString();

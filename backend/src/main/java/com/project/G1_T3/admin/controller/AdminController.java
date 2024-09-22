@@ -42,13 +42,13 @@ public class AdminController {
     }
 
     @PostMapping("/register-admin")
-    public ResponseEntity<AdminRegisterRequestDTO> postMethodName(@Valid @RequestBody AdminRegisterRequestDTO registerRequest) {
+    public ResponseEntity<UserDTO> postMethodName(@Valid @RequestBody AdminRegisterRequestDTO registerRequest) {
 
-        adminService.registerAdmin(
+        UserDTO userDTO = adminService.registerAdmin(
                 registerRequest.getUsername(),
                 registerRequest.getEmail());
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(registerRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).body(userDTO);
     }
 
 }

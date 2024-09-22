@@ -26,7 +26,7 @@ public class UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public void registerUser(String username, String email, String password, UserRole role) {
+    public UserDTO registerUser(String username, String email, String password, UserRole role) {
 
         if (existsByUsername(username)) {
             throw new UsernameAlreadyTakenException("Username is already taken");
@@ -46,6 +46,7 @@ public class UserService {
 
         // Save user to database
         userRepository.save(newUser);
+        return UserDTO.fromUser(newUser);
     }
 
     public boolean existsByUsername(String username) {

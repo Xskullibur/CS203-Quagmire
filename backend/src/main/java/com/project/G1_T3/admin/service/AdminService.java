@@ -7,6 +7,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import com.project.G1_T3.authentication.service.PasswordGeneratorService;
+import com.project.G1_T3.user.model.UserDTO;
 import com.project.G1_T3.user.model.UserRole;
 import com.project.G1_T3.user.service.UserService;
 
@@ -25,15 +26,14 @@ public class AdminService {
     private PasswordGeneratorService passwordGeneratorService;
 
     @Transactional
-    public void registerAdmin(String username, String email) {
+    public UserDTO registerAdmin(String username, String email) {
 
         String password = passwordGeneratorService.generatePassword();
-        userService.registerUser(username, email, password, UserRole.ADMIN);
+        UserDTO userDTO = userService.registerUser(username, email, password, UserRole.ADMIN);
+
         logger.info("Admin registered successfully: {}:{}", username, password);
-    }
 
-    public void getAdminDetails() {
-
+        return userDTO;
     }
 
 }
