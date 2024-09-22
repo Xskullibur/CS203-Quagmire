@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import axios from 'axios';
 import { Card, CardHeader, CardDescription, CardContent, CardTitle } from '@/components/ui/card';
 import QueueManagement from '@/components/matches/QueueManagement';
@@ -32,6 +32,42 @@ const Match: React.FC = () => {
     const [locationError, setLocationError] = useState<string | null>(null);
     const [isLocationEnabled, setIsLocationEnabled] = useState(false);
 
+    const getLocation = useCallback(() => {
+        if (typeof window !== 'undefined' && navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    console.log("Geolocation success:", position);
+                    setPlayerLocation([position.coords.latitude, position.coords.longitude]);
+                    setShowLocationAlert(false);
+                    setLocationError(null);
+                    setIsLocationEnabled(true);
+                },
+                (error) => {
+                    console.error("Geolocation error:", error);
+                    setShowLocationAlert(true);
+                    setLocationError(`Error ${error.code}: ${error.message}`);
+                    setIsLocationEnabled(false);
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0
+                }
+            );
+        } else {
+            console.error("Geolocation is not supported");
+            setShowLocationAlert(true);
+            setLocationError("Geolocation is not supported by this browser.");
+            setIsLocationEnabled(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        getLocation();
+        const intervalId = setInterval(getLocation, 10000);
+        return () => clearInterval(intervalId);
+    }, [getLocation]);
+
     useEffect(() => {
         if (user?.userId) {
             setPlayerId(user.userId);
@@ -39,15 +75,6 @@ const Match: React.FC = () => {
             fetchPlayerProfile(user.userId);
         }
     }, [user]);
-
-    const fetchPlayerProfile = async (userId: string) => {
-        try {
-            const response = await axios.get(`${API_URL}/profile/${userId}`);
-            setPlayerProfile(response.data);
-        } catch (error) {
-            console.error("Error fetching player profile:", error);
-        }
-    };
 
     const checkForActiveMatch = async (userId: string) => {
         try {
@@ -81,6 +108,15 @@ const Match: React.FC = () => {
         }
     };
 
+    const fetchPlayerProfile = async (userId: string) => {
+        try {
+            const response = await axios.get(`${API_URL}/profile/${userId}`);
+            setPlayerProfile(response.data);
+        } catch (error) {
+            console.error("Error fetching player profile:", error);
+        }
+    };
+
     const fetchOpponentProfile = async (opponentId: string) => {
         try {
             console.log("Fetching profile for opponent ID:", opponentId);
@@ -94,48 +130,8 @@ const Match: React.FC = () => {
         }
     };
 
-    useEffect(() => {
-        if (user?.userId) {
-            console.log("User ID available, checking for active match");
-            setPlayerId(user.userId);
-            checkForActiveMatch(user.userId);
-            fetchPlayerProfile(user.userId);
-        } else {
-            console.log("No user ID available");
-        }
-    }, [user]);
-
-    const getLocation = useCallback(() => {
-        if (typeof window !== 'undefined' && navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    setPlayerLocation([position.coords.latitude, position.coords.longitude]);
-                    setShowLocationAlert(false);
-                    setLocationError(null);
-                    setIsLocationEnabled(true);
-                },
-                (error) => {
-                    console.error("Error getting location:", error);
-                    setShowLocationAlert(true);
-                    setLocationError(error.message);
-                    setIsLocationEnabled(false);
-                },
-                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-            );
-        } else {
-            setShowLocationAlert(true);
-            setLocationError("Geolocation is not supported by this browser.");
-            setIsLocationEnabled(false);
-        }
-    }, []);
-
-    useEffect(() => {
-        getLocation();
-        const intervalId = setInterval(getLocation, 10000);
-        return () => clearInterval(intervalId);
-    }, [getLocation]);
-
     const handleEnableLocation = () => {
+        console.log("Manual location enable attempt");
         getLocation();
     };
 
@@ -162,14 +158,28 @@ const Match: React.FC = () => {
                         <AlertDialogHeader>
                             <AlertDialogTitle>Precise Location Access Required</AlertDialogTitle>
                             <AlertDialogDescription>
-                                To match you with nearby players and provide accurate directions, we need access to your precise location. Please enable precise location access in your browser settings.
-                                {locationError && <p className="text-red-500 mt-2">Error: {locationError}</p>}
+                                To match you with nearby players and provide accurate directions, we need access to your precise location.
+                                {locationError && (
+                                    <div className="text-red-500 mt-2">
+                                        Error: {locationError}
+                                    </div>
+                                )}
+                                <div className="mt-2">
+                                    Please ensure that:
+                                    <ul className="list-disc list-inside mt-1">
+                                        <li>You have allowed location access for this site</li>
+                                        <li>Your device's location services are turned on</li>
+                                        <li>You have a stable internet connection</li>
+                                    </ul>
+                                </div>
                             </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
-                            <Button variant="outline" onClick={handleEnableLocation}>
-                                Try Again
-                            </Button>
+                            <AlertDialogAction asChild>
+                                <Button onClick={handleEnableLocation}>
+                                    Retry Location Access
+                                </Button>
+                            </AlertDialogAction>
                         </AlertDialogFooter>
                     </AlertDialogContent>
                 </AlertDialog>
@@ -178,88 +188,101 @@ const Match: React.FC = () => {
     }
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen p-4">
-            <h2 className="text-3xl font-bold text-center mb-8 text-zinc-400">Run the 1s</h2>
+        <div className='container mx-auto my-32'>
+            <div className="flex flex-col items-center justify-center p-4">
+                <h2 className="text-xl font-mono font-bold text-center mb-8 text-zinc-400">Run the 1s</h2>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl">
-                {/* Player Profile Card */}
-                {playerProfile && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl">
+                    {/* Player Profile Card */}
+                    {playerProfile && (
+                        <Card className="col-span-1">
+                            <CardHeader>
+                                <CardTitle className="text-xl text-center">Your Profile</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <ProfilePlayerCard profile={playerProfile} name={user?.username || ''} />
+                            </CardContent>
+                        </Card>
+                    )}
+
+                    {(activeMatch || matchFound) && opponentProfile ? (
+                        <Card className="col-span-1">
+                            <CardHeader>
+                                <CardTitle className="text-xl text-center">Opponent</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <ProfilePlayerCard profile={opponentProfile} name={opponentName} />
+                            </CardContent>
+                        </Card>
+                    ) : (activeMatch || matchFound) ? (
+                        <Card className="col-span-1">
+                            <CardHeader>
+                                <CardTitle className="text-xl text-center">Opponent</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <p>Loading opponent profile...</p>
+                                <p>Active Match: {JSON.stringify(activeMatch)}</p>
+                                <p>Match Found: {matchFound.toString()}</p>
+                                <p>Opponent Name: {opponentName}</p>
+                            </CardContent>
+                        </Card>
+                    ) : null}
+
+                    {/* Meeting Point Map Card */}
+                    {(activeMatch || matchFound) && playerLocation && meetingPoint && (
+                        <Card className="col-span-1">
+                            <CardHeader>
+                                <CardTitle className="text-xl text-center">Meeting Point</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <MatchMap
+                                    meetingPoint={meetingPoint}
+                                    playerLocation={playerLocation}
+                                />
+                            </CardContent>
+                        </Card>
+                    )}
+
+                    {/* Match Queue Card */}
                     <Card className="col-span-1">
                         <CardHeader>
-                            <CardTitle className="text-xl text-center">Your Profile</CardTitle>
+                            <CardTitle className="text-2xl text-center">Match Queue</CardTitle>
+                            <CardDescription className='text-center'>Time to Box!</CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <ProfilePlayerCard profile={playerProfile} name={user?.username || ''} />
-                        </CardContent>
-                    </Card>
-                )}
-
-                {/* Match Queue Card */}
-                <Card className="col-span-1">
-                    <CardHeader>
-                        <CardTitle className="text-2xl text-center">Match Queue</CardTitle>
-                        <CardDescription className='text-center'>Time to Box!</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        {activeMatch ? (
-                            <Alert className='text-center'>
-                                <AlertTitle>Active Match in Progress</AlertTitle>
+                            {activeMatch ? (
+                                <Alert className='text-center'>
+                                    <AlertTitle>Active Match in Progress</AlertTitle>
+                                    <AlertDescription>
+                                        You have an active match against {opponentName}. Please complete it before joining a new queue.
+                                    </AlertDescription>
+                                </Alert>
+                            ) : matchFound ? (
+                                <Alert className='text-center'>
+                                    <AlertTitle>Match Found!</AlertTitle>
+                                    <AlertDescription>
+                                        Prepare for your arm wrestling match against {opponentName}.
+                                    </AlertDescription>
+                                </Alert>
+                            ) : (
+                                <QueueManagement playerId={playerId} onMatchFound={handleMatchFound} />
+                            )}
+                            <Alert className='text-center mt-4'>
+                                <AlertTitle>Forfeit</AlertTitle>
                                 <AlertDescription>
-                                    You have an active match against {opponentName}. Please complete it before joining a new queue.
+                                    Your opponent is a no-show? Click the button below to forfeit the match.
+                                    <br />
+                                    <Button variant='destructive' className='mt-4' onClick={() => console.log('Forfeit match')}>
+                                        Forfeit Match
+                                    </Button>
                                 </AlertDescription>
                             </Alert>
-                        ) : matchFound ? (
-                            <Alert className='text-center'>
-                                <AlertTitle>Match Found!</AlertTitle>
-                                <AlertDescription>
-                                    Prepare for your arm wrestling match against {opponentName}.
-                                </AlertDescription>
-                            </Alert>
-                        ) : (
-                            <QueueManagement playerId={playerId} onMatchFound={handleMatchFound} />
-                        )}
-                    </CardContent>
-                </Card>
-
-                {(activeMatch || matchFound) && opponentProfile ? (
-                    <Card className="col-span-1">
-                        <CardHeader>
-                            <CardTitle className="text-xl text-center">Opponent</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <ProfilePlayerCard profile={opponentProfile} name={opponentName} />
                         </CardContent>
                     </Card>
-                ) : (activeMatch || matchFound) ? (
-                    <Card className="col-span-1">
-                        <CardHeader>
-                            <CardTitle className="text-xl text-center">Opponent</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <p>Loading opponent profile...</p>
-                            <p>Active Match: {JSON.stringify(activeMatch)}</p>
-                            <p>Match Found: {matchFound.toString()}</p>
-                            <p>Opponent Name: {opponentName}</p>
-                        </CardContent>
-                    </Card>
-                ) : null}
-
-                {/* Meeting Point Map Card */}
-                {(activeMatch || matchFound) && playerLocation && meetingPoint && (
-                    <Card className="col-span-1">
-                        <CardHeader>
-                            <CardTitle className="text-xl text-center">Meeting Point</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <MatchMap
-                                meetingPoint={meetingPoint}
-                                playerLocation={playerLocation}
-                            />
-                        </CardContent>
-                    </Card>
-                )}
+                </div>
             </div>
         </div>
+
     );
 };
 

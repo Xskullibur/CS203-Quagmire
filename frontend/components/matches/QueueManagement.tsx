@@ -25,7 +25,7 @@ const QueueManagement: React.FC<QueueManagementProps> = ({ playerId, onMatchFoun
     const [matchFound, setMatchFound] = useState(false);
     const [opponentName, setOpponentName] = useState('');
     const { client, connected } = useWebSocket();
-    const { location } = useGeolocation();
+    const { location, error } = useGeolocation();
 
     useEffect(() => {
         if (client && connected) {
@@ -93,11 +93,13 @@ const QueueManagement: React.FC<QueueManagementProps> = ({ playerId, onMatchFoun
             setInQueue(true);
         } else {
             console.error('Cannot join queue: client not connected or location not available');
+            // Show an error message to the user
+            alert('Unable to join queue. Please ensure location services are enabled and try again.');
         }
     };
-
     return (
         <div className="p-4">
+            {error && <Alert variant="destructive"><AlertTitle>Location Error</AlertTitle><AlertDescription>{error}</AlertDescription></Alert>}
             {matchFound ? (
                 <Alert>
                     <AlertTitle>Match Found!</AlertTitle>
@@ -111,10 +113,11 @@ const QueueManagement: React.FC<QueueManagementProps> = ({ playerId, onMatchFoun
                     <Button onClick={leaveQueue}>Leave Queue</Button>
                 </div>
             ) : (
-                <Button variant="outline"
+                <Button
+                    variant="outline"
                     onClick={joinQueue}
                     className='hover:text-muted'
-                    disabled={!connected}>
+                    disabled={!connected || !location}>
                     Join Queue
                 </Button>
             )}
