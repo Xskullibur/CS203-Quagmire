@@ -1,6 +1,5 @@
 package com.project.G1_T3.tournament.repository;
 
-import com.project.G1_T3.player.model.PlayerProfile;
 import com.project.G1_T3.tournament.model.Tournament;
 import java.time.LocalDateTime;
 

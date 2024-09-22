@@ -51,7 +51,7 @@ public class Tournament {
     @JoinTable(
         name = "tournament_participants",
         joinColumns = @JoinColumn(name = "tournament_id"),
-        inverseJoinColumns = @JoinColumn(name = "user_id")
+        inverseJoinColumns = @JoinColumn(name = "profile_id")
     )
     private Set<PlayerProfile> players = new HashSet<>();
 
