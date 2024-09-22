@@ -1,5 +1,6 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { format, formatDistance } from 'date-fns';
 import {
   Select,
   SelectTrigger,
@@ -81,8 +82,8 @@ const UserTable: React.FC<UserTableProps> = ({ users, onEdit, onDelete }) => {
   };
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="border rounded-lg overflow-hidden">
+    <div className="flex flex-col items-center w-full pb-8 gap-6">
+      <div className="w-full max-w-[80%] border rounded-lg overflow-hidden">
         <div className="bg-muted px-4 py-3 flex items-center justify-between">
           <div className="relative">
             <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
@@ -112,123 +113,129 @@ const UserTable: React.FC<UserTableProps> = ({ users, onEdit, onDelete }) => {
             <Label htmlFor="page-size">entries</Label>
           </div>
         </div>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead
-                className="cursor-pointer"
-                onClick={() => handleSort("username")}
-              >
-                Username{" "}
-                {sort.key === "username" && (
-                  <span className="ml-1">
-                    {sort.order === "asc" ? "\u2191" : "\u2193"}
-                  </span>
-                )}
-              </TableHead>
-              <TableHead
-                className="cursor-pointer"
-                onClick={() => handleSort("email")}
-              >
-                Email{" "}
-                {sort.key === "email" && (
-                  <span className="ml-1">
-                    {sort.order === "asc" ? "\u2191" : "\u2193"}
-                  </span>
-                )}
-              </TableHead>
-              <TableHead
-                className="cursor-pointer"
-                onClick={() => handleSort("role")}
-              >
-                Role{" "}
-                {sort.key === "role" && (
-                  <span className="ml-1">
-                    {sort.order === "asc" ? "\u2191" : "\u2193"}
-                  </span>
-                )}
-              </TableHead>
-              <TableHead
-                className="cursor-pointer"
-                onClick={() => handleSort("createdAt")}
-              >
-                Created At{" "}
-                {sort.key === "createdAt" && (
-                  <span className="ml-1">
-                    {sort.order === "asc" ? "\u2191" : "\u2193"}
-                  </span>
-                )}
-              </TableHead>
-              <TableHead
-                className="cursor-pointer"
-                onClick={() => handleSort("updatedAt")}
-              >
-                Updated At{" "}
-                {sort.key === "updatedAt" && (
-                  <span className="ml-1">
-                    {sort.order === "asc" ? "\u2191" : "\u2193"}
-                  </span>
-                )}
-              </TableHead>
-              <TableHead className="w-[150px]">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {paginatedUsers.map((user) => (
-              <TableRow key={user.userId}>
-                <TableCell>{user.username}</TableCell>
-                <TableCell>{user.email}</TableCell>
-                <TableCell>{user.role}</TableCell>
-                <TableCell>{user.createdAt}</TableCell>
-                <TableCell>{user.updatedAt}</TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={() => onEdit(user)}
-                    >
-                      <FilePenIcon className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="destructive"
-                      size="icon"
-                      onClick={() => onDelete(user)}
-                    >
-                      <TrashIcon className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </TableCell>
+        <div className="overflow-x-auto">
+          <Table className="w-full table-fixed">
+            <TableHeader>
+              <TableRow>
+                <TableHead
+                  className="w-2/12 cursor-pointer"
+                  onClick={() => handleSort("username")}
+                >
+                  Username{" "}
+                  {sort.key === "username" && (
+                    <span className="ml-1">
+                      {sort.order === "asc" ? "\u2191" : "\u2193"}
+                    </span>
+                  )}
+                </TableHead>
+                <TableHead
+                  className="w-2/12 cursor-pointer"
+                  onClick={() => handleSort("email")}
+                >
+                  Email{" "}
+                  {sort.key === "email" && (
+                    <span className="ml-1">
+                      {sort.order === "asc" ? "\u2191" : "\u2193"}
+                    </span>
+                  )}
+                </TableHead>
+                <TableHead
+                  className="w-2/12 cursor-pointer"
+                  onClick={() => handleSort("role")}
+                >
+                  Role{" "}
+                  {sort.key === "role" && (
+                    <span className="ml-1">
+                      {sort.order === "asc" ? "\u2191" : "\u2193"}
+                    </span>
+                  )}
+                </TableHead>
+                <TableHead
+                  className="cursor-pointer"
+                  onClick={() => handleSort("createdAt")}
+                >
+                  Created At{" "}
+                  {sort.key === "createdAt" && (
+                    <span className="ml-1">
+                      {sort.order === "asc" ? "\u2191" : "\u2193"}
+                    </span>
+                  )}
+                </TableHead>
+                <TableHead
+                  className="cursor-pointer"
+                  onClick={() => handleSort("updatedAt")}
+                >
+                  Updated At{" "}
+                  {sort.key === "updatedAt" && (
+                    <span className="ml-1">
+                      {sort.order === "asc" ? "\u2191" : "\u2193"}
+                    </span>
+                  )}
+                </TableHead>
+                <TableHead className="w-32">Actions</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-        <div className="bg-muted px-4 py-3 flex items-center justify-between">
-          <div className="text-sm text-muted-foreground">
-            Showing {(page - 1) * Number(pageSize) + 1} to{" "}
-            {Math.min(page * Number(pageSize), sortedUsers.length)} of{" "}
-            {sortedUsers.length} entries
-          </div>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="icon"
-              disabled={page === 1}
-              onClick={() => setPage(page - 1)}
-            >
-              <ChevronLeftIcon className="h-4 w-4" />
-            </Button>
+            </TableHeader>
+            <TableBody>
+              {paginatedUsers.map((user) => (
+                <TableRow key={user.userId}>
+                  <TableCell className="truncate">{user.username}</TableCell>
+                  <TableCell className="truncate">{user.email}</TableCell>
+                  <TableCell className="truncate">{user.role}</TableCell>
+                  <TableCell className="truncate">
+                    {formatDistance(new Date(user.createdAt), new Date(), { addSuffix: true })}
+                  </TableCell>
+                  <TableCell className="truncate">
+                    {formatDistance(new Date(user.updatedAt), new Date(), { addSuffix: true })}
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => onEdit(user)}
+                      >
+                        <FilePenIcon className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        size="icon"
+                        onClick={() => onDelete(user)}
+                      >
+                        <TrashIcon className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+          <div className="bg-muted px-4 py-3 flex items-center justify-between">
             <div className="text-sm text-muted-foreground">
-              Page {page} of {totalPages}
+              Showing {(page - 1) * Number(pageSize) + 1} to{" "}
+              {Math.min(page * Number(pageSize), sortedUsers.length)} of{" "}
+              {sortedUsers.length} entries
             </div>
-            <Button
-              variant="outline"
-              size="icon"
-              disabled={page >= totalPages}
-              onClick={() => setPage(page + 1)}
-            >
-              <ChevronRightIcon className="h-4 w-4" />
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="icon"
+                disabled={page === 1}
+                onClick={() => setPage(page - 1)}
+              >
+                <ChevronLeftIcon className="h-4 w-4" />
+              </Button>
+              <div className="text-sm text-muted-foreground">
+                Page {page} of {totalPages}
+              </div>
+              <Button
+                variant="outline"
+                size="icon"
+                disabled={page >= totalPages}
+                onClick={() => setPage(page + 1)}
+              >
+                <ChevronRightIcon className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         </div>
       </div>
