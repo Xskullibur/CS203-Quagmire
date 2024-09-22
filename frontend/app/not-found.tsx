@@ -9,7 +9,7 @@ import { Vector3 } from 'three';
 
 const models = [
     {
-        url: './renders/charmander.glb',
+        url: '/renders/charmander.glb',
         zoomLength: 1,
         position: new Vector3(0, 0, 70),
         modelPosition: new Vector3(0, -20, 0)
