@@ -41,6 +41,9 @@ public class PlayerProfile {
     @Column(name = "country")
     private String country;
 
+    @Column(name = "community")
+    private String community;
+
     @Column(name = "bio", columnDefinition = "TEXT")
     private String bio;
 
@@ -66,6 +69,10 @@ public class PlayerProfile {
         return lastName;
     }
 
+    public String getCommunity() {
+        return community;
+    }
+
     public float getELO() {
         return glickoRating;
     }
@@ -88,5 +95,15 @@ public class PlayerProfile {
 
     public void setVolatility(float volatility) {
         this.volatility = volatility;
+    }
+
+    // Override equals() method for proper comparison in matchmaking
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (!(obj instanceof PlayerProfile)) return false;
+        PlayerProfile other = (PlayerProfile) obj;
+        return this.glickoRating == other.glickoRating && 
+               this.community.equals(other.community);
     }
 }
