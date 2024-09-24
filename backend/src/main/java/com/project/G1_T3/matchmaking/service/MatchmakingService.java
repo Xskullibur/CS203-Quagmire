@@ -5,7 +5,6 @@ import com.project.G1_T3.matchmaking.model.QueuedPlayer;
 import com.project.G1_T3.player.model.PlayerProfile;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -43,20 +42,20 @@ public class MatchmakingService {
             log.debug("Not enough players in queue for matching");
             return null;
         }
-
         List<QueuedPlayer> players = new ArrayList<>(playerQueue.values());
         players.sort(Comparator.comparingDouble(QueuedPlayer::getPriority).reversed());
-
         for (int i = 0; i < players.size() - 1; i++) {
             QueuedPlayer player1 = players.get(i);
             QueuedPlayer player2 = players.get(i + 1);
-
             if (matchmakingAlgorithm.isGoodMatch(player1, player2)) {
                 playerQueue.remove(player1.getPlayer().getUserId());
                 playerQueue.remove(player2.getPlayer().getUserId());
-
                 double[] meetingPoint = meetingPointService.findMeetingPoint(player1, player2);
-
+                if (meetingPoint == null) {
+                    log.error("Failed to find meeting point for players {} and {}", player1.getPlayer().getUserId(),
+                            player2.getPlayer().getUserId());
+                    continue; // Skip this match and try the next pair
+                }
                 Match match = new Match();
                 match.setGameType(Match.GameType.SOLO);
                 match.setPlayer1Id(player1.getPlayer().getProfileId());
@@ -64,12 +63,10 @@ public class MatchmakingService {
                 match.setStatus(Match.MatchStatus.SCHEDULED);
                 match.setMeetingLatitude(meetingPoint[0]);
                 match.setMeetingLongitude(meetingPoint[1]);
-
                 log.info("Match found: {} vs {}", player1.getPlayer().getUserId(), player2.getPlayer().getUserId());
                 return match;
             }
         }
-
         log.debug("No suitable match found in this iteration");
         return null;
     }
