@@ -5,13 +5,14 @@ import com.project.G1_T3.player.model.PlayerProfile;
 public class GlickoService {
 
     private static final double Q = Math.log(10) / 400; // Glicko constant
+    private static final float K = 30.0f; // Example factor to adjust RD after a match
 
     public void updateRatings(PlayerProfile player1, PlayerProfile player2, boolean player1Won) {
         // Calculate the expected score for each player
         double expectedScore1 = calculateExpectedScore(player1, player2);
         double expectedScore2 = calculateExpectedScore(player2, player1);
 
-        // Calculate the new RD
+        // Calculate the new RD for both players
         float newRD1 = calculateNewRD(player1);
         float newRD2 = calculateNewRD(player2);
 
@@ -23,8 +24,9 @@ public class GlickoService {
         player1.setELO(player1.getGlickoRating() + (float)(Q / (1 / Math.pow(newRD1, 2) + 1 / Math.pow(newRD2, 2)) * (score1 - expectedScore1)));
         player2.setELO(player2.getGlickoRating() + (float)(Q / (1 / Math.pow(newRD1, 2) + 1 / Math.pow(newRD2, 2)) * (score2 - expectedScore2)));
 
-        // Update RD and volatility
-        updateVolatility(player1, player2);
+        // Update RD after the match
+        player1.setRatingDeviation(newRD1);
+        player2.setRatingDeviation(newRD2);
     }
 
     private double calculateExpectedScore(PlayerProfile player1, PlayerProfile player2) {
@@ -32,8 +34,9 @@ public class GlickoService {
     }
 
     private float calculateNewRD(PlayerProfile player) {
-        // Implement logic to calculate new RD after a match
-        return Math.min(50.0f, player.getRatingDeviation() + 10.0f); // Example logic
+        // Increase RD after every match played
+        float newRD = Math.min(350.0f, player.getRatingDeviation() + K); // Increment RD
+        return newRD;
     }
 
     private void updateVolatility(PlayerProfile player1, PlayerProfile player2) {
