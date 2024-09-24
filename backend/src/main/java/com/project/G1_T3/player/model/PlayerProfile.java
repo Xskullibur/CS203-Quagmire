@@ -44,8 +44,14 @@ public class PlayerProfile {
     @Column(name = "bio", columnDefinition = "TEXT")
     private String bio;
 
-    @Column(name = "current_rating")
-    private Float currentRating;
+    @Column(name = "glicko_rating", nullable = false)
+    private float glickoRating = (float) 1500.0;
+
+    @Column(name = "rating_deviation", nullable = false)
+    private float ratingDeviation = (float) 350.0;
+
+    @Column(name = "volatility", nullable = false)
+    private float volatility = (float) 0.06; // Glicko-2
 
     // Getters, setters, and other methods...
     public UUID getProfileId() {
@@ -60,7 +66,27 @@ public class PlayerProfile {
         return lastName;
     }
 
-    public Float getELO() {
-        return currentRating;
+    public float getELO() {
+        return glickoRating;
+    }
+
+    public void setELO(float glickoRating) {
+        this.glickoRating = glickoRating;
+    }
+
+    public float getDeviation() {
+        return ratingDeviation;
+    } 
+
+    public void setDeviation(float ratingDeviation) {
+        this.ratingDeviation = ratingDeviation;
+    }
+
+    public float getVolatility() {
+        return volatility;
+    }
+
+    public void setVolatility(float volatility) {
+        this.volatility = volatility;
     }
 }
