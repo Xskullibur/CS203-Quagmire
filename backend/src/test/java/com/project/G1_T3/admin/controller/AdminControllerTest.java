@@ -3,7 +3,6 @@ package com.project.G1_T3.admin.controller;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -11,6 +10,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -46,16 +47,19 @@ class AdminControllerTest {
 
     @Test
     void testGetAllUsers() {
-        List<UserDTO> expectedUsers = Arrays.asList(
-                mock(UserDTO.class),
-                mock(UserDTO.class));
+        Page<UserDTO> expectedUsers = new PageImpl<>(List.of(
+            mock(UserDTO.class),
+            mock(UserDTO.class),
+            mock(UserDTO.class)
+        ));
 
-        when(userService.getAllUsers()).thenReturn(expectedUsers);
+        when(adminService.getPaginatedUsers(0, 10, "username", "asc")).thenReturn(expectedUsers);
 
-        List<UserDTO> actualUsers = adminController.getAllUsers();
+        ResponseEntity<Page<UserDTO>> response = adminController.getPaginatedUsers(0, 10, "username", "asc");
 
-        assertEquals(expectedUsers, actualUsers);
-        verify(userService).getAllUsers();
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(expectedUsers, response.getBody());
+        verify(adminService).getPaginatedUsers(0, 10, "username", "asc");
     }
 
     @Test
@@ -95,12 +99,14 @@ class AdminControllerTest {
 
     @Test
     void testUnauthorizedAccess() {
-        when(userService.getAllUsers()).thenThrow(new AccessDeniedException("Access denied"));
+        when(adminService.getPaginatedUsers(0, 10, "username", "asc"))
+                .thenThrow(new AccessDeniedException("Access denied"));
 
         Exception exception = assertThrows(AccessDeniedException.class, () -> {
-            adminController.getAllUsers();
+            adminController.getPaginatedUsers(0, 10, "username", "asc");
         });
 
         assertEquals("Access denied", exception.getMessage());
+        verify(adminService).getPaginatedUsers(0, 10, "username", "asc");
     }
 }

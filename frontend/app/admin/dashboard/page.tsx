@@ -17,6 +17,11 @@ const AdminDashboard: React.FC = () => {
 
   const [loading, setLoading] = useState(true);
   const [users, setUsers] = useState<User[]>([]);
+  const [totalPages, setTotalPages] = useState(0);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
+  const [sortingField, setSortingField] = useState("username");
+  const [order, setOrder] = useState("asc");
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [formData, setFormData] = useState({
     username: '',
@@ -31,28 +36,27 @@ const AdminDashboard: React.FC = () => {
     try {
 
       setLoading(true);
-      const response = await axiosInstance.post(
-        new URL("/admin/get-users", API_URL).toString()
+      const response = await axiosInstance.get(
+        new URL(`/admin/get-users?page=${currentPage}&size=${pageSize}&field=${sortingField}&order=${order}`, API_URL).toString()
       );
+
       if (response.status !== 200) {
         throw new Error("Failed to fetch users");
       }
-      setUsers(response.data);
-    } catch (error) {
 
+      setUsers(response.data.content);
+      setTotalPages(response.data.totalPages);
+
+    } catch (error) {
       console.error("Failed to retrieve users:", error);
       alert("Failed to retrieve users. Please try again.");
     } finally {
-
       setLoading(false);
     }
-  }, []);
+  }, [currentPage, pageSize, sortingField, order]);
 
   useEffect(() => {
-
-    if (users.length === 0) {
-      fetchUsers();
-    }
+    fetchUsers();
 
   }, [fetchUsers]);
 
@@ -104,7 +108,7 @@ const AdminDashboard: React.FC = () => {
 
   return (
     <div className="flex flex-col items-center min-h-screen pt-20">
-      <h2 className="text-2xl font-bold mb-4">Admin Dashboard</h2>
+      <h2 className="text-2xl font-bold my-4">Admin Dashboard</h2>
       {loading ? (
         <p>Loading users...</p>
       ) : (
@@ -112,6 +116,17 @@ const AdminDashboard: React.FC = () => {
           users={users}
           onEdit={handleEditUser}
           onDelete={handleDeleteUser}
+          currentPage={currentPage}
+          totalPages={totalPages}
+          pageSize={pageSize}
+          onPageChange={setCurrentPage}
+          onPageSizeChange={setPageSize}
+          sortBy={sortingField}
+          sortOrder={order}
+          onSort={(newSortingField) => {
+            setSortingField(newSortingField);
+            setOrder(order === "asc" ? "desc" : "asc");
+          }}
         />
       )}
 
