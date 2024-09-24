@@ -29,6 +29,7 @@ const AdminDashboard: React.FC = () => {
 
   const fetchUsers = useCallback(async () => {
     try {
+
       setLoading(true);
       const response = await axiosInstance.post(
         new URL("/admin/get-users", API_URL).toString()
@@ -38,15 +39,21 @@ const AdminDashboard: React.FC = () => {
       }
       setUsers(response.data);
     } catch (error) {
+
       console.error("Failed to retrieve users:", error);
       alert("Failed to retrieve users. Please try again.");
     } finally {
+
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchUsers();
+
+    if (users.length === 0) {
+      fetchUsers();
+    }
+
   }, [fetchUsers]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -57,7 +64,7 @@ const AdminDashboard: React.FC = () => {
 
     setError(null);
     setSuccess(null);
-    
+
     e.preventDefault();
 
     try {
