@@ -267,16 +267,18 @@ const Match: React.FC = () => {
                             ) : (
                                 <QueueManagement playerId={playerId} onMatchFound={handleMatchFound} />
                             )}
-                            <Alert className='text-center mt-4'>
-                                <AlertTitle>Forfeit</AlertTitle>
-                                <AlertDescription>
-                                    Your opponent is a no-show? Click the button below to forfeit the match.
-                                    <br />
-                                    <Button variant='destructive' className='mt-4' onClick={() => console.log('Forfeit match')}>
-                                        Forfeit Match
-                                    </Button>
-                                </AlertDescription>
-                            </Alert>
+                            {(activeMatch || matchFound) && (
+                                <Alert className='text-center mt-4'>
+                                    <AlertTitle>Forfeit</AlertTitle>
+                                    <AlertDescription>
+                                        Your opponent is a no-show? Click the button below to forfeit the match.
+                                        <br />
+                                        <Button variant='destructive' className='mt-4' onClick={() => console.log('Forfeit match')}>
+                                            Forfeit Match
+                                        </Button>
+                                    </AlertDescription>
+                                </Alert>
+                            )}
                         </CardContent>
                     </Card>
                 </div>
