@@ -41,8 +41,20 @@ public class PlayerProfile {
     @Column(name = "country", nullable = true)
     private String country;
 
+    @Column(name = "community")
+    private String community;
+
     @Column(name = "bio", columnDefinition = "TEXT")
     private String bio;
+
+    @Column(name = "glicko_rating", nullable = false)
+    private float glickoRating = (float) 1500.0;
+
+    @Column(name = "rating_deviation", nullable = false)
+    private float ratingDeviation = (float) 350.0;
+
+    @Column(name = "volatility", nullable = false)
+    private float volatility = (float) 0.06; // Glicko-2
 
     @Column(name = "current_rating")
     private Float currentRating = 0.0f;
@@ -64,8 +76,44 @@ public class PlayerProfile {
         return lastName;
     }
 
-    public Float getELO() {
-        return currentRating;
+    public String getCommunity() {
+        return community;
+    }
+
+    public float getELO() {
+        return glickoRating;
+    }
+
+    public void setELO(float glickoRating) {
+        this.glickoRating = glickoRating;
+    }
+
+    public float getDeviation() {
+        return ratingDeviation;
+    }
+
+    public void setDeviation(float ratingDeviation) {
+        this.ratingDeviation = ratingDeviation;
+    }
+
+    public float getVolatility() {
+        return volatility;
+    }
+
+    public void setVolatility(float volatility) {
+        this.volatility = volatility;
+    }
+
+    // Override equals() method for proper comparison in matchmaking
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!(obj instanceof PlayerProfile))
+            return false;
+        PlayerProfile other = (PlayerProfile) obj;
+        return this.glickoRating == other.glickoRating &&
+                this.community.equals(other.community);
     }
 
     public double getRating() {

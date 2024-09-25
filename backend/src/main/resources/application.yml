@@ -13,8 +13,8 @@ spring:
             hibernate:
                 format-sql: true
         hibernate:
-            ddl-auto: create-drop          # Uncomment for production
-        show-sql: true
+            ddl-auto: create-drop         # Uncomment for production
+        # show-sql: true
         database: postgresql
 
 logging:
