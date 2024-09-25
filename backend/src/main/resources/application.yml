@@ -13,9 +13,19 @@ spring:
             hibernate:
                 format-sql: true
         hibernate:
-            ddl-auto: update          # Uncomment for production
+            ddl-auto: create-drop          # Uncomment for production
         show-sql: true
         database: postgresql
+
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: DEBUG
+        type:
+          descriptor:
+            sql:
+              BasicBinder: TRACE
 
 jwt:
     secret-key: "b94801bb5520b2b660fe5a88c59b219366d6e3919c2630a32be2d41bc3d676de"

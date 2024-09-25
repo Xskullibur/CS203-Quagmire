@@ -26,6 +26,7 @@ public class AuthenticationController {
 
     @PostMapping("/validate-token")
     public ResponseEntity<?> validateToken(@RequestHeader("Authorization") String token) {
+
         try {
             String jwtToken = token.substring(7); // Remove "Bearer " prefix
             String jwtUsername = jwtService.extractUsername(jwtToken);
@@ -36,6 +37,7 @@ public class AuthenticationController {
                 final UserDTO userDTO = userService.getUserDTOByUsername(jwtUsername);
                 return ResponseEntity.ok(userDTO);
             } else {
+
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");
             }
 
