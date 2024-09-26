@@ -64,7 +64,7 @@ class EmailServiceTest {
         when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
 
         // Act
-        assertDoesNotThrow(() -> emailService.sendEmail("test@example.com", "Test Subject", "Test Body"));
+        assertDoesNotThrow(() -> emailService.sendEmail("test@example.com", "Test Subject", "Test Body", null));
 
         // Verify
         verify(mailSender).send(any(MimeMessage.class));

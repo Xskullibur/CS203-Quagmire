@@ -15,6 +15,9 @@ import org.springframework.core.io.ClassPathResource;
 
 import jakarta.mail.internet.MimeMessage;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,10 +48,15 @@ public class EmailService {
         context.setVariable("tempPassword", tempPassword);
 
         String htmlContent = templateEngine.process("AdminTempPasswordTemplate", context);
-        sendEmail(userDTO.getEmail(), "Admin Account Created", htmlContent);
+
+        Map<String, ClassPathResource> inlineResources = new HashMap<>();
+        inlineResources.put("email_icon", new ClassPathResource("templates/static/heroGIF.png"));
+        inlineResources.put("welcome_image", new ClassPathResource("templates/static/Hello-rafiki.png"));
+
+        sendEmail(userDTO.getEmail(), "Admin Account Created", htmlContent, inlineResources);
     }
 
-    public void sendEmail(String to, String subject, String body) {
+    public void sendEmail(String to, String subject, String body, Map<String, ClassPathResource> inlineResources) {
         try {
 
             MimeMessage message = mailSender.createMimeMessage();
@@ -58,8 +66,11 @@ public class EmailService {
             helper.setSubject(subject);
             helper.setText(body, true);
 
-            ClassPathResource icon = new ClassPathResource("templates/static/heroGIF.png");
-            helper.addInline("email_icon", icon);
+            if (inlineResources != null) {
+                for (Map.Entry<String, ClassPathResource> entry : inlineResources.entrySet()) {
+                    helper.addInline(entry.getKey(), entry.getValue());
+                }
+            }
 
             mailSender.send(message);
             logger.info("Sent email to: {}", to);
