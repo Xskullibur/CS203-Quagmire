@@ -13,9 +13,25 @@ spring:
             hibernate:
                 format-sql: true
         hibernate:
-            ddl-auto: update # Uncomment for production
-        # show-sql: true
+            ddl-auto: update
+        show-sql: true
         database: postgresql
+
+    mail:
+        host: smtp.gmail.com
+        port: 587
+        username: # TODO: Insert Gmail Address
+        password: # TODO: Insert Password
+        properties:
+            mail:
+                smtp:
+                    auth: true
+                    starttls:
+                        enable: true
+                        required: true
+                    connectiontimeout: 5000
+                    timeout: 3000
+                    writetimeout: 5000
 
 logging:
     level:
