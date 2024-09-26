@@ -9,6 +9,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import com.project.G1_T3.authentication.service.PasswordGeneratorService;
+import com.project.G1_T3.email.service.EmailService;
 import com.project.G1_T3.user.model.UserDTO;
 import com.project.G1_T3.user.model.UserRole;
 import com.project.G1_T3.user.service.UserService;
@@ -21,6 +22,9 @@ class AdminServiceTest {
 
     @Mock
     private PasswordGeneratorService passwordGeneratorService;
+
+    @Mock
+    private EmailService emailService;
 
     @InjectMocks
     private AdminService adminService;
