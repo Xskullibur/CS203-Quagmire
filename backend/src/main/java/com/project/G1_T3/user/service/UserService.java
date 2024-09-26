@@ -26,7 +26,7 @@ public class UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public void registerUser(String username, String email, String password) {
+    public UserDTO registerUser(String username, String email, String password, UserRole role) {
 
         if (existsByUsername(username)) {
             throw new UsernameAlreadyTakenException("Username is already taken");
@@ -40,12 +40,13 @@ public class UserService {
         newUser.setUsername(username);
         newUser.setEmail(email);
         newUser.setPasswordHash(passwordEncoder.encode(password));
-        newUser.setRole(UserRole.PLAYER); // Set default role
+        newUser.setRole(role);
         newUser.setCreatedAt(LocalDateTime.now());
         newUser.setUpdatedAt(LocalDateTime.now());
 
         // Save user to database
         userRepository.save(newUser);
+        return UserDTO.fromUser(newUser);
     }
 
     public boolean existsByUsername(String username) {
