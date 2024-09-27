@@ -42,56 +42,16 @@ public class RoundServiceImpl implements RoundService {
         Stage stage = stageRepository.findById(stageId)
                         .orElseThrow(() -> new RuntimeException("Stage not found"));
 
-        List<Match> matches = new ArrayList<>();
+        List<Match> matches = createMatches(sortedPlayers, stage);
 
         Set<PlayerProfile> referees = stage.getReferees();
-        List<PlayerProfile> refereeList = new ArrayList<>(referees);
 
-        int totalPlayers = sortedPlayers.size();
-        for (int i = 0; i < totalPlayers / 2; i++) {
-            PlayerProfile player1 = sortedPlayers.get(i);
-            PlayerProfile player2 = sortedPlayers.get(totalPlayers - 1 - i);
+        createRound(stage, 0, matches, sortedPlayers, stage.getReferees());
 
-            System.out.println("adding players" + player1.getCurrentRating() + " " + player2.getCurrentRating());
-
-            MatchDTO matchDTO = new MatchDTO();
-            matchDTO.setPlayer1Id(player1.getProfileId());
-            matchDTO.setPlayer2Id(player2.getProfileId());
-            // matchDTO.setRound(round);
-            // matchDTO.setStatus(Status.SCHEDULED);  // Default status for a new match
-
-            // Pick a random referee if there are multiple, otherwise pick the only referee
-            PlayerProfile selectedReferee;
-            if (refereeList.size() == 1) {
-                selectedReferee = refereeList.get(0);  // Pick the only referee
-            } else {
-                int randomRefereeIndex = new Random().nextInt(refereeList.size());
-                selectedReferee = refereeList.get(randomRefereeIndex);  // Pick a random referee
-            }
-
-            matchDTO.setRefereeId(selectedReferee.getProfileId());
-            matchDTO.setScheduledTime(LocalDateTime.now().plusDays(1));
-            
-            Match match = matchService.createMatch(matchDTO);
-
-            matches.add(match);
-        }
-
-        Round round = new Round();
-        round.setStage(stage);
-        round.setRoundNumber(1);
-        round.setStartDate(LocalDateTime.now());
-        round.setEndDate(LocalDateTime.now().plusDays(1));
-        round.setStatus(Status.SCHEDULED);
-        round.setMatches(matches);
-        System.out.println("insert length of roundMatches = " + round.getMatches().size());
-        round.setPlayers(new HashSet<>(stage.getPlayers()));
-        round.setReferees(new HashSet<>(referees));
-
-        roundRepository.save(round);
     }
 
     public void endRound(Long roundId) {
+
         Round round = roundRepository.findById(roundId)
                         .orElseThrow(() -> new RuntimeException("Round not found"));
     
@@ -101,36 +61,53 @@ public class RoundServiceImpl implements RoundService {
     
         // Loop through the matches in the round and collect the winners
         for (Match match : round.getMatches()) {
-            System.out.println("Winner: " + match.getWinnerId());
             PlayerProfile winner = playerProfileRepository.findByProfileId(match.getWinnerId()); // Assume this is set after the match ends
-            System.out.println("Winner profile: " + winner.getProfileId());
             advancingPlayers.add(winner);
         }
     
         // If there are enough advancing players, create the next round
         if (advancingPlayers.size() > 1) {
-            createNextRound(round.getStage(), advancingPlayers);
+            createNextRound(round.getStage(), advancingPlayers, round);
         } else {
             // Only one player left, so they are the winner of the stage
             endStage(round.getStage(), advancingPlayers.get(0));
         }
+
     }
 
-    private void createNextRound(Stage curStage, List<PlayerProfile> advancingPlayers) {
+    private void createNextRound(Stage curStage, List<PlayerProfile> advancingPlayers, Round curRound) {
+
+        // Create new matches for the next round by pairing winners from the current round
+        List<Match> matches = createMatches(advancingPlayers, curStage);
+
+        createRound(curStage, curRound.getRoundNumber(), matches, advancingPlayers, curStage.getReferees());
+
+    }
+    
+    private void endStage(Stage stage, PlayerProfile winner) {
+        // Mark the stage as complete and declare the winner
+        stage.setStatus(Status.COMPLETED);
+        stage.setWinnerId(winner.getProfileId()); // Assuming the stage has a winner field
+        stageRepository.save(stage);
+    }
+
+    private List<Match> createMatches(List<PlayerProfile> playerList, Stage stage) {
 
         // Ensure we maintain the original bracket structure by preserving match order
         List<Match> matches = new ArrayList<>();
 
-        Set<PlayerProfile> referees = curStage.getReferees();
+        Set<PlayerProfile> referees = stage.getReferees();
         List<PlayerProfile> refereeList = new ArrayList<>(referees);
 
-        // Create new matches for the next round by pairing winners from the current round
-        for (int i = 0; i < advancingPlayers.size() / 2; i++) {
+        int totalPlayers = playerList.size();
+
+        for (int i = 0; i < totalPlayers / 2; i++) {
+            PlayerProfile player1 = playerList.get(i);
+            PlayerProfile player2 = playerList.get(totalPlayers - 1 - i);
+
             MatchDTO matchDTO = new MatchDTO();
-            matchDTO.setPlayer1Id(advancingPlayers.get(i).getProfileId());
-            matchDTO.setPlayer2Id(advancingPlayers.get(advancingPlayers.size() - 1 - i).getProfileId());
-            // match.setRound(nextRound);
-            // match.setStatus(Status.SCHEDULED);
+            matchDTO.setPlayer1Id(player1.getProfileId());
+            matchDTO.setPlayer2Id(player2.getProfileId());
 
             // Pick a random referee if there are multiple, otherwise pick the only referee
             PlayerProfile selectedReferee;
@@ -148,25 +125,25 @@ public class RoundServiceImpl implements RoundService {
             matches.add(match);
         }
 
-        Round nextRound = new Round();
-        nextRound.setStage(curStage);
-        nextRound.setRoundNumber(1);
-        nextRound.setStartDate(LocalDateTime.now());
-        nextRound.setEndDate(LocalDateTime.now().plusDays(1));
-        nextRound.setStatus(Status.SCHEDULED);
-        nextRound.setMatches(matches);
-        nextRound.setPlayers(new HashSet<>(advancingPlayers));
-        nextRound.setReferees(new HashSet<>(referees));
-        System.out.println("insert length of roundMatches = " + nextRound.getMatches().size());
-        roundRepository.save(nextRound);
+        return matches;
 
     }
-    
-    private void endStage(Stage stage, PlayerProfile winner) {
-        // Mark the stage as complete and declare the winner
-        stage.setStatus(Status.COMPLETED);
-        stage.setWinnerId(winner.getProfileId()); // Assuming the stage has a winner field
-        stageRepository.save(stage);
+
+    private void createRound(Stage stage, Integer roundNumber, List<Match> matches, List<PlayerProfile> players, Set<PlayerProfile> referees) {
+
+        Round round = new Round();
+
+        round.setStage(stage);
+        round.setRoundNumber(round.getRoundNumber() + 1);
+        round.setStartDate(LocalDateTime.now());
+        round.setEndDate(LocalDateTime.now().plusDays(1));
+        round.setStatus(Status.SCHEDULED);
+        round.setMatches(matches);
+        round.setPlayers(new HashSet<>(stage.getPlayers()));
+        round.setReferees(new HashSet<>(referees));
+
+        roundRepository.save(round);
+
     }
 
 }
