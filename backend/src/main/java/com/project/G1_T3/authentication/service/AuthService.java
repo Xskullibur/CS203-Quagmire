@@ -37,6 +37,8 @@ public class AuthService {
 
     public LoginResponseDTO authenticateAndGenerateToken(String username, String password) {
 
+        username = username.toLowerCase();
+
         try {
             authManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
             User user = userRepository.findByUsername(username)
@@ -63,6 +65,7 @@ public class AuthService {
         }
 
         try {
+            
             String jwtToken = token.substring(7);
             String jwtUsername = jwtService.extractUsername(jwtToken);
 

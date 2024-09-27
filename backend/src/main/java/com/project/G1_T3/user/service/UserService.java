@@ -28,6 +28,9 @@ public class UserService {
 
     public UserDTO registerUser(String username, String email, String password, UserRole role) {
 
+        username = username.toLowerCase();
+        email = email.toLowerCase();
+
         if (existsByUsername(username)) {
             throw new UsernameAlreadyTakenException("Username is already taken");
         }
@@ -50,27 +53,32 @@ public class UserService {
     }
 
     public boolean existsByUsername(String username) {
+        username = username.toLowerCase();
         return userRepository.existsByUsername(username);
     }
 
     public boolean existsByEmail(String email) {
+        email = email.toLowerCase();
         return userRepository.existsByEmail(email);
     }
 
     public Optional<User> findByUsername(String username) {
+        username = username.toLowerCase();
         return userRepository.findByUsername(username);
     }
 
     public List<UserDTO> getAllUsers() {
         return userRepository.findAllUsersWithoutPassword()
-            .stream()
-            .map(UserDTO::fromUser)
-            .collect(Collectors.toList());
+                .stream()
+                .map(UserDTO::fromUser)
+                .collect(Collectors.toList());
     }
 
     public UserDTO getUserDTOByUsername(String username) {
-        return userRepository.findByUsername(username)
+
+        final String finalUsername = username.toLowerCase();
+        return userRepository.findByUsername(finalUsername)
                 .map(UserDTO::fromUser)
-                .orElseThrow(() -> new UsernameNotFoundException(username));
+                .orElseThrow(() -> new UsernameNotFoundException(finalUsername));
     }
 }
