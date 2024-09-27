@@ -44,8 +44,6 @@ public class RoundServiceImpl implements RoundService {
 
         List<Match> matches = createMatches(sortedPlayers, stage);
 
-        Set<PlayerProfile> referees = stage.getReferees();
-
         createRound(stage, 0, matches, sortedPlayers, stage.getReferees());
 
     }
@@ -134,7 +132,7 @@ public class RoundServiceImpl implements RoundService {
         Round round = new Round();
 
         round.setStage(stage);
-        round.setRoundNumber(round.getRoundNumber() + 1);
+        round.setRoundNumber(roundNumber + 1);
         round.setStartDate(LocalDateTime.now());
         round.setEndDate(LocalDateTime.now().plusDays(1));
         round.setStatus(Status.SCHEDULED);
