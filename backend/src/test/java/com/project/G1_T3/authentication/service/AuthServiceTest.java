@@ -54,7 +54,7 @@ class AuthServiceTest {
 
     @Test
     void authenticateAndGenerateToken_ValidCredentials_ReturnsLoginResponseDTO() {
-        String username = "testUser";
+        String username = "testuser";
         String password = "testPassword";
         User user = new User();
         user.setUsername(username);
