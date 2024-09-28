@@ -1,9 +1,14 @@
 import React, { useEffect, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBuilding, faWarehouse, faStore, faLandmark, faMapMarked } from '@fortawesome/free-solid-svg-icons';
-import PropTypes from 'prop-types';
+import { faBuilding, faWarehouse, faStore, faLandmark, faMapMarked, IconDefinition } from '@fortawesome/free-solid-svg-icons';
 
-const Card = ({ icon, title, description }) => {
+interface CardProps {
+    icon: IconDefinition;
+    title: string;
+    description: string;
+}
+
+const Card: React.FC<CardProps> = ({ icon, title, description }) => {
     return (
         <div className="card bg-opacity-10 bg-white rounded-lg cursor-pointer flex flex-col relative w-[300px] h-[260px] overflow-hidden group">
             <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-[radial-gradient(800px_circle_at_var(--mouse-x)_var(--mouse-y),rgba(255,255,255,0.06),transparent_40%)] z-10"></div>
@@ -26,34 +31,28 @@ const Card = ({ icon, title, description }) => {
     );
 };
 
-Card.propTypes = {
-    icon: PropTypes.object.isRequired,
-    title: PropTypes.string.isRequired,
-    description: PropTypes.string.isRequired,
-};
-
-const HeroCards = () => {
-    const cardsRef = useRef(null);
+const HeroCards: React.FC = () => {
+    const cardsRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         const cards = cardsRef.current;
 
-        const handleMouseMove = (e) => {
-            for (const card of cards.getElementsByClassName("card")) {
+        const handleMouseMove = (e: MouseEvent) => {
+            if (!cards) return;
+            for (const card of Array.from(cards.getElementsByClassName("card"))) {
                 const rect = card.getBoundingClientRect(),
                     x = e.clientX - rect.left,
                     y = e.clientY - rect.top;
 
-                card.style.setProperty("--mouse-x", `${x}px`);
-                card.style.setProperty("--mouse-y", `${y}px`);
+                (card as HTMLElement).style.setProperty("--mouse-x", `${x}px`);
+                (card as HTMLElement).style.setProperty("--mouse-y", `${y}px`);
             }
         };
 
-        cards.addEventListener("mousemove", handleMouseMove);
-
+        cards?.addEventListener("mousemove", handleMouseMove);
 
         return () => {
-            cards.removeEventListener("mousemove", handleMouseMove);
+            cards?.removeEventListener("mousemove", handleMouseMove);
         };
     }, []);
 

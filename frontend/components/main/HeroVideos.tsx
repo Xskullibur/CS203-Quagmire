@@ -1,4 +1,4 @@
-import HoverVideoGuide from './HoverVideoGuide.jsx';
+import HoverVideoGuide from './HoverVideoGuide';
 
 const signUpSteps = [
     {
