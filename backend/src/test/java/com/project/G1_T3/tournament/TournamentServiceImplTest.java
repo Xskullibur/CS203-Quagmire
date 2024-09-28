@@ -36,12 +36,11 @@ class TournamentServiceImplTest {
     @Test
     void testFindUpcomingTournaments() {
         PageRequest pageable = PageRequest.of(0, 10);
-        when(tournamentRepository.findByDateAfter(any(LocalDateTime.class), any(Pageable.class)))
+        when(tournamentRepository.findByStartDateAfter(any(LocalDateTime.class), any(Pageable.class)))
                 .thenReturn(new PageImpl<>(Collections.emptyList()));
 
         Page<Tournament> tournaments = tournamentService.findUpcomingTournaments(pageable);
         assertThat(tournaments).isNotNull();
         assertThat(tournaments.getContent()).isEmpty();
     }
-
 }

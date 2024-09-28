@@ -4,6 +4,8 @@ import com.project.G1_T3.authentication.model.RegisterRequest;
 import com.project.G1_T3.common.exception.EmailAlreadyInUseException;
 import com.project.G1_T3.common.exception.UsernameAlreadyTakenException;
 import com.project.G1_T3.common.exception.GlobalExceptionHandler;
+import com.project.G1_T3.user.model.User;
+import com.project.G1_T3.user.model.UserDTO;
 import com.project.G1_T3.user.model.UserRole;
 import com.project.G1_T3.user.service.UserService;
 
@@ -38,14 +40,15 @@ class RegisterControllerTest {
 
     @Test
     void testRegisterUser_Success() {
+
+        UserDTO userDTO = mock(UserDTO.class);
         RegisterRequest request = new RegisterRequest();
         request.setUsername("testuser");
         request.setEmail("test@example.com");
         request.setPassword("password");
 
         UserRole role = UserRole.PLAYER;
-
-        doNothing().when(userService).registerUser(anyString(), anyString(), anyString(), role);
+        when(userService.registerUser(anyString(), anyString(), anyString(), eq(role))).thenReturn(userDTO);
 
         ResponseEntity<?> response = registerController.registerUser(request);
 
@@ -69,7 +72,7 @@ class RegisterControllerTest {
         UserRole role = UserRole.PLAYER;
     
         doThrow(new UsernameAlreadyTakenException("Username is already taken"))
-            .when(userService).registerUser(anyString(), anyString(), anyString(), role);
+            .when(userService).registerUser(anyString(), anyString(), anyString(), eq(role));
     
         try {
             registerController.registerUser(request);
@@ -95,7 +98,7 @@ class RegisterControllerTest {
         UserRole role = UserRole.PLAYER;
 
         doThrow(new EmailAlreadyInUseException("Email is already in use"))
-            .when(userService).registerUser(anyString(), anyString(), anyString(), role);
+            .when(userService).registerUser(anyString(), anyString(), anyString(), eq(role));
     
         try {
             registerController.registerUser(request);

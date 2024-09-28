@@ -56,6 +56,12 @@ public class GlobalExceptionHandler {
 
         exception.printStackTrace();
 
+        if (exception instanceof InvalidTokenException) {
+            errorDetail = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, exception.getMessage());
+            errorDetail.setProperty(DESC, "Invalid token");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorDetail);
+        }
+
         if (exception instanceof BadCredentialsException) {
             errorDetail = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, exception.getMessage());
             errorDetail.setProperty(DESC, "The username or password is incorrect");

@@ -4,8 +4,9 @@ import { Button } from "@/components/ui/button";
 import { formatDate } from '@/utils/dateFormatter';
 import { motion } from 'framer-motion';
 import PropTypes from 'prop-types';
+import { Tournament } from '@/types/tournament';
 
-const TournamentCard = ({ tournament }) => {
+const TournamentCard = ({ tournament }: { tournament: Tournament }) => {
     return (
         <motion.div
             transition={{ duration: 0.2 }}
@@ -28,7 +29,7 @@ const TournamentCard = ({ tournament }) => {
                     <p><span className="font-medium">Status:</span> {tournament.status}</p>
                 </CardContent>
                 <CardFooter className="p-4">
-                    <Button size="sm" variant="primary" className="w-full rounded-full
+                    <Button size="sm" variant="outline" className="w-full rounded-full
                         transition duration-200 ease-in-out transform hover:-translate-y-0.5 hover:shadow-lg border">
                         View Tournament
                     </Button>
@@ -36,18 +37,6 @@ const TournamentCard = ({ tournament }) => {
             </Card>
         </motion.div>
     );
-};
-
-TournamentCard.propTypes = {
-    tournament: PropTypes.shape({
-        name: PropTypes.string.isRequired,
-        description: PropTypes.string.isRequired,
-        start_date: PropTypes.string.isRequired,
-        end_date: PropTypes.string.isRequired,
-        registration_deadline: PropTypes.string.isRequired,
-        max_participants: PropTypes.number.isRequired,
-        status: PropTypes.string.isRequired,
-    }).isRequired,
 };
 
 export default TournamentCard;

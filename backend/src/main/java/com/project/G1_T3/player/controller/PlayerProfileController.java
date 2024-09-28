@@ -24,6 +24,22 @@ public class PlayerProfileController {
     @GetMapping("/{id}")
     public ResponseEntity<PlayerProfile> getUserById(@PathVariable String id){
         PlayerProfile playerProfile = playerProfileService.findByUserId(id);
+        
+        if(playerProfile == null){
+            return ResponseEntity.notFound().build();
+        }
+        
+        return ResponseEntity.ok(playerProfile);
+    }
+
+    @GetMapping("/player/{id}")
+    public ResponseEntity<PlayerProfile> getUserByPlayerId(@PathVariable String id){
+        PlayerProfile playerProfile = playerProfileService.findByProfileId(id);
+        
+        if(playerProfile == null){
+            return ResponseEntity.notFound().build();
+        }
+        
         return ResponseEntity.ok(playerProfile);
     }
 

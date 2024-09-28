@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "tournaments")
 public class Tournament {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -22,8 +22,14 @@ public class Tournament {
     @Column(nullable = false)
     private String location;
 
-    @Column(name = "date", columnDefinition = "TIMESTAMP")
-    private LocalDateTime date;
+    @Column(name = "startDate", columnDefinition = "TIMESTAMP")
+    private LocalDateTime startDate;
+
+    @Column(name = "endDate", columnDefinition = "TIMESTAMP")
+    private LocalDateTime endDate;
+
+    @Column(name = "deadline", columnDefinition = "TIMESTAMP")
+    private LocalDateTime deadline;
 
     @Column(nullable = false)
     private String description;
@@ -54,12 +60,28 @@ public class Tournament {
         this.location = location;
     }
 
-    public LocalDateTime getDate() {
-        return date;
+    public LocalDateTime getStartDate() {
+        return startDate;
     }
 
-    public void setDate(LocalDateTime date) {
-        this.date = date;
+    public void setStartDate(LocalDateTime startDate) {
+        this.startDate = startDate;
+    }
+
+    public LocalDateTime getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(LocalDateTime endDate) {
+        this.endDate = endDate;
+    }
+
+    public LocalDateTime getDeadline() {
+        return deadline;
+    }
+
+    public void setDeadline(LocalDateTime deadline) {
+        this.deadline = deadline;
     }
 
     public String getDescription() {
