@@ -1,12 +1,22 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
-const HoverVideoGuide = ({ steps }) => {
-    const [activeStep, setActiveStep] = useState(steps[0]);
-    const sectionRef = useRef(null);
-    const videoRef = useRef(null);
-    const [activeIndex, setActiveIndex] = useState(0);
-    const [isMobile, setIsMobile] = useState(false);
+interface Step {
+    title: string;
+    description: string;
+    videoUrl: string;
+}
+
+interface HoverVideoGuideProps {
+    steps: Step[];
+}
+
+const HoverVideoGuide: React.FC<HoverVideoGuideProps> = ({ steps }) => {
+    const [activeStep, setActiveStep] = useState<Step>(steps[0]);
+    const sectionRef = useRef<HTMLDivElement>(null);
+    const videoRef = useRef<HTMLVideoElement>(null);
+    const [activeIndex, setActiveIndex] = useState<number>(0);
+    const [isMobile, setIsMobile] = useState<boolean>(false);
 
     useEffect(() => {
         const checkMobile = () => {
@@ -20,7 +30,6 @@ const HoverVideoGuide = ({ steps }) => {
     }, []);
 
     useEffect(() => {
-        const currentSectionRef = sectionRef.current;
         const observer = new IntersectionObserver(
             (entries) => {
                 if (entries[0].isIntersecting) {
@@ -31,13 +40,13 @@ const HoverVideoGuide = ({ steps }) => {
             { threshold: 0.1 }
         );
 
-        if (currentSectionRef) {
-            observer.observe(currentSectionRef);
+        if (sectionRef.current) {
+            observer.observe(sectionRef.current);
         }
 
         return () => {
-            if (currentSectionRef) {
-                observer.unobserve(currentSectionRef);
+            if (sectionRef.current) {
+                observer.unobserve(sectionRef.current);
             }
         };
     }, [steps]);
@@ -49,7 +58,7 @@ const HoverVideoGuide = ({ steps }) => {
         }
     }, [activeStep]);
 
-    const handleStepClick = (step, index) => {
+    const handleStepClick = (step: Step, index: number) => {
         setActiveStep(step);
         setActiveIndex(index);
     };
@@ -73,22 +82,25 @@ const HoverVideoGuide = ({ steps }) => {
 
             <div className="flex flex-col lg:flex-row items-start justify-between gap-8 mt-16">
                 <div className="w-full lg:w-1/2 space-y-4">
-                    {steps.map((step, index) => (
-                        <motion.div
-                            key={index}
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ duration: 0.5, delay: 0.1 * index }}
-                            className={`p-4 rounded-lg transition-all duration-300 cursor-pointer ${activeStep === step
-                                    ? 'bg-zinc-800 text-white border border-zinc-700'
-                                    : 'text-white hover:bg-zinc-900'
-                                }`}
-                            onClick={() => handleStepClick(step, index)}
-                        >
-                            <h3 className="text-lg md:text-xl font-semibold">{index + 1}. {step.title}</h3>
-                            <p className="text-sm mt-2">{step.description}</p>
-                        </motion.div>
-                    ))}
+                    <AnimatePresence>
+                        {steps.map((step, index) => (
+                            <motion.div
+                                key={index}
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: -20 }}
+                                transition={{ duration: 0.5, delay: 0.1 * index }}
+                                className={`p-4 rounded-lg transition-all duration-300 cursor-pointer ${activeStep === step
+                                        ? 'bg-zinc-800 text-white border border-zinc-700'
+                                        : 'text-white hover:bg-zinc-900'
+                                    }`}
+                                onClick={() => handleStepClick(step, index)}
+                            >
+                                <h3 className="text-lg md:text-xl font-semibold">{index + 1}. {step.title}</h3>
+                                <p className="text-sm mt-2">{step.description}</p>
+                            </motion.div>
+                        ))}
+                    </AnimatePresence>
                 </div>
                 <div className="w-full lg:w-1/2 mt-8 lg:mt-0 lg:sticky lg:top-8">
                     <motion.div

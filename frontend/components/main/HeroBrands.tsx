@@ -14,8 +14,8 @@ const brands = [
 ];
 
 export function HeroBrands() {
-    const scrollRef = useRef(null);
-    const containerRef = useRef(null);
+    const scrollRef = useRef<HTMLDivElement>(null);
+    const containerRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         const scrollContainer = scrollRef.current;
@@ -25,7 +25,7 @@ export function HeroBrands() {
         const scrollWidth = scrollContainer.scrollWidth;
 
         let scrollPosition = 0;
-        let animationId;
+        let animationId: number;
 
         const scroll = () => {
             scrollPosition += 0.5;
