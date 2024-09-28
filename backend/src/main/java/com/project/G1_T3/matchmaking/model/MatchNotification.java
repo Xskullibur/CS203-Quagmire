@@ -1,6 +1,5 @@
-package com.project.G1_T3.matchmaking.service;
+package com.project.G1_T3.matchmaking.model;
 
-import com.project.G1_T3.matchmaking.model.Match;
 import com.project.G1_T3.player.model.PlayerProfile;
 
 public class MatchNotification {

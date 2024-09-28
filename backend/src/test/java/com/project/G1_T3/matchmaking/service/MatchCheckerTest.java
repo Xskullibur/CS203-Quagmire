@@ -1,6 +1,7 @@
 package com.project.G1_T3.matchmaking.service;
 
 import com.project.G1_T3.matchmaking.model.Match;
+import com.project.G1_T3.matchmaking.model.MatchNotification;
 import com.project.G1_T3.matchmaking.repository.MatchRepository;
 import com.project.G1_T3.player.model.PlayerProfile;
 import com.project.G1_T3.player.repository.PlayerProfileRepository;
