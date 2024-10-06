@@ -18,7 +18,9 @@ public interface PlayerProfileRepository extends JpaRepository<PlayerProfile, UU
     // Fetch PlayerProfile by user ID
     PlayerProfile findByUserId(UUID id);
 
-    PlayerProfile getPlayerProfileByUserId(UUID userId);
+    PlayerProfile findByProfileId(UUID id);
+
+    // PlayerProfile getPlayerProfileByUserId(UUID userId);
 
     @Query(value = "select t1.position\n" + //
             "from player_profiles pp1,\n" + //

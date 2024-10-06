@@ -35,10 +35,10 @@ public class Tournament {
     @Column(nullable = false)
     private String location;
 
-    @Column(name = "startDate", columnDefinition = "TIMESTAMP")
+    @Column(name = "start_date", columnDefinition = "TIMESTAMP")
     private LocalDateTime startDate;
 
-    @Column(name = "endDate", columnDefinition = "TIMESTAMP")
+    @Column(name = "end_date", columnDefinition = "TIMESTAMP")
     private LocalDateTime endDate;
 
     @Column(name = "deadline", columnDefinition = "TIMESTAMP")

@@ -80,7 +80,7 @@ public class TournamentServiceImpl implements TournamentService {
 
     public Tournament addPlayerToTournament(Long tournamentId, UUID userId) {
         Tournament tournament = tournamentRepository.findById(tournamentId).get();
-        PlayerProfile player = playerProfileRepository.getPlayerProfileByUserId(userId);
+        PlayerProfile player = playerProfileRepository.findByUserId(userId);
         tournament.getPlayers().add(player);
         return tournamentRepository.save(tournament);
     }
