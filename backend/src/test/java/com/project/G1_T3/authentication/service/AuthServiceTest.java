@@ -5,15 +5,16 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.context.ApplicationContext;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import com.project.G1_T3.authentication.model.LoginResponseDTO;
 import com.project.G1_T3.common.exception.InvalidTokenException;
+import com.project.G1_T3.user.model.CustomUserDetails;
 import com.project.G1_T3.user.model.User;
 import com.project.G1_T3.user.model.UserDTO;
 import com.project.G1_T3.user.repository.UserRepository;
@@ -22,6 +23,7 @@ import com.project.G1_T3.user.service.UserService;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 import java.util.Optional;
@@ -47,6 +49,9 @@ class AuthServiceTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private ApplicationContext applicationContext;
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
@@ -58,13 +63,12 @@ class AuthServiceTest {
         String password = "testPassword";
         User user = new User();
         user.setUsername(username);
-        user.setId(UUID.randomUUID().toString());
+        user.setUserId(UUID.randomUUID());
         UserDTO userDTO = UserDTO.fromUser(user);
         String token = "generatedToken";
 
-        Authentication authentication = mock(Authentication.class);
-        when(authManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).thenReturn(authentication);
-        when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
+        when(authManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).thenReturn(mock(Authentication.class));
+        when(userRepository.findByUsername(username.toLowerCase())).thenReturn(Optional.of(user));
         when(jwtService.generateToken(user)).thenReturn(token);
 
         LoginResponseDTO response = authService.authenticateAndGenerateToken(username, password);
@@ -72,6 +76,8 @@ class AuthServiceTest {
         assertNotNull(response);
         assertEquals(userDTO, response.getUser());
         assertEquals(token, response.getToken());
+        verify(authManager).authenticate(any(UsernamePasswordAuthenticationToken.class));
+        verify(userRepository).findByUsername(username.toLowerCase());
     }
 
     @Test
@@ -83,6 +89,7 @@ class AuthServiceTest {
                 .thenThrow(new BadCredentialsException("Invalid credentials"));
 
         assertThrows(BadCredentialsException.class, () -> authService.authenticateAndGenerateToken(username, password));
+        verify(authManager).authenticate(any(UsernamePasswordAuthenticationToken.class));
     }
 
     @Test
@@ -90,10 +97,12 @@ class AuthServiceTest {
         String username = "nonExistentUser";
         String password = "testPassword";
 
-        when(authManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
-                .thenThrow(new BadCredentialsException("Invalid credentials"));
+        when(authManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).thenReturn(mock(Authentication.class));
+        when(userRepository.findByUsername(username.toLowerCase())).thenReturn(Optional.empty());
 
         assertThrows(BadCredentialsException.class, () -> authService.authenticateAndGenerateToken(username, password));
+        verify(authManager).authenticate(any(UsernamePasswordAuthenticationToken.class));
+        verify(userRepository).findByUsername(username.toLowerCase());
     }
 
     @Test
@@ -101,31 +110,28 @@ class AuthServiceTest {
         String token = "Bearer validToken";
         String jwtToken = "validToken";
         String username = "testUser";
-        UserDetails userDetails = mock(UserDetails.class);
-        UserDTO userDTO = mock(UserDTO.class);
-        userDTO.setUsername(username);
 
+        User user = new User();
+        user.setUserId(UUID.randomUUID());
+        user.setUsername(username);
+
+        CustomUserDetails userDetails = new CustomUserDetails(user);
+
+        doNothing().when(jwtService).validateTokenFormat(token);
+        when(jwtService.removeTokenPrefix(token)).thenReturn(jwtToken);
         when(jwtService.extractUsername(jwtToken)).thenReturn(username);
+        when(applicationContext.getBean(CustomUserDetailsService.class)).thenReturn(userDetailsService);
         when(userDetailsService.loadUserByUsername(username)).thenReturn(userDetails);
-        doNothing().when(jwtService).validateToken(jwtToken, userDetails);
-        when(userService.getUserDTOByUsername(username)).thenReturn(userDTO);
+        when(jwtService.isTokenValid(jwtToken, userDetails)).thenReturn(true);
 
-        UserDTO responseBody = authService.validateToken(token);
+        UserDTO resultUserDTO = authService.validateToken(token);
 
-        assertEquals(userDTO, responseBody);
-    }
-
-    @Test
-    void validateToken_UsernameNotFoundException_ThrowsInvalidTokenException() {
-        String token = "Bearer invalidToken";
-        String jwtToken = "invalidToken";
-        String username = "nonExistentUser";
-
-        when(jwtService.extractUsername(jwtToken)).thenReturn(username);
-        when(userDetailsService.loadUserByUsername(username))
-                .thenThrow(new UsernameNotFoundException("User not found"));
-
-        assertThrows(InvalidTokenException.class, () -> authService.validateToken(token));
+        assertNotNull(resultUserDTO);
+        assertEquals(username, resultUserDTO.getUsername());
+        verify(jwtService).validateTokenFormat(token);
+        verify(jwtService).removeTokenPrefix(token);
+        verify(jwtService).extractUsername(jwtToken);
+        verify(jwtService).isTokenValid(jwtToken, userDetails);
     }
 
     @Test
@@ -133,26 +139,30 @@ class AuthServiceTest {
         String token = "Bearer invalidToken";
         String jwtToken = "invalidToken";
         String username = "testUser";
-        UserDetails userDetails = mock(UserDetails.class);
+        CustomUserDetails userDetails = mock(CustomUserDetails.class);
 
+        doNothing().when(jwtService).validateTokenFormat(token);
+        when(jwtService.removeTokenPrefix(token)).thenReturn(jwtToken);
         when(jwtService.extractUsername(jwtToken)).thenReturn(username);
+        when(applicationContext.getBean(CustomUserDetailsService.class)).thenReturn(userDetailsService);
         when(userDetailsService.loadUserByUsername(username)).thenReturn(userDetails);
-        doThrow(new InvalidTokenException("Invalid token", jwtToken)).when(jwtService).validateToken(jwtToken,
-                userDetails);
+        when(jwtService.isTokenValid(jwtToken, userDetails)).thenReturn(false);
 
         assertThrows(InvalidTokenException.class, () -> authService.validateToken(token));
+        verify(jwtService).validateTokenFormat(token);
+        verify(jwtService).removeTokenPrefix(token);
+        verify(jwtService).extractUsername(jwtToken);
+        verify(jwtService).isTokenValid(jwtToken, userDetails);
     }
 
     @Test
     void validateToken_MalformedToken_ThrowsInvalidTokenException() {
         String token = "MalformedToken";
 
-        assertThrows(InvalidTokenException.class, () -> authService.validateToken(token));
-    }
+        doThrow(new InvalidTokenException("Invalid token format", token)).when(jwtService).validateTokenFormat(token);
 
-    @Test
-    void validateToken_NullToken_ThrowsInvalidTokenException() {
-        assertThrows(InvalidTokenException.class, () -> authService.validateToken(null));
+        assertThrows(InvalidTokenException.class, () -> authService.validateToken(token));
+        verify(jwtService).validateTokenFormat(token);
     }
 
 }

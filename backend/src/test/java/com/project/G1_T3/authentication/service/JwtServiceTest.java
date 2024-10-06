@@ -2,10 +2,10 @@ package com.project.G1_T3.authentication.service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import com.project.G1_T3.common.exception.InvalidTokenException;
+import com.project.G1_T3.user.model.CustomUserDetails;
 import com.project.G1_T3.user.model.User;
 
 import io.jsonwebtoken.Jwts;
@@ -62,7 +62,7 @@ class JwtServiceTest {
         user.setUsername("testuser");
 
         String token = jwtService.generateToken(user);
-        UserDetails userDetails = mock(UserDetails.class);
+        CustomUserDetails userDetails = mock(CustomUserDetails.class);
         when(userDetails.getUsername()).thenReturn("testuser");
 
         assertDoesNotThrow(() -> jwtService.validateToken(token, userDetails));
@@ -77,7 +77,7 @@ class JwtServiceTest {
                 .signWith(Keys.hmacShaKeyFor(Decoders.BASE64.decode(TEST_SECRET_KEY)), SignatureAlgorithm.HS256)
                 .compact();
 
-        UserDetails userDetails = mock(UserDetails.class);
+        CustomUserDetails userDetails = mock(CustomUserDetails.class);
         when(userDetails.getUsername()).thenReturn("testuser");
 
         InvalidTokenException exception = assertThrows(InvalidTokenException.class,
@@ -95,7 +95,7 @@ class JwtServiceTest {
                 .signWith(Keys.hmacShaKeyFor(Decoders.BASE64.decode(invalidSecretKey)), SignatureAlgorithm.HS256)
                 .compact();
 
-        UserDetails userDetails = mock(UserDetails.class);
+        CustomUserDetails userDetails = mock(CustomUserDetails.class);
         when(userDetails.getUsername()).thenReturn("testuser");
 
         InvalidTokenException exception = assertThrows(InvalidTokenException.class,
@@ -109,7 +109,7 @@ class JwtServiceTest {
         user.setUsername("testuser");
 
         String token = jwtService.generateToken(user);
-        UserDetails userDetails = mock(UserDetails.class);
+        CustomUserDetails userDetails = mock(CustomUserDetails.class);
         when(userDetails.getUsername()).thenReturn("differentuser");
 
         assertThrows(InvalidTokenException.class, () -> jwtService.validateToken(token, userDetails));
