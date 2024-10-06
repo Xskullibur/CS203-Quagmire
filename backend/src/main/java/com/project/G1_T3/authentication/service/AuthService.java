@@ -1,21 +1,21 @@
 package com.project.G1_T3.authentication.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.project.G1_T3.authentication.model.LoginResponseDTO;
 import com.project.G1_T3.common.exception.InvalidTokenException;
+import com.project.G1_T3.user.model.CustomUserDetails;
 import com.project.G1_T3.user.model.User;
 import com.project.G1_T3.user.model.UserDTO;
 import com.project.G1_T3.user.repository.UserRepository;
 import com.project.G1_T3.user.service.CustomUserDetailsService;
-import com.project.G1_T3.user.service.UserService;
 
 @Service
 public class AuthService {
@@ -27,10 +27,7 @@ public class AuthService {
     private JwtService jwtService;
 
     @Autowired
-    private UserService userService;
-
-    @Autowired
-    private CustomUserDetailsService userDetailsService;
+    private ApplicationContext applicationContext;
 
     @Autowired
     private UserRepository userRepository;
@@ -56,30 +53,18 @@ public class AuthService {
 
     public UserDTO validateToken(String token) {
 
-        if (token == null) {
-            throw new InvalidTokenException("Token cannot be null", null);
+        jwtService.validateTokenFormat(token);
+        String jwtToken = jwtService.removeTokenPrefix(token);
+        String jwtUsername = jwtService.extractUsername(jwtToken);
+
+        CustomUserDetails userDetails = applicationContext.getBean(CustomUserDetailsService.class)
+                .loadUserByUsername(jwtUsername);
+
+        if (!jwtService.isTokenValid(jwtToken, userDetails)) {
+            throw new InvalidTokenException("Invalid Token", jwtToken);
         }
 
-        if (!token.startsWith("Bearer ")) {
-            throw new InvalidTokenException("Invalid token format", token);
-        }
+        return UserDTO.fromUser(userDetails.getUser());
 
-        try {
-            
-            String jwtToken = token.substring(7);
-            String jwtUsername = jwtService.extractUsername(jwtToken);
-
-            UserDetails user = userDetailsService.loadUserByUsername(jwtUsername);
-            jwtService.validateToken(jwtToken, user);
-
-            return userService.getUserDTOByUsername(jwtUsername);
-
-        } catch (StringIndexOutOfBoundsException e) {
-            throw new InvalidTokenException("Malformed token", token);
-
-        } catch (UsernameNotFoundException e) {
-            throw new InvalidTokenException("Invalid token: username does not exist", token);
-
-        }
     }
 }

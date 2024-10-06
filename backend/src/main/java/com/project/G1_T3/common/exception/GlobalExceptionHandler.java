@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -84,6 +85,12 @@ public class GlobalExceptionHandler {
             errorDetail = ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, exception.getMessage());
             errorDetail.setProperty(DESC, "The JWT token has expired");
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorDetail);
+        }
+
+        if (exception instanceof JwtException) {
+            errorDetail = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, exception.getMessage());
+            errorDetail.setProperty(DESC, "Invalid JWT token");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorDetail);
         }
 
         // Default case for unknown exceptions
