@@ -30,6 +30,8 @@ const HoverVideoGuide: React.FC<HoverVideoGuideProps> = ({ steps }) => {
     }, []);
 
     useEffect(() => {
+        const currentRef = sectionRef.current; // Capture the current value
+
         const observer = new IntersectionObserver(
             (entries) => {
                 if (entries[0].isIntersecting) {
@@ -40,13 +42,13 @@ const HoverVideoGuide: React.FC<HoverVideoGuideProps> = ({ steps }) => {
             { threshold: 0.1 }
         );
 
-        if (sectionRef.current) {
-            observer.observe(sectionRef.current);
+        if (currentRef) {
+            observer.observe(currentRef);
         }
 
         return () => {
-            if (sectionRef.current) {
-                observer.unobserve(sectionRef.current);
+            if (currentRef) {
+                observer.unobserve(currentRef);
             }
         };
     }, [steps]);
@@ -91,8 +93,8 @@ const HoverVideoGuide: React.FC<HoverVideoGuideProps> = ({ steps }) => {
                                 exit={{ opacity: 0, x: -20 }}
                                 transition={{ duration: 0.5, delay: 0.1 * index }}
                                 className={`p-4 rounded-lg transition-all duration-300 cursor-pointer ${activeStep === step
-                                        ? 'bg-zinc-800 text-white border border-zinc-700'
-                                        : 'text-white hover:bg-zinc-900'
+                                    ? 'bg-zinc-800 text-white border border-zinc-700'
+                                    : 'text-white hover:bg-zinc-900'
                                     }`}
                                 onClick={() => handleStepClick(step, index)}
                             >

@@ -145,7 +145,7 @@ const AdminDashboard: React.FC = () => {
             <DialogHeader>
               <DialogTitle>Add Admin</DialogTitle>
               <DialogDescription>
-                Add a new admin user by filling out the form below. Click save when you're done.
+                Add a new admin user by filling out the form below. Click save when you&apos;re done.
               </DialogDescription>
             </DialogHeader>
 
