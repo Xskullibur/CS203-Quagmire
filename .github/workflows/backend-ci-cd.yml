@@ -38,8 +38,8 @@ jobs:
         context: ./backend
         push: true
         tags: |
-          yourusername/backend:${{ github.sha }}
-          yourusername/backend:${{ github.ref_name }}
+          g1t3/backend:${{ github.sha }}
+          g1t3/backend:${{ github.ref_name }}
         build-args: |
           SPRING_PROFILES_ACTIVE=${{ github.ref_name }}
 
