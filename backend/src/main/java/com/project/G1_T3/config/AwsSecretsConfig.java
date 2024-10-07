@@ -19,7 +19,6 @@ public class AwsSecretsConfig {
 
     @Bean
     public void setDatabaseSecret() throws Exception {
-
         AWSSecretsManager client = awsSecretsManager();
         String secretName = "rds!cluster-8210d2ac-0455-472b-9b71-6f9eca214f5f";
 
@@ -36,6 +35,5 @@ public class AwsSecretsConfig {
         System.setProperty("rds.username", secretJson.get("username").asText());
         System.setProperty("rds.password", secretJson.get("password").asText());
         System.setProperty("jwt.secret", secretJson.get("jwtSecret").asText());
-        
     }
 }
