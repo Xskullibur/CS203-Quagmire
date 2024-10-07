@@ -10,6 +10,7 @@ import TournamentCardViewerCarousel from "../components/tournaments/TournamentCa
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Home() {
+  
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
