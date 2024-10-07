@@ -45,8 +45,8 @@ jobs:
           g1t3/frontend:${{ github.sha }}
           g1t3/frontend:${{ github.ref_name }}
         build-args: |
-          NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL_${{ github.ref_name }} }}
-          NEXT_PUBLIC_SPRINGBOOT_API_URL=${{ secrets.NEXT_PUBLIC_SPRINGBOOT_API_URL_${{ github.ref_name }} }}
+          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL_PRODUCTION }}
+          NEXT_PUBLIC_SPRINGBOOT_API_URL:${{ secrets.NEXT_PUBLIC_SPRINGBOOT_API_URL_PRODUCTION }}
 
   deploy:
     needs: build-and-push
