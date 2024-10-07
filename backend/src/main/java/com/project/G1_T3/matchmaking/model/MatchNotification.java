@@ -1,6 +1,7 @@
 package com.project.G1_T3.matchmaking.model;
 
 import com.project.G1_T3.player.model.PlayerProfile;
+import com.project.G1_T3.match.model.Match;
 
 public class MatchNotification {
     private Match match;

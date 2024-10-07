@@ -1,6 +1,7 @@
 package com.project.G1_T3.matchmaking.service;
 
-import com.project.G1_T3.matchmaking.model.Match;
+import com.project.G1_T3.common.model.Status;
+import com.project.G1_T3.match.model.Match;
 import com.project.G1_T3.matchmaking.model.QueuedPlayer;
 import com.project.G1_T3.player.model.PlayerProfile;
 import org.junit.jupiter.api.BeforeEach;
@@ -90,7 +91,7 @@ public class MatchmakingServiceTest {
         assertNotNull(match, "Match should not be null");
         if (match != null) {
             assertEquals(Match.GameType.SOLO, match.getGameType());
-            assertEquals(Match.MatchStatus.SCHEDULED, match.getStatus());
+            assertEquals(Status.SCHEDULED, match.getStatus());
             assertTrue(match.getPlayer1Id().equals(player1.getProfileId())
                     || match.getPlayer1Id().equals(player2.getProfileId()));
             assertTrue(match.getPlayer2Id().equals(player1.getProfileId())
