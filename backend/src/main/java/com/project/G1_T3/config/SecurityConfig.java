@@ -25,6 +25,7 @@ import org.springframework.web.client.RestTemplate;
 import com.project.G1_T3.authentication.filter.JwtAuthenticationFilter;
 import com.project.G1_T3.user.service.CustomUserDetailsService;
 import jakarta.annotation.PostConstruct;
+import jakarta.servlet.http.HttpServletResponse;
 
 import java.util.Arrays;
 
@@ -83,6 +84,9 @@ public class SecurityConfig {
                         .requestMatchers("/ws/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/matches/current/**").permitAll()
                         .anyRequest().authenticated())
+                .logout(logout -> logout
+                        .permitAll()
+                        .logoutSuccessHandler((req, res, auth) -> res.setStatus(HttpServletResponse.SC_NO_CONTENT)))
                 .httpBasic(Customizer.withDefaults())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 

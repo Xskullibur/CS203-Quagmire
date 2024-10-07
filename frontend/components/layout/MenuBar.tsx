@@ -53,8 +53,8 @@ export default function MenuBar() {
               ) : (
                 <>
                   <Link href="/profile" className="text-sm text-white hover:text-gray-600 transition">Profile</Link>
+                  <button onClick={logout} className="text-sm text-white hover:text-gray-600 transition">Logout</button>
                   <Link href="/match" className="text-sm bg-zinc-500 text-white px-4 py-2 rounded-full hover:bg-gray-700 transition">Queue</Link>
-                  {/* <button onClick={logout} className="text-sm text-white hover:text-gray-600 transition">Logout</button> */}
                 </>
               )}
             </div>
