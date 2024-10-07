@@ -2,19 +2,9 @@ package com.project.G1_T3.match.model;
 
 import com.project.G1_T3.common.model.Status;
 import com.project.G1_T3.round.model.Round;
-
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import jakarta.persistence.Column;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.EnumType;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -24,10 +14,9 @@ import java.util.UUID;
 @Setter
 @Table(name = "match")
 public class Match {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long matchId;
+    private UUID matchId;
 
     @ManyToOne
     @JoinColumn(name = "round_id", nullable = true)
@@ -47,7 +36,7 @@ public class Match {
 
     @Enumerated(EnumType.STRING)
     @Column(length = 50, nullable = false)
-    private Status status; 
+    private Status status;
 
     @Column
     private UUID winnerId;
@@ -60,6 +49,30 @@ public class Match {
 
     @Column(name = "updated_at", columnDefinition = "TIMESTAMP")
     private LocalDateTime updatedAt;
+
+    @Enumerated(EnumType.STRING)
+    private GameType gameType;
+
+    @Column(name = "meeting_latitude")
+    private double meetingLatitude;
+
+    @Column(name = "meeting_longitude")
+    private double meetingLongitude;
+
+    public enum GameType {
+        SOLO, TOURNAMENT
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
 
     public void startMatch() {
         if (this.status == Status.SCHEDULED) {
@@ -77,4 +90,40 @@ public class Match {
         }
     }
 
+    // Additional getters and setters
+    public UUID getId() {
+        return UUID.fromString(matchId.toString());
+    }
+
+    public void setGameType(GameType gameType) {
+        this.gameType = gameType;
+    }
+
+    public void setPlayer1Id(UUID player1Id) {
+        this.player1Id = player1Id;
+    }
+
+    public void setPlayer2Id(UUID player2Id) {
+        this.player2Id = player2Id;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
+    }
+
+    public GameType getGameType() {
+        return gameType;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setMeetingLatitude(double meetingLatitude) {
+        this.meetingLatitude = meetingLatitude;
+    }
+
+    public void setMeetingLongitude(double meetingLongitude) {
+        this.meetingLongitude = meetingLongitude;
+    }
 }

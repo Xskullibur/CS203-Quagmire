@@ -6,9 +6,10 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.project.G1_T3.matchmaking.model.Match;
+import com.project.G1_T3.common.model.Status;
+import com.project.G1_T3.match.model.Match;
 import com.project.G1_T3.matchmaking.model.MatchNotification;
-import com.project.G1_T3.matchmaking.repository.MatchRepository;
+import com.project.G1_T3.match.repository.MatchRepository;
 import com.project.G1_T3.player.model.PlayerProfile;
 import com.project.G1_T3.player.repository.PlayerProfileRepository;
 import com.project.G1_T3.user.model.User;
@@ -56,7 +57,7 @@ public class MatchChecker {
                 User user2 = userRepository.findById(player2.getUserId())
                         .orElseThrow(() -> new RuntimeException("User 2 not found"));
 
-                match.setStatus(Match.MatchStatus.IN_PROGRESS);
+                match.setStatus(Status.IN_PROGRESS);
                 matchRepository.save(match);
 
                 MatchNotification notificationForPlayer1 = new MatchNotification(match, user2.getUsername(), player2);
