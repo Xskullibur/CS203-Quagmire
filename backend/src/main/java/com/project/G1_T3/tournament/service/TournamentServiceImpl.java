@@ -1,15 +1,17 @@
 package com.project.G1_T3.tournament.service;
 
+import com.project.G1_T3.player.model.PlayerProfile;
+import com.project.G1_T3.player.repository.PlayerProfileRepository;
 import com.project.G1_T3.tournament.model.Tournament;
 import com.project.G1_T3.tournament.repository.TournamentRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 @Service
 public class TournamentServiceImpl implements TournamentService {
@@ -17,6 +19,10 @@ public class TournamentServiceImpl implements TournamentService {
     @Autowired
     private TournamentRepository tournamentRepository;
 
+    @Autowired
+    private PlayerProfileRepository playerProfileRepository;
+
+    @Autowired
     public TournamentServiceImpl(TournamentRepository tournamentRepository) {
         this.tournamentRepository = tournamentRepository;
     }
@@ -65,6 +71,23 @@ public class TournamentServiceImpl implements TournamentService {
     @Override
     public Tournament createTournament(Tournament tournament) {
         return tournamentRepository.save(tournament);
+    }
+
+    public Set<PlayerProfile> getPlayers(Long tournamentId) {
+        Tournament tournament = tournamentRepository.findById(tournamentId).get();
+        return tournament.getPlayers();
+    }
+
+    public Tournament addPlayerToTournament(Long tournamentId, UUID userId) {
+        Tournament tournament = tournamentRepository.findById(tournamentId).get();
+        PlayerProfile player = playerProfileRepository.findByUserId(userId);
+        tournament.getPlayers().add(player);
+        return tournamentRepository.save(tournament);
+    }
+
+    public Tournament updateTournament(Long id, Tournament updatedTournament) {
+       updatedTournament.setId(id);
+       return tournamentRepository.save(updatedTournament);
     }
     
     // Add this method
