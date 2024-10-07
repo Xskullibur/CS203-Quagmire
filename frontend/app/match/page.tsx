@@ -168,7 +168,7 @@ const Match: React.FC = () => {
                                     Please ensure that:
                                     <ul className="list-disc list-inside mt-1">
                                         <li>You have allowed location access for this site</li>
-                                        <li>Your device's location services are turned on</li>
+                                        <li>Your device&apos;s location services are turned on</li>
                                         <li>You have a stable internet connection</li>
                                     </ul>
                                 </div>

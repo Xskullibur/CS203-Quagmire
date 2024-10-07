@@ -60,12 +60,12 @@ const QueueManagement: React.FC<QueueManagementProps> = ({ playerId, onMatchFoun
         return () => clearInterval(interval);
     }, [inQueue]);
 
-    const leaveQueue = () => {
+    const leaveQueue = React.useCallback(() => {
         if (client && connected) {
             client.publish({ destination: '/app/solo/dequeue', body: playerId });
             setInQueue(false);
         }
-    };
+    }, [client, connected, playerId]);
 
     useEffect(() => {
         // This effect will run when the component mounts
@@ -75,7 +75,7 @@ const QueueManagement: React.FC<QueueManagementProps> = ({ playerId, onMatchFoun
                 leaveQueue();
             }
         };
-    }, [inQueue]);
+    }, [inQueue, leaveQueue]);
 
     const joinQueue = () => {
         if (client && connected && location) {
@@ -98,7 +98,7 @@ const QueueManagement: React.FC<QueueManagementProps> = ({ playerId, onMatchFoun
         }
     };
     return (
-        <div className="p-4">
+        <div className="p-4 mx-auto max-w-md text-center">
             {error && <Alert variant="destructive"><AlertTitle>Location Error</AlertTitle><AlertDescription>{error}</AlertDescription></Alert>}
             {matchFound ? (
                 <Alert>
