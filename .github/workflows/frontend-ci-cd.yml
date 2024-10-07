@@ -42,8 +42,8 @@ jobs:
         context: ./frontend
         push: true
         tags: |
-          yourusername/frontend:${{ github.sha }}
-          yourusername/frontend:${{ github.ref_name }}
+          g1t3/frontend:${{ github.sha }}
+          g1t3/frontend:${{ github.ref_name }}
         build-args: |
           NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL_${{ github.ref_name }} }}
           NEXT_PUBLIC_SPRINGBOOT_API_URL=${{ secrets.NEXT_PUBLIC_SPRINGBOOT_API_URL_${{ github.ref_name }} }}
