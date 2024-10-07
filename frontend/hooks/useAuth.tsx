@@ -72,11 +72,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const logout = useCallback(() => {
-    Cookies.remove(AUTH_TOKEN, { path: '/' });
-    setUser(null);
-    setIsAuthenticated(false);
-    router.push("/auth/login");
+  const logout = useCallback(async () => {
+
+    try {
+      
+      await axiosInstance.get(`${API_URL}/logout`);
+      Cookies.remove(AUTH_TOKEN, { path: '/' });
+      setUser(null);
+      setIsAuthenticated(false);
+      router.push("/auth/login");
+
+    } catch (error) {
+      console.error("Logout failed:", error);
+      throw error;
+    }
+
   }, [router]);
 
   const providerValue = useMemo(() => ({
