@@ -45,8 +45,8 @@ jobs:
           g1t3/frontend:${{ github.sha }}
           g1t3/frontend:${{ github.ref_name }}
         build-args: |
-          NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL_${{ github.ref_name }} }}
-          NEXT_PUBLIC_SPRINGBOOT_API_URL=${{ secrets.NEXT_PUBLIC_SPRINGBOOT_API_URL_${{ github.ref_name }} }}
+          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL_PRODUCTION }}
+          NEXT_PUBLIC_SPRINGBOOT_API_URL:${{ secrets.NEXT_PUBLIC_SPRINGBOOT_API_URL_PRODUCTION }}
 
   deploy:
     needs: build-and-push
@@ -58,7 +58,6 @@ jobs:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: us-east-1
-    
     - name: Update ECS service
       run: |
-        aws ecs update-service --cluster your-cluster-name --service frontend-service-${{ github.ref_name }} --force-new-deployment
+        aws ecs update-service --cluster ${{ secrets.ECS_CLUSTER_NAME }} --service ${{ secrets.ECS_SERVICE_NAME_PREFIX }}-${{ github.ref_name }} --force-new-deployment
