@@ -1,14 +1,27 @@
 package com.project.G1_T3.tournament.model;
 
+
+import com.project.G1_T3.player.model.PlayerProfile;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.time.LocalDateTime;
+import java.util.*;
 
 @Entity
+@Getter
+@Setter
 @Table(name = "tournaments")
 public class Tournament {
 
@@ -22,10 +35,10 @@ public class Tournament {
     @Column(nullable = false)
     private String location;
 
-    @Column(name = "startDate", columnDefinition = "TIMESTAMP")
+    @Column(name = "start_date", columnDefinition = "TIMESTAMP")
     private LocalDateTime startDate;
 
-    @Column(name = "endDate", columnDefinition = "TIMESTAMP")
+    @Column(name = "end_date", columnDefinition = "TIMESTAMP")
     private LocalDateTime endDate;
 
     @Column(name = "deadline", columnDefinition = "TIMESTAMP")
@@ -34,61 +47,15 @@ public class Tournament {
     @Column(nullable = false)
     private String description;
 
-    // Getters and Setters
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "tournament_participants",
+        joinColumns = @JoinColumn(name = "tournament_id"),
+        inverseJoinColumns = @JoinColumn(name = "profile_id")
+    )
+    private Set<PlayerProfile> players = new HashSet<>();
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getLocation() {
-        return location;
-    }
-
-    public void setLocation(String location) {
-        this.location = location;
-    }
-
-    public LocalDateTime getStartDate() {
-        return startDate;
-    }
-
-    public void setStartDate(LocalDateTime startDate) {
-        this.startDate = startDate;
-    }
-
-    public LocalDateTime getEndDate() {
-        return endDate;
-    }
-
-    public void setEndDate(LocalDateTime endDate) {
-        this.endDate = endDate;
-    }
-
-    public LocalDateTime getDeadline() {
-        return deadline;
-    }
-
-    public void setDeadline(LocalDateTime deadline) {
-        this.deadline = deadline;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
+    public Set<PlayerProfile> getPlayers(){
+        return players;
     }
 }

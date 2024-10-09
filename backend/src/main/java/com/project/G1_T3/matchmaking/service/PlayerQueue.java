@@ -30,6 +30,7 @@ public class PlayerQueue {
         return queue.size();
     }
 
+    // TODO: to move this out to the model/ directory
     private static class QueuedPlayer {
         private final PlayerProfile player;
         private final long joinTime;

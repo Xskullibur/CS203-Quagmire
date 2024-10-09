@@ -130,6 +130,12 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/x
         <artifactId>spring-boot-starter-websocket</artifactId>
     </dependency>
 
+    <dependency>
+        <groupId>com.amazonaws</groupId>
+        <artifactId>aws-java-sdk-secretsmanager</artifactId>
+        <version>1.12.529</version>
+    </dependency>
+
 </dependencies>
 
 <build>

@@ -38,6 +38,7 @@ const MatchMap: React.FC<MatchMapProps> = ({ meetingPoint, playerLocation }) => 
     }
 
     return (
+
         <MapContainer center={playerLocation} zoom={20} style={{ height: '400px', width: '100%' }} className='rounded-lg'>
             <TileLayer
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -50,6 +51,7 @@ const MatchMap: React.FC<MatchMapProps> = ({ meetingPoint, playerLocation }) => 
                 <Popup>Meeting point</Popup>
             </Marker>
         </MapContainer>
+
     );
 };
 

@@ -8,13 +8,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.project.G1_T3.matchmaking.model.Match;
+import com.project.G1_T3.match.model.Match;
 import com.project.G1_T3.matchmaking.service.MatchService;
 
 @RestController
 @RequestMapping("/matches")
-public class MatchController {
+public class MatchesController {
 
     @Autowired
     private MatchService matchService;

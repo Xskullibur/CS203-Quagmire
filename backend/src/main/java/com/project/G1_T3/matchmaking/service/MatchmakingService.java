@@ -1,6 +1,7 @@
 package com.project.G1_T3.matchmaking.service;
 
-import com.project.G1_T3.matchmaking.model.Match;
+import com.project.G1_T3.common.model.Status;
+import com.project.G1_T3.match.model.Match;
 import com.project.G1_T3.matchmaking.model.QueuedPlayer;
 import com.project.G1_T3.player.model.PlayerProfile;
 import lombok.extern.slf4j.Slf4j;
@@ -60,7 +61,7 @@ public class MatchmakingService {
                 match.setGameType(Match.GameType.SOLO);
                 match.setPlayer1Id(player1.getPlayer().getProfileId());
                 match.setPlayer2Id(player2.getPlayer().getProfileId());
-                match.setStatus(Match.MatchStatus.SCHEDULED);
+                match.setStatus(Status.SCHEDULED);
                 match.setMeetingLatitude(meetingPoint[0]);
                 match.setMeetingLongitude(meetingPoint[1]);
                 log.info("Match found: {} vs {}", player1.getPlayer().getUserId(), player2.getPlayer().getUserId());

@@ -4,15 +4,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import NewCard from "@/components/tournaments/NewCard"; // Update the import to your new card component
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
-interface Tournament {
-    id: number;
-    name: string;
-    location: string;
-    startDate: string;
-    endDate: string;
-    deadline: string;
-}
+import { Tournament } from "@/types/tournament";
 
 const API_URL = `${process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL}/tournament`;
 
@@ -79,7 +71,7 @@ const TournamentPage: React.FC = () => {
                         {currentTab === 'upcoming' ? 'No upcoming tournaments available.' : 'No past tournaments available.'}
                     </p>
                 )}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full"> 
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
                     {!loading && !error && tournaments.map(tournament => (
                         <NewCard key={tournament.id} tournament={tournament} className="w-full" /> // Use NewCard here
                     ))}

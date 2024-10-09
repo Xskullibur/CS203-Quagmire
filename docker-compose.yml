@@ -8,10 +8,11 @@ services:
     env_file:
       - docker.env
     environment:
-      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
-      - SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.PostgreSQLDialect
-      - SPRING_JPA_SHOW_SQL=true
-      - CORS_ALLOWED_ORIGINS=http://localhost:3000
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE:-dev}
+      - DB_HOST=${DB_HOST:-db}
+      - DB_NAME=${DB_NAME:-postgres}
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-password}
     depends_on:
       db:
         condition: service_healthy
@@ -33,13 +34,13 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    ports:
-      - "3000:3000"
+      args:
+        - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:3000}
+        - NEXT_PUBLIC_SPRINGBOOT_API_URL=${NEXT_PUBLIC_SPRINGBOOT_API_URL:-http://localhost:8080}
+    image: yourusername/frontend:${TAG:-latest}
     environment:
-      - NEXT_PUBLIC_API_URL=http://localhost:3000
-      - NEXT_PUBLIC_SPRINGBOOT_API_URL=http://localhost:8080
-      - NODE_ENV=development      # TODO: Remove this line in production
-      - WATCHPACK_POLLING=true    # TODO: Remove this line in production
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:3000}
+      - NEXT_PUBLIC_SPRINGBOOT_API_URL=${NEXT_PUBLIC_SPRINGBOOT_API_URL:-http://localhost:8080}
     depends_on:
       - backend
     volumes:
@@ -52,7 +53,7 @@ services:
     env_file:
       - docker.env
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready"]
+      test: [ "CMD-SHELL", "pg_isready" ]
       interval: 5s
       timeout: 5s
       retries: 5

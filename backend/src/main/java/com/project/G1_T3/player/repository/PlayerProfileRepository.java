@@ -1,5 +1,6 @@
 package com.project.G1_T3.player.repository;
 
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -17,7 +18,7 @@ public interface PlayerProfileRepository extends JpaRepository<PlayerProfile, UU
     // Fetch PlayerProfile by user ID
     PlayerProfile findByUserId(UUID id);
 
-    PlayerProfile getPlayerProfileByUserId(UUID userId);
+    // PlayerProfile getPlayerProfileByUserId(UUID userId);
 
     PlayerProfile findByProfileId(UUID profileId);
 
