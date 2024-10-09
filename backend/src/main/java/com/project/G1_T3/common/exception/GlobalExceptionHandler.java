@@ -57,12 +57,6 @@ public class GlobalExceptionHandler {
 
         exception.printStackTrace();
 
-        if (exception instanceof InvalidTokenException) {
-            errorDetail = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, exception.getMessage());
-            errorDetail.setProperty(DESC, "Invalid token");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorDetail);
-        }
-
         if (exception instanceof BadCredentialsException) {
             errorDetail = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, exception.getMessage());
             errorDetail.setProperty(DESC, "The username or password is incorrect");
@@ -82,14 +76,23 @@ public class GlobalExceptionHandler {
         }
 
         if (exception instanceof ExpiredJwtException) {
-            errorDetail = ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, exception.getMessage());
+            errorDetail = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, exception.getMessage());
             errorDetail.setProperty(DESC, "The JWT token has expired");
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorDetail);
+            errorDetail.setProperty("errorCode", "TOKEN_EXPIRED");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorDetail);
         }
 
         if (exception instanceof JwtException) {
             errorDetail = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, exception.getMessage());
             errorDetail.setProperty(DESC, "Invalid JWT token");
+            errorDetail.setProperty("errorCode", "INVALID_TOKEN");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorDetail);
+        }
+
+        if (exception instanceof InvalidTokenException) {
+            errorDetail = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, exception.getMessage());
+            errorDetail.setProperty(DESC, "Invalid token");
+            errorDetail.setProperty("errorCode", "INVALID_TOKEN");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorDetail);
         }
 
