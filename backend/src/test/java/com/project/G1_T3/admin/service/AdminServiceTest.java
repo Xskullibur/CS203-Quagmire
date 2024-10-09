@@ -8,7 +8,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import com.project.G1_T3.authentication.service.PasswordGeneratorService;
+import com.project.G1_T3.authentication.service.PasswordGeneratorServiceImpl;
 import com.project.G1_T3.user.model.UserDTO;
 import com.project.G1_T3.user.model.UserRole;
 import com.project.G1_T3.user.service.UserService;
@@ -20,7 +20,7 @@ class AdminServiceTest {
     private UserService userService;
 
     @Mock
-    private PasswordGeneratorService passwordGeneratorService;
+    private PasswordGeneratorServiceImpl passwordGeneratorService;
 
     @InjectMocks
     private AdminService adminService;
