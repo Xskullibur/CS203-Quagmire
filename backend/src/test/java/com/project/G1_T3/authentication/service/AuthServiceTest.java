@@ -10,8 +10,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-
 import com.project.G1_T3.authentication.model.LoginResponseDTO;
 import com.project.G1_T3.common.exception.InvalidTokenException;
 import com.project.G1_T3.user.model.CustomUserDetails;
@@ -23,7 +21,6 @@ import com.project.G1_T3.user.service.UserService;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 import java.util.Optional;
@@ -32,7 +29,7 @@ import java.util.UUID;
 class AuthServiceTest {
 
     @InjectMocks
-    private AuthService authService;
+    private AuthServiceImpl authService;
 
     @Mock
     private JwtService jwtService;
