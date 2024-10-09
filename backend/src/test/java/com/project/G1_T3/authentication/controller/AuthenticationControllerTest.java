@@ -1,6 +1,6 @@
 package com.project.G1_T3.authentication.controller;
 
-import com.project.G1_T3.authentication.service.AuthService;
+import com.project.G1_T3.authentication.service.AuthServiceImpl;
 import com.project.G1_T3.common.exception.InvalidTokenException;
 import com.project.G1_T3.user.model.UserDTO;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,7 +22,7 @@ class AuthenticationControllerTest {
     private AuthenticationController authenticationController;
 
     @Mock
-    private AuthService authService;
+    private AuthServiceImpl authService;
 
     @BeforeEach
     void setUp() {
