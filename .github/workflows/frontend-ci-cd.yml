@@ -69,13 +69,41 @@ jobs:
       - name: Update ECS service
         run: |
           # Get the current task definition
-          TASK_DEFINITION=$(aws ecs describe-task-definition --task-definition ${{ secrets.FRONTEND_ECS_TASK_DEFINITION }} --query taskDefinition)
+          TASK_DEFINITION=$(aws ecs describe-task-definition --task-definition ${{ secrets.FRONTEND_ECS_TASK_DEFINITION }})
           
-          # Update the image in the task definition
-          NEW_TASK_DEFINITION=$(echo $TASK_DEFINITION | jq --arg IMAGE "${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:frontend-${{ github.sha }}" '.containerDefinitions[0].image = $IMAGE')
+          # Extract the necessary parts of the task definition
+          FAMILY=$(echo $TASK_DEFINITION | jq -r '.taskDefinition.family')
+          NETWORK_MODE=$(echo $TASK_DEFINITION | jq -r '.taskDefinition.networkMode')
+          TASK_ROLE_ARN=$(echo $TASK_DEFINITION | jq -r '.taskDefinition.taskRoleArn')
+          EXECUTION_ROLE_ARN=$(echo $TASK_DEFINITION | jq -r '.taskDefinition.executionRoleArn')
+          CPU=$(echo $TASK_DEFINITION | jq -r '.taskDefinition.cpu')
+          MEMORY=$(echo $TASK_DEFINITION | jq -r '.taskDefinition.memory')
+          
+          # Update the image in the container definitions
+          CONTAINER_DEFINITIONS=$(echo $TASK_DEFINITION | jq '.taskDefinition.containerDefinitions')
+          NEW_CONTAINER_DEFINITIONS=$(echo $CONTAINER_DEFINITIONS | jq --arg IMAGE "${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:frontend-${{ github.sha }}" '.[0].image = $IMAGE')
+          
+          # Create the new task definition
+          NEW_TASK_DEFINITION=$(jq -n \
+            --arg family "$FAMILY" \
+            --arg networkMode "$NETWORK_MODE" \
+            --arg taskRoleArn "$TASK_ROLE_ARN" \
+            --arg executionRoleArn "$EXECUTION_ROLE_ARN" \
+            --arg cpu "$CPU" \
+            --arg memory "$MEMORY" \
+            --argjson containerDefinitions "$NEW_CONTAINER_DEFINITIONS" \
+            '{
+              family: $family,
+              networkMode: $networkMode,
+              taskRoleArn: $taskRoleArn,
+              executionRoleArn: $executionRoleArn,
+              cpu: $cpu,
+              memory: $memory,
+              containerDefinitions: $containerDefinitions
+            }')
           
           # Register the new task definition
-          NEW_TASK_DEFINITION_ARN=$(aws ecs register-task-definition --cli-input-json "$NEW_TASK_DEFINITION" --query taskDefinition.taskDefinitionArn --output text)
+          NEW_TASK_DEFINITION_ARN=$(aws ecs register-task-definition --cli-input-json "$NEW_TASK_DEFINITION" --query 'taskDefinition.taskDefinitionArn' --output text)
           
           # Update the service with the new task definition
           aws ecs update-service --cluster ${{ secrets.ECS_CLUSTER_NAME }} --service ${{ secrets.FRONTEND_ECS_SERVICE_NAME }} --task-definition $NEW_TASK_DEFINITION_ARN --force-new-deployment
