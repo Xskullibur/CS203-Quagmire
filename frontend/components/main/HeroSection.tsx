@@ -28,7 +28,7 @@ export default function HeroSection() {
                     transition={{ duration: 0.8 }}
                 >
                     <motion.img
-                        className="w-[5vw] h-auto mx-auto rounded-full"
+                        className="w-[20vw] sm:w-[10vw] md:w-[7vw] h-auto mx-auto rounded-full"
                         variants={{
                             hidden: { scale: 0 },
                             visible: { scale: 1 }
