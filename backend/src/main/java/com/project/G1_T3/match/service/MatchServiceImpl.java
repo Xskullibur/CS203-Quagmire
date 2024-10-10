@@ -4,6 +4,8 @@ import com.project.G1_T3.common.model.Status;
 import com.project.G1_T3.match.model.Match;
 import com.project.G1_T3.match.model.MatchDTO;
 import com.project.G1_T3.match.repository.MatchRepository;
+import com.project.G1_T3.player.model.PlayerProfile;
+import com.project.G1_T3.player.repository.PlayerProfileRepository;
 
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
@@ -17,6 +19,22 @@ public class MatchServiceImpl implements MatchService {
 
     @Autowired
     private MatchRepository matchRepository;
+
+    @Autowired
+    private PlayerProfileRepository playerProfileRepository;
+
+    @Override
+    public Match getCurrentMatchForUser(UUID userId) {
+        PlayerProfile playerProfile = playerProfileRepository.findByUserId(userId);
+        if (playerProfile == null) {
+            return null;
+        }
+
+        return matchRepository.findByPlayer1IdOrPlayer2IdAndStatus(
+                playerProfile.getProfileId(),
+                playerProfile.getProfileId(),
+                Status.IN_PROGRESS);
+    }
 
     @Transactional
     public Match createMatch(MatchDTO matchDTO) {
