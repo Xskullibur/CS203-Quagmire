@@ -4,6 +4,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -80,6 +81,8 @@ public class JwtService {
 
         } catch (ExpiredJwtException e) {
             throw new InvalidTokenException("Token has expired", token);
+        } catch (MalformedJwtException e) {
+            throw e;
         } catch (JwtException | IllegalArgumentException e) {
             throw new InvalidTokenException("Invalid token", token);
         }

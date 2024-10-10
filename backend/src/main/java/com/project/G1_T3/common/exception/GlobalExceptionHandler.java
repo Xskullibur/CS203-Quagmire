@@ -9,11 +9,13 @@ import org.springframework.security.authentication.AccountStatusException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.MalformedJwtException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -75,6 +77,13 @@ public class GlobalExceptionHandler {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorDetail);
         }
 
+        if (exception instanceof MalformedJwtException) {
+            errorDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, exception.getMessage());
+            errorDetail.setProperty(DESC, "Invalid JWT token format");
+            errorDetail.setProperty("errorCode", "MALFORMED_TOKEN");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDetail);
+        }
+
         if (exception instanceof ExpiredJwtException) {
             errorDetail = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, exception.getMessage());
             errorDetail.setProperty(DESC, "The JWT token has expired");
@@ -94,6 +103,13 @@ public class GlobalExceptionHandler {
             errorDetail.setProperty(DESC, "Invalid token");
             errorDetail.setProperty("errorCode", "INVALID_TOKEN");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorDetail);
+        }
+
+        if (exception instanceof MissingRequestHeaderException) {
+            errorDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, exception.getMessage());
+            errorDetail.setProperty(DESC, "Missing Request Header");
+            errorDetail.setProperty("errorCode", "MISSING_REQUEST_HEADER");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDetail);
         }
 
         // Default case for unknown exceptions
