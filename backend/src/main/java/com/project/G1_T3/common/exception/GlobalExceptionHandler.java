@@ -9,10 +9,13 @@ import org.springframework.security.authentication.AccountStatusException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.MalformedJwtException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -30,6 +33,13 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ProblemDetail> handleEmailAlreadyInUseException(EmailAlreadyInUseException e) {
         ProblemDetail errorDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, e.getMessage());
         errorDetail.setProperty(DESC, "The email is already in use");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDetail);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ProblemDetail> handleIllegalArgumentException(IllegalArgumentException e) {
+        ProblemDetail errorDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, e.getMessage());
+        errorDetail.setProperty(DESC, "Invalid argument provided");
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDetail);
     }
 
@@ -56,12 +66,6 @@ public class GlobalExceptionHandler {
 
         exception.printStackTrace();
 
-        if (exception instanceof InvalidTokenException) {
-            errorDetail = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, exception.getMessage());
-            errorDetail.setProperty(DESC, "Invalid token");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorDetail);
-        }
-
         if (exception instanceof BadCredentialsException) {
             errorDetail = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, exception.getMessage());
             errorDetail.setProperty(DESC, "The username or password is incorrect");
@@ -80,10 +84,39 @@ public class GlobalExceptionHandler {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorDetail);
         }
 
+        if (exception instanceof MalformedJwtException) {
+            errorDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, exception.getMessage());
+            errorDetail.setProperty(DESC, "Invalid JWT token format");
+            errorDetail.setProperty("errorCode", "MALFORMED_TOKEN");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDetail);
+        }
+
         if (exception instanceof ExpiredJwtException) {
-            errorDetail = ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, exception.getMessage());
+            errorDetail = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, exception.getMessage());
             errorDetail.setProperty(DESC, "The JWT token has expired");
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorDetail);
+            errorDetail.setProperty("errorCode", "TOKEN_EXPIRED");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorDetail);
+        }
+
+        if (exception instanceof JwtException) {
+            errorDetail = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, exception.getMessage());
+            errorDetail.setProperty(DESC, "Invalid JWT token");
+            errorDetail.setProperty("errorCode", "INVALID_TOKEN");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorDetail);
+        }
+
+        if (exception instanceof InvalidTokenException) {
+            errorDetail = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, exception.getMessage());
+            errorDetail.setProperty(DESC, "Invalid token");
+            errorDetail.setProperty("errorCode", "INVALID_TOKEN");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorDetail);
+        }
+
+        if (exception instanceof MissingRequestHeaderException) {
+            errorDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, exception.getMessage());
+            errorDetail.setProperty(DESC, "Missing Request Header");
+            errorDetail.setProperty("errorCode", "MISSING_REQUEST_HEADER");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDetail);
         }
 
         // Default case for unknown exceptions
