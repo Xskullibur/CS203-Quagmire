@@ -65,7 +65,6 @@ const Match: React.FC = () => {
     useEffect(() => {
         getLocation();
         const intervalId = setInterval(getLocation, 10000);
-        console.log("Location interval ID:", intervalId);
         return () => clearInterval(intervalId);
     }, [getLocation]);
 
