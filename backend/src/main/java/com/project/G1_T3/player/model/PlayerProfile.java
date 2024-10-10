@@ -47,6 +47,10 @@ public class PlayerProfile {
     @Column(name = "current_rating")
     private Float currentRating;
 
+    // Path that profile picture is stored in
+    @Column(name = "profile_picture_path")
+    private String profilePicturePath;
+
     // Getters, setters, and other methods...
     public Integer getProfileId() {
         return profileId;

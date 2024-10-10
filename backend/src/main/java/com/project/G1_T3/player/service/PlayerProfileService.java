@@ -51,4 +51,11 @@ public class PlayerProfileService {
         // Save the updated profile
         return playerProfileRepository.save(existingProfile);
     }
+
+    // For uploading profile photo
+    public PlayerProfile updateProfilePicture(Long id, String profilePicturePath) {
+        PlayerProfile profile = playerProfileRepository.findByUserId(id);
+        profile.setProfilePicturePath(profilePicturePath);
+        return playerProfileRepository.save(profile);
+    }
 }

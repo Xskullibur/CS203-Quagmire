@@ -1,23 +1,25 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
-const Profile: React.FC = () => {
-    const [username, setUsername] = useState('Guest');
+const ProfilePage = () => {
+    const router = useRouter();
 
     useEffect(() => {
-        if (typeof localStorage !== 'undefined') {
-            const storedUsername = localStorage.getItem('username') || 'Guest';
-            setUsername(storedUsername);
-        }
-    }, []);
+        // Retrieve the userId from localStorage 
+        const userId = localStorage.getItem('userId');
 
-    return (
-        <div className="flex flex-col items-center justify-center min-h-screen">
-            <h2 className="text-2xl font-bold mb-4">Profile</h2>
-            <p>Welcome, {username}!</p>
-        </div>
-    );
+        if (userId) {
+            // Redirect to the user's specific profile page
+            router.push(`/profile/${userId}`);
+        } else {
+            // Redirect to login if no userId is found 
+            router.push('/auth/login');
+        }
+    }, [router]);
+
+    return <div>Redirecting to your profile...</div>;
 };
 
-export default Profile;
+export default ProfilePage;

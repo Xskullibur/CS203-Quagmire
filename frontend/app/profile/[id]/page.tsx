@@ -1,15 +1,14 @@
 "use client";
 
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import React, { useState, useEffect } from 'react';
 
 const Profile = () => {
-    // Handles dynamic route params
-    const { id } = useParams(); 
+    const { id } = useParams(); // Handles dynamic route params
     const [userData, setUserData] = useState<any>(null);
+    const router = useRouter();
 
     useEffect(() => {
-
         const id = window.location.pathname.split("/").pop();
 
         if (id) {
@@ -20,6 +19,16 @@ const Profile = () => {
                 .catch(error => console.error('Error fetching profile:', error));
         }
     }, [id]);
+
+    // Logout function
+    const handleLogout = () => {
+        localStorage.removeItem('userId');
+        localStorage.removeItem('username');
+        localStorage.removeItem('token');
+
+        // Redirect to the login page
+        router.push('/auth/login');
+    };
 
     if (!userData) return <div>Loading...</div>;
 
@@ -37,7 +46,7 @@ const Profile = () => {
                     <p><strong>Date of Birth:</strong> {userData.dateOfBirth}</p>
                 </div>
 
-                {/* Bio  */}
+                {/* Bio */}
                 <div className="bg-[#171717] p-6 rounded-lg shadow-md">
                     <h2 className="text-2xl font-semibold mb-4">Bio</h2>
                     <p>{userData.bio}</p>
@@ -49,6 +58,14 @@ const Profile = () => {
                     <p><strong>Current Rating:</strong> {userData.currentRating}</p>
                 </div>
             </div>
+
+            {/* Logout */}
+            <button
+                onClick={handleLogout}
+                className="mt-4 bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600"
+            >
+                Logout
+            </button>
         </div>
     );
 };
