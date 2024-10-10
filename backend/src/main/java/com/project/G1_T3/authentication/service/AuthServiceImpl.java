@@ -34,6 +34,10 @@ public class AuthServiceImpl implements AuthService {
 
     public LoginResponseDTO authenticateAndGenerateToken(String username, String password) {
 
+        if (username.isBlank() || password.isBlank()) {
+            throw new IllegalArgumentException();
+        }
+
         username = username.toLowerCase();
 
         try {
