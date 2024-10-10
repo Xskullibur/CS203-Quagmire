@@ -66,23 +66,20 @@ jobs:
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./frontend
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
-      - name: Download frontend task definition
+      - name: Update ECS service
         run: |
-          aws ecs describe-task-definition --task-definition ${{ secrets.FRONTEND_ECS_TASK_DEFINITION }} \
-            --query taskDefinition > frontend-task-definition.json
+          # Get the current task definition
+          TASK_DEFINITION=$(aws ecs describe-task-definition --task-definition ${{ secrets.FRONTEND_ECS_TASK_DEFINITION }} --query taskDefinition)
+          
+          # Update the image in the task definition
+          NEW_TASK_DEFINITION=$(echo $TASK_DEFINITION | jq --arg IMAGE "${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:frontend-${{ github.sha }}" '.containerDefinitions[0].image = $IMAGE')
+          
+          # Register the new task definition
+          NEW_TASK_DEFINITION_ARN=$(aws ecs register-task-definition --cli-input-json "$NEW_TASK_DEFINITION" --query taskDefinition.taskDefinitionArn --output text)
+          
+          # Update the service with the new task definition
+          aws ecs update-service --cluster ${{ secrets.ECS_CLUSTER_NAME }} --service ${{ secrets.FRONTEND_ECS_SERVICE_NAME }} --task-definition $NEW_TASK_DEFINITION_ARN --force-new-deployment
 
-      - name: Fill in the new image ID in the Amazon ECS task definition
-        id: frontend-task-def
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
-        with:
-          task-definition: frontend-task-definition.json
-          container-name: ${{ secrets.FRONTEND_CONTAINER_NAME }}
-          image: ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
-
-      - name: Deploy Amazon ECS task definition
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-        with:
-          task-definition: ${{ steps.frontend-task-def.outputs.task-definition }}
-          service: ${{ secrets.FRONTEND_ECS_SERVICE_NAME }}
-          cluster: ${{ secrets.ECS_CLUSTER_NAME }}
-          wait-for-service-stability: true
+      - name: Wait for ECS service stability
+        run: |
+          aws ecs wait services-stable --cluster ${{ secrets.ECS_CLUSTER_NAME }} --services ${{ secrets.FRONTEND_ECS_SERVICE_NAME }}
