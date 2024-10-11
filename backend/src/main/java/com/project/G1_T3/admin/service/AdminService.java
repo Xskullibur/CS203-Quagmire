@@ -10,6 +10,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import com.project.G1_T3.authentication.service.PasswordGeneratorServiceImpl;
+import com.project.G1_T3.email.service.EmailService;
 import com.project.G1_T3.user.model.User;
 import com.project.G1_T3.user.model.UserDTO;
 import com.project.G1_T3.user.model.UserRole;
@@ -31,6 +32,9 @@ public class AdminService {
     private PasswordGeneratorServiceImpl passwordGeneratorService;
 
     @Autowired
+    private EmailService emailService;
+
+    @Autowired
     private UserRepository userRepository;
 
     @Transactional
@@ -41,6 +45,7 @@ public class AdminService {
 
         logger.info("Admin registered successfully: {}:{}", username, password);
 
+        emailService.sendTempPasswordEmail(userDTO, password);
         return userDTO;
     }
 
