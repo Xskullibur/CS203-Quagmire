@@ -95,6 +95,10 @@ public class Match {
         return UUID.fromString(matchId.toString());
     }
 
+    public void setId(UUID matchId) {
+        this.matchId = matchId;
+    }
+
     public void setGameType(GameType gameType) {
         this.gameType = gameType;
     }

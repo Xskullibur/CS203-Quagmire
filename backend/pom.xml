@@ -107,7 +107,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/x
     <dependency>
         <groupId>com.h2database</groupId>
         <artifactId>h2</artifactId>
-        <scope>test</scope>
+        <scope>runtime</scope>
     </dependency>
 
     <dependency>
@@ -134,6 +134,11 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/x
         <groupId>com.amazonaws</groupId>
         <artifactId>aws-java-sdk-secretsmanager</artifactId>
         <version>1.12.529</version>
+    </dependency>
+
+    <dependency>
+        <groupId>com.fasterxml.jackson.datatype</groupId>
+        <artifactId>jackson-datatype-jsr310</artifactId>
     </dependency>
 
 </dependencies>

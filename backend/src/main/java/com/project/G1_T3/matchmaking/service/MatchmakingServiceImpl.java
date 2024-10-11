@@ -79,6 +79,10 @@ public class MatchmakingServiceImpl implements MatchmakingService {
         throw new MatchmakingException("No suitable match found in this iteration");
     }
 
+    public boolean isPlayerInQueue(UUID playerId) {
+        return playerQueue.containsKey(playerId);
+    }
+
     @Override
     public void printQueueStatus() {
         log.debug("Current players in queue: {}", playerQueue.size());

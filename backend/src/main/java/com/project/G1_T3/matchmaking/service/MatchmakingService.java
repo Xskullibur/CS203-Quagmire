@@ -12,4 +12,6 @@ public interface MatchmakingService {
     Match findMatch();
 
     void printQueueStatus();
+
+    boolean isPlayerInQueue(UUID playerId);
 }
