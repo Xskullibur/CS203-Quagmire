@@ -7,6 +7,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import com.project.G1_T3.common.exception.AccountNotVerifiedException;
 import com.project.G1_T3.user.model.CustomUserDetails;
 import com.project.G1_T3.user.model.User;
 
@@ -20,6 +21,11 @@ public class CustomUserDetailsService implements UserDetailsService {
     public CustomUserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
         Optional<User> user = userService.findByUsername(username);
+
+        if (user.isPresent() && !user.get().isEmailVerified()) {
+            throw new AccountNotVerifiedException("Email not verified for user: " + username);
+        }
+
         return user.map(CustomUserDetails::new)
                 .orElseThrow(() -> new UsernameNotFoundException(username));
     }

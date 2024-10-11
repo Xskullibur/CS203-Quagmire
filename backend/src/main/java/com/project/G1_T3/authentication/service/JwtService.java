@@ -29,8 +29,11 @@ public class JwtService {
     @Value("${jwt.secret-key}")
     private String secretKeyString;
 
-    @Value("${jwt.expiration-time}")
+    @Value("${jwt.expiration-time.authentication}")
     private long expirationTime;
+
+    @Value("${jwt.expiration-time.email-verification}")
+    private long emailVerificationExpirationTime;
 
     private Key secretKey;
 
@@ -56,6 +59,35 @@ public class JwtService {
 
     public String generateToken(Map<String, Object> extraClaims, User userDetails) {
         return buildToken(extraClaims, userDetails, expirationTime);
+    }
+
+    public String generateEmailVerificationToken(User user) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("purpose", "email_verification");
+        return buildToken(claims, user, emailVerificationExpirationTime);
+    }
+
+    public String validateEmailVerificationToken(String token) {
+        try {
+            Claims claims = extractAllClaims(token);
+
+            if (!"email_verification".equals(claims.get("purpose"))) {
+                throw new InvalidTokenException("Invalid token purpose", token);
+            }
+
+            if (claims.getExpiration().before(new Date())) {
+                throw new InvalidTokenException("Token has expired", token);
+            }
+
+            return claims.getSubject();
+
+        } catch (ExpiredJwtException e) {
+            throw new InvalidTokenException("Token has expired", token);
+        } catch (MalformedJwtException e) {
+            throw e;
+        } catch (JwtException | IllegalArgumentException e) {
+            throw new InvalidTokenException("Invalid token", token);
+        }
     }
 
     private String buildToken(Map<String, Object> extraClaims, User userDetails, long expiration) {

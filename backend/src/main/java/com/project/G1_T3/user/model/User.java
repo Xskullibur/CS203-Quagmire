@@ -56,6 +56,10 @@ public class User implements Serializable {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
+    @Column(name = "email_verified", nullable = false)
+    @Builder.Default
+    private boolean emailVerified = false;
+
     @PrePersist
     private void onCreate() {
         LocalDateTime now = LocalDateTime.now();
@@ -75,5 +79,14 @@ public class User implements Serializable {
 
     public void setId(String userId) {
         this.userId = UUID.fromString(userId);
+    }
+
+    
+    public boolean isEmailVerified() {
+        return emailVerified;
+    }
+
+    public void setEmailVerified(boolean emailVerified) {
+        this.emailVerified = emailVerified;
     }
 }

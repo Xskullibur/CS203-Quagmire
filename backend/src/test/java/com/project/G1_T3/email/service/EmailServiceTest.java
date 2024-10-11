@@ -1,6 +1,7 @@
 package com.project.G1_T3.email.service;
 
 import com.project.G1_T3.user.model.UserDTO;
+
 import jakarta.mail.internet.MimeMessage;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -58,6 +59,42 @@ class EmailServiceTest {
     }
 
     @Test
+    void sendVerificationEmail_Success() {
+        // Arrange
+        String to = "test@example.com";
+        String username = "testUser";
+        String verificationLink = "http://localhost:3000/verify?token=12345";
+
+        MimeMessage mimeMessage = mock(MimeMessage.class);
+        when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
+        when(templateEngine.process(eq("EmailVerificationTemplate"), any())).thenReturn("HTML Content");
+
+        // Act & Assert
+        assertDoesNotThrow(() -> emailService.sendVerificationEmail(to, username, verificationLink));
+
+        // Verify
+        verify(mailSender).send(any(MimeMessage.class));
+        verify(templateEngine).process(eq("EmailVerificationTemplate"), any());
+    }
+
+    @Test
+    void sendVerificationEmail_NullUsername() {
+        String to = "test@example.com";
+        String verificationLink = "http://localhost:3000/verify?token=12345";
+
+        assertThrows(IllegalArgumentException.class,
+                () -> emailService.sendVerificationEmail(to, null, verificationLink));
+    }
+
+    @Test
+    void sendVerificationEmail_NullVerificationLink() {
+        String to = "test@example.com";
+        String username = "testUser";
+
+        assertThrows(IllegalArgumentException.class, () -> emailService.sendVerificationEmail(to, username, null));
+    }
+
+    @Test
     void sendEmail_Success() {
         // Arrange
         MimeMessage mimeMessage = mock(MimeMessage.class);
@@ -69,4 +106,23 @@ class EmailServiceTest {
         // Verify
         verify(mailSender).send(any(MimeMessage.class));
     }
+
+    @Test
+    void sendEmail_NullTo() {
+        assertThrows(IllegalArgumentException.class,
+                () -> emailService.sendEmail(null, "Test Subject", "Test Body", null));
+    }
+
+    @Test
+    void sendEmail_NullSubject() {
+        assertThrows(IllegalArgumentException.class,
+                () -> emailService.sendEmail("test@example.com", null, "Test Body", null));
+    }
+
+    @Test
+    void sendEmail_NullBody() {
+        assertThrows(IllegalArgumentException.class,
+                () -> emailService.sendEmail("test@example.com", "Test Subject", null, null));
+    }
+
 }

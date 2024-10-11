@@ -17,8 +17,6 @@ import com.project.G1_T3.user.model.UserRole;
 import com.project.G1_T3.user.repository.UserRepository;
 import com.project.G1_T3.user.service.UserService;
 
-import jakarta.transaction.Transactional;
-
 @Service
 @PreAuthorize("hasRole('ADMIN')")
 public class AdminService {
@@ -37,7 +35,6 @@ public class AdminService {
     @Autowired
     private UserRepository userRepository;
 
-    @Transactional
     public UserDTO registerAdmin(String username, String email) {
 
         String password = passwordGeneratorService.generatePassword();

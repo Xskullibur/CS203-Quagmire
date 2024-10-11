@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Email Verification</title>
+        <style>
+            body {
+                font-family: 'Inter', Arial, sans-serif;
+                background-color: rgba(0, 0, 0, 0.93);
+                margin: 0;
+                padding: 0;
+                color: rgba(255, 255, 255, 0.639);
+            }
+            .container {
+                max-width: 720px;
+                margin: 20px auto;
+                width: 100%;
+                padding: 20px;
+                border-radius: 8px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            }
+            .email-content {
+                background-color: #222;
+                font-size: 16px;
+                border-radius: 8px;
+                padding: 30px;
+                max-width: 500px;
+                text-align: center;
+                color: rgba(255, 255, 255, 0.639);
+            }
+            h1 {
+                font-size: 24px;
+                margin-bottom: 5px;
+                color: rgba(255, 255, 255, 1);
+            }
+            p {
+                margin-bottom: 20px;
+                color: rgba(255, 255, 255, 1);
+            }
+            .confirm-btn {
+                display: inline-block;
+                padding: 15px 60px;
+                color: rgba(0, 0, 0, 1);
+                background-color: rgba(172, 184, 245, 1);
+                border-radius: 50px;
+                text-decoration: none;
+                font-weight: bold;
+                font-size: 16px;
+            }
+            .confirm-btn:hover {
+                background-color: rgba(255, 255, 255, 0.639);
+            }
+            .footer {
+                margin-top: 30px;
+                text-align: center;
+                font-size: 12px;
+            }
+            .footer p {
+                font-size: 12;
+                color: rgba(255, 255, 255, 0.639);
+            }
+            .footer a {
+                text-decoration: none;
+                color: rgba(255, 255, 255, 0.639);
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="email-content">
+                <div class="logo">
+                    <img src="cid:email_icon" alt="Company Logo" width="64" />
+                </div>
+                <h1 th:text="'Hello ' + ${name} + '!'">Hello John Doe!</h1>
+                <p>Welcome to Quagmire</p>
+
+                <div class="welcome-image" style="text-align: center">
+                    <img src="cid:welcome_image" alt="Welcome" width="300" />
+                </div>
+
+                <p>
+                    To get started, please click the button below to verify your email address.
+                </p>
+
+                <a th:href="${verificationLink}" class="confirm-btn">Verify Email</a>
+
+                <div class="footer">
+                    <p>
+                        © 2024 Company. All rights reserved.<br />
+                        123 Main Street, Singapore 123456, (65) 1234-5678
+                    </p>
+                    <a href="https://storyset.com/people"
+                        >Illustrations by Storyset</a
+                    >
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
