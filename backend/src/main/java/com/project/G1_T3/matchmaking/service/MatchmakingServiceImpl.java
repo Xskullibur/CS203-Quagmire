@@ -4,6 +4,7 @@ import com.project.G1_T3.common.model.Status;
 import com.project.G1_T3.match.model.Match;
 import com.project.G1_T3.matchmaking.model.QueuedPlayer;
 import com.project.G1_T3.player.model.PlayerProfile;
+import com.project.G1_T3.common.exception.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import java.util.UUID;
@@ -36,6 +37,9 @@ public class MatchmakingServiceImpl implements MatchmakingService {
     @Override
     public void removePlayerFromQueue(UUID playerId) {
         log.info("Removing player from queue: {}", playerId);
+        if (!playerQueue.containsKey(playerId)) {
+            throw new PlayerNotFoundException("Player with ID " + playerId + " not found in queue");
+        }
         playerQueue.remove(playerId);
         log.info("Player removed. Current queue size: {}", playerQueue.size());
     }
@@ -43,8 +47,7 @@ public class MatchmakingServiceImpl implements MatchmakingService {
     @Override
     public Match findMatch() {
         if (playerQueue.size() < 2) {
-            log.debug("Not enough players in queue for matching");
-            return null;
+            throw new InsufficientPlayersException("Not enough players in queue for matching");
         }
         List<QueuedPlayer> players = new ArrayList<>(playerQueue.values());
         players.sort(Comparator.comparingDouble(QueuedPlayer::getPriority).reversed());
@@ -54,8 +57,10 @@ public class MatchmakingServiceImpl implements MatchmakingService {
             if (matchmakingAlgorithm.isGoodMatch(player1, player2)) {
                 playerQueue.remove(player1.getPlayer().getUserId());
                 playerQueue.remove(player2.getPlayer().getUserId());
-                double[] meetingPoint = meetingPointService.findMeetingPoint(player1, player2);
-                if (meetingPoint == null) {
+                double[] meetingPoint;
+                try {
+                    meetingPoint = meetingPointService.findMeetingPoint(player1, player2);
+                } catch (MeetingPointNotFoundException e) {
                     log.error("Failed to find meeting point for players {} and {}", player1.getPlayer().getUserId(),
                             player2.getPlayer().getUserId());
                     continue; // Skip this match and try the next pair
@@ -71,8 +76,7 @@ public class MatchmakingServiceImpl implements MatchmakingService {
                 return match;
             }
         }
-        log.debug("No suitable match found in this iteration");
-        return null;
+        throw new MatchmakingException("No suitable match found in this iteration");
     }
 
     @Override
