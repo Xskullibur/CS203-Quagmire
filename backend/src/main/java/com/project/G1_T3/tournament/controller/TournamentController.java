@@ -1,5 +1,6 @@
 package com.project.G1_T3.tournament.controller;
 
+import com.project.G1_T3.player.model.PlayerProfile;
 import com.project.G1_T3.tournament.model.Tournament;
 import com.project.G1_T3.tournament.service.TournamentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,7 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.*;
 
 @RestController
 @RequestMapping("/tournament")
@@ -61,4 +62,29 @@ public class TournamentController {
         Tournament createdTournament = tournamentService.createTournament(tournament);
         return ResponseEntity.ok(createdTournament);
     }
+
+    // Update an existing tournament
+    @PutMapping("/{id}")
+    public ResponseEntity<Tournament> updateTournament(
+            @PathVariable Long id, @RequestBody Tournament updatedTournament) {
+        Tournament tournament = tournamentService.updateTournament(id, updatedTournament);
+        return ResponseEntity.ok(tournament);
+    }
+
+    // Add a player to a tournament
+    @PostMapping("/{tournamentId}/players/{playerId}")
+    public ResponseEntity<Tournament> addPlayerToTournament(
+            @PathVariable Long tournamentId, @PathVariable UUID playerId) {
+        Tournament updatedTournament = tournamentService.addPlayerToTournament(tournamentId, playerId);
+        return ResponseEntity.ok(updatedTournament);
+    }
+
+    // Get all players in a tournament
+    @GetMapping("/{tournamentId}/players")
+    public ResponseEntity<Set<PlayerProfile>> getPlayersInTournament(@PathVariable Long tournamentId) {
+        Set<PlayerProfile> players = tournamentService.getPlayers(tournamentId);
+        return ResponseEntity.ok(players);
+    }
+
+    
 }

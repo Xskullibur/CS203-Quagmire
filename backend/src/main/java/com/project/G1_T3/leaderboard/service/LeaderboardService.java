@@ -30,7 +30,7 @@ public class LeaderboardService {
                 .map(profile -> new LeaderboardPlayerProfile(profile.getProfileId(),
                         profile.getFirstName(),
                         profile.getLastName(),
-                        profile.getELO()))
+                        profile.getCurrentRating()))
                 .collect(Collectors.toList());
 
         return top10Players;
@@ -45,7 +45,7 @@ public class LeaderboardService {
     public LeaderboardPlayerProfile getPlayerInfo(String username) {
         Optional<User> user = userService.findByUsername(username);
         UUID userId = user.get().getId();
-        PlayerProfile player = playerProfileRepository.getPlayerProfileByUserId(userId);
+        PlayerProfile player = playerProfileRepository.findByUserId(userId);
         long position = playerProfileRepository.getPositionOfPlayer(userId);
         return new LeaderboardPlayerProfile(player, position);
     }

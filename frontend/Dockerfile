@@ -24,6 +24,10 @@ WORKDIR /app
 
 # Set environment variables
 ENV NODE_ENV=production
+ARG NEXT_PUBLIC_API_URL
+ARG NEXT_PUBLIC_SPRINGBOOT_API_URL
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_SPRINGBOOT_API_URL=$NEXT_PUBLIC_SPRINGBOOT_API_URL
 
 # Copy built assets from the builder stage
 COPY --from=builder /app/.next ./.next

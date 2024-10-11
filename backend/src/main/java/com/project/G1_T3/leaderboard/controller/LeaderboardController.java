@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import com.project.G1_T3.leaderboard.service.LeaderboardService;
 import com.project.G1_T3.leaderboard.model.LeaderboardPlayerProfile;
+
 import java.util.List;
 
 @RestController
@@ -27,6 +28,13 @@ public class LeaderboardController {
     // }
 
     // Get a specific player's position and info
+ 
+    // @GetMapping("user/{userId}") 
+    // public LeaderboardPlayerProfile getPlayerInfo(@PathVariable long userId) { 
+     
+    //     return leaderboardService.getPlayerInfo(userId); 
+    // }
+
     @GetMapping("/{username}")
     public LeaderboardPlayerProfile getPlayerInfo(@PathVariable String username) {
         return leaderboardService.getPlayerInfo(username);
