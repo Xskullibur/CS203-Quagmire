@@ -1,21 +1,20 @@
 package com.project.G1_T3.tournament.repository;
 
 import com.project.G1_T3.tournament.model.Tournament;
-import java.time.LocalDateTime;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-
 import java.util.*;
+import java.time.LocalDateTime;
 
 @Repository
-public interface TournamentRepository extends JpaRepository<Tournament, Long> {
+public interface TournamentRepository extends JpaRepository<Tournament, UUID> {
     
-    Optional<Tournament> findById(long id);
+    // Find tournament by id
+    Optional<Tournament> findById(UUID tournamentId);
 
     // Find tournaments by name
     List<Tournament> findByName(String name);
@@ -46,7 +45,6 @@ public interface TournamentRepository extends JpaRepository<Tournament, Long> {
     // Custom query to find tournaments by city (location)
     @Query("SELECT t FROM Tournament t WHERE t.location = :city")
     List<Tournament> findByCity(@Param("city") String city);
-
 
     // Pagination for all tournaments
     Page<Tournament> findAll(Pageable pageable);

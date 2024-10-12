@@ -11,14 +11,9 @@ import com.project.G1_T3.round.service.RoundService;
 import com.project.G1_T3.stage.model.Format;
 import com.project.G1_T3.stage.model.Stage;
 import com.project.G1_T3.stage.repository.StageRepository;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Set;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.*;
 
 @Service
 public class StageServiceImpl implements StageService {
@@ -40,18 +35,18 @@ public class StageServiceImpl implements StageService {
     }
 
     // Find all stages for a specific tournament
-    public List<Stage> findAllStagesByTournamentId(Long tournamentId) {
+    public List<Stage> findAllStagesByTournamentId(UUID tournamentId) {
         return stageRepository.findByTournamentId(tournamentId);
     }
 
     // Find a specific stage by stageId and tournamentId
-    public Stage findStageByIdAndTournamentId(Long stageId, Long tournamentId) {
+    public Stage findStageByIdAndTournamentId(Long stageId, UUID tournamentId) {
         return stageRepository.findByStageIdAndTournamentId(stageId, tournamentId)
                 .orElseThrow(() -> new RuntimeException("Stage not found"));
     }
 
     // Update a stage for a specific tournament
-    public Stage updateStageForTournament(Long tournamentId, Long stageId, Stage updatedStage) {
+    public Stage updateStageForTournament(UUID tournamentId, Long stageId, Stage updatedStage) {
         Stage stage = findStageByIdAndTournamentId(stageId, tournamentId);
         stage.setStageName(updatedStage.getStageName());
         stage.setStartDate(updatedStage.getStartDate());
@@ -62,7 +57,7 @@ public class StageServiceImpl implements StageService {
     }
 
     // Delete a stage by stageId and tournamentId
-    public void deleteStageByTournamentId(Long tournamentId, Long stageId) {
+    public void deleteStageByTournamentId(UUID tournamentId, Long stageId) {
         Stage stage = findStageByIdAndTournamentId(stageId, tournamentId);
         stageRepository.delete(stage);
     }

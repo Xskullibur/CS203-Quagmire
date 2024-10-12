@@ -22,7 +22,6 @@ public class TournamentServiceImpl implements TournamentService {
     @Autowired
     private PlayerProfileRepository playerProfileRepository;
 
-    @Autowired
     public TournamentServiceImpl(TournamentRepository tournamentRepository) {
         this.tournamentRepository = tournamentRepository;
     }
@@ -33,7 +32,7 @@ public class TournamentServiceImpl implements TournamentService {
     }
 
     @Override
-    public Tournament findTournamentById(Long id) {
+    public Tournament findTournamentById(UUID id) {
         return tournamentRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Tournament not found with id: " + id));
     }
@@ -73,25 +72,25 @@ public class TournamentServiceImpl implements TournamentService {
         return tournamentRepository.save(tournament);
     }
 
-    public Set<PlayerProfile> getPlayers(Long tournamentId) {
+    public Set<PlayerProfile> getPlayers(UUID tournamentId) {
         Tournament tournament = tournamentRepository.findById(tournamentId).get();
         return tournament.getPlayers();
     }
 
-    public Tournament addPlayerToTournament(Long tournamentId, UUID userId) {
+    public Tournament addPlayerToTournament(UUID tournamentId, UUID userId) {
         Tournament tournament = tournamentRepository.findById(tournamentId).get();
         PlayerProfile player = playerProfileRepository.findByUserId(userId);
         tournament.getPlayers().add(player);
         return tournamentRepository.save(tournament);
     }
 
-    public Tournament updateTournament(Long id, Tournament updatedTournament) {
+    public Tournament updateTournament(UUID id, Tournament updatedTournament) {
        updatedTournament.setId(id);
        return tournamentRepository.save(updatedTournament);
     }
     
     // Add this method
-    public Tournament getTournamentById(Long id) {
+    public Tournament getTournamentById(UUID id) {
         return tournamentRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Tournament not found with id: " + id));
     }

@@ -48,7 +48,7 @@ public class TournamentController {
 
     // Get tournament by ID
     @GetMapping("/{id}")
-    public ResponseEntity<Tournament> getTournamentById(@PathVariable Long id) {
+    public ResponseEntity<Tournament> getTournamentById(@PathVariable UUID id) {
         Tournament tournament = tournamentService.getTournamentById(id);
         if (tournament == null) {
             return ResponseEntity.notFound().build();
@@ -66,7 +66,7 @@ public class TournamentController {
     // Update an existing tournament
     @PutMapping("/{id}")
     public ResponseEntity<Tournament> updateTournament(
-            @PathVariable Long id, @RequestBody Tournament updatedTournament) {
+            @PathVariable UUID id, @RequestBody Tournament updatedTournament) {
         Tournament tournament = tournamentService.updateTournament(id, updatedTournament);
         return ResponseEntity.ok(tournament);
     }
@@ -74,14 +74,14 @@ public class TournamentController {
     // Add a player to a tournament
     @PostMapping("/{tournamentId}/players/{playerId}")
     public ResponseEntity<Tournament> addPlayerToTournament(
-            @PathVariable Long tournamentId, @PathVariable UUID playerId) {
+            @PathVariable UUID tournamentId, @PathVariable UUID playerId) {
         Tournament updatedTournament = tournamentService.addPlayerToTournament(tournamentId, playerId);
         return ResponseEntity.ok(updatedTournament);
     }
 
     // Get all players in a tournament
     @GetMapping("/{tournamentId}/players")
-    public ResponseEntity<Set<PlayerProfile>> getPlayersInTournament(@PathVariable Long tournamentId) {
+    public ResponseEntity<Set<PlayerProfile>> getPlayersInTournament(@PathVariable UUID tournamentId) {
         Set<PlayerProfile> players = tournamentService.getPlayers(tournamentId);
         return ResponseEntity.ok(players);
     }
