@@ -6,6 +6,8 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -31,13 +33,15 @@ public class AuthenticationController {
     }
 
     @GetMapping("/verify-email")
-    public void verifyEmail(@RequestParam String token, HttpServletResponse response) throws IOException {
+    public ResponseEntity<?> verifyEmail(@RequestParam String token, HttpServletResponse response) throws IOException {
 
         boolean verified = authService.verifyEmail(token);
         String redirectUrl = verified
-                ? frontendUrl + "/verification-success"
-                : frontendUrl + "/verification-failed";
+                ? frontendUrl + "/auth/verification-success"
+                : frontendUrl + "/auth/verification-failed";
 
-        response.sendRedirect(redirectUrl);
+        return ResponseEntity.status(HttpStatus.FOUND)
+                .header(HttpHeaders.LOCATION, redirectUrl)
+                .build();
     }
 }
