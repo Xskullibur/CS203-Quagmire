@@ -69,7 +69,7 @@ class UserServiceTest {
         when(userRepository.existsByEmail(anyString())).thenReturn(false);
         when(userRepository.save(any(User.class))).thenReturn(testUser);
         when(jwtService.generateEmailVerificationToken(any(User.class))).thenReturn("valid-token");
-        doNothing().when(emailService).sendVerificationEmail(anyString(), anyString(), anyString());
+        when(emailService.sendVerificationEmail(anyString(), anyString(), anyString())).thenReturn(null);
 
         UserDTO actualUserDTO = userService.registerUser(testUser.getUsername(), testUser.getEmail(), testUser.getPasswordHash(), testUser.getRole());
 
