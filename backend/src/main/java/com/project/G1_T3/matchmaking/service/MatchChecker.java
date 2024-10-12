@@ -9,8 +9,10 @@ import org.springframework.transaction.annotation.Transactional;
 import com.project.G1_T3.common.model.Status;
 import com.project.G1_T3.match.model.Match;
 import com.project.G1_T3.matchmaking.model.MatchNotification;
+import com.project.G1_T3.matchmaking.model.MatchNotificationDTO;
 import com.project.G1_T3.match.repository.MatchRepository;
 import com.project.G1_T3.player.model.PlayerProfile;
+import com.project.G1_T3.player.model.PlayerProfileDTO;
 import com.project.G1_T3.player.repository.PlayerProfileRepository;
 import com.project.G1_T3.user.model.User;
 import com.project.G1_T3.user.repository.UserRepository;
@@ -60,12 +62,25 @@ public class MatchChecker {
                 match.setStatus(Status.IN_PROGRESS);
                 matchRepository.save(match);
 
-                MatchNotification notificationForPlayer1 = new MatchNotification(match, user2.getUsername(), player2);
-                MatchNotification notificationForPlayer2 = new MatchNotification(match, user1.getUsername(), player1);
-
+                MatchNotificationDTO notificationForPlayer1 = new MatchNotificationDTO(
+                    match.getMatchId(),
+                    match.getMeetingLatitude(),
+                    match.getMeetingLongitude(),
+                    user2.getUsername(),
+                    player2.getProfile()
+                );
+                
+                MatchNotificationDTO notificationForPlayer2 = new MatchNotificationDTO(
+                    match.getMatchId(),
+                    match.getMeetingLatitude(),
+                    match.getMeetingLongitude(),
+                    user1.getUsername(),
+                    player1.getProfile()
+                );
+                
                 messagingTemplate.convertAndSend("/topic/solo/match/" + player1.getUserId(), notificationForPlayer1);
                 messagingTemplate.convertAndSend("/topic/solo/match/" + player2.getUserId(), notificationForPlayer2);
-
+                
                 log.info("Match found and notifications sent for players {} and {}", user1.getUsername(),
                         user2.getUsername());
             } catch (Exception e) {

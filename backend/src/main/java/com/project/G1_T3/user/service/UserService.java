@@ -12,6 +12,9 @@ import org.springframework.stereotype.Service;
 
 import com.project.G1_T3.common.exception.EmailAlreadyInUseException;
 import com.project.G1_T3.common.exception.UsernameAlreadyTakenException;
+import com.project.G1_T3.player.model.PlayerProfile;
+import com.project.G1_T3.player.repository.PlayerProfileRepository;
+import com.project.G1_T3.player.service.PlayerProfileService;
 import com.project.G1_T3.user.model.User;
 import com.project.G1_T3.user.model.UserDTO;
 import com.project.G1_T3.user.model.UserRole;
@@ -25,6 +28,9 @@ public class UserService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+    
+    @Autowired
+    private PlayerProfileService playerProfileService;
 
     public UserDTO registerUser(String username, String email, String password, UserRole role) {
 
@@ -48,8 +54,15 @@ public class UserService {
         newUser.setUpdatedAt(LocalDateTime.now());
 
         // Save user to database
-        userRepository.save(newUser);
-        return UserDTO.fromUser(newUser);
+        User savedUser = userRepository.save(newUser);
+
+        // Create and save a new PlayerProfile
+        PlayerProfile newProfile = new PlayerProfile();
+        newProfile.setUserId(savedUser.getId());
+        // Set other default values for PlayerProfile if needed
+        playerProfileService.save(newProfile);
+
+        return UserDTO.fromUser(savedUser);
     }
 
     public boolean existsByUsername(String username) {

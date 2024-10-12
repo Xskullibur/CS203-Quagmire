@@ -17,4 +17,5 @@ public interface MatchService {
 
     public Match getCurrentMatchForUser(UUID userId);
 
+    public Match getCurrentMatchForUserById(UUID userId);
 }

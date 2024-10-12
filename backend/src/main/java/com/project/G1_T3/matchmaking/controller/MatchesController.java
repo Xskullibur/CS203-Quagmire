@@ -20,7 +20,7 @@ public class MatchesController {
 
     @GetMapping("/current/{userId}")
     public ResponseEntity<Match> getCurrentMatch(@PathVariable UUID userId) {
-        Match currentMatch = matchService.getCurrentMatchForUser(userId);
+        Match currentMatch = matchService.getCurrentMatchForUserById(userId);
         if (currentMatch != null) {
             return ResponseEntity.ok(currentMatch);
         } else {

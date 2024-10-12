@@ -56,12 +56,12 @@ public class SoloQueueController {
     }
 
     @MessageMapping("/solo/dequeue")
-    public void removeFromQueue(@Payload String playerId) {
+    public void removeFromQueue(@Payload QueueRequest queueRequest) {
         try {
-            UUID playerUUID = UUID.fromString(playerId);
+            UUID playerUUID = UUID.fromString(queueRequest.getPlayerId());
             matchmakingService.removePlayerFromQueue(playerUUID);
         } catch (IllegalArgumentException e) {
-            System.out.println("Invalid UUID for dequeue: " + playerId);
+            System.out.println("Invalid UUID for dequeue: " + queueRequest.getPlayerId());
             // Handle invalid UUID (e.g., send an error message back to the client)
         }
     }

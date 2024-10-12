@@ -5,17 +5,19 @@ import { useState, useEffect } from 'react';
 interface GeolocationState {
     location: { latitude: number; longitude: number } | null;
     error: string | null;
+    loading: boolean;
 }
 
-export const useGeolocation = () => {
+export const useGeolocation = (options = {}) => {
     const [state, setState] = useState<GeolocationState>({
         location: null,
         error: null,
+        loading: true,
     });
 
     useEffect(() => {
         if (!navigator.geolocation) {
-            setState(prev => ({ ...prev, error: "Geolocation is not supported by your browser" }));
+            setState(prev => ({ ...prev, error: "Geolocation is not supported by your browser", loading: false }));
             return;
         }
 
@@ -26,23 +28,25 @@ export const useGeolocation = () => {
                     longitude: position.coords.longitude,
                 },
                 error: null,
+                loading: false,
             });
         };
 
         const handleError = (error: GeolocationPositionError) => {
-            setState(prev => ({ ...prev, error: error.message }));
+            setState(prev => ({ ...prev, error: error.message, loading: false }));
         };
 
-        const options = {
+        const geoOptions = {
             enableHighAccuracy: true,
-            timeout: 5000,
+            timeout: 10000,  // Increased timeout to 10 seconds
             maximumAge: 0,
+            ...options,
         };
 
-        const watchId = navigator.geolocation.watchPosition(handleSuccess, handleError, options);
+        const watchId = navigator.geolocation.watchPosition(handleSuccess, handleError, geoOptions);
 
         return () => navigator.geolocation.clearWatch(watchId);
-    }, []);
+    }, [options]);
 
     return state;
 };

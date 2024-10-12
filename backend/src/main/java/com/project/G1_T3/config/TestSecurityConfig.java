@@ -27,7 +27,7 @@ import java.util.Arrays;
 @EnableWebSecurity
 @EnableWebSocketMessageBroker
 @Profile("test")
-public class TestSecurityConfig implements WebSocketMessageBrokerConfigurer {
+public class TestSecurityConfig {
     private static final Logger logger = LoggerFactory.getLogger(TestSecurityConfig.class);
 
     @Bean
@@ -35,17 +35,6 @@ public class TestSecurityConfig implements WebSocketMessageBrokerConfigurer {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
         return objectMapper;
-    }
-
-    @Override
-    public void configureMessageBroker(MessageBrokerRegistry config) {
-        config.enableSimpleBroker("/topic");
-        config.setApplicationDestinationPrefixes("/app");
-    }
-
-    @Override
-    public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/ws").withSockJS();
     }
 
     @Bean

@@ -7,13 +7,18 @@ import com.project.G1_T3.match.repository.MatchRepository;
 import com.project.G1_T3.player.model.PlayerProfile;
 import com.project.G1_T3.player.repository.PlayerProfileRepository;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+@Slf4j
 @Service
 public class MatchServiceImpl implements MatchService {
 
@@ -36,19 +41,31 @@ public class MatchServiceImpl implements MatchService {
                 Status.IN_PROGRESS);
     }
 
+    @Override
+    public Match getCurrentMatchForUserById(UUID userId) {
+        PlayerProfile playerProfile = playerProfileRepository.findByUserId(userId);
+        if (playerProfile == null) {
+            return null;
+        }
+
+        return matchRepository.findByPlayer1IdOrPlayer2Id(
+                playerProfile.getProfileId(),
+                playerProfile.getProfileId());
+    }
+
     @Transactional
     public Match createMatch(MatchDTO matchDTO) {
-
         Match match = new Match();
+        match.setGameType(Match.GameType.SOLO);
         match.setPlayer1Id(matchDTO.getPlayer1Id());
         match.setPlayer2Id(matchDTO.getPlayer2Id());
-        match.setRefereeId(matchDTO.getRefereeId());
-        match.setScheduledTime(matchDTO.getScheduledTime());
         match.setStatus(Status.SCHEDULED);
+        match.setMeetingLatitude(matchDTO.getMeetingLatitude());
+        match.setMeetingLongitude(matchDTO.getMeetingLongitude());
         match.setCreatedAt(LocalDateTime.now());
         match.setUpdatedAt(LocalDateTime.now());
 
-        matchRepository.save(match); // Save match to the database
+        match = matchRepository.save(match);
 
         return match;
     }

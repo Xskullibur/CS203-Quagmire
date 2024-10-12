@@ -15,4 +15,6 @@ public class MatchDTO {
     private LocalDateTime scheduledTime;
     private UUID winnerId;
     private String score;
+    private double meetingLatitude;
+    private double meetingLongitude;
 }

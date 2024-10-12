@@ -9,7 +9,6 @@ import org.springframework.web.socket.config.annotation.EnableWebSocket;
 @EnableScheduling
 @EnableWebSocket
 public class G1T3Application {
-
     public static void main(String[] args) {
         SpringApplication.run(G1T3Application.class, args);
     }

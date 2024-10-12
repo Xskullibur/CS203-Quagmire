@@ -11,10 +11,9 @@ interface QueueManagementProps {
 }
 
 interface MatchNotification {
-    match: {
-        meetingLatitude: number;
-        meetingLongitude: number;
-    };
+    matchId: string;
+    meetingLatitude: number;
+    meetingLongitude: number;
     opponentName: string;
     opponentProfile: PlayerProfile;
 }
@@ -26,7 +25,6 @@ const QueueManagement: React.FC<QueueManagementProps> = ({ playerId, onMatchFoun
     const [opponentName, setOpponentName] = useState('');
     const { client, connected } = useWebSocket();
     const { location, error } = useGeolocation();
-
     useEffect(() => {
         if (client && connected) {
             const subscription = client.subscribe(`/topic/solo/match/${playerId}`, (message) => {
@@ -36,7 +34,7 @@ const QueueManagement: React.FC<QueueManagementProps> = ({ playerId, onMatchFoun
                     setMatchFound(true);
                     setInQueue(false);
                     setOpponentName(notification.opponentName);
-                    onMatchFound(true, notification.opponentName, [notification.match.meetingLatitude, notification.match.meetingLongitude], notification.opponentProfile);
+                    onMatchFound(true, notification.opponentName, [notification.meetingLatitude, notification.meetingLongitude], notification.opponentProfile);
                 } catch (error) {
                     console.error('Error parsing match data:', error);
                 }
