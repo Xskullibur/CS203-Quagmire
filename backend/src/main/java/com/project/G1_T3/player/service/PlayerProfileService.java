@@ -1,6 +1,9 @@
 package com.project.G1_T3.player.service;
 
 import com.project.G1_T3.player.repository.PlayerProfileRepository;
+
+import jakarta.persistence.EntityNotFoundException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +33,11 @@ public class PlayerProfileService {
     // For editing profile
     public PlayerProfile updateProfile(Long id, PlayerProfile profileUpdates) {
         PlayerProfile existingProfile = playerProfileRepository.findByUserId(id);
+
+        // Throw an exception if the profile is not found
+        if (existingProfile == null) {
+            throw new EntityNotFoundException("Player profile not found for user ID: " + id);
+        }
         
         // Update fields
         if (profileUpdates.getFirstName() != null) {
