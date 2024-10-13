@@ -18,6 +18,12 @@ public class MatchesController {
     @Autowired
     private MatchService matchService;
 
+    /**
+     * Endpoint to get the current match for a user by their user ID.
+     * 
+     * @param userId the UUID of the user
+     * @return ResponseEntity containing the current match if found, otherwise a 404 Not Found status
+     */
     @GetMapping("/current/{userId}")
     public ResponseEntity<Match> getCurrentMatch(@PathVariable UUID userId) {
         Match currentMatch = matchService.getCurrentMatchForUserById(userId);

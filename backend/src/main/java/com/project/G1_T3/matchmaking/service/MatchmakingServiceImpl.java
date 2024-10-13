@@ -19,6 +19,9 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Comparator;
 
+/**
+ * Service implementation for matchmaking functionality.
+ */
 @Slf4j
 @Service
 public class MatchmakingServiceImpl implements MatchmakingService {
@@ -29,6 +32,15 @@ public class MatchmakingServiceImpl implements MatchmakingService {
     private final SimpMessagingTemplate messagingTemplate;
     private final PlayerProfileService playerProfileService;
 
+    /**
+     * Constructor for MatchmakingServiceImpl.
+     *
+     * @param matchmakingAlgorithm the matchmaking algorithm to use
+     * @param meetingPointService the service to find meeting points
+     * @param matchService the service to handle match creation
+     * @param messagingTemplate the messaging template for notifications
+     * @param playerProfileService the service to handle player profiles
+     */
     public MatchmakingServiceImpl(MatchmakingAlgorithm matchmakingAlgorithm,
             MeetingPointService meetingPointService,
             MatchService matchService,
@@ -40,6 +52,13 @@ public class MatchmakingServiceImpl implements MatchmakingService {
         this.playerProfileService = playerProfileService;
     }
 
+    /**
+     * Adds a player to the matchmaking queue.
+     *
+     * @param player the player profile
+     * @param latitude the latitude of the player's location
+     * @param longitude the longitude of the player's location
+     */
     @Override
     public void addPlayerToQueue(PlayerProfile player, double latitude, double longitude) {
         log.info("Adding player to queue: {} (ID: {})", player.getUserId(), player.getProfileId());
@@ -48,6 +67,11 @@ public class MatchmakingServiceImpl implements MatchmakingService {
         log.info("Player added. Current queue size: {}", playerQueue.size());
     }
 
+    /**
+     * Removes a player from the matchmaking queue.
+     *
+     * @param playerId the UUID of the player to remove
+     */
     @Override
     public void removePlayerFromQueue(UUID playerId) {
         log.info("Removing player from queue: {}", playerId);
@@ -58,6 +82,11 @@ public class MatchmakingServiceImpl implements MatchmakingService {
         log.info("Player removed. Current queue size: {}", playerQueue.size());
     }
 
+    /**
+     * Attempts to find a match from the players in the queue.
+     *
+     * @return the match found, or null if no match is found
+     */
     @Override
     public Match findMatch() {
         log.info("Attempting to find a match. Current queue size: {}", playerQueue.size());
@@ -99,6 +128,11 @@ public class MatchmakingServiceImpl implements MatchmakingService {
         throw new MatchmakingException("No suitable match found in this iteration");
     }
 
+    /**
+     * Notifies players about the match.
+     *
+     * @param match the match to notify about
+     */
     public void notifyPlayersAboutMatch(Match match) {
         log.info("Notifying players about the match: {}", match.getId());
 
@@ -113,6 +147,13 @@ public class MatchmakingServiceImpl implements MatchmakingService {
         log.info("Notification sent to player 2: {} at destination: {}", match.getPlayer2Id(), destination2);
     }
 
+    /**
+     * Creates a match notification for a player.
+     *
+     * @param match the match
+     * @param uuid the UUID of the player to notify
+     * @return the match notification
+     */
     @Override
     public MatchNotification createMatchNotification(Match match, UUID uuid) {
         String opponentId = match.getPlayer1Id().equals(uuid) ? match.getPlayer2Id().toString()
@@ -125,6 +166,9 @@ public class MatchmakingServiceImpl implements MatchmakingService {
                 opponentProfile);
     }
 
+    /**
+     * Triggers the matchmaking process.
+     */
     @Override
     public void triggerMatchmaking() {
         log.info("Triggering matchmaking process");
@@ -139,11 +183,20 @@ public class MatchmakingServiceImpl implements MatchmakingService {
         }
     }
 
+    /**
+     * Checks if a player is in the queue.
+     *
+     * @param playerId the UUID of the player
+     * @return true if the player is in the queue, false otherwise
+     */
     @Override
     public boolean isPlayerInQueue(UUID playerId) {
         return playerQueue.containsKey(playerId);
     }
 
+    /**
+     * Prints the current status of the queue.
+     */
     @Override
     public void printQueueStatus() {
         log.debug("Current players in queue: {}", playerQueue.size());

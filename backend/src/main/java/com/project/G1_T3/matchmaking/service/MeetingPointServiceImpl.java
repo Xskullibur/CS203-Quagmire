@@ -16,13 +16,7 @@ public class MeetingPointServiceImpl implements MeetingPointService {
 
     @Override
     public double[] findMeetingPoint(QueuedPlayer player1, QueuedPlayer player2) {
-        // This is a placeholder implementation. In a real-world scenario,
-        // you would integrate with a service like Google Places API or OpenStreetMap
-        // to find a suitable meeting point (e.g., a public place) between the two
-        // players.
-
-        // For now, we'll just return the midpoint, but in reality, you'd make an API
-        // call here
+        // For now, we'll just return the midpoint between the two players
         double midLat = (player1.getLatitude() + player2.getLatitude()) / 2;
         double midLon = (player1.getLongitude() + player2.getLongitude()) / 2;
 
@@ -42,8 +36,6 @@ public class MeetingPointServiceImpl implements MeetingPointService {
         // }
 
         // For now, just return the midpoint
-        // In a real implementation, you might want to add some checks here
-        // to ensure the midpoint is valid (e.g., not in the middle of a lake)
         if (isValidMeetingPoint(midLat, midLon)) {
             return new double[] { midLat, midLon };
         } else {
