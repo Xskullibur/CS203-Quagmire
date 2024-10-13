@@ -2,10 +2,13 @@ package com.project.G1_T3.admin.controller;
 
 import static org.junit.jupiter.api.Assertions.*;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -41,52 +44,53 @@ class AdminControllerIntegrationTest {
     @Autowired
     private JwtService jwtService;
 
-    private String adminUsername = "admin";
-    private String adminEmail = "admin@example.com";
+    private String adminUsername = "testadmin";
+    private String adminEmail = "testadmin@example.com";
     private String adminPassword = "adminPassword";
-    private String regularUsername = "user";
-    private String regularEmail = "user@example.com";
+    private String regularUsername = "testuser";
+    private String regularEmail = "testuser@example.com";
     private String regularPassword = "userPassword";
 
     private String adminToken;
     private String regularUserToken;
 
+    private List<UUID> testUUIDs = new ArrayList<>();
+
     @BeforeEach
     void setUp() {
-        // Create an admin user for authentication
-        User adminUser = new User();
-        adminUser.setUsername(adminUsername);
-        adminUser.setEmail(adminEmail);
-        adminUser.setPasswordHash(encoder.encode(adminPassword));
-        adminUser.setRole(UserRole.ADMIN);
-        userRepository.save(adminUser);
 
-        // Create a regular user
-        User regularUser = new User();
-        regularUser.setUsername(regularUsername);
-        regularUser.setEmail(regularEmail);
-        regularUser.setPasswordHash(encoder.encode(regularPassword));
-        regularUser.setRole(UserRole.PLAYER);
-        userRepository.save(regularUser);
+        User adminUser = createTestUser(adminUsername, adminEmail, adminPassword, UserRole.ADMIN);
+        User regularUser = createTestUser(regularUsername, regularEmail, regularPassword, UserRole.PLAYER);
 
         // Generate tokens
         adminToken = jwtService.generateToken(adminUser);
         regularUserToken = jwtService.generateToken(regularUser);
+    }
 
-        // Add more users for pagination testing
+    private User createTestUser(String username, String email, String password, UserRole role) {
+        User user = new User();
+        user.setUsername(username);
+        user.setEmail(email);
+        user.setPasswordHash(encoder.encode(password));
+        user.setRole(role);
+        User addedUser = userRepository.save(user);
+        testUUIDs.add(addedUser.getId());
+
+        return addedUser;
+    }
+
+    private void createAdditionalUsers() {
+
         for (int i = 1; i <= 20; i++) {
-            User user = new User();
-            user.setUsername("testuser" + i);
-            user.setEmail("testuser" + i + "@example.com");
-            user.setPasswordHash(encoder.encode("password" + i));
-            user.setRole(UserRole.PLAYER);
-            userRepository.save(user);
+            String username = "testuser" + i;
+            createTestUser(username, username + "@example.com", "password" + i, UserRole.PLAYER);
         }
     }
 
     @AfterEach
     void tearDown() {
-        userRepository.deleteAll();
+        userRepository.deleteAllById(testUUIDs);
+        testUUIDs.clear();
     }
 
     private HttpHeaders getAuthHeaders(String token) {
@@ -104,44 +108,6 @@ class AdminControllerIntegrationTest {
 
         assertEquals(HttpStatus.OK, result.getStatusCode());
         assertEquals("Welcome to the admin dashboard!", result.getBody());
-    }
-
-    @Test
-    void getPaginatedUsers_Success() throws Exception {
-        URI uri = new URI(baseUrl + port + "/admin/get-users?page=0&size=10&field=username&order=asc");
-
-        HttpEntity<String> entity = new HttpEntity<>(null, getAuthHeaders(adminToken));
-        ResponseEntity<PaginatedResponse<UserDTO>> result = restTemplate.exchange(
-            uri, 
-            HttpMethod.GET, 
-            entity, 
-            new ParameterizedTypeReference<PaginatedResponse<UserDTO>>() {}
-        );
-
-        assertEquals(HttpStatus.OK, result.getStatusCode());
-        assertNotNull(result.getBody());
-        assertEquals(10, result.getBody().getContent().size());
-        assertTrue(result.getBody().getTotalElements() > 10);
-        assertTrue(isSortedAscending(result.getBody().getContent()));
-    }
-
-    @Test
-    void getPaginatedUsers_DifferentPageAndSize_Success() throws Exception {
-        URI uri = new URI(baseUrl + port + "/admin/get-users?page=1&size=5&field=username&order=desc");
-
-        HttpEntity<String> entity = new HttpEntity<>(null, getAuthHeaders(adminToken));
-        ResponseEntity<PaginatedResponse<UserDTO>> result = restTemplate.exchange(
-            uri, 
-            HttpMethod.GET, 
-            entity, 
-            new ParameterizedTypeReference<PaginatedResponse<UserDTO>>() {}
-        );
-
-        assertEquals(HttpStatus.OK, result.getStatusCode());
-        assertNotNull(result.getBody());
-        assertEquals(5, result.getBody().getContent().size());
-        assertTrue(result.getBody().getTotalElements() > 5);
-        assertTrue(isSortedDescending(result.getBody().getContent()));
     }
 
     @Test
@@ -182,6 +148,53 @@ class AdminControllerIntegrationTest {
         assertEquals(HttpStatus.FORBIDDEN, result.getStatusCode());
     }
 
+    @Nested
+    class PaginationTests {
+        @BeforeEach
+        void setupPaginationTests() {
+            createAdditionalUsers();
+        }
+
+        @Test
+        void getPaginatedUsers_Success() throws Exception {
+            URI uri = new URI(baseUrl + port + "/admin/get-users?page=0&size=10&field=username&order=asc");
+
+            HttpEntity<String> entity = new HttpEntity<>(null, getAuthHeaders(adminToken));
+            ResponseEntity<PaginatedResponse<UserDTO>> result = restTemplate.exchange(
+                    uri,
+                    HttpMethod.GET,
+                    entity,
+                    new ParameterizedTypeReference<PaginatedResponse<UserDTO>>() {
+                    });
+
+            assertEquals(HttpStatus.OK, result.getStatusCode());
+            assertNotNull(result.getBody());
+            assertEquals(10, result.getBody().getContent().size());
+            assertTrue(result.getBody().getTotalElements() > 10);
+            assertTrue(isSortedAscending(result.getBody().getContent()));
+        }
+
+        @Test
+        void getPaginatedUsers_DifferentPageAndSize_Success() throws Exception {
+            URI uri = new URI(baseUrl + port + "/admin/get-users?page=1&size=5&field=username&order=desc");
+
+            HttpEntity<String> entity = new HttpEntity<>(null, getAuthHeaders(adminToken));
+            ResponseEntity<PaginatedResponse<UserDTO>> result = restTemplate.exchange(
+                    uri,
+                    HttpMethod.GET,
+                    entity,
+                    new ParameterizedTypeReference<PaginatedResponse<UserDTO>>() {
+                    });
+
+            assertEquals(HttpStatus.OK, result.getStatusCode());
+            assertNotNull(result.getBody());
+            assertEquals(5, result.getBody().getContent().size());
+            assertTrue(result.getBody().getTotalElements() > 5);
+            assertTrue(isSortedDescending(result.getBody().getContent()));
+        }
+
+    }
+
     private boolean isSortedAscending(List<UserDTO> users) {
         for (int i = 0; i < users.size() - 1; i++) {
             if (users.get(i).getUsername().compareTo(users.get(i + 1).getUsername()) > 0) {
@@ -191,7 +204,6 @@ class AdminControllerIntegrationTest {
         return true;
     }
 
-    
     private boolean isSortedDescending(List<UserDTO> users) {
         for (int i = 0; i < users.size() - 1; i++) {
             if (users.get(i).getUsername().compareTo(users.get(i + 1).getUsername()) < 0) {
@@ -209,16 +221,44 @@ class AdminControllerIntegrationTest {
         private int number;
         private int size;
 
-        // Getters and setters
-        public List<T> getContent() { return content; }
-        public void setContent(List<T> content) { this.content = content; }
-        public int getTotalPages() { return totalPages; }
-        public void setTotalPages(int totalPages) { this.totalPages = totalPages; }
-        public long getTotalElements() { return totalElements; }
-        public void setTotalElements(long totalElements) { this.totalElements = totalElements; }
-        public int getNumber() { return number; }
-        public void setNumber(int number) { this.number = number; }
-        public int getSize() { return size; }
-        public void setSize(int size) { this.size = size; }
+        public List<T> getContent() {
+            return content;
+        }
+
+        public void setContent(List<T> content) {
+            this.content = content;
+        }
+
+        public int getTotalPages() {
+            return totalPages;
+        }
+
+        public void setTotalPages(int totalPages) {
+            this.totalPages = totalPages;
+        }
+
+        public long getTotalElements() {
+            return totalElements;
+        }
+
+        public void setTotalElements(long totalElements) {
+            this.totalElements = totalElements;
+        }
+
+        public int getNumber() {
+            return number;
+        }
+
+        public void setNumber(int number) {
+            this.number = number;
+        }
+
+        public int getSize() {
+            return size;
+        }
+
+        public void setSize(int size) {
+            this.size = size;
+        }
     }
 }
