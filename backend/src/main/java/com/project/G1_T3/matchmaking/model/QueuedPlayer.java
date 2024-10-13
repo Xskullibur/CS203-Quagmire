@@ -1,7 +1,6 @@
 package com.project.G1_T3.matchmaking.model;
 
 import com.project.G1_T3.player.model.PlayerProfile;
-
 import java.time.Instant;
 
 public class QueuedPlayer {
@@ -38,6 +37,8 @@ public class QueuedPlayer {
     }
 
     public double getPriority() {
-        return getQueueTimeSeconds() * 0.1 + player.getCurrentRating();
+        // Combining both priority calculations
+        long waitTimeSeconds = getQueueTimeSeconds();
+        return (waitTimeSeconds * 0.1) + player.getCurrentRating();
     }
 }

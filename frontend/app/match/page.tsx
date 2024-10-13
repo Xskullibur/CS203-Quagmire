@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useCallback, useRef } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import { Card, CardHeader, CardDescription, CardContent, CardTitle } from '@/components/ui/card';
 import QueueManagement from '@/components/matches/QueueManagement';
@@ -12,61 +12,77 @@ import ProfilePlayerCard from '@/components/matches/ProfilePlayerCard';
 import { PlayerProfile } from '@/types/player';
 import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
+import { useGeolocation } from '@/hooks/useGeolocation'; // Import the useGeolocation hook
 
 const MatchMap = dynamic(() => import('@/components/matches/MatchMap'), { ssr: false });
 
 const API_URL = `${process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL}`;
 
+/**
+ * Match component that handles the display and management of a player's active match.
+ * It utilizes various hooks to fetch and display player and opponent profiles, 
+ * as well as the meeting point for the match.
+ * 
+ * @component
+ * @returns {JSX.Element} The rendered component.
+ * 
+ * 
+ * @remarks
+ * This component requires the `useAuth` and `useGeolocation` hooks to function properly.
+ * It also makes API calls to fetch player and opponent profiles, as well as the current active match.
+ * 
+ * @hook
+ * @function useAuth
+ * @returns {object} The authenticated user object.
+ * 
+ * @hook
+ * @function useGeolocation
+ * @returns {object} The geolocation data including location, error, and loading state.
+ * 
+ * @state {string | null} playerId - The ID of the current player.
+ * @state {boolean} matchFound - Indicates if a match has been found.
+ * @state {string} opponentName - The name of the opponent.
+ * @state {[number, number] | null} meetingPoint - The coordinates of the meeting point.
+ * @state {PlayerProfile | null} opponentProfile - The profile of the opponent.
+ * @state {any | null} activeMatch - The current active match data.
+ * @state {PlayerProfile | null} playerProfile - The profile of the current player.
+ * 
+ * @function checkForActiveMatch
+ * @async
+ * @param {string} userId - The ID of the user to check for an active match.
+ * @description Checks if there is an active match for the given user ID and updates the state accordingly.
+ * 
+ * @function fetchPlayerProfile
+ * @async
+ * @param {string} userId - The ID of the user to fetch the profile for.
+ * @description Fetches the profile of the given user ID and updates the state.
+ * 
+ * @function fetchOpponentProfile
+ * @async
+ * @param {string} opponentId - The ID of the opponent to fetch the profile for.
+ * @description Fetches the profile of the given opponent ID and updates the state.
+ * 
+ * @function handleMatchFound
+ * @param {boolean} matchFound - Indicates if a match has been found.
+ * @param {string} opponent - The name of the opponent.
+ * @param {[number, number]} meeting - The coordinates of the meeting point.
+ * @param {PlayerProfile} profile - The profile of the opponent.
+ * @description Handles the event when a match is found and updates the state accordingly.
+ * 
+ * @returns {JSX.Element} The rendered component.
+ */
 const Match: React.FC = () => {
     const { user } = useAuth();
     const [playerId, setPlayerId] = useState<string | null>(null);
     const [matchFound, setMatchFound] = useState(false);
     const [opponentName, setOpponentName] = useState('');
     const [meetingPoint, setMeetingPoint] = useState<[number, number] | null>(null);
-    const [playerLocation, setPlayerLocation] = useState<[number, number] | null>(null);
     const [opponentProfile, setOpponentProfile] = useState<PlayerProfile | null>(null);
     const [activeMatch, setActiveMatch] = useState<any | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [showLocationAlert, setShowLocationAlert] = useState(false);
     const [playerProfile, setPlayerProfile] = useState<PlayerProfile | null>(null);
-    const [locationError, setLocationError] = useState<string | null>(null);
-    const [isLocationEnabled, setIsLocationEnabled] = useState(false);
 
-    const getLocation = useCallback(() => {
-        if (typeof window !== 'undefined' && navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    console.log("Geolocation success:", position);
-                    setPlayerLocation([position.coords.latitude, position.coords.longitude]);
-                    setShowLocationAlert(false);
-                    setLocationError(null);
-                    setIsLocationEnabled(true);
-                },
-                (error) => {
-                    console.error("Geolocation error:", error);
-                    setShowLocationAlert(true);
-                    setLocationError(`Error ${error.code}: ${error.message}`);
-                    setIsLocationEnabled(false);
-                },
-                {
-                    enableHighAccuracy: true,
-                    timeout: 10000,
-                    maximumAge: 0
-                }
-            );
-        } else {
-            console.error("Geolocation is not supported");
-            setShowLocationAlert(true);
-            setLocationError("Geolocation is not supported by this browser.");
-            setIsLocationEnabled(false);
-        }
-    }, []);
-
-    useEffect(() => {
-        getLocation();
-        const intervalId = setInterval(getLocation, 10000);
-        return () => clearInterval(intervalId);
-    }, [getLocation]);
+    // Use the useGeolocation hook
+    const { location, error: locationError, loading: locationLoading } = useGeolocation();
 
     useEffect(() => {
         if (user?.userId) {
@@ -79,7 +95,6 @@ const Match: React.FC = () => {
     const checkForActiveMatch = async (userId: string) => {
         try {
             console.log("Checking for active match for user:", userId);
-            setLoading(true);
             const response = await axios.get(`${API_URL}/matches/current/${userId}`);
             console.log("Active match API response:", response.data);
 
@@ -103,8 +118,6 @@ const Match: React.FC = () => {
             setActiveMatch(null);
             setMatchFound(false);
             setOpponentProfile(null);
-        } finally {
-            setLoading(false);
         }
     };
 
@@ -130,11 +143,6 @@ const Match: React.FC = () => {
         }
     };
 
-    const handleEnableLocation = () => {
-        console.log("Manual location enable attempt");
-        getLocation();
-    };
-
     const handleMatchFound = useCallback((matchFound: boolean, opponent: string, meeting: [number, number], profile: PlayerProfile) => {
         setMatchFound(matchFound);
         setOpponentName(opponent);
@@ -142,15 +150,11 @@ const Match: React.FC = () => {
         setOpponentProfile(profile);
     }, []);
 
-    if (loading) {
+    if (locationLoading || !playerId) {
         return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
     }
 
-    if (!playerId) {
-        return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
-    }
-
-    if (!isLocationEnabled) {
+    if (locationError || !location) {
         return (
             <div className="flex flex-col items-center justify-center min-h-screen p-4">
                 <AlertDialog open={true}>
@@ -176,7 +180,7 @@ const Match: React.FC = () => {
                         </AlertDialogHeader>
                         <AlertDialogFooter>
                             <AlertDialogAction asChild>
-                                <Button onClick={handleEnableLocation}>
+                                <Button onClick={() => window.location.reload()}>
                                     Retry Location Access
                                 </Button>
                             </AlertDialogAction>
@@ -228,8 +232,7 @@ const Match: React.FC = () => {
                         </Card>
                     ) : null}
 
-                    {/* Meeting Point Map Card */}
-                    {(activeMatch || matchFound) && playerLocation && meetingPoint && (
+                    {(activeMatch || matchFound) && location && meetingPoint && (
                         <Card className="col-span-1">
                             <CardHeader>
                                 <CardTitle className="text-xl text-center">Meeting Point</CardTitle>
@@ -237,12 +240,11 @@ const Match: React.FC = () => {
                             <CardContent>
                                 <MatchMap
                                     meetingPoint={meetingPoint}
-                                    playerLocation={playerLocation}
+                                    playerLocation={[location.latitude, location.longitude]}
                                 />
                             </CardContent>
                         </Card>
                     )}
-
                     {/* Match Queue Card */}
                     <Card className="col-span-1">
                         <CardHeader>

@@ -16,6 +16,28 @@ const models = [
     },
 ];
 
+/**
+ * NotFound component renders a 404 error page with a 3D model, a message, and a button to navigate back to the home page.
+ *
+ * @component
+ * @example
+ * // Usage in a React component
+ * import NotFound from './not-found';
+ * 
+ * function App() {
+ *   return (
+ *     <NotFound />
+ *   );
+ * }
+ *
+ * @returns {JSX.Element} The rendered 404 error page component.
+ *
+ * @remarks
+ * This component uses the `useRouter` hook from `next/router` to handle navigation.
+ * It displays a 3D model using the `ThreeModel` component and provides a button to redirect users to the home page.
+ *
+ * @see {@link https://nextjs.org/docs/api-reference/next/router|Next.js Router Documentation}
+ */
 export default function NotFound() {
     const router = useRouter();
 

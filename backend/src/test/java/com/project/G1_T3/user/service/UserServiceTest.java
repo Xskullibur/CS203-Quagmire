@@ -23,6 +23,8 @@ import com.project.G1_T3.authentication.service.JwtService;
 import com.project.G1_T3.common.exception.EmailAlreadyInUseException;
 import com.project.G1_T3.common.exception.UsernameAlreadyTakenException;
 import com.project.G1_T3.email.service.EmailService;
+import com.project.G1_T3.player.model.PlayerProfile;
+import com.project.G1_T3.player.service.PlayerProfileService;
 import com.project.G1_T3.user.model.User;
 import com.project.G1_T3.user.model.UserDTO;
 import com.project.G1_T3.user.model.UserRole;
@@ -42,6 +44,9 @@ class UserServiceTest {
 
     @Mock
     private PasswordEncoder passwordEncoder;
+
+    @Mock
+    private PlayerProfileService playerProfileService;
 
     @InjectMocks
     private UserService userService;
@@ -70,6 +75,7 @@ class UserServiceTest {
         when(userRepository.save(any(User.class))).thenReturn(testUser);
         when(jwtService.generateEmailVerificationToken(any(User.class))).thenReturn("valid-token");
         when(emailService.sendVerificationEmail(anyString(), anyString(), anyString())).thenReturn(null);
+        when(playerProfileService.save(any(PlayerProfile.class))).thenReturn(null);
 
         UserDTO actualUserDTO = userService.registerUser(testUser.getUsername(), testUser.getEmail(), testUser.getPasswordHash(), testUser.getRole());
 
@@ -79,6 +85,7 @@ class UserServiceTest {
         verify(userRepository).save(any(User.class));
         verify(jwtService).generateEmailVerificationToken(any(User.class));
         verify(emailService).sendVerificationEmail(anyString(), anyString(), anyString());
+        verify(playerProfileService).save(any(PlayerProfile.class));
     }
 
     @Test

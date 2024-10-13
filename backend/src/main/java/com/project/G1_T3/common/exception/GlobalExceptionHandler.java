@@ -1,6 +1,9 @@
 package com.project.G1_T3.common.exception;
 
 import java.nio.file.AccessDeniedException;
+import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +15,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.WebRequest;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
@@ -22,6 +26,7 @@ public class GlobalExceptionHandler {
 
     private static final String DESC = "description";
 
+    // UsernameAlreadyTakenException handler
     @ExceptionHandler(UsernameAlreadyTakenException.class)
     public ResponseEntity<ProblemDetail> handleUsernameAlreadyTakenException(UsernameAlreadyTakenException e) {
         ProblemDetail errorDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, e.getMessage());
@@ -29,6 +34,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDetail);
     }
 
+    // EmailAlreadyInUseException handler
     @ExceptionHandler(EmailAlreadyInUseException.class)
     public ResponseEntity<ProblemDetail> handleEmailAlreadyInUseException(EmailAlreadyInUseException e) {
         ProblemDetail errorDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, e.getMessage());
@@ -59,9 +65,44 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDetail);
     }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ProblemDetail> handleSecurityException(Exception exception) {
+    @ExceptionHandler({ MatchmakingException.class, InsufficientPlayersException.class })
+    public ResponseEntity<Object> handleGameRelatedExceptions(Exception ex, WebRequest request) {
+        return createErrorResponse(ex, HttpStatus.BAD_REQUEST, request);
+    }
 
+    @ExceptionHandler({ PlayerNotFoundException.class, MeetingPointNotFoundException.class })
+    public ResponseEntity<Object> handleNotFoundExceptions(Exception ex, WebRequest request) {
+        return createErrorResponse(ex, HttpStatus.NOT_FOUND, request);
+    }
+
+    @ExceptionHandler(LocationServiceException.class)
+    public ResponseEntity<Object> handleLocationServiceException(LocationServiceException ex, WebRequest request) {
+        return createErrorResponse(ex, HttpStatus.INTERNAL_SERVER_ERROR, request);
+    }
+
+    private ResponseEntity<Object> createErrorResponse(Exception ex, HttpStatus status, WebRequest request) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("timestamp", LocalDateTime.now());
+        body.put("status", status.value());
+        body.put("error", status.getReasonPhrase());
+        body.put("message", ex.getMessage());
+        body.put("path", request.getDescription(false));
+
+        return new ResponseEntity<>(body, status);
+    }
+
+    // Handle security-related exceptions
+    @ExceptionHandler({
+            BadCredentialsException.class,
+            AccountStatusException.class,
+            AccessDeniedException.class,
+            MalformedJwtException.class,
+            ExpiredJwtException.class,
+            JwtException.class,
+            InvalidTokenException.class,
+            MissingRequestHeaderException.class
+    })
+    public ResponseEntity<ProblemDetail> handleSecurityException(Exception exception) {
         ProblemDetail errorDetail = null;
 
         exception.printStackTrace();
@@ -124,4 +165,11 @@ public class GlobalExceptionHandler {
         errorDetail.setProperty(DESC, "Unknown internal server error.");
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorDetail);
     }
+
+    // Fallback for all other exceptions
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Object> handleGlobalException(Exception ex, WebRequest request) {
+        return createErrorResponse(ex, HttpStatus.INTERNAL_SERVER_ERROR, request);
+    }
+
 }

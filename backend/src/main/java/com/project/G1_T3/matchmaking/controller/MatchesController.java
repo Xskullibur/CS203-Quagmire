@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.project.G1_T3.match.model.Match;
-import com.project.G1_T3.matchmaking.service.MatchService;
+import com.project.G1_T3.match.service.MatchService;
 
 @RestController
 @RequestMapping("/matches")
@@ -18,9 +18,15 @@ public class MatchesController {
     @Autowired
     private MatchService matchService;
 
+    /**
+     * Endpoint to get the current match for a user by their user ID.
+     * 
+     * @param userId the UUID of the user
+     * @return ResponseEntity containing the current match if found, otherwise a 404 Not Found status
+     */
     @GetMapping("/current/{userId}")
     public ResponseEntity<Match> getCurrentMatch(@PathVariable UUID userId) {
-        Match currentMatch = matchService.getCurrentMatchForUser(userId);
+        Match currentMatch = matchService.getCurrentMatchForUserById(userId);
         if (currentMatch != null) {
             return ResponseEntity.ok(currentMatch);
         } else {

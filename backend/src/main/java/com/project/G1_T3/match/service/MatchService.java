@@ -5,6 +5,7 @@ import com.project.G1_T3.match.model.MatchDTO;
 
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import java.util.UUID;
 
 public interface MatchService {
 
@@ -14,4 +15,7 @@ public interface MatchService {
 
     public void completeMatch(@PathVariable Long matchId, @RequestBody MatchDTO matchDTO);
 
+    public Match getCurrentMatchForUser(UUID userId);
+
+    public Match getCurrentMatchForUserById(UUID userId);
 }

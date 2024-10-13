@@ -15,6 +15,8 @@ import com.project.G1_T3.authentication.service.JwtService;
 import com.project.G1_T3.common.exception.EmailAlreadyInUseException;
 import com.project.G1_T3.common.exception.UsernameAlreadyTakenException;
 import com.project.G1_T3.email.service.EmailService;
+import com.project.G1_T3.player.model.PlayerProfile;
+import com.project.G1_T3.player.service.PlayerProfileService;
 import com.project.G1_T3.user.model.User;
 import com.project.G1_T3.user.model.UserDTO;
 import com.project.G1_T3.user.model.UserRole;
@@ -36,6 +38,9 @@ public class UserService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+    
+    @Autowired
+    private PlayerProfileService playerProfileService;
 
     @Value("${app.backend.url}")
     private String backendUrl;
@@ -62,15 +67,20 @@ public class UserService {
         newUser.setCreatedAt(LocalDateTime.now());
         newUser.setUpdatedAt(LocalDateTime.now());
 
-        // Save user to database
-        User user = userRepository.save(newUser);
-
         // Send verification email
-        if (user.getRole() == UserRole.PLAYER) {
-            sendVerificationEmail(user);
+        User savedUser = userRepository.save(newUser);
+        
+        if (newUser.getRole() == UserRole.PLAYER) {
+            sendVerificationEmail(newUser);
         }
+        
+        // Create and save a new PlayerProfile
+        PlayerProfile newProfile = new PlayerProfile();
+        newProfile.setUserId(savedUser.getId());
+        // Set other default values for PlayerProfile if needed
+        playerProfileService.save(newProfile);
 
-        return UserDTO.fromUser(user);
+        return UserDTO.fromUser(savedUser);
     }
 
     public boolean existsByUsername(String username) {

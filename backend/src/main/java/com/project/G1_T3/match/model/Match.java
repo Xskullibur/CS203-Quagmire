@@ -15,7 +15,7 @@ import java.util.UUID;
 @Table(name = "match")
 public class Match {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID matchId;
 
     @ManyToOne
@@ -53,10 +53,10 @@ public class Match {
     @Enumerated(EnumType.STRING)
     private GameType gameType;
 
-    @Column(name = "meeting_latitude")
+    @Column(name = "meeting_latitude", nullable = true)
     private double meetingLatitude;
 
-    @Column(name = "meeting_longitude")
+    @Column(name = "meeting_longitude", nullable = true)
     private double meetingLongitude;
 
     public enum GameType {
@@ -92,7 +92,11 @@ public class Match {
 
     // Additional getters and setters
     public UUID getId() {
-        return UUID.fromString(matchId.toString());
+        return this.matchId;
+    }
+
+    public void setId(UUID matchId) {
+        this.matchId = matchId;
     }
 
     public void setGameType(GameType gameType) {
@@ -101,6 +105,14 @@ public class Match {
 
     public void setPlayer1Id(UUID player1Id) {
         this.player1Id = player1Id;
+    }
+
+    public UUID getPlayer1Id() {
+        return player1Id;
+    }
+
+    public UUID getPlayer2Id() {
+        return player2Id;
     }
 
     public void setPlayer2Id(UUID player2Id) {

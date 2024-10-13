@@ -13,6 +13,47 @@ const brands = [
     { name: 'Tart', logoUrl: '/brands/brand1.png' },
 ];
 
+/**
+ * HeroBrands component displays a horizontally scrolling list of brand logos.
+ * The logos scroll continuously from right to left and reset to the beginning
+ * once they reach the halfway point of the scrollable width.
+ *
+ * @component
+ * @example
+ * // Example usage:
+ * <HeroBrands />
+ *
+ * @returns {JSX.Element} The HeroBrands component.
+ *
+ * @remarks
+ * This component uses the `useRef` hook to reference the scrollable container
+ * and the outer container. The `useEffect` hook is used to initiate the scrolling
+ * animation and reset the scroll position when it reaches halfway.
+ *
+ * The scrolling effect is achieved by incrementing the `scrollPosition` and
+ * applying a CSS transform to translate the scrollable container. When the
+ * `scrollPosition` reaches half of the scrollable width, it resets to zero
+ * and removes the transition temporarily to create a seamless scrolling effect.
+ *
+ * The component renders a list of brand logos, which are duplicated to create
+ * a continuous scrolling effect. Each logo is displayed within a fixed-size
+ * container and has a hover effect to change its opacity.
+ *
+ * @hook
+ * - `useRef` to create references for the scrollable container and outer container.
+ * - `useEffect` to handle the scrolling animation and cleanup.
+ *
+ * @dependencies
+ * - `Image` component for displaying brand logos.
+ *
+ * @styles
+ * - The component uses Tailwind CSS classes for styling.
+ * - The logos have a hover effect to change opacity.
+ *
+ * @note
+ * Ensure that the `brands` array is defined and contains the necessary brand
+ * information (name and logoUrl) for the component to render correctly.
+ */
 export function HeroBrands() {
     const scrollRef = useRef<HTMLDivElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
