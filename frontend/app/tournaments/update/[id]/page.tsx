@@ -1,32 +1,38 @@
+// UpdateTournament.tsx
 'use client'
 
 import React, { useState, useEffect } from "react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { useRouter, useParams } from "next/navigation";
+import TournamentForm from '@/components/tournaments/TournamentForm1';
+import AdditionalDetailsForm from '@/components/tournaments/TournamentForm2';
+import { Tournament } from "@/types/tournament";
 
 const API_URL = `${process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL}`;
-const WEB_URL = `${process.env.NEXT_PUBLIC_API_URL}`
+const WEB_URL = `${process.env.NEXT_PUBLIC_API_URL}`;
 
 const UpdateTournament = () => {
   const router = useRouter();
   const { id } = useParams(); // Assuming the tournament ID is passed in the URL
-  
-  const [tournament, setTournament] = useState({
+
+  // Step state (1 for Basic Info, 2 for Additional Details)
+  const [step, setStep] = useState(1);
+
+  const [tournament, setTournament] = useState<Tournament>({
     name: '',
     location: '',
     startDate: '',
     startTime: '',
     endDate: '',
     endTime: '',
+    status: 'open',
     deadlineDate: '',
     deadlineTime: '',
-    description: ''
+    maxParticipants: 0,
+    description: '',
   });
 
   // Fetch existing tournament data based on the ID from the URL
   useEffect(() => {
-    console.log(id)
     const fetchTournament = async () => {
       try {
         const res = await fetch(`${API_URL}/tournament/${id}`);
@@ -98,141 +104,36 @@ const UpdateTournament = () => {
     }
   };
 
+  // Handle navigating between steps
+  const handleNext = (e: React.FormEvent) => {
+    e.preventDefault();
+    setStep(2);
+  };
+
+  const handleBack = (e: React.FormEvent) => {
+    e.preventDefault();
+    setStep(1);
+  };
+
   return (
     <div className="mt-20 mb-20 flex flex-col items-center justify-center mx-auto min-h-screen bg-primary-foreground">
-      <div className="w-[95vw] md:w-1/2 max-w-xl p-6 bg-primary-foreground rounded-lg shadow-md relative
-            overflow-hidden backdrop-blur-sm hover:backdrop-blur-md transition
-            duration-300 z-10 border border-zinc-700 hover:border-zinc-400 hover:bg-zinc-800/50 shadow-zinc-800">
-        <h1 className="text-2xl font-bold mb-6 text-white">Update Tournament</h1>
-        <form className="flex flex-col gap-6" onSubmit={handleSubmit}>
-          {/* Tournament Name */}
-          <div>
-            <label className="text-sm font-medium text-white" htmlFor="name">Tournament Name</label>
-            <Input
-              type="text"
-              id="name"
-              placeholder="Enter tournament name"
-              name="name"
-              value={tournament.name}
-              onChange={handleChange}
-              required
-              className="bg-transparent border-b border-zinc-600 text-white placeholder-zinc-500 transition duration-300"
-            />
-          </div>
+      {step === 1 && (
+        <TournamentForm
+          tournament={tournament}
+          handleChange={handleChange}
+          handleSubmit={handleNext}
+          buttonLabel="Next"
+        />
+      )}
 
-          {/* Tournament Location */}
-          <div>
-            <label className="text-sm font-medium text-white" htmlFor="location">Tournament Location</label>
-            <Input
-              type="text"
-              id="location"
-              name="location"
-              placeholder="Enter tournament location"
-              value={tournament.location}
-              onChange={handleChange}
-              required
-              className="bg-transparent border-b border-zinc-600 text-white placeholder-zinc-500 transition duration-300"
-            />
-          </div>
-
-          {/* Start Date & Time */}
-          <div>
-            <label className="text-sm font-medium text-white" htmlFor="startDate">Start Date & Time</label>
-            <div className="flex gap-4">
-              <Input
-                type="date"
-                id="startDate"
-                name="startDate"
-                value={tournament.startDate}
-                onChange={handleChange}
-                required
-                className="bg-transparent border-b border-zinc-600 text-white placeholder-zinc-500 transition duration-300"
-              />
-
-              <Input
-                type="time"
-                name="startTime"
-                id="startTime"
-                value={tournament.startTime}
-                onChange={handleChange}
-                required
-                className="bg-transparent border-b border-zinc-600 text-white placeholder-zinc-500 transition duration-300"
-              />
-            </div>
-          </div>
-
-          {/* End Date & Time */}
-          <div>
-            <label className="text-sm font-medium text-white" htmlFor="endDate">End Date & Time</label>
-            <div className="flex gap-4">
-              <Input
-                type="date"
-                id="endDate"
-                name="endDate"
-                value={tournament.endDate}
-                onChange={handleChange}
-                required
-                className="bg-transparent border-b border-zinc-600 text-white placeholder-zinc-500 transition duration-300"
-              />
-
-              <Input
-                type="time"
-                name="endTime"
-                id="endTime"
-                value={tournament.endTime}
-                onChange={handleChange}
-                required
-                className="bg-transparent border-b border-zinc-600 text-white placeholder-zinc-500 transition duration-300"
-              />
-            </div>
-          </div>
-
-          {/* Deadline */}
-          <div>
-            <label className="text-sm font-medium text-white" htmlFor="deadlineDate">Deadline to Join Tournament</label>
-            <div className="flex gap-4">
-              <Input
-                type="date"
-                id="deadlineDate"
-                name="deadlineDate"
-                value={tournament.deadlineDate}
-                onChange={handleChange}
-                required
-                className="bg-transparent border-b border-zinc-600 text-white placeholder-zinc-500 transition duration-300"
-              />
-
-              <Input
-                type="time"
-                id="deadlineTime"
-                name="deadlineTime"
-                value={tournament.deadlineTime}
-                onChange={handleChange}
-                required
-                className="bg-transparent border-b border-zinc-600 text-white placeholder-zinc-500 transition duration-300"
-              />
-            </div>
-          </div>
-
-          {/* Description */}
-          <div className="flex flex-col">
-            <label className="text-sm font-medium text-white" htmlFor="description">Tournament Description</label>
-            <textarea
-              id="description"
-              placeholder="Describe the tournament"
-              name="description"
-              value={tournament.description}
-              onChange={handleChange}
-              required
-              className="h-20 bg-transparent border-b border-zinc-600 text-white placeholder-zinc-500 transition duration-300"
-              rows={4}
-              style={{ resize: 'none' }}
-            />
-          </div>
-
-          {/* Submit Button */}
-          <Button type="submit">Update Tournament</Button>
-        </form>
-      </div>
+      {step === 2 && (
+        <AdditionalDetailsForm
+          tournament={tournament}
+          handleChange={handleChange}
+          handleBack={handleBack}
+          handleSubmit={handleSubmit}
+        />
+      )}
     </div>
   );
 };
