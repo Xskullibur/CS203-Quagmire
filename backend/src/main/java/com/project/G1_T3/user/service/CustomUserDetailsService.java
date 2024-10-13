@@ -20,6 +20,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     public CustomUserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
         Optional<User> user = userService.findByUsername(username);
+
         return user.map(CustomUserDetails::new)
                 .orElseThrow(() -> new UsernameNotFoundException(username));
     }

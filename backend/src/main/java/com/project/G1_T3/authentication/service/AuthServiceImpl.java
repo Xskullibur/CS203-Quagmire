@@ -1,5 +1,7 @@
 package com.project.G1_T3.authentication.service;
 
+import java.time.LocalDateTime;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -70,5 +72,23 @@ public class AuthServiceImpl implements AuthService {
 
         return UserDTO.fromUser(userDetails.getUser());
 
+    }
+
+    @Override
+    public boolean verifyEmail(String token) {
+
+        String username = jwtService.validateEmailVerificationToken(token);
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new InvalidTokenException("User not found for token", token));
+
+        if (user.isEmailVerified()) {
+            throw new IllegalStateException("Email is already verified");
+        }
+
+        user.setEmailVerified(true);
+        user.setUpdatedAt(LocalDateTime.now());
+        userRepository.save(user);
+
+        return true;
     }
 }

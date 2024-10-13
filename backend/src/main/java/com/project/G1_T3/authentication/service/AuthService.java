@@ -7,4 +7,5 @@ public interface AuthService {
     
     LoginResponseDTO authenticateAndGenerateToken(String username, String password);
     UserDTO validateToken(String token);
+    boolean verifyEmail(String token);
 }

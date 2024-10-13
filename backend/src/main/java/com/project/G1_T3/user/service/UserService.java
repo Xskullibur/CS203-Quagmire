@@ -6,19 +6,30 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.project.G1_T3.authentication.service.JwtService;
 import com.project.G1_T3.common.exception.EmailAlreadyInUseException;
 import com.project.G1_T3.common.exception.UsernameAlreadyTakenException;
+import com.project.G1_T3.email.service.EmailService;
 import com.project.G1_T3.user.model.User;
 import com.project.G1_T3.user.model.UserDTO;
 import com.project.G1_T3.user.model.UserRole;
 import com.project.G1_T3.user.repository.UserRepository;
 
+import jakarta.transaction.Transactional;
+
 @Service
 public class UserService {
+
+    @Autowired
+    private JwtService jwtService;
+
+    @Autowired
+    private EmailService emailService;
 
     @Autowired
     private UserRepository userRepository;
@@ -26,6 +37,10 @@ public class UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Value("${app.backend.url}")
+    private String backendUrl;
+
+    @Transactional
     public UserDTO registerUser(String username, String email, String password, UserRole role) {
 
         username = username.toLowerCase();
@@ -48,8 +63,14 @@ public class UserService {
         newUser.setUpdatedAt(LocalDateTime.now());
 
         // Save user to database
-        userRepository.save(newUser);
-        return UserDTO.fromUser(newUser);
+        User user = userRepository.save(newUser);
+
+        // Send verification email
+        if (user.getRole() == UserRole.PLAYER) {
+            sendVerificationEmail(user);
+        }
+
+        return UserDTO.fromUser(user);
     }
 
     public boolean existsByUsername(String username) {
@@ -81,4 +102,11 @@ public class UserService {
                 .map(UserDTO::fromUser)
                 .orElseThrow(() -> new UsernameNotFoundException(finalUsername));
     }
+
+    private void sendVerificationEmail(User user) {
+        String token = jwtService.generateEmailVerificationToken(user);
+        String verificationLink = backendUrl + "/authentication/verify-email?token=" + token;
+        emailService.sendVerificationEmail(user.getEmail(), user.getUsername(), verificationLink);
+    }
+
 }
