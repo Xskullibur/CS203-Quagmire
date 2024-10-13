@@ -17,6 +17,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -69,6 +70,14 @@ public class SecurityConfig {
     }
 
     @Bean
+    AccessDeniedHandler accessDeniedHandler() {
+        return (request, response, accessDeniedException) -> {
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            response.getWriter().write("Access Denied: You are not authorized to access this resource");
+        };
+    }
+
+    @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         logger.info("Configuring SecurityFilterChain");
         http.csrf(csrf -> csrf.disable())
@@ -84,6 +93,7 @@ public class SecurityConfig {
                         .requestMatchers("/ws/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/matches/current/**").permitAll()
                         .anyRequest().authenticated())
+                .exceptionHandling(e -> e.accessDeniedHandler(accessDeniedHandler()))
                 .logout(logout -> logout
                         .permitAll()
                         .logoutSuccessHandler((req, res, auth) -> res.setStatus(HttpServletResponse.SC_NO_CONTENT)))
