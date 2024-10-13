@@ -17,6 +17,8 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.test.context.support.WithMockUser;
+
 import com.project.G1_T3.user.model.User;
 import com.project.G1_T3.user.model.UserDTO;
 import com.project.G1_T3.user.model.UserRole;
@@ -119,7 +121,6 @@ class AdminControllerIntegrationTest {
         requestDTO.setEmail("newadmin@example.com");
 
         HttpEntity<AdminRegisterRequestDTO> request = new HttpEntity<>(requestDTO, getAuthHeaders(adminToken));
-
         ResponseEntity<UserDTO> result = restTemplate.exchange(uri, HttpMethod.POST, request, UserDTO.class);
 
         assertEquals(HttpStatus.CREATED, result.getStatusCode());
@@ -127,6 +128,8 @@ class AdminControllerIntegrationTest {
         assertEquals("newadmin", result.getBody().getUsername());
         assertEquals("newadmin@example.com", result.getBody().getEmail());
         assertEquals(UserRole.ADMIN, result.getBody().getRole());
+
+        userRepository.deleteById(UUID.fromString(result.getBody().getUserId()));
     }
 
     @Test
