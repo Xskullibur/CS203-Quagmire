@@ -22,7 +22,7 @@ public class MatchNotificationDTO {
     private PlayerProfileDTO opponentProfile;
 
     public MatchNotificationDTO() {
-    } // Default constructor
+    }
 
     public MatchNotificationDTO(UUID matchId, double meetingLatitude, double meetingLongitude, String opponentName,
             PlayerProfileDTO opponentProfile) {
