@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 export default function MenuBar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { user, logout, isAuthenticated } = useAuth();
+  const { user, logout, isAuthenticated, isLoading } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -45,18 +45,26 @@ export default function MenuBar() {
             </button>
 
             <div className="hidden md:flex items-center space-x-6">
-              {!isAuthenticated ? (
-                <>
-                  <Link href="/auth/login" className="text-sm text-white hover:text-gray-600 transition">Log in</Link>
-                  <Link href="/auth/register" className="text-sm bg-zinc-500 text-white px-4 py-2 rounded-full hover:bg-gray-700 transition">Sign up</Link>
-                </>
-              ) : (
-                <>
-                  <Link href="/profile" className="text-sm text-white hover:text-gray-600 transition">Profile</Link>
-                  <button onClick={logout} className="text-sm text-white hover:text-gray-600 transition">Logout</button>
-                  <Link href="/match" className="text-sm bg-zinc-500 text-white px-4 py-2 rounded-full hover:bg-gray-700 transition">Queue</Link>
-                </>
-              )}
+
+              {
+                isLoading ? (
+                  null
+                ) : (
+                  !isAuthenticated ? (
+                    <>
+                      <Link href="/auth/login" className="text-sm text-white hover:text-gray-600 transition">Log in</Link>
+                      <Link href="/auth/register" className="text-sm bg-zinc-500 text-white px-4 py-2 rounded-full hover:bg-gray-700 transition">Sign up</Link>
+                    </>
+                  ) : (
+                    <>
+                      <Link href="/profile" className="text-sm text-white hover:text-gray-600 transition">Profile</Link>
+                      <button onClick={logout} className="text-sm text-white hover:text-gray-600 transition">Logout</button>
+                      <Link href="/match" className="text-sm bg-zinc-500 text-white px-4 py-2 rounded-full hover:bg-gray-700 transition">Queue</Link>
+                    </>
+                  )
+                )
+              }
+
             </div>
           </div>
         </nav>

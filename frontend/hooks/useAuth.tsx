@@ -17,7 +17,7 @@ import { ErrorCodes } from "@/types/error-codes";
 
 interface AuthContextType {
   user: User | null;
-  loading: boolean;
+  isLoading: boolean;
   login: (
     username: string,
     password: string
@@ -34,7 +34,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const router = useRouter();
   const tokenValidationAttempted = useRef(false);
@@ -80,7 +80,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         console.error("Token validation failed:", error);
         Cookies.remove(AUTH_TOKEN);
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
 
@@ -88,9 +88,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     if (token) {
       validateToken(token);
     } else {
-      setLoading(false);
+      setIsLoading(false);
     }
-  }, []);
+  }, [showErrorToast]);
 
   const login = async (username: string, password: string) => {
     try {
@@ -108,7 +108,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
       setUser(user);
       setIsAuthenticated(true);
-      setLoading(false);
+      setIsLoading(false);
       return { user, response };
     } catch (error) {
       console.error("Login failed:", error);
@@ -132,12 +132,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const providerValue = useMemo(
     () => ({
       user,
-      loading,
+      isLoading,
       login,
       logout,
       isAuthenticated,
     }),
-    [user, loading, logout]
+    [user, isLoading, logout, isAuthenticated]
   );
 
   return (
