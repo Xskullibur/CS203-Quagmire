@@ -62,25 +62,26 @@ public class MatchChecker {
                 match.setStatus(Status.IN_PROGRESS);
                 matchRepository.save(match);
 
+                PlayerProfileDTO player1DTO = new PlayerProfileDTO(player1);
+                PlayerProfileDTO player2DTO = new PlayerProfileDTO(player2);
+
                 MatchNotificationDTO notificationForPlayer1 = new MatchNotificationDTO(
-                    match.getMatchId(),
-                    match.getMeetingLatitude(),
-                    match.getMeetingLongitude(),
-                    user2.getUsername(),
-                    player2.getProfile()
-                );
-                
+                        match.getMatchId(),
+                        match.getMeetingLatitude(),
+                        match.getMeetingLongitude(),
+                        user2.getUsername(),
+                        player2DTO);
+
                 MatchNotificationDTO notificationForPlayer2 = new MatchNotificationDTO(
-                    match.getMatchId(),
-                    match.getMeetingLatitude(),
-                    match.getMeetingLongitude(),
-                    user1.getUsername(),
-                    player1.getProfile()
-                );
-                
+                        match.getMatchId(),
+                        match.getMeetingLatitude(),
+                        match.getMeetingLongitude(),
+                        user1.getUsername(),
+                        player1DTO);
+
                 messagingTemplate.convertAndSend("/topic/solo/match/" + player1.getUserId(), notificationForPlayer1);
                 messagingTemplate.convertAndSend("/topic/solo/match/" + player2.getUserId(), notificationForPlayer2);
-                
+
                 log.info("Match found and notifications sent for players {} and {}", user1.getUsername(),
                         user2.getUsername());
             } catch (Exception e) {

@@ -2,17 +2,35 @@ package com.project.G1_T3.player.model;
 
 import java.time.LocalDate;
 import java.util.UUID;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 
 public class PlayerProfileDTO {
+    @JsonProperty("profileId")
     private UUID profileId;
+
+    @JsonProperty("username")
     private String username;
+
+    @JsonProperty("firstName")
     private String firstName;
+
+    @JsonProperty("lastName")
     private String lastName;
+
+    @JsonProperty("dateOfBirth")
+    @JsonSerialize(using = LocalDateSerializer.class)
     private LocalDate dateOfBirth;
+
+    @JsonProperty("country")
     private String country;
+
+    @JsonProperty("bio")
     private String bio;
+
+    @JsonProperty("currentRating")
     private Float currentRating;
-    // Other necessary fields
 
     public PlayerProfileDTO(UUID profileId, String username, String firstName, String lastName, LocalDate dateOfBirth,
             String country, String bio, Float currentRating) {
