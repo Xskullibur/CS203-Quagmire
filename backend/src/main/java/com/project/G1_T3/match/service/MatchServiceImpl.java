@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Service
 public class MatchServiceImpl implements MatchService {
@@ -29,14 +30,15 @@ public class MatchServiceImpl implements MatchService {
         match.setCreatedAt(LocalDateTime.now());
         match.setUpdatedAt(LocalDateTime.now());
 
-        matchRepository.save(match);  // Save match to the database
+        matchRepository.save(match); // Save match to the database
 
         return match;
     }
 
     public void startMatch(Long matchId, MatchDTO matchDTO) {
-        Match match = matchRepository.findById(matchId).orElseThrow(() -> new RuntimeException("Match not found"));
-        
+        UUID matchUUID = UUID.fromString(matchId.toString());
+        Match match = matchRepository.findById(matchUUID).orElseThrow(() -> new RuntimeException("Match not found"));
+
         // Verify the referee is the correct one
         if (!match.getRefereeId().equals(matchDTO.getRefereeId())) {
             throw new RuntimeException("Unauthorized referee");
@@ -49,7 +51,8 @@ public class MatchServiceImpl implements MatchService {
 
     // Method for referee to complete the match and select the winner
     public void completeMatch(Long matchId, MatchDTO matchDTO) {
-        Match match = matchRepository.findById(matchId).orElseThrow(() -> new RuntimeException("Match not found"));
+        UUID matchUUID = UUID.fromString(matchId.toString());
+        Match match = matchRepository.findById(matchUUID).orElseThrow(() -> new RuntimeException("Match not found"));
 
         // Verify the referee is the correct one
         if (!match.getRefereeId().equals(matchDTO.getRefereeId())) {
@@ -57,7 +60,8 @@ public class MatchServiceImpl implements MatchService {
         }
 
         // Verify that the players correct
-        if (!match.getPlayer1Id().equals(matchDTO.getWinnerId()) && !match.getPlayer2Id().equals(matchDTO.getWinnerId())) {
+        if (!match.getPlayer1Id().equals(matchDTO.getWinnerId())
+                && !match.getPlayer2Id().equals(matchDTO.getWinnerId())) {
             throw new RuntimeException("Unauthorized referee");
         }
 

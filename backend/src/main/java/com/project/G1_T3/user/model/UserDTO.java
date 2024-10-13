@@ -1,6 +1,7 @@
 package com.project.G1_T3.user.model;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 import java.util.UUID;
 
 public class UserDTO {
@@ -10,6 +11,10 @@ public class UserDTO {
     private UserRole role;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    public UserDTO() {
+        super();
+    }
 
     public UserDTO(UUID userId, String username, String email, UserRole role, LocalDateTime createdAt,
             LocalDateTime updatedAt) {
@@ -66,4 +71,27 @@ public class UserDTO {
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
     }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(userId, username, email, role, createdAt, updatedAt);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        UserDTO other = (UserDTO) obj;
+        return Objects.equals(userId, other.userId) &&
+                Objects.equals(username, other.username) &&
+                Objects.equals(email, other.email) &&
+                role == other.role &&
+                Objects.equals(createdAt, other.createdAt) &&
+                Objects.equals(updatedAt, other.updatedAt);
+    }
+
 }

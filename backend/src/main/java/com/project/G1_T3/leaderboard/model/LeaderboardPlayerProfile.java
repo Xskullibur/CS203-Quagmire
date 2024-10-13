@@ -18,7 +18,7 @@ public class LeaderboardPlayerProfile {
     UUID profileId;
     String firstName;
     String lastName;
-    Float ELO;
+    float ELO;
     Long position;
 
     public LeaderboardPlayerProfile(UUID profileId, String firstName, String lastName, Float eLO) {

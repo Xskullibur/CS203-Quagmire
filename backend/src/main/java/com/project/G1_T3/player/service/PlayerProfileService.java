@@ -23,6 +23,10 @@ public class PlayerProfileService {
         return playerProfileRepository.findByUserId(UUID.fromString(id));
     }
 
+    public PlayerProfile findByProfileId(String id){
+        return playerProfileRepository.findByProfileId(UUID.fromString(id));
+    }
+
     public PlayerProfile save(PlayerProfile profile){
         return playerProfileRepository.save(profile);
     }

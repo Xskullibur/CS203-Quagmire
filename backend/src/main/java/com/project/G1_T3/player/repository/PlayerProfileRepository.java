@@ -13,14 +13,14 @@ import java.util.UUID;
 @Repository
 public interface PlayerProfileRepository extends JpaRepository<PlayerProfile, UUID> {
 
-    List<PlayerProfile> findTop10ByOrderByCurrentRatingDesc();
+    List<PlayerProfile> findTop10ByOrderByGlickoRatingDesc();
 
     // Fetch PlayerProfile by user ID
     PlayerProfile findByUserId(UUID id);
 
-    PlayerProfile findByProfileId(UUID id);
-
     // PlayerProfile getPlayerProfileByUserId(UUID userId);
+
+    PlayerProfile findByProfileId(UUID profileId);
 
     @Query(value = "select t1.position\n" + //
             "from player_profiles pp1,\n" + //

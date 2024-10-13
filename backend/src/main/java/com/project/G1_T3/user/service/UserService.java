@@ -26,7 +26,10 @@ public class UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public void registerUser(String username, String email, String password) {
+    public UserDTO registerUser(String username, String email, String password, UserRole role) {
+
+        username = username.toLowerCase();
+        email = email.toLowerCase();
 
         if (existsByUsername(username)) {
             throw new UsernameAlreadyTakenException("Username is already taken");
@@ -40,36 +43,42 @@ public class UserService {
         newUser.setUsername(username);
         newUser.setEmail(email);
         newUser.setPasswordHash(passwordEncoder.encode(password));
-        newUser.setRole(UserRole.PLAYER); // Set default role
+        newUser.setRole(role);
         newUser.setCreatedAt(LocalDateTime.now());
         newUser.setUpdatedAt(LocalDateTime.now());
 
         // Save user to database
         userRepository.save(newUser);
+        return UserDTO.fromUser(newUser);
     }
 
     public boolean existsByUsername(String username) {
+        username = username.toLowerCase();
         return userRepository.existsByUsername(username);
     }
 
     public boolean existsByEmail(String email) {
+        email = email.toLowerCase();
         return userRepository.existsByEmail(email);
     }
 
     public Optional<User> findByUsername(String username) {
+        username = username.toLowerCase();
         return userRepository.findByUsername(username);
     }
 
     public List<UserDTO> getAllUsers() {
         return userRepository.findAllUsersWithoutPassword()
-            .stream()
-            .map(UserDTO::fromUser)
-            .collect(Collectors.toList());
+                .stream()
+                .map(UserDTO::fromUser)
+                .collect(Collectors.toList());
     }
 
     public UserDTO getUserDTOByUsername(String username) {
-        return userRepository.findByUsername(username)
+
+        final String finalUsername = username.toLowerCase();
+        return userRepository.findByUsername(finalUsername)
                 .map(UserDTO::fromUser)
-                .orElseThrow(() -> new UsernameNotFoundException(username));
+                .orElseThrow(() -> new UsernameNotFoundException(finalUsername));
     }
 }

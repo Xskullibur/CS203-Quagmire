@@ -1,4 +1,3 @@
-// components/tournaments/TournamentCardViewerCarousel.jsx
 import { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import TournamentCard from './TournamentCard';
@@ -16,13 +15,12 @@ const TournamentCardViewerCarousel = () => {
             else if (window.innerWidth < 1024) setCardsToShow(2);
             else setCardsToShow(3);
         };
-
         handleResize();
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    const scroll = (direction) => {
+    const scroll = (direction: 'left' | 'right') => {
         if (direction === 'left') {
             setCurrentIndex(prev => Math.max(prev - 1, 0));
         } else {
@@ -40,7 +38,7 @@ const TournamentCardViewerCarousel = () => {
                     transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 >
                     {tournaments.map((tournament) => (
-                        <div key={tournament.tournament_id} className={`w-full flex-shrink-0 flex-grow-0`} style={{ flexBasis: `${100 / cardsToShow}%` }}>
+                        <div key={tournament.id} className={`w-full flex-shrink-0 flex-grow-0`} style={{ flexBasis: `${100 / cardsToShow}%` }}>
                             <TournamentCard tournament={tournament} />
                         </div>
                     ))}
