@@ -26,12 +26,14 @@ class JwtServiceTest {
     private static final String TEST_SECRET_KEY = Base64.getEncoder()
             .encodeToString("x8Zk9zgJeqrAmu5OX66SjgBaYhYcB0xb".getBytes());
     private static final long EXPIRATION_TIME = 86400000;
+    private static final long EMAIL_VERIFICATION_EXPIRATION_TIME = 86400000;
 
     @BeforeEach
     void setUp() {
         jwtService = new JwtService();
         ReflectionTestUtils.setField(jwtService, "secretKeyString", TEST_SECRET_KEY);
         ReflectionTestUtils.setField(jwtService, "expirationTime", EXPIRATION_TIME);
+        ReflectionTestUtils.setField(jwtService, "emailVerificationExpirationTime", EMAIL_VERIFICATION_EXPIRATION_TIME);
         jwtService.init();
     }
 
