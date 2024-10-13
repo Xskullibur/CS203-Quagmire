@@ -8,6 +8,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import com.project.G1_T3.common.exception.InsufficientPlayersException;
 import com.project.G1_T3.common.exception.MatchmakingException;
+import com.project.G1_T3.common.exception.PlayerAlreadyInQueueException;
 import com.project.G1_T3.common.exception.PlayerNotFoundException;
 import com.project.G1_T3.match.model.Match;
 import com.project.G1_T3.match.model.MatchDTO;
@@ -75,6 +76,18 @@ class MatchmakingServiceImplTests {
 
         assertThrows(PlayerNotFoundException.class, () -> {
             matchmakingService.removePlayerFromQueue(nonExistentPlayerId);
+        });
+    }
+
+    @Test
+    void testAddingSamePlayerTwice() {
+        PlayerProfile player = new PlayerProfile();
+        player.setUserId(UUID.randomUUID());
+
+        matchmakingService.addPlayerToQueue(player, 0, 0);
+
+        assertThrows(PlayerAlreadyInQueueException.class, () -> {
+            matchmakingService.addPlayerToQueue(player, 0, 0);
         });
     }
 

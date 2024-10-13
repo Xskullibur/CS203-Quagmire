@@ -61,6 +61,11 @@ public class MatchmakingServiceImpl implements MatchmakingService {
      */
     @Override
     public void addPlayerToQueue(PlayerProfile player, double latitude, double longitude) {
+
+        if (playerQueue.containsKey(player.getUserId())) {
+            throw new PlayerAlreadyInQueueException("Player with ID " + player.getUserId() + " is already in queue");
+        }
+
         log.info("Adding player to queue: {} (ID: {})", player.getUserId(), player.getProfileId());
         QueuedPlayer queuedPlayer = new QueuedPlayer(player, latitude, longitude);
         playerQueue.put(player.getUserId(), queuedPlayer);
