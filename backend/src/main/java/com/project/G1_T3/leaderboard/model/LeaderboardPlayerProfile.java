@@ -32,7 +32,7 @@ public class LeaderboardPlayerProfile {
         profileId = player.getProfileId();
         firstName = player.getFirstName();
         lastName = player.getLastName();
-        ELO = player.getCurrentRating();
+        ELO = player.getGlickoRating();
         position = p;
     }
 
