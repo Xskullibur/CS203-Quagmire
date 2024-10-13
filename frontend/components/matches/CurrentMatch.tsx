@@ -13,6 +13,27 @@ interface CurrentMatchProps {
   playerLocation: [number, number];
 }
 
+/**
+ * `CurrentMatch` component displays the current match details including the opponent's profile and the meeting point on a map.
+ *
+ * @component
+ * @param {Object} props - The properties object.
+ * @param {string} props.opponentName - The name of the opponent.
+ * @param {Object} props.opponentProfile - The profile information of the opponent.
+ * @param {Object} props.meetingPoint - The coordinates of the meeting point.
+ * @param {Object} props.playerLocation - The coordinates of the player's current location.
+ *
+ * @returns {JSX.Element} A React component that renders the current match details.
+ *
+ * @example
+ * // Example usage of CurrentMatch component
+ * <CurrentMatch
+ *   opponentName="John Doe"
+ *   opponentProfile={{ avatar: 'url', rank: 'Gold' }}
+ *   meetingPoint={{ lat: 1.3521, lng: 103.8198 }}
+ *   playerLocation={{ lat: 1.3000, lng: 103.8000 }}
+ * />
+ */
 const CurrentMatch: React.FC<CurrentMatchProps> = ({
   opponentName,
   opponentProfile,

@@ -3,6 +3,40 @@ import { Button } from "@/components/ui/button";
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 
+/**
+ * HeroSection component renders the main hero section of the application.
+ * It includes animated elements such as an image, heading, paragraph, and buttons.
+ * The animations are triggered after a short delay to ensure the component is fully mounted.
+ *
+ * @component
+ * @example
+ * return (
+ *   <HeroSection />
+ * )
+ *
+ * @returns {JSX.Element} The rendered hero section component.
+ *
+ * @remarks
+ * This component uses the `useState` and `useEffect` hooks to manage the animation state.
+ * It also utilizes the `motion` components from the `framer-motion` library for animations.
+ *
+ * @function
+ * @name HeroSection
+ *
+ * @hook
+ * @name useState
+ * @description Manages the `shouldAnimate` state to control the visibility of animations.
+ *
+ * @hook
+ * @name useEffect
+ * @description Sets a timeout to update the `shouldAnimate` state after the component mounts.
+ *
+ * @constant
+ * @name fadeInUp
+ * @description Defines the animation variants for the fade-in-up effect.
+ *
+ * @returns {JSX.Element} The rendered hero section component.
+ */
 export default function HeroSection() {
     const [shouldAnimate, setShouldAnimate] = useState(false);
 

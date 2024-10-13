@@ -26,6 +26,24 @@ interface MatchMapProps {
     playerLocation: [number, number];
 }
 
+/**
+ * MatchMap component displays a map with markers for the player's location and a meeting point.
+ * 
+ * @component
+ * @param {MatchMapProps} props - The properties for the MatchMap component.
+ * @param {L.LatLngExpression} props.meetingPoint - The coordinates of the meeting point.
+ * @param {L.LatLngExpression} props.playerLocation - The coordinates of the player's location.
+ * 
+ * @returns {JSX.Element | null} A JSX element containing the map with markers, or null if rendered on the server side.
+ * 
+ * @example
+ * ```tsx
+ * <MatchMap 
+ *   meetingPoint={[51.505, -0.09]} 
+ *   playerLocation={[51.505, -0.09]} 
+ * />
+ * ```
+ */
 const MatchMap: React.FC<MatchMapProps> = ({ meetingPoint, playerLocation }) => {
     const icon = L.icon({
         iconUrl: '/apple.png',

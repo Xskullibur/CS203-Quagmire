@@ -9,6 +9,23 @@ import HeroVideos from "../components/main/HeroVideos";
 import TournamentCardViewerCarousel from "../components/tournaments/TournamentCardViewerCarousel";
 import { Skeleton } from "@/components/ui/skeleton";
 
+/**
+ * The `Home` component serves as the main landing page of the application.
+ * It initially displays a loading skeleton to simulate a delay, ensuring all components are ready before rendering the main content.
+ * 
+ * @component
+ * @returns {JSX.Element} The rendered component.
+ * 
+ * @remarks
+ * The component uses the `useState` hook to manage the loading state and the `useEffect` hook to simulate a delay.
+ * The delay can be adjusted by modifying the timeout duration.
+ * 
+ * @hook
+ * - `useState` to manage the loading state.
+ * - `useEffect` to simulate a delay before rendering the main content.
+ * 
+ * @returns {JSX.Element} The rendered component, either a loading skeleton or the main content.
+ */
 export default function Home() {
   
   const [isLoading, setIsLoading] = useState(true);
