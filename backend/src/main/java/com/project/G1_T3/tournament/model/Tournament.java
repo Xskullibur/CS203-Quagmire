@@ -45,6 +45,9 @@ public class Tournament {
     private LocalDateTime deadline;
 
     @Column(nullable = false)
+    private Integer maxParticipants;
+
+    @Column(nullable = false)
     private String description;
 
     @ManyToMany(fetch = FetchType.LAZY)

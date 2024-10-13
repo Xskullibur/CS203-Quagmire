@@ -7,12 +7,12 @@ import TournamentForm from '@/components/tournaments/TournamentForm1';
 import AdditionalDetailsForm from '@/components/tournaments/TournamentForm2';
 import { Tournament } from "@/types/tournament";
 
-const API_URL = `${process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL}`;
-const WEB_URL = `${process.env.NEXT_PUBLIC_API_URL}`;
+const API_URL = process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL;
+const WEB_URL = process.env.NEXT_PUBLIC_API_URL;
 
 const UpdateTournament = () => {
   const router = useRouter();
-  const { id } = useParams(); // Assuming the tournament ID is passed in the URL
+  const { id } = useParams(); // Ensure the correct usage of useParams depending on Next.js version
 
   // Step state (1 for Basic Info, 2 for Additional Details)
   const [step, setStep] = useState(1);
@@ -33,30 +33,34 @@ const UpdateTournament = () => {
 
   // Fetch existing tournament data based on the ID from the URL
   useEffect(() => {
+    if (!id) return; // Ensure 'id' is available before fetching
+
     const fetchTournament = async () => {
       try {
         const res = await fetch(`${API_URL}/tournament/${id}`);
-        const data = await res.json();
-        if (res.ok) {
-          const { startDate, endDate, deadline, ...rest } = data;
-          setTournament({
-            ...rest,
-            startDate: startDate.split('T')[0],
-            startTime: startDate.split('T')[1].slice(0, 5),
-            endDate: endDate.split('T')[0],
-            endTime: endDate.split('T')[1].slice(0, 5),
-            deadlineDate: deadline.split('T')[0],
-            deadlineTime: deadline.split('T')[1].slice(0, 5),
-          });
-        } else {
+        if (!res.ok) {
           alert('Error fetching tournament details');
+          return;
         }
+
+        const data = await res.json();
+        const { startDate, endDate, deadline, ...rest } = data;
+
+        setTournament({
+          ...rest,
+          startDate: startDate.split('T')[0],
+          startTime: startDate.split('T')[1]?.slice(0, 5),
+          endDate: endDate.split('T')[0],
+          endTime: endDate.split('T')[1]?.slice(0, 5),
+          deadlineDate: deadline.split('T')[0],
+          deadlineTime: deadline.split('T')[1]?.slice(0, 5),
+        });
       } catch (error) {
         console.error('Error fetching tournament:', error);
       }
     };
 
-    if (id) fetchTournament();
+    fetchTournament();
   }, [id]);
 
   // Handle input changes
@@ -71,6 +75,12 @@ const UpdateTournament = () => {
   // Handle form submission to update tournament
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validate maxParticipants before submitting
+    if (tournament.maxParticipants <= 0) {
+      alert("Max participants must be a positive number");
+      return;
+    }
 
     const startdatetime = `${tournament.startDate}T${tournament.startTime}:00`;
     const enddatetime = `${tournament.endDate}T${tournament.endTime}:00`;
@@ -89,13 +99,13 @@ const UpdateTournament = () => {
       const res = await fetch(`${API_URL}/tournament/${id}`, {
         method: 'PUT',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify(data)
+        body: JSON.stringify(data),
       });
 
       if (res.ok) {
-        router.push(WEB_URL + '/tournaments'); // Redirect after successful update
+        router.push(`${WEB_URL}/tournaments`); // Redirect after successful update
       } else {
         alert('Error updating tournament');
       }
