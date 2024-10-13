@@ -10,6 +10,8 @@ import com.project.G1_T3.player.repository.PlayerProfileRepository;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,14 +45,18 @@ public class MatchServiceImpl implements MatchService {
 
     @Override
     public Match getCurrentMatchForUserById(UUID userId) {
-        PlayerProfile playerProfile = playerProfileRepository.findByUserId(userId);
-        if (playerProfile == null) {
-            return null;
-        }
+        try {
+            PlayerProfile playerProfile = playerProfileRepository.findByUserId(userId);
+            if (playerProfile == null) {
+                throw new IllegalArgumentException("Invalid user ID");
+            }
 
-        return matchRepository.findByPlayer1IdOrPlayer2Id(
-                playerProfile.getProfileId(),
-                playerProfile.getProfileId());
+            return matchRepository.findByPlayer1IdOrPlayer2Id(
+                    playerProfile.getProfileId(),
+                    playerProfile.getProfileId());
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
     }
 
     @Transactional

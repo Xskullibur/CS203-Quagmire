@@ -4,12 +4,13 @@ import com.project.G1_T3.common.model.Status;
 import com.project.G1_T3.match.model.Match;
 import com.project.G1_T3.match.model.MatchDTO;
 import com.project.G1_T3.match.service.MatchService;
+import com.project.G1_T3.matchmaking.model.MatchNotification;
 import com.project.G1_T3.matchmaking.model.QueuedPlayer;
 import com.project.G1_T3.player.model.PlayerProfile;
+import com.project.G1_T3.player.service.PlayerProfileService;
 import com.project.G1_T3.common.exception.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -26,15 +27,17 @@ public class MatchmakingServiceImpl implements MatchmakingService {
     private final MeetingPointService meetingPointService;
     private final MatchService matchService;
     private final SimpMessagingTemplate messagingTemplate;
+    private final PlayerProfileService playerProfileService;
 
     public MatchmakingServiceImpl(MatchmakingAlgorithm matchmakingAlgorithm,
             MeetingPointService meetingPointService,
             MatchService matchService,
-            SimpMessagingTemplate messagingTemplate) {
+            SimpMessagingTemplate messagingTemplate, PlayerProfileService playerProfileService) {
         this.matchmakingAlgorithm = matchmakingAlgorithm;
         this.meetingPointService = meetingPointService;
         this.matchService = matchService;
         this.messagingTemplate = messagingTemplate;
+        this.playerProfileService = playerProfileService;
     }
 
     @Override
@@ -43,9 +46,6 @@ public class MatchmakingServiceImpl implements MatchmakingService {
         QueuedPlayer queuedPlayer = new QueuedPlayer(player, latitude, longitude);
         playerQueue.put(player.getUserId(), queuedPlayer);
         log.info("Player added. Current queue size: {}", playerQueue.size());
-        if (playerQueue.size() >= 2) {
-            triggerMatchmaking();
-        }
     }
 
     @Override
@@ -83,7 +83,6 @@ public class MatchmakingServiceImpl implements MatchmakingService {
                     continue; // Skip this match and try the next pair
                 }
 
-                // Create a MatchDTO and use MatchService to create the match
                 MatchDTO matchDTO = new MatchDTO();
                 matchDTO.setPlayer1Id(player1.getPlayer().getProfileId());
                 matchDTO.setPlayer2Id(player2.getPlayer().getProfileId());
@@ -92,7 +91,7 @@ public class MatchmakingServiceImpl implements MatchmakingService {
 
                 Match match = matchService.createMatch(matchDTO);
                 log.info("Match found: {} vs {}", player1.getPlayer().getUserId(), player2.getPlayer().getUserId());
-                notifyPlayers(match);
+                notifyPlayersAboutMatch(match);
                 return match;
             }
         }
@@ -100,16 +99,39 @@ public class MatchmakingServiceImpl implements MatchmakingService {
         throw new MatchmakingException("No suitable match found in this iteration");
     }
 
-    private void notifyPlayers(Match match) {
-        log.info("Notifying players about the match: {}", match.getMatchId());
-        messagingTemplate.convertAndSendToUser(match.getPlayer1Id().toString(), "/queue/matches", match);
-        messagingTemplate.convertAndSendToUser(match.getPlayer2Id().toString(), "/queue/matches", match);
+    public void notifyPlayersAboutMatch(Match match) {
+        log.info("Notifying players about the match: {}", match.getId());
+
+        // Notify player 1
+        String destination1 = "/topic/solo/match/" + match.getPlayer1Id();
+        messagingTemplate.convertAndSend(destination1, createMatchNotification(match, match.getPlayer1Id()));
+        log.info("Notification sent to player 1: {} at destination: {}", match.getPlayer1Id(), destination1);
+
+        // Notify player 2
+        String destination2 = "/topic/solo/match/" + match.getPlayer2Id();
+        messagingTemplate.convertAndSend(destination2, createMatchNotification(match, match.getPlayer2Id()));
+        log.info("Notification sent to player 2: {} at destination: {}", match.getPlayer2Id(), destination2);
     }
 
+    @Override
+    public MatchNotification createMatchNotification(Match match, UUID uuid) {
+        String opponentId = match.getPlayer1Id().equals(uuid) ? match.getPlayer2Id().toString()
+                : match.getPlayer1Id().toString();
+        PlayerProfile opponentProfile = playerProfileService.findByProfileId(opponentId);
+
+        return new MatchNotification(
+                match,
+                opponentProfile.getUsername(),
+                opponentProfile);
+    }
+
+    @Override
     public void triggerMatchmaking() {
         log.info("Triggering matchmaking process");
         try {
             findMatch();
+        } catch (InsufficientPlayersException e) {
+            log.info("Not enough players to start matchmaking: {}", e.getMessage());
         } catch (MatchmakingException e) {
             log.info("Matchmaking process completed without finding a match: {}", e.getMessage());
         } catch (Exception e) {
@@ -117,6 +139,7 @@ public class MatchmakingServiceImpl implements MatchmakingService {
         }
     }
 
+    @Override
     public boolean isPlayerInQueue(UUID playerId) {
         return playerQueue.containsKey(playerId);
     }

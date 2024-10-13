@@ -30,5 +30,4 @@ public class PlayerProfileService {
     public PlayerProfile save(PlayerProfile profile){
         return playerProfileRepository.save(profile);
     }
-
 }
