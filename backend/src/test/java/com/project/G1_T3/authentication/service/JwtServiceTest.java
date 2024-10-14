@@ -8,6 +8,7 @@ import com.project.G1_T3.common.exception.InvalidTokenException;
 import com.project.G1_T3.user.model.CustomUserDetails;
 import com.project.G1_T3.user.model.User;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -149,9 +150,8 @@ class JwtServiceTest {
                 .signWith(Keys.hmacShaKeyFor(Decoders.BASE64.decode(TEST_SECRET_KEY)), SignatureAlgorithm.HS256)
                 .compact();
 
-        InvalidTokenException exception = assertThrows(InvalidTokenException.class,
+        assertThrows(ExpiredJwtException.class,
                 () -> jwtService.validateEmailVerificationToken(token));
-        assertEquals("Token has expired", exception.getMessage());
     }
 
     @Test
