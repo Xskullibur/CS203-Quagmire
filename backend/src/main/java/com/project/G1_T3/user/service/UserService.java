@@ -3,6 +3,7 @@ package com.project.G1_T3.user.service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +39,7 @@ public class UserService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
-    
+
     @Autowired
     private PlayerProfileService playerProfileService;
 
@@ -69,11 +70,11 @@ public class UserService {
 
         // Send verification email
         User savedUser = userRepository.save(newUser);
-        
+
         if (newUser.getRole() == UserRole.PLAYER) {
             sendVerificationEmail(newUser);
         }
-        
+
         // Create and save a new PlayerProfile
         PlayerProfile newProfile = new PlayerProfile();
         newProfile.setUserId(savedUser.getId());
@@ -117,6 +118,18 @@ public class UserService {
         String token = jwtService.generateEmailVerificationToken(user);
         String verificationLink = backendUrl + "/authentication/verify-email?token=" + token;
         emailService.sendVerificationEmail(user.getEmail(), user.getUsername(), verificationLink);
+    }
+
+    public void sendVerificationEmailByUserId(String uuid) {
+
+        Optional<User> userOptional = userRepository.findById(UUID.fromString(uuid));
+
+        if (!userOptional.isPresent()) {
+            throw new UsernameNotFoundException(uuid);
+        }
+
+        User user = userOptional.get();
+        sendVerificationEmail(user);
     }
 
 }

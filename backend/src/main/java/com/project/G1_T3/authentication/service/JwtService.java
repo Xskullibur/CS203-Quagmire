@@ -75,15 +75,8 @@ public class JwtService {
                 throw new InvalidTokenException("Invalid token purpose", token);
             }
 
-            if (claims.getExpiration().before(new Date())) {
-                throw new InvalidTokenException("Token has expired", token);
-            }
-
             return claims.getSubject();
-
-        } catch (ExpiredJwtException e) {
-            throw new InvalidTokenException("Token has expired", token);
-        } catch (MalformedJwtException e) {
+        } catch (MalformedJwtException | ExpiredJwtException e) {
             throw e;
         } catch (JwtException | IllegalArgumentException e) {
             throw new InvalidTokenException("Invalid token", token);

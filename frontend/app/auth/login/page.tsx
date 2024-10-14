@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -115,6 +115,8 @@ const Login: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const router = useRouter();
     const { login } = useAuth();
+    const searchParams = useSearchParams();
+    const redirectUrl = searchParams.get("redirect") || null;
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -123,10 +125,15 @@ const Login: React.FC = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError(null);
+
+        const { username, password } = formData;
+
         try {
-            const { user, response } = await login(formData.username, formData.password);
+            const { user, response } = await login(username, password);
+
             if (response.status === 200) {
-                router.push(user?.role === "ADMIN" ? "/admin/dashboard" : "/profile");
+                const destination = redirectUrl ?? (user?.role === "ADMIN" ? "/admin/dashboard" : "/profile");
+                router.push(destination);
             }
         } catch (error: any) {
             if (error?.response?.data) {
