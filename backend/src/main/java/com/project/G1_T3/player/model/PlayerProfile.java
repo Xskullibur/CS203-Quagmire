@@ -1,19 +1,12 @@
 package com.project.G1_T3.player.model;
 
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import com.project.G1_T3.tournament.model.Tournament;
+import com.project.G1_T3.common.glicko.*;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -26,6 +19,9 @@ import lombok.Setter;
 @AllArgsConstructor
 @Table(name = "player_profiles")
 public class PlayerProfile {
+
+    private static final float DEVIATION_SCALE = 1500.0f;
+    private static final float VOLATILITY_SCALE = 0.75f;
 
     @Id
     @GeneratedValue()
@@ -53,7 +49,7 @@ public class PlayerProfile {
     private String bio;
 
     @Column(name = "glicko_rating", nullable = false)
-    private float glickoRating = (float) 1500.0;
+    private int glickoRating = 1500;
 
     @Column(name = "rating_deviation", nullable = false)
     private float ratingDeviation = (float) 350.0;
@@ -62,52 +58,11 @@ public class PlayerProfile {
     private float volatility = (float) 0.06; // Glicko-2
 
     @Column(name = "current_rating")
-    private Float currentRating = 0.0f;
+    private float currentRating = 0f;
 
-    // Getters, setters, and other methods...
-    public UUID getUserId() {
-        return userId;
-    }
+    @Transient
+    private Glicko2Rating glicko2Rating;
 
-    public UUID getProfileId() {
-        return profileId;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public String getCommunity() {
-        return community;
-    }
-
-    public float getELO() {
-        return glickoRating;
-    }
-
-    public void setELO(float glickoRating) {
-        this.glickoRating = glickoRating;
-    }
-
-    public float getDeviation() {
-        return ratingDeviation;
-    }
-
-    public void setDeviation(float ratingDeviation) {
-        this.ratingDeviation = ratingDeviation;
-    }
-
-    public float getVolatility() {
-        return volatility;
-    }
-
-    public void setVolatility(float volatility) {
-        this.volatility = volatility;
-    }
 
     // Override equals() method for proper comparison in matchmaking
     @Override
@@ -121,17 +76,58 @@ public class PlayerProfile {
                 this.community.equals(other.community);
     }
 
-    public double getRating() {
-        return currentRating;
+    public void setCurrentRating(){
+        currentRating = glickoRating + DEVIATION_SCALE / ratingDeviation + VOLATILITY_SCALE / volatility;
     }
 
-    public void setUserId(UUID userId) {
-        this.userId = userId;
+    @PostLoad
+    private void postLoad() {
+        syncGlicko2Rating();
     }
 
-    public void setRating(Float rating) {
-        this.currentRating = rating;
+    private void syncGlicko2Rating() {
+        if (this.glicko2Rating == null) {
+            this.glicko2Rating = new Glicko2Rating(
+                this.glickoRating,
+                this.ratingDeviation,
+                this.volatility
+            );
+        } else {
+            this.glicko2Rating.setRating((float) this.glickoRating);
+            this.glicko2Rating.setRatingDeviation(this.ratingDeviation);
+            this.glicko2Rating.setVolatility(this.volatility);
+        }
     }
+
+    public void setGlickoRating(int glickoRating) {
+        this.glickoRating = glickoRating;
+        syncGlicko2Rating();
+    }
+
+    public void setRatingDeviation(float ratingDeviation) {
+        this.ratingDeviation = ratingDeviation;
+        syncGlicko2Rating();
+    }
+
+    public void setVolatility(float volatility) {
+        this.volatility = volatility;
+        syncGlicko2Rating();
+    }
+
+    public void updateRating(List<Glicko2Result> results) {
+        syncGlicko2Rating();
+        glicko2Rating.updateRating(results);
+
+        // Update fields with new values
+        this.glickoRating = (int) Math.round(glicko2Rating.getRating());
+        this.ratingDeviation = (float) glicko2Rating.getRatingDeviation();
+        this.volatility = (float) glicko2Rating.getVolatility();
+
+        // Update currentRating
+        setCurrentRating();
+    }
+
+
     @ManyToMany(mappedBy = "players", cascade = CascadeType.ALL)
     private Set<Tournament> tournaments = new HashSet<>();
 

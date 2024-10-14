@@ -37,7 +37,7 @@ public class LeaderboardService {
     }
 
     private List<PlayerProfile> getTop10PlayerProfiles() {
-        return playerProfileRepository.findTop10ByOrderByGlickoRatingDesc();
+        return playerProfileRepository.findTop10ByOrderByCurrentRatingDesc();
     }
 
 
