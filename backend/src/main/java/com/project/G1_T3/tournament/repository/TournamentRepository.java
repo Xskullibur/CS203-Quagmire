@@ -15,7 +15,7 @@ import java.util.*;
 @Repository
 public interface TournamentRepository extends JpaRepository<Tournament, Long> {
     
-    Optional<Tournament> findById(long id);
+    Optional<Tournament> findById(UUID id);
 
     // Find tournaments by name
     List<Tournament> findByName(String name);

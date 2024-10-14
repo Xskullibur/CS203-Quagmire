@@ -84,8 +84,6 @@ public class RoundServiceImpl implements RoundService {
             }
             advancingPlayers.add(winner);
         }
-
-        System.out.println("number of advancing players = " + advancingPlayers.size());
     
         // If there are enough advancing players, create the next round
         if (advancingPlayers.size() > 1) {

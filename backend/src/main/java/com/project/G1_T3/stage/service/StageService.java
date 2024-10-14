@@ -16,16 +16,16 @@ public interface StageService {
     Stage saveStage(Stage stage);
 
     // Find all stages for a specific tournament
-    List<Stage> findAllStagesByTournamentId(Long tournamentId);
+    List<Stage> findAllStagesByTournamentId(UUID tournamentId);
 
     // Find a specific stage by stageId and tournamentId
-    Stage findStageByIdAndTournamentId(UUID stageId, Long tournamentId);
+    Stage findStageByIdAndTournamentId(UUID stageId, UUID tournamentId);
 
     // Update a stage for a specific tournament
-    Stage updateStageForTournament(Long tournamentId, UUID stageId, Stage updatedStage);
+    Stage updateStageForTournament(UUID tournamentId, UUID stageId, Stage updatedStage);
 
     // Delete a stage by stageId and tournamentId
-    void deleteStageByTournamentId(Long tournamentId, UUID stageId);
+    void deleteStageByTournamentId(UUID tournamentId, UUID stageId);
 
     public void startStage(UUID stageId);
     

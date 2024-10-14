@@ -30,8 +30,8 @@ import java.util.*;
 public class Tournament {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue
+    private UUID id;
 
     @Column(nullable = false)
     private String name;
@@ -48,7 +48,8 @@ public class Tournament {
     @Column(name = "deadline", columnDefinition = "TIMESTAMP")
     private LocalDateTime deadline;
 
-    @Column(nullable = false)
+    // @Column(nullable = false)
+    @Column
     private Integer maxParticipants;
 
     @Column(nullable = false)

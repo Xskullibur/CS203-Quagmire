@@ -62,8 +62,8 @@ class RoundServiceTest {
     private PlayerProfile referee = testCreatePlayerProfile(2500f);
     private PlayerProfile player1 = testCreatePlayerProfile(1200f);
     private PlayerProfile player2 = testCreatePlayerProfile(1800f);
-    private UUID roundId = UUID.randomUUID();
-    private UUID stageId = UUID.randomUUID();
+    private UUID roundId;
+    private UUID stageId;
 
 
     // @BeforeEach
@@ -84,6 +84,9 @@ class RoundServiceTest {
 
     @BeforeEach
     void setUp() {
+        roundId = UUID.randomUUID();
+        stageId = UUID.randomUUID();
+
         // Initialize a mock stage
         stage.setStageId(stageId);
         stage.setStatus(Status.IN_PROGRESS);
@@ -141,7 +144,7 @@ class RoundServiceTest {
         when(stageRepository.findById(stageId)).thenReturn(Optional.of(stage));
 
         // Act
-        roundService.createFirstRound(roundId, sortedPlayers);
+        roundService.createFirstRound(stageId, sortedPlayers);
 
         // Assert
         verify(matchService, times(1)).createMatch(any(MatchDTO.class));
@@ -161,7 +164,7 @@ class RoundServiceTest {
     void createFirstRound_nullPlayers_throwsException() {
         // Act & Assert
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            roundService.createFirstRound(roundId, null);
+            roundService.createFirstRound(stageId, null);
         });
         assertEquals("Player list must not be null or empty", exception.getMessage());
     }
@@ -170,7 +173,7 @@ class RoundServiceTest {
     void createFirstRound_emptyPlayers_throwsException() {
         // Act & Assert
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            roundService.createFirstRound(roundId, new ArrayList<>());
+            roundService.createFirstRound(stageId, new ArrayList<>());
         });
         assertEquals("Player list must not be null or empty", exception.getMessage());
     }
@@ -182,7 +185,7 @@ class RoundServiceTest {
 
         // Act & Assert
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            roundService.createFirstRound(roundId, onePlayer);
+            roundService.createFirstRound(stageId, onePlayer);
         });
         assertEquals("At least two players are required to create a round", exception.getMessage());
     }
@@ -194,13 +197,11 @@ class RoundServiceTest {
 
         // Act & Assert
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            roundService.createFirstRound(roundId, sortedPlayers);
+            roundService.createFirstRound(stageId, sortedPlayers);
         });
         assertEquals("Stage not found", exception.getMessage());
     }
     
-
-
     @Test
     void endRound_nullRoundId_throwsException() {
         // Act & Assert
@@ -273,6 +274,9 @@ class RoundServiceTest {
         Match match = new Match();
         match.setWinnerId(player1.getProfileId());  // Only one winner in this round
         round.setMatches(Collections.singletonList(match));
+
+        stage.setProgressingPlayers(new HashSet<>());
+        stage.getProgressingPlayers().add(player1);
 
         when(roundRepository.findById(roundId)).thenReturn(Optional.of(round));
         when(playerProfileRepository.findByProfileId(player1.getProfileId())).thenReturn(player1);
