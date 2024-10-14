@@ -2,6 +2,8 @@ package com.project.G1_T3.tournament.service;
 
 import com.project.G1_T3.player.model.PlayerProfile;
 import com.project.G1_T3.tournament.model.Tournament;
+import com.project.G1_T3.tournament.model.TournamentDTO;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -26,7 +28,7 @@ public interface TournamentService {
 
     List<Tournament> searchByName(String name);
 
-    Tournament createTournament(Tournament tournament);
+    public Tournament createTournament(TournamentDTO tournament);
 
     Set<PlayerProfile> getPlayers(Long tournamentId);
 
@@ -36,4 +38,8 @@ public interface TournamentService {
     
     // Add this method
     Tournament getTournamentById(Long id); // Get tournament by ID
+
+    public void startTournament(Long tournamentId, TournamentDTO tournamentDTO);
+
+    public void progressToNextStage(Long tournamentId, TournamentDTO tournamentDTO);
 }

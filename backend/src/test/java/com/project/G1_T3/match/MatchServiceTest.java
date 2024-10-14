@@ -37,7 +37,7 @@ class MatchServiceTest {
 
     private MatchDTO matchDTO;
     private Match match;
-    private Long validMatchId;
+    private UUID validMatchId;
 
     @BeforeEach
     void setUp() {
@@ -50,7 +50,7 @@ class MatchServiceTest {
         matchDTO.setScore("0-0");
 
         // Setup for Match
-        validMatchId = 1L;
+        validMatchId = UUID.randomUUID();
         match = new Match();
         match.setMatchId(validMatchId);
         match.setRefereeId(matchDTO.getRefereeId());

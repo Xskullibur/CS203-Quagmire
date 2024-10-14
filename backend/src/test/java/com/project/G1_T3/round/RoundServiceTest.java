@@ -97,11 +97,11 @@ class RoundServiceTest {
     
         // Initialize matches for endRound
         Match match1 = new Match();
-        match1.setMatchId(1L);
+        match1.setMatchId(UUID.randomUUID());
         match1.setWinnerId(sortedPlayers.get(0).getProfileId());  // First player wins
     
         Match match2 = new Match();
-        match2.setMatchId(2L);
+        match2.setMatchId(UUID.randomUUID());
         match2.setWinnerId(sortedPlayers.get(1).getProfileId());  // Second player wins
     
         // Initialize a list of matches

@@ -1,10 +1,14 @@
 package com.project.G1_T3.tournament.model;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.project.G1_T3.common.model.Status;
 import com.project.G1_T3.player.model.PlayerProfile;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -50,15 +54,31 @@ public class Tournament {
     @Column(nullable = false)
     private String description;
 
+    @Enumerated(EnumType.STRING)
+    @Column(length = 50, nullable = false)
+    private Status status;
+
+    @Column
+    private UUID winnerId;
+
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
-        name = "tournament_participants",
+        name = "tournament_players",
         joinColumns = @JoinColumn(name = "tournament_id"),
         inverseJoinColumns = @JoinColumn(name = "profile_id")
     )
-    private Set<PlayerProfile> players = new HashSet<>();
+    @JsonIgnore
+    private Set<PlayerProfile> players;
 
-    public Set<PlayerProfile> getPlayers(){
-        return players;
-    }
+    @ManyToMany
+    @JoinTable(
+        name = "tournament_referees",  // Create a join table for referees in each stage
+        joinColumns = @JoinColumn(name = "tournament_id"),
+        inverseJoinColumns = @JoinColumn(name = "profile_id")
+    )
+    @JsonIgnore
+    private Set<PlayerProfile> referees;
+
+    private int currentStageIndex = 0;
+
 }

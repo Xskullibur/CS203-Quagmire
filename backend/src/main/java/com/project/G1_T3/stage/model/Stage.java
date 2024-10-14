@@ -80,6 +80,14 @@ public class Stage {
     )
     private Set<PlayerProfile> referees;
 
+    @ManyToMany
+    @JoinTable(
+        name = "progressing_players",  // Create a join table for players in each stage
+        joinColumns = @JoinColumn(name = "stage_id"),
+        inverseJoinColumns = @JoinColumn(name = "profile_id")
+    )
+    private Set<PlayerProfile> progressingPlayers;
+
     @OneToMany(mappedBy = "stage")
     private List<Round> rounds;
 

@@ -5,6 +5,7 @@ import com.project.G1_T3.player.repository.PlayerProfileRepository;
 import com.project.G1_T3.round.model.Round;
 import com.project.G1_T3.round.repository.RoundRepository;
 import com.project.G1_T3.stage.model.Stage;
+import com.project.G1_T3.stage.service.StageService;
 import com.project.G1_T3.stage.repository.StageRepository;
 import com.project.G1_T3.match.model.Match;
 import com.project.G1_T3.match.model.MatchDTO;
@@ -96,6 +97,25 @@ public class RoundServiceImpl implements RoundService {
         }
     }
 
+    // I put this here as I can't put it in stageService since it'll cause circular dependencies
+    private void endStage(Stage stage, PlayerProfile winner) {
+        
+        if (stage == null) {
+            throw new IllegalArgumentException("Stage must not be null");
+        }
+    
+        if (winner == null) {
+            throw new IllegalArgumentException("Winner must not be null");
+        }
+    
+        // Mark the stage as complete and declare the winner
+        stage.setStatus(Status.COMPLETED);
+        stage.setWinnerId(winner.getProfileId()); // Assuming the stage has a winner field
+        stage.getProgressingPlayers().add(winner);
+        stageRepository.save(stage);
+
+    }
+
     private void createNextRound(Stage curStage, List<PlayerProfile> advancingPlayers, Round curRound) {
         if (curStage == null) {
             throw new IllegalArgumentException("Current stage must not be null");
@@ -112,21 +132,6 @@ public class RoundServiceImpl implements RoundService {
         // Create new matches for the next round by pairing winners from the current round
         List<Match> matches = createMatches(advancingPlayers, curStage);
         createRound(curStage, curRound.getRoundNumber(), matches, advancingPlayers, curStage.getReferees());
-    }
-    
-    private void endStage(Stage stage, PlayerProfile winner) {
-        if (stage == null) {
-            throw new IllegalArgumentException("Stage must not be null");
-        }
-    
-        if (winner == null) {
-            throw new IllegalArgumentException("Winner must not be null");
-        }
-    
-        // Mark the stage as complete and declare the winner
-        stage.setStatus(Status.COMPLETED);
-        stage.setWinnerId(winner.getProfileId()); // Assuming the stage has a winner field
-        stageRepository.save(stage);
     }
 
     private List<Match> createMatches(List<PlayerProfile> playerList, Stage stage) {

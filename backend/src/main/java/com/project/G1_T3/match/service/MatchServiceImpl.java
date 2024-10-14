@@ -55,7 +55,7 @@ public class MatchServiceImpl implements MatchService {
         return match;
     }
 
-    public void startMatch(Long matchId, MatchDTO matchDTO) {
+    public void startMatch(UUID matchId, MatchDTO matchDTO) {
 
         // Check for null inputs
         if (matchId == null || matchDTO == null) {
@@ -82,7 +82,7 @@ public class MatchServiceImpl implements MatchService {
     }
 
     // Method for referee to complete the match and select the winner
-    public void completeMatch(Long matchId, MatchDTO matchDTO) {
+    public void completeMatch(UUID matchId, MatchDTO matchDTO) {
         // Null checks for matchId and matchDTO
         if (matchId == null || matchDTO == null) {
             throw new IllegalArgumentException("Match ID and match details must not be null");
@@ -116,8 +116,5 @@ public class MatchServiceImpl implements MatchService {
         match.completeMatch(matchDTO.getWinnerId(), matchDTO.getScore());
         matchRepository.save(match);
     }
-
-
-
     
 }

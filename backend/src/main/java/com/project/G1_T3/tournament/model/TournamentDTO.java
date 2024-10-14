@@ -2,7 +2,7 @@ package com.project.G1_T3.tournament.model;
 
 import com.project.G1_T3.common.model.Status;
 import com.project.G1_T3.player.model.PlayerProfile;
-import com.project.G1_T3.stage.model.Stage;
+import com.project.G1_T3.stage.model.StageDTO;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -10,6 +10,7 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -22,8 +23,8 @@ public class TournamentDTO {
     private LocalDateTime deadline;
     private String description;
     private Status status;
-    private Set<PlayerProfile> players;
-    private List<Stage> stages;  
+    private Set<UUID> refereeIds;
+    private List<StageDTO> stageDTOs;
 
     // Getters and setters
 }

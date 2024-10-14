@@ -2,6 +2,9 @@ package com.project.G1_T3.stage.service;
 
 import com.project.G1_T3.player.model.PlayerProfile;
 import com.project.G1_T3.stage.model.Stage;
+import com.project.G1_T3.stage.model.StageDTO;
+import com.project.G1_T3.tournament.model.Tournament;
+
 
 import java.util.List;
 import java.util.Set;
@@ -24,5 +27,7 @@ public interface StageService {
     void deleteStageByTournamentId(Long tournamentId, Long stageId);
 
     public void startStage(Long stageId);
+    
+    public void createStage(StageDTO stageDTO, Tournament tournament);
 
 }
