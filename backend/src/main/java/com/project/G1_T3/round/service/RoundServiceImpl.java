@@ -21,6 +21,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.UUID;
 
 @Service
 public class RoundServiceImpl implements RoundService {
@@ -37,7 +38,7 @@ public class RoundServiceImpl implements RoundService {
     @Autowired
     private PlayerProfileRepository playerProfileRepository;
 
-    public void createFirstRound(Long stageId, List<PlayerProfile> sortedPlayers) {
+    public void createFirstRound(UUID stageId, List<PlayerProfile> sortedPlayers) {
 
         if (stageId == null) {
             throw new IllegalArgumentException("Stage ID must not be null");
@@ -60,7 +61,7 @@ public class RoundServiceImpl implements RoundService {
 
     }
 
-    public void endRound(Long roundId) {
+    public void endRound(UUID roundId) {
         if (roundId == null) {
             throw new IllegalArgumentException("Round ID must not be null");
         }

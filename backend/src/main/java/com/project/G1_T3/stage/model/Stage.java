@@ -36,8 +36,9 @@ import com.project.G1_T3.round.model.Round;
 public class Stage {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long stageId;
+    // @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue
+    private UUID stageId;
 
     @ManyToOne
     @JoinColumn(name = "tournament", nullable = false)

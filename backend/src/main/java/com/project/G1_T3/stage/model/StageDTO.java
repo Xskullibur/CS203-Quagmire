@@ -5,6 +5,7 @@ import com.project.G1_T3.player.model.PlayerProfile;
 
 import java.time.LocalDateTime;
 import java.util.Set;
+import java.util.UUID;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -13,7 +14,7 @@ import lombok.Setter;
 @Setter
 public class StageDTO {
 
-    private Long stageId;
+    private UUID stageId;
     private String stageName;
     private Integer stageNumber;
     private LocalDateTime startDate;

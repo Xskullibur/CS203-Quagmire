@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/tournament/{tournamentId}/stage")
@@ -21,7 +22,7 @@ public class StageController {
 
     // Endpoint to start a stage by its ID
     @PutMapping("/{stageId}/start")
-    public ResponseEntity<String> startStage(@PathVariable Long stageId) {
+    public ResponseEntity<String> startStage(@PathVariable UUID stageId) {
         try {
             stageService.startStage(stageId);  // Call the service method to start the stage
             return ResponseEntity.ok("Stage started successfully");
