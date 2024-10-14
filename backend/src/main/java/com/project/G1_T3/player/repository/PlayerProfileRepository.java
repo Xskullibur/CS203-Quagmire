@@ -15,6 +15,8 @@ public interface PlayerProfileRepository extends JpaRepository<PlayerProfile, UU
 
     List<PlayerProfile> findTop10ByOrderByCurrentRatingDesc();
 
+    List<PlayerProfile> findAllOrderByCurrentRatingDesc();
+
     // Fetch PlayerProfile by user ID
     PlayerProfile findByUserId(UUID id);
 

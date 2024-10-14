@@ -125,8 +125,8 @@ public class MatchServiceImpl implements MatchService {
         player2.updateRating(resultsForPlayer2);
 
         // Save updated profiles (also evicts cache entries)
-        playerProfileService.save(player1);
-        playerProfileService.save(player2);
+        playerProfileService.updatePlayerRating(player1);
+        playerProfileService.updatePlayerRating(player2);
     }
 
 }
