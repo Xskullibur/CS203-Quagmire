@@ -15,6 +15,8 @@ public interface TournamentService {
     List<Tournament> findAllTournaments(); // Get all tournaments
 
     Tournament findTournamentById(UUID id); // Find a specific tournament by ID
+    
+    TournamentDTO findTournamentDTO(UUID id);
 
     Page<Tournament> findUpcomingTournaments(Pageable pageable); // Fetch tournaments starting after now
 

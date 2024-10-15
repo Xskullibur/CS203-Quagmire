@@ -4,22 +4,32 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 
 interface AdditionalDetailsFormProps {
-    tournament: {
-      deadlineDate: string;
-      deadlineTime: string;
-      maxParticipants: number;
-      description: string;
-    };
-    handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
-    handleBack: (e: React.FormEvent) => void;
-    handleSubmit: (e: React.FormEvent) => void;
-  }
+  tournament: {
+    deadlineDate: string;
+    deadlineTime: string;
+    maxParticipants: number;
+    description: string;
+    refereeIds: string[];  // Include refereeIds in the tournament state
+  };
+  handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  handleBack: (e: React.FormEvent) => void;
+  handleSubmit: (e: React.FormEvent) => void;
+  refereeSearchQuery: string;
+  searchResults: any[];
+  handleRefereeSearch: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleAddReferee: (refereeId: string) => void;
+}
+
   
 const AdditionalDetailsForm: React.FC<AdditionalDetailsFormProps> = ({
   tournament,
   handleChange,
   handleBack,
   handleSubmit,
+  refereeSearchQuery,
+  searchResults,
+  handleRefereeSearch,
+  handleAddReferee,
 }) => {
   return (
     <div className="w-[95vw] md:w-1/2 max-w-xl p-6 bg-primary-foreground rounded-lg shadow-md relative
@@ -41,7 +51,6 @@ const AdditionalDetailsForm: React.FC<AdditionalDetailsFormProps> = ({
               required
               className="bg-transparent border-b border-zinc-600 text-white placeholder-zinc-500 transition duration-300"
             />
-
             <Input
               type="time"
               id="deadlineTime"
@@ -82,6 +91,43 @@ const AdditionalDetailsForm: React.FC<AdditionalDetailsFormProps> = ({
             rows={4}
             style={{ resize: 'none' }}
           />
+        </div>
+
+        {/* Referee Search */}
+        <div className="mt-6">
+          <div>
+          <label className="mr-4 text-white">Add Referee (Search by Username) :</label>
+          <input
+            type="text"
+            placeholder="Search for referees..."
+            value={refereeSearchQuery}
+            onChange={handleRefereeSearch}
+            className="mt-2 bg-transparent border-b border-zinc-600 text-white placeholder-zinc-500"
+          />
+          </div>
+          {/* Display search results */}
+          {searchResults.length > 0 && (
+            <ul className="mt-2 bg-zinc-700 p-2 rounded-md">
+              {searchResults.map((user) => (
+                <li key={user.id} onClick={() => handleAddReferee(user.id)} className="cursor-pointer text-white">
+                  {user.username}
+                </li>
+              ))}
+            </ul>
+          )}
+          {/* Display selected referees */}
+          <div className="mt-4 text-white">
+            <h3>Selected Referees:</h3>
+            {tournament.refereeIds.length > 0 ? (
+              <ul>
+                {tournament.refereeIds.map((refereeId) => (
+                  <li key={refereeId}>{refereeId}</li>
+                ))}
+              </ul>
+            ) : (
+              <p>No referees selected yet.</p>
+            )}
+          </div>
         </div>
 
         <div className="flex justify-between gap-8">

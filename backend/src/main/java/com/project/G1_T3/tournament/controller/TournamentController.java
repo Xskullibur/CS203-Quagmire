@@ -53,6 +53,17 @@ public class TournamentController {
         Page<Tournament> tournaments = tournamentService.findPastTournaments(pageable);
         return ResponseEntity.ok(tournaments);
     }
+    
+
+    // Get tournament DTO by ID
+    @GetMapping("/DTO/{id}")
+    public ResponseEntity<TournamentDTO> getTournamentDTO(@PathVariable UUID id) {
+        TournamentDTO tournament = tournamentService.findTournamentDTO(id);
+        if (tournament == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(tournament);
+    }
 
     // Get tournament by ID
     @GetMapping("/{id}")

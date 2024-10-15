@@ -17,20 +17,53 @@ const UpdateTournament = () => {
 
   // Step state (1 for Basic Info, 2 for Additional Details)
   const [step, setStep] = useState(1);
+  
 
   const [tournament, setTournament] = useState<Tournament>({
+    id: null,
     name: '',
     location: '',
     startDate: '',
     startTime: '',
     endDate: '',
     endTime: '',
-    status: 'open',
+    status: 'SCHEDULED',
     deadlineDate: '',
     deadlineTime: '',
     maxParticipants: 0,
     description: '',
+    refereeIds: []
   });
+
+  const [refereeSearchQuery, setRefereeSearchQuery] = useState<string>('');
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [selectedReferees, setSelectedReferees] = useState<string[]>([]);
+
+  const handleRefereeSearch = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    setRefereeSearchQuery(e.target.value);
+
+    if (e.target.value.length >= 3) {  // Start searching after 3 characters
+      try {
+        const res = await fetch(`${API_URL}/users/search?username=${e.target.value}`);
+        const data = await res.json();
+        setSearchResults(data);
+      } catch (error) {
+        console.error('Error searching for referees:', error);
+      }
+    } else {
+      setSearchResults([]);
+    }
+  };
+
+  const handleAddReferee = (refereeId: string) => {
+    if (!selectedReferees.includes(refereeId)) {
+      setSelectedReferees([...selectedReferees, refereeId]);
+      setTournament({
+        ...tournament,
+        refereeIds: [...tournament.refereeIds, refereeId]  // Update the list of refereeIds in tournament
+      });
+    }
+  };
 
   // Fetch existing tournament data based on the ID from the URL
   useEffect(() => {
@@ -38,7 +71,7 @@ const UpdateTournament = () => {
 
     const fetchTournament = async () => {
       try {
-        const res = await fetch(`${API_URL}/tournament/${id}`);
+        const res = await fetch(`${API_URL}/tournament/DTO/${id}`);
         if (!res.ok) {
           alert('Error fetching tournament details');
           return;
@@ -139,11 +172,16 @@ const UpdateTournament = () => {
 
       {step === 2 && (
         <AdditionalDetailsForm
-          tournament={tournament}
-          handleChange={handleChange}
-          handleBack={handleBack}
-          handleSubmit={handleSubmit}
-        />
+        tournament={tournament}
+        handleChange={handleChange}
+        handleBack={handleBack}
+        handleSubmit={handleSubmit}
+        refereeSearchQuery={refereeSearchQuery}
+        searchResults={searchResults}
+        handleRefereeSearch={handleRefereeSearch}
+        handleAddReferee={handleAddReferee}
+      />
+        
       )}
     </div>
   );

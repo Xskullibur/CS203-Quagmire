@@ -1,6 +1,9 @@
 package com.project.G1_T3.tournament.repository;
 
 import com.project.G1_T3.tournament.model.Tournament;
+
+import jakarta.validation.constraints.NotNull;
+
 import java.time.LocalDateTime;
 
 import org.springframework.data.domain.Page;

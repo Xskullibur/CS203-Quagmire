@@ -53,6 +53,13 @@ public class TournamentServiceImpl implements TournamentService {
                 .orElseThrow(() -> new NoSuchElementException("Tournament not found with id: " + id));
     }
 
+    public TournamentDTO findTournamentDTO(UUID id){
+        Tournament t = findTournamentById(id);
+        TournamentDTO result = new TournamentDTO(t);
+        
+        return result;
+    }
+
     @Override
     public Page<Tournament> findUpcomingTournaments(Pageable pageable) {
         return tournamentRepository.findByStartDateAfter(LocalDateTime.now(), pageable);
@@ -99,13 +106,38 @@ public class TournamentServiceImpl implements TournamentService {
         tournament.setEndDate(tournamentDTO.getEndDate());
         tournament.setDeadline(tournamentDTO.getDeadline());
         tournament.setDescription(tournamentDTO.getDescription());
-        tournament.setStatus(tournamentDTO.getStatus() != null ? tournamentDTO.getStatus() : Status.SCHEDULED);  // Set default status to UPCOMING if null
-        
+        tournament.setStatus(tournamentDTO.getStatus() != null ? tournamentDTO.getStatus() : Status.SCHEDULED);
+
         Set<UUID> refereeIds = tournamentDTO.getRefereeIds();
         Set<PlayerProfile> referees = new HashSet<>(playerProfileRepository.findAllById(refereeIds));
         tournament.setReferees(referees);
 
-        // Save the tournament without creating stages yet
+        // Handle stage creation
+        if (tournamentDTO.getStageDTOs() != null && !tournamentDTO.getStageDTOs().isEmpty()) {
+            // Convert StageDTO to Stage entity and link with the tournament
+            for (StageDTO stageDTO : tournamentDTO.getStageDTOs()) {
+                Stage stage = new Stage();
+                stage.setStageName(stageDTO.getStageName());
+                stage.setStartDate(stageDTO.getStartDate());
+                stage.setEndDate(stageDTO.getEndDate());
+                stage.setFormat(stageDTO.getFormat());
+                stage.setStatus(stageDTO.getStatus() != null ? stageDTO.getStatus() : Status.SCHEDULED);
+                stage.setTournament(tournament);  // Link the stage with the tournament
+                tournament.getStages().add(stage);  // Add the stage to the tournament
+            }
+        } else {
+            // Automatically create a default single elimination stage if no stages are provided
+            Stage defaultStage = new Stage();
+            defaultStage.setStageName("Single Elimination");
+            defaultStage.setStartDate(tournamentDTO.getStartDate());
+            defaultStage.setEndDate(tournamentDTO.getEndDate());
+            defaultStage.setFormat(Format.SINGLE_ELIMINATION);  // Assuming this is an enum
+            defaultStage.setStatus(Status.SCHEDULED);
+            defaultStage.setTournament(tournament);  // Link to tournament
+            tournament.getStages().add(defaultStage);
+        }
+
+        // Save the tournament along with its stages
         return tournamentRepository.save(tournament);
     }
 
@@ -122,6 +154,7 @@ public class TournamentServiceImpl implements TournamentService {
 
         if (tournament == null) {
             System.out.println("Invalid tournament id");
+            return null;
         } else {
             System.out.println("Tournament ID: " + tournament.getId());
         }
@@ -130,6 +163,7 @@ public class TournamentServiceImpl implements TournamentService {
 
         if (player == null) {
             System.out.println("Invalid player id");
+            return null;
         } else {
             System.out.println("Player Name: " + player.getFirstName());
         }
