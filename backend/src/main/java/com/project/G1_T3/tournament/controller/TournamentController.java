@@ -158,10 +158,10 @@ public class TournamentController {
 
     // Progress tournament (includes ending)
     @PutMapping("/{tournamentId}/progress")
-    public ResponseEntity<String> progressToNextStage(@PathVariable UUID tournamentId, @RequestBody TournamentDTO tournamentDTO) {
+    public ResponseEntity<String> progressToNextStage(@PathVariable UUID tournamentId) {
         try {
             // Call the service method to progress to the next stage
-            tournamentService.progressToNextStage(tournamentId, tournamentDTO);
+            tournamentService.progressToNextStage(tournamentId);
             return ResponseEntity.ok("Tournament progressed to the next stage successfully.");
         } catch (IllegalStateException | EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
