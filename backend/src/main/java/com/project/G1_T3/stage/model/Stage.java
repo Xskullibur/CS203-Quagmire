@@ -65,6 +65,9 @@ public class Stage {
     @Column
     private UUID winnerId;
 
+    @Column(name = "created_at", columnDefinition = "TIMESTAMP", updatable = false)
+    private LocalDateTime createdAt;
+
     @ManyToMany
     @JoinTable(
         name = "stage_players",  // Create a join table for players in each stage
