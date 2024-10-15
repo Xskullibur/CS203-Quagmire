@@ -2,11 +2,10 @@ import React from "react";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { User } from "@/models/user";
-import { ChevronLeftIcon, ChevronRightIcon, FanIcon, FilePenIcon, LockIcon, LockKeyholeIcon, TrashIcon } from "lucide-react";
+import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { formatDistance } from "date-fns";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { EnvelopeClosedIcon, PaperPlaneIcon } from "@radix-ui/react-icons";
 
 interface UserTableProps {
   users: User[];
