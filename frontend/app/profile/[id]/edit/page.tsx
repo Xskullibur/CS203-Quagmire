@@ -65,12 +65,10 @@ const EditProfile = () => {
             <h1 className="text-3xl font-bold mb-6">Edit Profile</h1>
             <form onSubmit={handleSubmit} className="w-full max-w-2xl bg-[#171717] p-6 rounded-lg shadow-lg">
                 <div className="mb-4">
-                    <label> 
-                        <input className="block text-xl mb-2" />
-                        First Name:
-                    </label>
+                    <label htmlFor="firstName" className="block text-xl mb-2">First Name:</label>
                     <input
                         type="text"
+                        id="firstName"
                         name="firstName"
                         value={userData.firstName}
                         onChange={handleChange}
@@ -78,9 +76,10 @@ const EditProfile = () => {
                     />
                 </div>
                 <div className="mb-4">
-                    <label className="block text-xl mb-2">Last Name:</label>
+                    <label htmlFor="lastName" className="block text-xl mb-2">Last Name:</label>
                     <input
                         type="text"
+                        id="lastName"
                         name="lastName"
                         value={userData.lastName}
                         onChange={handleChange}
@@ -88,8 +87,9 @@ const EditProfile = () => {
                     />
                 </div>
                 <div className="mb-4">
-                    <label className="block text-xl mb-2">Bio:</label>
+                    <label htmlFor="bio" className="block text-xl mb-2">Bio:</label>
                     <textarea
+                        id="bio"
                         name="bio"
                         value={userData.bio}
                         onChange={handleChange}
@@ -97,9 +97,10 @@ const EditProfile = () => {
                     />
                 </div>
                 <div className="mb-4">
-                    <label className="block text-xl mb-2">Country:</label>
+                    <label htmlFor="country" className="block text-xl mb-2">Country:</label>
                     <input
                         type="text"
+                        id="country"
                         name="country"
                         value={userData.country}
                         onChange={handleChange}
@@ -107,9 +108,10 @@ const EditProfile = () => {
                     />
                 </div>
                 <div className="mb-4">
-                    <label className="block text-xl mb-2">Date of Birth:</label>
+                    <label htmlFor="dateOfBirth" className="block text-xl mb-2">Date of Birth:</label>
                     <input
                         type="date"
+                        id="dateOfBirth"
                         name="dateOfBirth"
                         value={userData.dateOfBirth}
                         onChange={handleChange}
@@ -126,6 +128,7 @@ const EditProfile = () => {
 };
 
 export default EditProfile;
+
 
 /* Code below for use with Jwt Authentication
    Commented out for now to see edit profile page */
