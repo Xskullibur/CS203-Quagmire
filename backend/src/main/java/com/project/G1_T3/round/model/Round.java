@@ -27,6 +27,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 @Entity
 @Getter
@@ -35,8 +36,9 @@ import java.util.Set;
 public class Round {
     
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long roundId;
+    // @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue()
+    private UUID roundId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tournament_stage", nullable = false)
