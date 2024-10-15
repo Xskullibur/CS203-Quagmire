@@ -29,9 +29,6 @@ public class TournamentServiceImpl implements TournamentService {
     private TournamentRepository tournamentRepository;
 
     @Autowired
-    private StageRepository stageRepository;
-
-    @Autowired
     private PlayerProfileRepository playerProfileRepository;
 
     @Autowired
@@ -231,7 +228,8 @@ public class TournamentServiceImpl implements TournamentService {
 
         // Get the previous stage
         int curStageIndex = tournament.getCurrentStageIndex();
-        Stage curStage = stageRepository.findByTournamentIdOrderByCreatedAtAsc(tournamentId).get(curStageIndex);
+        List<Stage> allStages = stageService.findAllStagesByTournamentIdSortedByCreatedAtAsc(tournamentId);
+        Stage curStage = allStages.get(curStageIndex);
         if (curStage == null) {
             throw new IllegalStateException("Previous stage not found");
         }
@@ -244,7 +242,7 @@ public class TournamentServiceImpl implements TournamentService {
         // Check if there are more stages to progress to
         if (nextStageIndex < tournament.getNumStages()) {
 
-            Stage nextStage = stageRepository.findByTournamentIdOrderByCreatedAtAsc(tournamentId).get(nextStageIndex);
+            Stage nextStage = allStages.get(nextStageIndex);
 
             // Get the next stage DTO
             nextStage.setPlayers(progressingPlayers);

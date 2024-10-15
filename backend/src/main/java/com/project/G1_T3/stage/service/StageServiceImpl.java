@@ -40,19 +40,13 @@ public class StageServiceImpl implements StageService {
     @Autowired
     private RoundService roundService;
 
-    @Autowired 
-    private RoundRepository roundRepository;
-
-    @Autowired
-    private PlayerProfileRepository playerProfileRepository;
-
     // Save a new stage
     public Stage saveStage(Stage stage) {
         return stageRepository.save(stage);
     }
 
     // Find all stages for a specific tournament
-    public List<Stage> findAllStagesByTournamentId(UUID tournamentId) {
+    public List<Stage> findAllStagesByTournamentIdSortedByCreatedAtAsc(UUID tournamentId) {
         return stageRepository.findByTournamentIdOrderByCreatedAtAsc(tournamentId);
     }
 

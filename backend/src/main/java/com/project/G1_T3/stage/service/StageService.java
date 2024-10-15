@@ -16,7 +16,7 @@ public interface StageService {
     Stage saveStage(Stage stage);
 
     // Find all stages for a specific tournament
-    List<Stage> findAllStagesByTournamentId(UUID tournamentId);
+    List<Stage> findAllStagesByTournamentIdSortedByCreatedAtAsc(UUID tournamentId);
 
     // Find a specific stage by stageId and tournamentId
     Stage findStageByIdAndTournamentId(UUID stageId, UUID tournamentId);
