@@ -200,59 +200,64 @@ public class TournamentServiceImpl implements TournamentService {
         if (tournament.getPlayers() == null || tournament.getPlayers().size() <= 1) {
             throw new IllegalArgumentException("Tournament must have more than 1 player to start.");
         }
-    
-        // Create stages only when the tournament is started
-        if (tournamentDTO.getStageDTOs() != null && !tournamentDTO.getStageDTOs().isEmpty()) {
-            StageDTO nextStageDTO = tournamentDTO.getStageDTOs().get(tournament.getCurrentStageIndex());
-            nextStageDTO.setPlayers(tournament.getPlayers());
-            nextStageDTO.setReferees(tournament.getReferees());
 
-            System.out.println("test1");
-            stageService.createStage(nextStageDTO, tournament);
-            System.out.println("test2");
-
-            tournament.setCurrentStageIndex(tournament.getCurrentStageIndex() + 1);
+        if (tournamentDTO.getStageDTOs() == null || tournamentDTO.getStageDTOs().isEmpty()) {
+            throw new IllegalArgumentException("Tournament must have at least 1 stage.");
         }
+
+        int numStages = tournamentDTO.getStageDTOs().size();
+
+        for (int i = 0; i < numStages; i++) {
+            StageDTO curStageDTO = tournamentDTO.getStageDTOs().get(i);
+            if (i == 0) {
+                curStageDTO.setPlayers(tournament.getPlayers());
+                curStageDTO.setReferees(tournament.getReferees());
+            }
+
+            stageService.createStage(curStageDTO, tournament);
+        }
+
+        tournament.setNumStages(numStages);
     
         // Set the tournament as started (IN_PROGRESS)
         tournament.setStatus(Status.IN_PROGRESS);
         tournamentRepository.save(tournament);
     }
 
-    public void progressToNextStage(UUID tournamentId, TournamentDTO tournamentDTO) {
+    public void progressToNextStage(UUID tournamentId) {
         
         Tournament tournament = tournamentRepository.findById(tournamentId)
                 .orElseThrow(() -> new EntityNotFoundException("Tournament with ID " + tournamentId + " not found"));
 
         // Get the previous stage
-        int previousStageIndex = tournament.getCurrentStageIndex() - 1;
-        Stage previousStage = stageRepository.findByTournamentId(tournamentId).get(previousStageIndex);
-        if (previousStage == null) {
+        int curStageIndex = tournament.getCurrentStageIndex();
+        Stage curStage = stageRepository.findByTournamentIdOrderByCreatedAtAsc(tournamentId).get(curStageIndex);
+        if (curStage == null) {
             throw new IllegalStateException("Previous stage not found");
         }
 
         // Get the progressing players from the previous stage
-        Set<PlayerProfile> progressingPlayers = previousStage.getProgressingPlayers();
+        Set<PlayerProfile> progressingPlayers = curStage.getProgressingPlayers();
+
+        int nextStageIndex = curStageIndex + 1;
 
         // Check if there are more stages to progress to
-        if (tournament.getCurrentStageIndex() < tournamentDTO.getStageDTOs().size()) {
+        if (nextStageIndex < tournament.getNumStages()) {
+
+            Stage nextStage = stageRepository.findByTournamentIdOrderByCreatedAtAsc(tournamentId).get(nextStageIndex);
 
             // Get the next stage DTO
-            StageDTO nextStageDTO = tournamentDTO.getStageDTOs().get(tournament.getCurrentStageIndex());
-            nextStageDTO.setPlayers(progressingPlayers);
-            nextStageDTO.setReferees(tournament.getReferees());
-
-            // Create the next stage
-            stageService.createStage(nextStageDTO, tournament);
+            nextStage.setPlayers(progressingPlayers);
+            nextStage.setReferees(tournament.getReferees());
 
             // Increment the current stage index
-            tournament.setCurrentStageIndex(tournament.getCurrentStageIndex() + 1);
+            tournament.setCurrentStageIndex(nextStageIndex);
             tournamentRepository.save(tournament);
 
-            System.out.println("Progressed to the next stage: " + nextStageDTO.getStageName());
+            System.out.println("Progressed to the next stage: " + nextStage.getStageName());
         } else {
             // No more stages left, end the tournament
-            UUID winnerId = previousStage.getWinnerId(); // Implement logic to determine the winner
+            UUID winnerId = curStage.getWinnerId(); // Implement logic to determine the winner
             endTournament(tournament, winnerId);
         }
     }

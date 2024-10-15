@@ -74,6 +74,9 @@ public class Tournament {
     private List<Stage> stages = new ArrayList<>();  // Add a list to hold the stage
 
     @Column
+    private int numStages;
+
+    @Column
     private int currentStageIndex = 0;
 
 }
