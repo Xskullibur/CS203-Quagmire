@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/match")
 public class MatchController {
@@ -29,14 +31,14 @@ public class MatchController {
 
     // Referee starts a match
     @PutMapping("/{matchId}/start")
-    public ResponseEntity<?> startMatch(@PathVariable Long matchId, @RequestBody MatchDTO matchDTO) {
+    public ResponseEntity<?> startMatch(@PathVariable UUID matchId, @RequestBody MatchDTO matchDTO) {
         matchService.startMatch(matchId, matchDTO);
         return ResponseEntity.ok("Match started");
     }
 
     // Referee completes a match and selects a winner
     @PutMapping("/{matchId}/complete")
-    public ResponseEntity<?> completeMatch(@PathVariable Long matchId, @RequestBody MatchDTO matchDTO) {
+    public ResponseEntity<?> completeMatch(@PathVariable UUID matchId, @RequestBody MatchDTO matchDTO) {
         matchService.completeMatch(matchId, matchDTO);
         return ResponseEntity.ok("Match completed");
     }

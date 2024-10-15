@@ -13,7 +13,9 @@ import java.util.UUID;
 @Repository
 public interface PlayerProfileRepository extends JpaRepository<PlayerProfile, UUID> {
 
-    List<PlayerProfile> findTop10ByOrderByGlickoRatingDesc();
+    List<PlayerProfile> findTop10ByOrderByCurrentRatingDesc();
+
+    List<PlayerProfile> findAllByOrderByCurrentRatingDesc();
 
     // Fetch PlayerProfile by user ID
     PlayerProfile findByUserId(UUID id);
