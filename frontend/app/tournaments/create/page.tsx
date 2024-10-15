@@ -1,14 +1,9 @@
 // CreateTournament.tsx
-'use client'
-
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import TournamentForm from '@/components/tournaments/TournamentForm1';
 import AdditionalDetailsForm from '@/components/tournaments/TournamentForm2';
 import { Tournament } from '@/types/tournament';
-
-const API_URL = process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL;
-const WEB_URL = process.env.NEXT_PUBLIC_API_URL;
 
 const CreateTournament = () => {
   const router = useRouter();
@@ -61,30 +56,18 @@ const CreateTournament = () => {
       return;
     }
 
-    const startdatetime = `${tournament.startDate}T${tournament.startTime}:00`;
-    const enddatetime = `${tournament.endDate}T${tournament.endTime}:00`;
-    const deadline = `${tournament.deadlineDate}T${tournament.deadlineTime}:00`;
-
-    const { startDate, startTime, endDate, endTime, deadlineDate, deadlineTime, ...tournamentDetails } = tournament;
-
-    const data = {
-      ...tournamentDetails,
-      startDate: startdatetime,
-      endDate: enddatetime,
-      deadline: deadline
-    };
-
+    // Example logic for submission
     try {
-      const res = await fetch(API_URL + '/tournament', {
+      const res = await fetch('/api/tournaments', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify(data)
+        body: JSON.stringify(tournament),
       });
 
       if (res.ok) {
-        router.push(WEB_URL + '/tournaments'); // Redirect after successful creation
+        router.push('/tournaments'); // Redirect to tournaments page after successful creation
       } else {
         alert('Error creating tournament');
       }

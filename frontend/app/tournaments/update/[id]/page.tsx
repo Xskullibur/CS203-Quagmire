@@ -1,4 +1,5 @@
 // UpdateTournament.tsx
+// UpdateTournament.tsx
 'use client'
 
 import React, { useState, useEffect } from "react";
@@ -7,17 +8,14 @@ import TournamentForm from '@/components/tournaments/TournamentForm1';
 import AdditionalDetailsForm from '@/components/tournaments/TournamentForm2';
 import { Tournament } from "@/types/tournament";
 
-const API_URL = process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL;
-const WEB_URL = process.env.NEXT_PUBLIC_API_URL;
+const API_URL = `${process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL}`;
+const WEB_URL = `${process.env.NEXT_PUBLIC_API_URL}`
 
 const UpdateTournament = () => {
   const router = useRouter();
-  const { id } = useParams(); // Ensure the correct usage of useParams depending on Next.js version
-
-  // Step state (1 for Basic Info, 2 for Additional Details)
-  const [step, setStep] = useState(1);
-
-  const [tournament, setTournament] = useState<Tournament>({
+  const { id } = useParams(); // Assuming the tournament ID is passed in the URL
+  
+  const [tournament, setTournament] = useState({
     name: '',
     location: '',
     startDate: '',
@@ -33,8 +31,7 @@ const UpdateTournament = () => {
 
   // Fetch existing tournament data based on the ID from the URL
   useEffect(() => {
-    if (!id) return; // Ensure 'id' is available before fetching
-
+    console.log(id)
     const fetchTournament = async () => {
       try {
         const res = await fetch(`${API_URL}/tournament/${id}`);

@@ -4,17 +4,17 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 
 interface AdditionalDetailsFormProps {
-    tournament: {
-      deadlineDate: string;
-      deadlineTime: string;
-      maxParticipants: number;
-      description: string;
-    };
-    handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
-    handleBack: (e: React.FormEvent) => void;
-    handleSubmit: (e: React.FormEvent) => void;
-  }
-  
+  tournament: {
+    deadlineDate: string;
+    deadlineTime: string;
+    description: string;
+    maxParticipants: number;
+  };
+  handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  handleBack: (e: React.FormEvent) => void;
+  handleSubmit: (e: React.FormEvent) => void;
+}
+
 const AdditionalDetailsForm: React.FC<AdditionalDetailsFormProps> = ({
   tournament,
   handleChange,
@@ -52,20 +52,6 @@ const AdditionalDetailsForm: React.FC<AdditionalDetailsFormProps> = ({
               className="bg-transparent border-b border-zinc-600 text-white placeholder-zinc-500 transition duration-300"
             />
           </div>
-        </div>
-
-        {/* Max Participants */}
-        <div className="mb-4">
-          <label className="text-sm font-medium text-white" htmlFor="maxParticipants">Max Participants</label>
-          <Input
-            type="number"
-            id="maxParticipants"
-            name="maxParticipants"
-            value={tournament.maxParticipants}
-            onChange={handleChange}
-            required
-            className="bg-transparent border-b border-zinc-600 text-white placeholder-zinc-500 transition duration-300"
-          />
         </div>
 
         {/* Description */}
