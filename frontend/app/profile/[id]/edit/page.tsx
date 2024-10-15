@@ -65,7 +65,10 @@ const EditProfile = () => {
             <h1 className="text-3xl font-bold mb-6">Edit Profile</h1>
             <form onSubmit={handleSubmit} className="w-full max-w-2xl bg-[#171717] p-6 rounded-lg shadow-lg">
                 <div className="mb-4">
-                    <label className="block text-xl mb-2">First Name:</label>
+                    <label> 
+                        <input className="block text-xl mb-2" />
+                        First Name:
+                    </label>
                     <input
                         type="text"
                         name="firstName"
