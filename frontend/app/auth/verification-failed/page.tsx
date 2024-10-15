@@ -6,26 +6,35 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { useAuth } from "@/hooks/useAuth";
-import withAuth from "@/hooks/withAuth";
 import axiosInstance from "@/lib/axios";
 import { useErrorHandler } from "@/app/context/ErrorMessageProvider";
+import { toast } from "@/hooks/use-toast";
 
 const API_URL = `${process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL}`;
 
 const VerificationFailed: React.FC = () => {
   const { showErrorToast } = useErrorHandler();
-
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
 
   const handleResendVerification = async () => {
     try {
       const response = await axiosInstance.post(
-        new URL("/authentication/send-verification", API_URL).toString(),
-        user!.userId
+        new URL("/authentication/send-verification-email", API_URL).toString(),
+        user!.userId,
+        {
+          headers: {
+            "Content-Type": "text/plain",
+          },
+        }
       );
 
       if (response.status === 201) {
+        toast({
+          variant: "success",
+          title: "Success",
+          description: "Successfully resend verification email.",
+        });
         router.push("/auth/login");
       }
     } catch (error: any) {
@@ -38,6 +47,10 @@ const VerificationFailed: React.FC = () => {
         console.error(error.response.data.description);
       }
     }
+  };
+
+  const handleSignIn = () => {
+    router.push(`/auth/login?redirect=/auth/verification-failed`);
   };
 
   return (
@@ -55,15 +68,25 @@ const VerificationFailed: React.FC = () => {
         Your verification token has expired. Please click the button below to
         resend the verification email.
       </p>
-      <Button
-        variant="outline"
-        className="hover:bg-muted transition duration-300"
-        onClick={handleResendVerification}
-      >
-        Resend Verification Email
-      </Button>
+      {isAuthenticated ? (
+        <Button
+          variant="outline"
+          className="hover:bg-muted transition duration-300"
+          onClick={handleResendVerification}
+        >
+          Resend Verification Email
+        </Button>
+      ) : (
+        <Button
+          variant="outline"
+          className="hover:bg-muted transition duration-300"
+          onClick={handleSignIn}
+        >
+          Sign-in to resend verification
+        </Button>
+      )}
     </div>
   );
 };
 
-export default withAuth(VerificationFailed);
+export default VerificationFailed;
