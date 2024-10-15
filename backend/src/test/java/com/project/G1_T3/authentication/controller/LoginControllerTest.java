@@ -2,7 +2,7 @@ package com.project.G1_T3.authentication.controller;
 
 import com.project.G1_T3.authentication.model.LoginRequest;
 import com.project.G1_T3.authentication.model.LoginResponseDTO;
-import com.project.G1_T3.authentication.service.AuthService;
+import com.project.G1_T3.authentication.service.AuthServiceImpl;
 import com.project.G1_T3.common.exception.GlobalExceptionHandler;
 import com.project.G1_T3.user.model.UserDTO;
 
@@ -26,7 +26,7 @@ class LoginControllerTest {
     private LoginController loginController;
 
     @Mock
-    private AuthService authService;
+    private AuthServiceImpl authService;
 
     @Mock
     private GlobalExceptionHandler globalExceptionHandler;

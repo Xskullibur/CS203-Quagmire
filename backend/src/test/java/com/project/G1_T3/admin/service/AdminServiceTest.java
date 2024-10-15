@@ -8,7 +8,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import com.project.G1_T3.authentication.service.PasswordGeneratorService;
+import com.project.G1_T3.authentication.service.PasswordGeneratorServiceImpl;
+import com.project.G1_T3.email.service.EmailService;
 import com.project.G1_T3.user.model.UserDTO;
 import com.project.G1_T3.user.model.UserRole;
 import com.project.G1_T3.user.service.UserService;
@@ -20,7 +21,10 @@ class AdminServiceTest {
     private UserService userService;
 
     @Mock
-    private PasswordGeneratorService passwordGeneratorService;
+    private PasswordGeneratorServiceImpl passwordGeneratorService;
+
+    @Mock
+    private EmailService emailService;
 
     @InjectMocks
     private AdminService adminService;
@@ -38,6 +42,7 @@ class AdminServiceTest {
 
         when(passwordGeneratorService.generatePassword()).thenReturn(generatedPassword);
         when(userService.registerUser(username, email, generatedPassword, UserRole.ADMIN)).thenReturn(expectedUserDTO);
+        when(emailService.sendTempPasswordEmail(any(UserDTO.class), anyString())).thenReturn(null);
 
         UserDTO result = adminService.registerAdmin(username, email);
 
@@ -45,5 +50,6 @@ class AdminServiceTest {
         assertEquals(expectedUserDTO, result);
         verify(passwordGeneratorService).generatePassword();
         verify(userService).registerUser(username, email, generatedPassword, UserRole.ADMIN);
+        verify(emailService).sendTempPasswordEmail(any(UserDTO.class), anyString());
     }
 }

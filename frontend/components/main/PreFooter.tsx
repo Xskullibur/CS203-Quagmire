@@ -1,6 +1,28 @@
 import { Button } from "@/components/ui/button";
 import MagicText from "@/components/ui/MagicText";
 
+/**
+ * PreFooter component renders a section with a call-to-action for hosting tournaments.
+ * 
+ * This component includes a heading and a button, styled with Tailwind CSS classes.
+ * The heading uses the `MagicText` component to highlight the word "hosting".
+ * 
+ * @component
+ * @example
+ * return (
+ *   <PreFooter />
+ * )
+ * 
+ * @returns {JSX.Element} A section element containing a heading and a button.
+ * 
+ * @remarks
+ * The section has a gradient background and responsive padding.
+ * The heading is responsive and adjusts its size based on the screen width.
+ * The button is styled as a large, secondary variant with rounded corners.
+ * 
+ * @see {@link MagicText} for the text highlighting component.
+ * @see {@link Button} for the button component.
+ */
 export default function PreFooter() {
     return (
         <section className="w-full py-24 px-4 md:px-24 bg-gradient-to-b from-background via-background to-[#141516]">

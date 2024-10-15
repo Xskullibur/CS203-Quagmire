@@ -1,10 +1,14 @@
 package com.project.G1_T3.matchmaking.model;
 
-public class Location {
+public class MatchLocation {
     private double latitude;
     private double longitude;
 
-    public Location(double lat, double lng) {
+    // Add this default constructor
+    public MatchLocation() {
+    }
+
+    public MatchLocation(double lat, double lng) {
         this.latitude = lat;
         this.longitude = lng;
     }

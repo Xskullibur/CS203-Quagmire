@@ -11,35 +11,35 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/profile")
 public class PlayerProfileController {
-    
+
     @Autowired
     private PlayerProfileService playerProfileService;
 
     @PostMapping("/create") // Map to URL for creating player profile
     @ResponseStatus(HttpStatus.CREATED)
-    public PlayerProfile create(@RequestBody PlayerProfile playerProfile){
+    public PlayerProfile create(@RequestBody PlayerProfile playerProfile) {
         return playerProfileService.save(playerProfile);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<PlayerProfile> getUserById(@PathVariable String id){
+    public ResponseEntity<PlayerProfile> getUserById(@PathVariable String id) {
         PlayerProfile playerProfile = playerProfileService.findByUserId(id);
-        
-        if(playerProfile == null){
+
+        if (playerProfile == null) {
             return ResponseEntity.notFound().build();
         }
-        
+
         return ResponseEntity.ok(playerProfile);
     }
 
     @GetMapping("/player/{id}")
-    public ResponseEntity<PlayerProfile> getUserByPlayerId(@PathVariable String id){
+    public ResponseEntity<PlayerProfile> getUserByPlayerId(@PathVariable String id) {
         PlayerProfile playerProfile = playerProfileService.findByProfileId(id);
-        
-        if(playerProfile == null){
+
+        if (playerProfile == null) {
             return ResponseEntity.notFound().build();
         }
-        
+
         return ResponseEntity.ok(playerProfile);
     }
 

@@ -19,8 +19,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import com.project.G1_T3.authentication.service.JwtService;
 import com.project.G1_T3.common.exception.EmailAlreadyInUseException;
 import com.project.G1_T3.common.exception.UsernameAlreadyTakenException;
+import com.project.G1_T3.email.service.EmailService;
+import com.project.G1_T3.player.model.PlayerProfile;
+import com.project.G1_T3.player.service.PlayerProfileService;
 import com.project.G1_T3.user.model.User;
 import com.project.G1_T3.user.model.UserDTO;
 import com.project.G1_T3.user.model.UserRole;
@@ -30,10 +34,19 @@ import com.project.G1_T3.user.repository.UserRepository;
 class UserServiceTest {
 
     @Mock
+    private JwtService jwtService;
+
+    @Mock
+    private EmailService emailService;
+
+    @Mock
     private UserRepository userRepository;
 
     @Mock
     private PasswordEncoder passwordEncoder;
+
+    @Mock
+    private PlayerProfileService playerProfileService;
 
     @InjectMocks
     private UserService userService;
@@ -50,6 +63,29 @@ class UserServiceTest {
         testUser.setRole(UserRole.PLAYER);
         testUser.setCreatedAt(LocalDateTime.now());
         testUser.setUpdatedAt(LocalDateTime.now());
+    }
+
+    @Test
+    void registerUser_ValidArguments_ReturnsUserDTO() {
+
+        UserDTO expectedUserDTO = UserDTO.fromUser(testUser);
+
+        when(userRepository.existsByUsername(anyString())).thenReturn(false);
+        when(userRepository.existsByEmail(anyString())).thenReturn(false);
+        when(userRepository.save(any(User.class))).thenReturn(testUser);
+        when(jwtService.generateEmailVerificationToken(any(User.class))).thenReturn("valid-token");
+        when(emailService.sendVerificationEmail(anyString(), anyString(), anyString())).thenReturn(null);
+        when(playerProfileService.save(any(PlayerProfile.class))).thenReturn(null);
+
+        UserDTO actualUserDTO = userService.registerUser(testUser.getUsername(), testUser.getEmail(), testUser.getPasswordHash(), testUser.getRole());
+
+        assertEquals(expectedUserDTO, actualUserDTO);
+        verify(userRepository).existsByUsername(anyString());
+        verify(userRepository).existsByEmail(anyString());
+        verify(userRepository).save(any(User.class));
+        verify(jwtService).generateEmailVerificationToken(any(User.class));
+        verify(emailService).sendVerificationEmail(anyString(), anyString(), anyString());
+        verify(playerProfileService).save(any(PlayerProfile.class));
     }
 
     @Test
