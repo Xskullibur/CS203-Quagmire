@@ -53,7 +53,7 @@ public class StageServiceImpl implements StageService {
 
     // Find all stages for a specific tournament
     public List<Stage> findAllStagesByTournamentId(UUID tournamentId) {
-        return stageRepository.findByTournamentId(tournamentId);
+        return stageRepository.findByTournamentIdOrderByCreatedAtAsc(tournamentId);
     }
 
     // Find a specific stage by stageId and tournamentId
