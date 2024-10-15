@@ -2,10 +2,11 @@ import React from "react";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { User } from "@/models/user";
-import { ChevronLeftIcon, ChevronRightIcon, FilePenIcon, TrashIcon } from "lucide-react";
+import { ChevronLeftIcon, ChevronRightIcon, FanIcon, FilePenIcon, LockIcon, LockKeyholeIcon, TrashIcon } from "lucide-react";
 import { formatDistance } from "date-fns";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { EnvelopeClosedIcon, PaperPlaneIcon } from "@radix-ui/react-icons";
 
 interface UserTableProps {
   users: User[];
@@ -54,7 +55,7 @@ const UserTable: React.FC<UserTableProps> = ({
             <TableHead className="w-2/12 cursor-pointer" onClick={() => onSort("updatedAt")}>
               Updated At {sortBy === "updatedAt" && (sortOrder === "asc" ? "\u2191" : "\u2193")}
             </TableHead>
-            <TableHead className="w-1/12">Actions</TableHead>
+            {/* <TableHead className="w-1/12">Actions</TableHead> */}
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -69,14 +70,14 @@ const UserTable: React.FC<UserTableProps> = ({
               <TableCell className="truncate">
                 {formatDistance(new Date(user.updatedAt), new Date(), { addSuffix: true })}
               </TableCell>
-              <TableCell>
+              {/* <TableCell className="2xl:space-x-4 sm:space-y-2">
                 <Button variant="outline" size="icon" onClick={() => onEdit(user)}>
                   <FilePenIcon className="h-4 w-4" />
                 </Button>
                 <Button variant="destructive" size="icon" onClick={() => onDelete(user)}>
-                  <TrashIcon className="h-4 w-4" />
+                  <LockKeyholeIcon className="h-4 w-4" />
                 </Button>
-              </TableCell>
+              </TableCell> */}
             </TableRow>
           ))}
         </TableBody>
