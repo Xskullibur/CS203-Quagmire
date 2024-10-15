@@ -15,7 +15,7 @@ import java.util.UUID;
 @Table(name = "match")
 public class Match {
     @Id
-    @GeneratedValue()
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID matchId;
 
     @ManyToOne

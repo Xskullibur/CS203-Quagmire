@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Button } from "@/components/ui/button";
-import axiosInstance from '@/lib/axios';
 
 interface Tournament {
     name: string;
@@ -28,7 +27,7 @@ const TournamentDetails: React.FC<{ params: { id: string } }> = ({ params }) => 
             setError(null);
 
             try {
-                const response = await axiosInstance.get(`${process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL}/tournament/${id}`);
+                const response = await axios.get(`${process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL}/tournament/${id}`);
                 const tournamentData = response.data;
                 setTournament(tournamentData);
 

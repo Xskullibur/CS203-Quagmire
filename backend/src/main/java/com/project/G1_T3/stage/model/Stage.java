@@ -36,9 +36,8 @@ import com.project.G1_T3.round.model.Round;
 public class Stage {
 
     @Id
-    // @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @GeneratedValue
-    private UUID stageId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long stageId;
 
     @ManyToOne
     @JoinColumn(name = "tournament", nullable = false)
@@ -65,9 +64,6 @@ public class Stage {
     @Column
     private UUID winnerId;
 
-    @Column(name = "created_at", columnDefinition = "TIMESTAMP", updatable = false)
-    private LocalDateTime createdAt;
-
     @ManyToMany
     @JoinTable(
         name = "stage_players",  // Create a join table for players in each stage
@@ -83,14 +79,6 @@ public class Stage {
         inverseJoinColumns = @JoinColumn(name = "profile_id")
     )
     private Set<PlayerProfile> referees;
-
-    @ManyToMany
-    @JoinTable(
-        name = "progressing_players",  // Create a join table for players in each stage
-        joinColumns = @JoinColumn(name = "stage_id"),
-        inverseJoinColumns = @JoinColumn(name = "profile_id")
-    )
-    private Set<PlayerProfile> progressingPlayers;
 
     @OneToMany(mappedBy = "stage")
     private List<Round> rounds;

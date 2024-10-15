@@ -48,7 +48,7 @@ class MatchServiceImplTest {
         matchDTO.setPlayer1Id(player1Id);
         matchDTO.setPlayer2Id(player2Id);
         matchDTO.setRefereeId(refereeId);
-        matchDTO.setScheduledTime(LocalDateTime.now().plusMinutes(5));
+        matchDTO.setScheduledTime(LocalDateTime.now());
         matchDTO.setWinnerId(player1Id);  // Player 1 is the winner
         matchDTO.setScore("0");
 
@@ -57,8 +57,20 @@ class MatchServiceImplTest {
         match.setPlayer2Id(player2Id);
         match.setRefereeId(refereeId);
         match.setWinnerId(player1Id);
-        match.setScheduledTime(LocalDateTime.now().plusMinutes(5));
+        match.setScheduledTime(LocalDateTime.now());
         match.setStatus(Status.SCHEDULED);
+    }
+
+    @Test
+    void createMatch_ShouldCreateAndSaveMatch() {
+        // Call the method to test
+        Match createdMatch = matchService.createMatch(matchDTO);
+
+        // Verify the repository interaction and assert values
+        verify(matchRepository, times(1)).save(any(Match.class));
+        assertNotNull(createdMatch);
+        assertEquals(Status.SCHEDULED, createdMatch.getStatus(), "Match status should be SCHEDULED");
+        assertEquals(matchDTO.getPlayer1Id(), createdMatch.getPlayer1Id(), "Player1 ID should match");
     }
 
     @Test
@@ -149,6 +161,6 @@ class MatchServiceImplTest {
             matchService.completeMatch(matchId, matchDTO);
         });
 
-        assertEquals("Winner must be one of the players", exception.getMessage());
+        assertEquals("Unauthorized referee", exception.getMessage());
     }
 }

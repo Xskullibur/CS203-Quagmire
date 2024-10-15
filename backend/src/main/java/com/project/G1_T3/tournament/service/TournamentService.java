@@ -2,8 +2,6 @@ package com.project.G1_T3.tournament.service;
 
 import com.project.G1_T3.player.model.PlayerProfile;
 import com.project.G1_T3.tournament.model.Tournament;
-import com.project.G1_T3.tournament.model.TournamentDTO;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -14,9 +12,7 @@ public interface TournamentService {
 
     List<Tournament> findAllTournaments(); // Get all tournaments
 
-    Tournament findTournamentById(UUID id); // Find a specific tournament by ID
-    
-    TournamentDTO findTournamentDTO(UUID id);
+    Tournament findTournamentById(Long id); // Find a specific tournament by ID
 
     Page<Tournament> findUpcomingTournaments(Pageable pageable); // Fetch tournaments starting after now
 
@@ -30,18 +26,14 @@ public interface TournamentService {
 
     List<Tournament> searchByName(String name);
 
-    public Tournament createTournament(TournamentDTO tournament);
+    Tournament createTournament(Tournament tournament);
 
-    Set<PlayerProfile> getPlayers(UUID tournamentId);
+    Set<PlayerProfile> getPlayers(Long tournamentId);
 
-    Tournament addPlayerToTournament(UUID tournamentId, UUID user_id);
+    Tournament addPlayerToTournament(Long tournamentId, UUID user_id);
 
-    Tournament updateTournament(UUID tournamentId, Tournament updatedTournament);
+    Tournament updateTournament(Long tournamentId, Tournament updatedTournament);
     
     // Add this method
-    Tournament getTournamentById(UUID id); // Get tournament by ID
-
-    public void startTournament(UUID tournamentId, TournamentDTO tournamentDTO);
-
-    public void progressToNextStage(UUID tournamentId);
+    Tournament getTournamentById(Long id); // Get tournament by ID
 }
