@@ -43,7 +43,6 @@ const AdminDashboard: React.FC = () => {
 
   const fetchUsers = useCallback(async () => {
     try {
-      setLoading(true);
       const response = await axiosInstance.get(
         new URL(
           `/admin/get-users?page=${currentPage}&size=${pageSize}&field=${sortingField}&order=${order}`,
@@ -58,14 +57,16 @@ const AdminDashboard: React.FC = () => {
       showErrorToast("Internal Error", "Failed to retrieve users");
     } finally {
       setHasFetched(true);
-      setLoading(false);
     }
   }, [currentPage, pageSize, sortingField, order, showErrorToast]);
 
   useEffect(() => {
 
     if (!hasFetched) {
-      fetchUsers();
+      setLoading(true);
+      fetchUsers().then(() => {
+        setLoading(false);
+      });
     }
 
   }, [fetchUsers, hasFetched]);
@@ -98,16 +99,31 @@ const AdminDashboard: React.FC = () => {
   };
 
   const handleEditUser = (user: User) => {
-    alert(`Editing ${user.username}`);
-
+    alert(`This feature has not been implemented yet`);
   };
 
   const handleDeleteUser = (user: User) => {
-    alert(`Deleting ${user.username}`);
+    alert(`This feature has not been implemented yet`);
   };
 
+  const handlePageChange = (currentPage: number) => {
+    setCurrentPage(currentPage);
+    setHasFetched(false);
+  }
+
+  const handlePageSizeChange = (pageSize: number) => {
+    setPageSize(pageSize);
+    setHasFetched(false);
+  }
+
+  const handleSort = (sortingField: string) => {
+    setSortingField(sortingField);
+    setOrder(order === "asc" ? "desc" : "asc");
+    setHasFetched(false);
+  }
+
   return (
-    <div className="flex flex-col items-center min-h-screen pt-20">
+    <div className="flex flex-col items-center min-h-screen mt-24">
       <h2 className="text-2xl font-bold my-4">Admin Dashboard</h2>
       {loading ? (
         <p>Loading users...</p>
@@ -119,14 +135,11 @@ const AdminDashboard: React.FC = () => {
           currentPage={currentPage}
           totalPages={totalPages}
           pageSize={pageSize}
-          onPageChange={setCurrentPage}
-          onPageSizeChange={setPageSize}
+          onPageChange={handlePageChange}
+          onPageSizeChange={handlePageSizeChange}
           sortBy={sortingField}
           sortOrder={order}
-          onSort={(newSortingField) => {
-            setSortingField(newSortingField);
-            setOrder(order === "asc" ? "desc" : "asc");
-          }}
+          onSort={handleSort}
         />
       )}
 

@@ -1,6 +1,9 @@
 package com.project.G1_T3.tournament.repository;
 
 import com.project.G1_T3.tournament.model.Tournament;
+
+import jakarta.validation.constraints.NotNull;
+
 import java.time.LocalDateTime;
 
 import org.springframework.data.domain.Page;
@@ -13,9 +16,9 @@ import org.springframework.stereotype.Repository;
 import java.util.*;
 
 @Repository
-public interface TournamentRepository extends JpaRepository<Tournament, Long> {
+public interface TournamentRepository extends JpaRepository<Tournament, UUID> {
     
-    Optional<Tournament> findById(long id);
+    Optional<Tournament> findById(UUID id);
 
     // Find tournaments by name
     List<Tournament> findByName(String name);

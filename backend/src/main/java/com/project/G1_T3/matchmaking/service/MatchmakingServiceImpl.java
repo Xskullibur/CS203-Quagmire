@@ -16,8 +16,10 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.List;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Date;
 
 /**
  * Service implementation for matchmaking functionality.
@@ -117,6 +119,7 @@ public class MatchmakingServiceImpl implements MatchmakingService {
                 matchDTO.setPlayer2Id(player2.getPlayer().getProfileId());
                 matchDTO.setMeetingLatitude(meetingPoint[0]);
                 matchDTO.setMeetingLongitude(meetingPoint[1]);
+                matchDTO.setScheduledTime(LocalDateTime.now().plusMinutes(5));
 
                 Match match = matchService.createMatch(matchDTO);
                 log.info("Match found: {} vs {}", player1.getPlayer().getUserId(), player2.getPlayer().getUserId());

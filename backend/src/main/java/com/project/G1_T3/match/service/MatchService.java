@@ -11,9 +11,9 @@ public interface MatchService {
 
     public Match createMatch(MatchDTO matchDTO);
 
-    public void startMatch(@PathVariable Long matchId, @RequestBody MatchDTO matchDTO);
+    public void startMatch(@PathVariable UUID matchId, @RequestBody MatchDTO matchDTO);
 
-    public void completeMatch(@PathVariable Long matchId, @RequestBody MatchDTO matchDTO);
+    public void completeMatch(@PathVariable UUID matchId, @RequestBody MatchDTO matchDTO);
 
     public Match getCurrentMatchForUser(UUID userId);
 

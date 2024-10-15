@@ -85,13 +85,13 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/authentication/**").permitAll()
-                        .requestMatchers("/leaderboard/**").hasAnyRole("USER", "ADMIN")
-                        .requestMatchers("/profile/**").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers("/leaderboard/**").permitAll()
+                        .requestMatchers("/profile/**").hasAnyRole("PLAYER", "USER", "ADMIN")
                         .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/user/**").hasAnyRole("USER", "ADMIN")
-                        .requestMatchers("/tournament/**").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers("/user/**").hasAnyRole("PLAYER", "USER", "ADMIN")
+                        .requestMatchers("/tournament/**").hasAnyRole("PLAYER", "USER", "ADMIN")
                         .requestMatchers("/ws/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/matches/current/**").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/matches/current/**").hasAnyRole("PLAYER", "USER", "ADMIN")
                         .anyRequest().authenticated())
                 .exceptionHandling(e -> e.accessDeniedHandler(accessDeniedHandler()))
                 .logout(logout -> logout
