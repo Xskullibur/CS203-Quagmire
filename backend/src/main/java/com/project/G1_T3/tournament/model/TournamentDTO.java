@@ -4,7 +4,9 @@ import com.project.G1_T3.common.model.Status;
 import com.project.G1_T3.player.model.PlayerProfile;
 import com.project.G1_T3.stage.model.StageDTO;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
@@ -15,6 +17,8 @@ import java.util.UUID;
 
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class TournamentDTO {
 
     private String name;
