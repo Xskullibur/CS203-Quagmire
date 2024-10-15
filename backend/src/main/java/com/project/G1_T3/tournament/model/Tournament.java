@@ -47,7 +47,7 @@ public class Tournament {
 
     @Enumerated(EnumType.STRING)
     @Column(length = 50, nullable = false)
-    private Status status;
+    private Status status = Status.SCHEDULED;
 
     @Column
     private UUID winnerId;
