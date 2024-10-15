@@ -307,7 +307,7 @@ class MatchmakingIntegrationTests {
         profile.setUserId(user.getUserId());
         profile.setFirstName("Test");
         profile.setLastName("User");
-        profile.setCurrentRating(1500f);
+        profile.setRating(1500f);
         return playerProfileRepository.save(profile);
     }
 }
