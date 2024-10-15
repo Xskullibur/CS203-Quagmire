@@ -11,14 +11,13 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 @Getter
 @Setter
 public class RoundDTO {
 
-    private UUID roundId;
-    private UUID stageId;  // Assuming you only want the stage ID here
+    private Long roundId;
+    private Long stageId;  // Assuming you only want the stage ID here
     private Integer roundNumber;
     private LocalDateTime startDate;
     private LocalDateTime endDate;

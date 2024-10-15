@@ -10,28 +10,17 @@ import com.project.G1_T3.round.repository.RoundRepository;
 import com.project.G1_T3.round.service.RoundService;
 import com.project.G1_T3.stage.model.Format;
 import com.project.G1_T3.stage.model.Stage;
-import com.project.G1_T3.stage.model.StageDTO;
 import com.project.G1_T3.stage.repository.StageRepository;
-import com.project.G1_T3.tournament.model.Tournament;
-import com.project.G1_T3.tournament.service.TournamentService;
-import com.project.G1_T3.tournament.repository.TournamentRepository;
-
-import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.TransactionScoped;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Set;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.UUID;
 
 @Service
-@Transactional
 public class StageServiceImpl implements StageService {
 
     @Autowired
@@ -40,24 +29,29 @@ public class StageServiceImpl implements StageService {
     @Autowired
     private RoundService roundService;
 
+    @Autowired RoundRepository roundRepository;
+
+    @Autowired
+    private PlayerProfileRepository playerProfileRepository;
+
     // Save a new stage
     public Stage saveStage(Stage stage) {
         return stageRepository.save(stage);
     }
 
     // Find all stages for a specific tournament
-    public List<Stage> findAllStagesByTournamentIdSortedByCreatedAtAsc(UUID tournamentId) {
-        return stageRepository.findByTournamentIdOrderByCreatedAtAsc(tournamentId);
+    public List<Stage> findAllStagesByTournamentId(Long tournamentId) {
+        return stageRepository.findByTournamentId(tournamentId);
     }
 
     // Find a specific stage by stageId and tournamentId
-    public Stage findStageByIdAndTournamentId(UUID stageId, UUID tournamentId) {
+    public Stage findStageByIdAndTournamentId(Long stageId, Long tournamentId) {
         return stageRepository.findByStageIdAndTournamentId(stageId, tournamentId)
                 .orElseThrow(() -> new RuntimeException("Stage not found"));
     }
 
     // Update a stage for a specific tournament
-    public Stage updateStageForTournament(UUID tournamentId, UUID stageId, Stage updatedStage) {
+    public Stage updateStageForTournament(Long tournamentId, Long stageId, Stage updatedStage) {
         Stage stage = findStageByIdAndTournamentId(stageId, tournamentId);
         stage.setStageName(updatedStage.getStageName());
         stage.setStartDate(updatedStage.getStartDate());
@@ -68,114 +62,39 @@ public class StageServiceImpl implements StageService {
     }
 
     // Delete a stage by stageId and tournamentId
-    public void deleteStageByTournamentId(UUID tournamentId, UUID stageId) {
+    public void deleteStageByTournamentId(Long tournamentId, Long stageId) {
         Stage stage = findStageByIdAndTournamentId(stageId, tournamentId);
         stageRepository.delete(stage);
     }
 
 
     // Method to start a stage and initialize the first round
-    public void startStage(UUID stageId) {
-        // Validate input
-        if (stageId == null) {
-            throw new IllegalArgumentException("Stage ID must not be null");
-        }
-    
+    public void startStage(Long stageId) {
         // Find the stage by ID
         Stage stage = stageRepository.findById(stageId)
                 .orElseThrow(() -> new RuntimeException("Stage not found"));
-    
+
         // Check if the stage is eligible to start (i.e., it has not already started)
-        if (stage.getStatus() != Status.SCHEDULED) {
-            throw new IllegalStateException("Stage is not in a scheduled state and cannot be started.");
-        }
-    
-        // Ensure there are players in the stage
+        // if (stage.getStatus() != Status.UPCOMING) {
+        //     throw new RuntimeException("Stage is not in an upcoming state and cannot be started.");
+        // }
+
         Set<PlayerProfile> players = stage.getPlayers();
-        if (players == null || players.isEmpty()) {
-            throw new IllegalStateException("There are no players in this stage. Cannot start the stage.");
-        }
-    
-        // Sort players by rating
         List<PlayerProfile> sortedPlayers = new ArrayList<>(players);
         Collections.sort(sortedPlayers, (a, b) -> Double.compare(b.getCurrentRating(), a.getCurrentRating()));
-    
-        // Create the first round with sorted players
-        try {
-            roundService.createFirstRound(stageId, sortedPlayers);
-        } catch (Exception e) {
-            throw new RuntimeException("Error creating the first round: " + e.getMessage(), e);
+
+        System.out.println("RATINGS");
+        for (int i = 0; i < sortedPlayers.size(); i++) {
+            System.out.print(sortedPlayers.get(i).getCurrentRating());
         }
-    
+        System.out.println();
+
+        roundService.createFirstRound(stageId, sortedPlayers);
+
         // Mark the stage as in-progress
         stage.setStatus(Status.IN_PROGRESS);
-    
-        // Save the updated stage
-        try {
-            stageRepository.save(stage);
-        } catch (Exception e) {
-            throw new RuntimeException("Error saving the stage: " + e.getMessage(), e);
-        }
-    }
-    
+        stageRepository.save(stage);
 
-    public void createStage(StageDTO stageDTO, Tournament tournament) {
-
-        // Validate input: Tournament must not be null
-        if (tournament == null) {
-            throw new IllegalArgumentException("Tournament field is null");
-        }
-    
-        // Validate input: Stage name must not be null or empty
-        if (stageDTO.getStageName() == null || stageDTO.getStageName().isEmpty()) {
-            throw new IllegalArgumentException("Stage name is required");
-        }
-    
-        // Validate input: Start date must not be null
-        if (stageDTO.getStartDate() == null) {
-            throw new IllegalArgumentException("Start date is required");
-        }
-    
-        // Validate input: End date must not be null
-        if (stageDTO.getEndDate() == null) {
-            throw new IllegalArgumentException("End date is required");
-        }
-    
-        // Validate input: End date must not be before start date
-        if (stageDTO.getEndDate().isBefore(stageDTO.getStartDate())) {
-            throw new IllegalArgumentException("End date cannot be before start date");
-        }
-    
-        // Validate input: Players must not be null and should be more than 1
-        if (stageDTO.getPlayers() == null || stageDTO.getPlayers().size() <= 1) {
-            throw new IllegalArgumentException("There must be more than 1 player");
-        }
-    
-        // Validate input: Referees must not be null and should have at least 1 referee
-        if (stageDTO.getReferees() == null || stageDTO.getReferees().isEmpty()) {
-            throw new IllegalArgumentException("There must be at least 1 referee");
-        }
-    
-        // Create a new Stage entity and populate its fields
-        Stage stage = new Stage();
-        try {
-            stage.setStageId(UUID.randomUUID()); // Generate a new UUID for the stage
-            stage.setStageName(stageDTO.getStageName());
-            stage.setStartDate(stageDTO.getStartDate());
-            stage.setEndDate(stageDTO.getEndDate());
-            stage.setFormat(stageDTO.getFormat() != null ? stageDTO.getFormat() : Format.SINGLE_ELIMINATION); // Default format
-            stage.setStatus(stageDTO.getStatus() != null ? stageDTO.getStatus() : Status.SCHEDULED);  // Default to SCHEDULED
-            stage.setTournament(tournament);  // Set the associated tournament
-            stage.setPlayers(stageDTO.getPlayers());
-            stage.setReferees(stageDTO.getReferees());
-    
-            // Save the stage in the repository
-            stage = stageRepository.save(stage);
-        } catch (Exception e) {
-            throw new RuntimeException("Error saving Stage: " + e.getMessage(), e);  // Add root cause
-        }
-    
-        System.out.println("Stage created successfully");
     }
 
 }

@@ -9,14 +9,13 @@ import com.project.G1_T3.round.model.Round;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Repository
-public interface RoundRepository extends JpaRepository<Round, UUID> {
+public interface RoundRepository extends JpaRepository<Round, Long> {
 
     // // Custom query to find rounds by stage ID
-    // List<Round> findByStageStageId(UUID stageId);
+    // List<Round> findByStageStageId(Long stageId);
 
     // @Query("SELECT sr FROM Round sr WHERE sr.stage.id = :stageId AND sr.roundNumber > :roundNumber ORDER BY sr.roundNumber ASC")
-    // Optional<Round> findNextRoundByStageAndRoundNumber(@Param("stageId") UUID stageId, @Param("roundNumber") Integer roundNumber);
+    // Optional<Round> findNextRoundByStageAndRoundNumber(@Param("stageId") Long stageId, @Param("roundNumber") Integer roundNumber);
 }

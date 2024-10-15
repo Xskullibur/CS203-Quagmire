@@ -1,12 +1,18 @@
 package com.project.G1_T3.tournament.model;
 
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.project.G1_T3.common.model.Status;
 import com.project.G1_T3.player.model.PlayerProfile;
-import com.project.G1_T3.stage.model.Stage;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -20,8 +26,8 @@ import java.util.*;
 public class Tournament {
 
     @Id
-    @GeneratedValue
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @Column(nullable = false)
     private String name;
@@ -38,45 +44,18 @@ public class Tournament {
     @Column(name = "deadline", columnDefinition = "TIMESTAMP")
     private LocalDateTime deadline;
 
-    // @Column(nullable = false)
-    @Column
-    private Integer maxParticipants;
-
     @Column(nullable = false)
     private String description;
 
-    @Enumerated(EnumType.STRING)
-    @Column(length = 50, nullable = false)
-    private Status status = Status.SCHEDULED;
-
-    @Column
-    private UUID winnerId;
-
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
-        name = "tournament_players",
+        name = "tournament_participants",
         joinColumns = @JoinColumn(name = "tournament_id"),
         inverseJoinColumns = @JoinColumn(name = "profile_id")
     )
-    @JsonIgnore
-    private Set<PlayerProfile> players;
+    private Set<PlayerProfile> players = new HashSet<>();
 
-    @ManyToMany
-    @JoinTable(
-        name = "tournament_referees",  // Create a join table for referees in each stage
-        joinColumns = @JoinColumn(name = "tournament_id"),
-        inverseJoinColumns = @JoinColumn(name = "profile_id")
-    )
-    @JsonIgnore
-    private Set<PlayerProfile> referees;
-
-    @OneToMany(mappedBy = "tournament", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Stage> stages = new ArrayList<>();  // Add a list to hold the stage
-
-    @Column
-    private int numStages;
-
-    @Column
-    private int currentStageIndex = 0;
-
+    public Set<PlayerProfile> getPlayers(){
+        return players;
+    }
 }

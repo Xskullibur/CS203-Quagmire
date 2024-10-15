@@ -6,8 +6,6 @@ import org.springframework.web.bind.annotation.*;
 
 import com.project.G1_T3.round.service.RoundService;
 
-import java.util.UUID;
-
 @RestController
 @RequestMapping("/tournament/{tournamentId}/stage/{stageId}/round")
 public class RoundController {
@@ -16,7 +14,7 @@ public class RoundController {
     private RoundService roundService;
 
     @PutMapping("/{roundId}/end")
-    public ResponseEntity<String> endRound(@PathVariable UUID roundId) {
+    public ResponseEntity<String> endRound(@PathVariable Long roundId) {
         try {
             roundService.endRound(roundId);  // Call the service method to end the round
             return ResponseEntity.ok("Round ended successfully");

@@ -5,7 +5,6 @@ import axios from 'axios';
 import NewCard from "@/components/tournaments/NewCard"; // Update the import to your new card component
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Tournament } from "@/types/tournament";
-import axiosInstance from '@/lib/axios';
 
 const API_URL = `${process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL}/tournament`;
 
@@ -46,9 +45,7 @@ const TournamentPage: React.FC = () => {
                     ? `${API_URL}/upcoming?page=0&size=10`
                     : `${API_URL}/past?page=0&size=10`;
 
-                const response = await axiosInstance.get(
-                    endpoint
-                )
+                const response = await axios.get(endpoint);
                 setTournaments(response.data.content);
             } catch (error) {
                 console.error('Error fetching tournaments:', error);
