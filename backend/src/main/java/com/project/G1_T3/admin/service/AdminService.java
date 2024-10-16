@@ -9,14 +9,13 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
-import com.project.G1_T3.authentication.service.PasswordGeneratorService;
+import com.project.G1_T3.authentication.service.PasswordGeneratorServiceImpl;
+import com.project.G1_T3.email.service.EmailService;
 import com.project.G1_T3.user.model.User;
 import com.project.G1_T3.user.model.UserDTO;
 import com.project.G1_T3.user.model.UserRole;
 import com.project.G1_T3.user.repository.UserRepository;
 import com.project.G1_T3.user.service.UserService;
-
-import jakarta.transaction.Transactional;
 
 @Service
 @PreAuthorize("hasRole('ADMIN')")
@@ -28,12 +27,14 @@ public class AdminService {
     private UserService userService;
 
     @Autowired
-    private PasswordGeneratorService passwordGeneratorService;
+    private PasswordGeneratorServiceImpl passwordGeneratorService;
+
+    @Autowired
+    private EmailService emailService;
 
     @Autowired
     private UserRepository userRepository;
 
-    @Transactional
     public UserDTO registerAdmin(String username, String email) {
 
         String password = passwordGeneratorService.generatePassword();
@@ -41,6 +42,7 @@ public class AdminService {
 
         logger.info("Admin registered successfully: {}:{}", username, password);
 
+        emailService.sendTempPasswordEmail(userDTO, password);
         return userDTO;
     }
 

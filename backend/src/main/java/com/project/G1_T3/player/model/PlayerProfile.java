@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.project.G1_T3.tournament.model.Tournament;
 
 import jakarta.persistence.CascadeType;
@@ -41,12 +42,13 @@ public class PlayerProfile {
     private String lastName;
 
     @Column(name = "date_of_birth", nullable = true)
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate dateOfBirth; // Use java.time.LocalDate for DATE fields
 
     @Column(name = "country", nullable = true)
     private String country;
 
-    @Column(name = "community")
+    @Column(name = "community", nullable = true)
     private String community;
 
     @Column(name = "bio", columnDefinition = "TEXT")
@@ -132,7 +134,24 @@ public class PlayerProfile {
     public void setRating(Float rating) {
         this.currentRating = rating;
     }
+
     @ManyToMany(mappedBy = "players", cascade = CascadeType.ALL)
     private Set<Tournament> tournaments = new HashSet<>();
+
+    public String getUsername() {
+        return firstName + " " + lastName;
+    }
+
+    public LocalDate getDateOfBirth() {
+        return dateOfBirth;
+    }
+
+    public Float getCurrentRating() {
+        return currentRating;
+    }
+
+    public PlayerProfileDTO getProfile() {
+        return new PlayerProfileDTO(this);
+    }
 
 }

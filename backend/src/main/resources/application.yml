@@ -13,9 +13,26 @@ spring:
             hibernate:
                 format-sql: true
         hibernate:
-            ddl-auto: update # Uncomment for production
+            ddl-auto: update
         # show-sql: true
         database: postgresql
+
+    mail:
+        host: smtp.gmail.com
+        port: 587
+        username: # Insert Gmail Address
+        password: # Insert Password
+        protocol: smtp
+        properties:
+            mail:
+                smtp:
+                    auth: true
+                    starttls:
+                        enable: true
+                        required: true
+                    connectiontimeout: 5000
+                    timeout: 3000
+                    writetimeout: 5000
 
 logging:
     level:
@@ -29,7 +46,9 @@ logging:
 
 jwt:
     secret-key: 'b94801bb5520b2b660fe5a88c59b219366d6e3919c2630a32be2d41bc3d676de'
-    expiration-time: 864000000
+    expiration-time:
+        authentication: 864000000
+        email-verification: 8640000
 
 password:
     policy:
@@ -41,3 +60,10 @@ password:
         require-special-chars: true
         lockout-attempts: 5
         lockout-duration-minutes: 30
+
+app:
+    frontend:
+        url: 'http://localhost:3000'
+
+    backend:
+        url: 'http://localhost:8080'

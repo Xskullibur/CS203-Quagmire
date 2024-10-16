@@ -9,4 +9,5 @@ export interface User {
   role: UserRole;
   createdAt: string;
   updatedAt: string;
+  emailVerified: boolean;
 }

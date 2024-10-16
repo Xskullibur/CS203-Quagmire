@@ -13,14 +13,14 @@ export default function ClientLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <AuthProvider>
-      <ErrorHandlerProvider>
-      <Toaster />
-      <AmbientLight />
-      <MenuBar />
-      {children}
-      <Footer />
-      </ErrorHandlerProvider>
-    </AuthProvider>
+    <ErrorHandlerProvider>
+      <AuthProvider>
+        <Toaster />
+        <AmbientLight />
+        <MenuBar />
+        {children}
+        <Footer />
+      </AuthProvider>
+    </ErrorHandlerProvider>
   );
 }

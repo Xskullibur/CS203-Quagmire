@@ -11,14 +11,35 @@ interface QueueManagementProps {
 }
 
 interface MatchNotification {
-    match: {
-        meetingLatitude: number;
-        meetingLongitude: number;
-    };
+    matchId: string;
+    meetingLatitude: number;
+    meetingLongitude: number;
     opponentName: string;
     opponentProfile: PlayerProfile;
 }
 
+/**
+ * QueueManagement component handles the logic for a player to join and leave a matchmaking queue.
+ * It uses WebSocket for real-time communication and Geolocation for player's location.
+ *
+ * @component
+ * @param {QueueManagementProps} props - The props for the component.
+ * @param {string} props.playerId - The ID of the player.
+ * @param {function} props.onMatchFound - Callback function to handle when a match is found.
+ *
+ * @returns {JSX.Element} The rendered component.
+ *
+ * @example
+ * <QueueManagement playerId="player123" onMatchFound={handleMatchFound} />
+ *
+ * @remarks
+ * - The component subscribes to a WebSocket topic to receive match notifications.
+ * - It uses geolocation to send the player's location when joining the queue.
+ * - The component manages its own state for queue status, queue time, and match found status.
+ *
+ * @internal
+ * This component is intended to be used within the matchmaking system of the application.
+ */
 const QueueManagement: React.FC<QueueManagementProps> = ({ playerId, onMatchFound }) => {
     const [inQueue, setInQueue] = useState(false);
     const [queueTime, setQueueTime] = useState(0);
@@ -36,7 +57,12 @@ const QueueManagement: React.FC<QueueManagementProps> = ({ playerId, onMatchFoun
                     setMatchFound(true);
                     setInQueue(false);
                     setOpponentName(notification.opponentName);
-                    onMatchFound(true, notification.opponentName, [notification.match.meetingLatitude, notification.match.meetingLongitude], notification.opponentProfile);
+                    onMatchFound(
+                        true,
+                        notification.opponentName,
+                        [notification.meetingLatitude, notification.meetingLongitude],
+                        notification.opponentProfile
+                    );
                 } catch (error) {
                     console.error('Error parsing match data:', error);
                 }

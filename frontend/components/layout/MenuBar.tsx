@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 export default function MenuBar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { user, logout, isAuthenticated } = useAuth();
+  const { user, logout, isAuthenticated, isLoading } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -15,6 +15,52 @@ export default function MenuBar() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  const renderLinks = () => {
+    if (isLoading) {
+      return null;
+    }
+
+    if (!isAuthenticated) {
+      return (
+        <>
+          <Link href="/auth/login" className="text-sm text-white hover:text-gray-600 transition">Log in</Link>
+          <Link href="/auth/register" className="text-sm bg-zinc-500 text-white px-4 py-2 rounded-full hover:bg-gray-700 transition">Sign up</Link>
+        </>
+      );
+    }
+
+    return (
+      <>
+        <Link href="/profile" className="text-sm text-white hover:text-gray-600 transition">Profile</Link>
+        <button onClick={logout} className="text-sm text-white hover:text-gray-600 transition">Logout</button>
+        <Link href="/match" className="text-sm bg-zinc-500 text-white px-4 py-2 rounded-full hover:bg-gray-700 transition">Queue</Link>
+      </>
+    );
+  };
+
+  const renderMobileLinks = () => {
+    if (isLoading) {
+      return null;
+    }
+
+    if (!isAuthenticated) {
+      return (
+        <>
+          <Link href="/auth/login" className="text-xl text-white hover:text-gray-400 transition" onClick={() => setIsMenuOpen(false)}>Log in</Link>
+          <Link href="/auth/register" className="text-xl bg-zinc-500 text-white px-6 py-2 rounded-full hover:bg-gray-700 transition" onClick={() => setIsMenuOpen(false)}>Sign up</Link>
+        </>
+      );
+    }
+
+    return (
+      <>
+        <Link href="/profile" className="text-xl text-white hover:text-gray-400 transition" onClick={() => setIsMenuOpen(false)}>Profile</Link>
+        <Link href="/match" className="text-xl text-white hover:text-gray-400 transition" onClick={() => setIsMenuOpen(false)}>Queue</Link>
+        <button onClick={() => { logout(); setIsMenuOpen(false); }} className="text-xl text-white hover:text-gray-400 transition">Logout</button>
+      </>
+    );
+  };
 
   return (
     <>
@@ -45,18 +91,7 @@ export default function MenuBar() {
             </button>
 
             <div className="hidden md:flex items-center space-x-6">
-              {!isAuthenticated ? (
-                <>
-                  <Link href="/auth/login" className="text-sm text-white hover:text-gray-600 transition">Log in</Link>
-                  <Link href="/auth/register" className="text-sm bg-zinc-500 text-white px-4 py-2 rounded-full hover:bg-gray-700 transition">Sign up</Link>
-                </>
-              ) : (
-                <>
-                  <Link href="/profile" className="text-sm text-white hover:text-gray-600 transition">Profile</Link>
-                  <Link href="/match" className="text-sm bg-zinc-500 text-white px-4 py-2 rounded-full hover:bg-gray-700 transition">Queue</Link>
-                  {/* <button onClick={logout} className="text-sm text-white hover:text-gray-600 transition">Logout</button> */}
-                </>
-              )}
+              {renderLinks()}
             </div>
           </div>
         </nav>
@@ -88,14 +123,7 @@ export default function MenuBar() {
             {user?.role === 'ADMIN' && (
               <Link href="/admin/dashboard" className="text-xl text-white hover:text-gray-400 transition" onClick={() => setIsMenuOpen(false)}>Dashboard</Link>
             )}
-            {!isAuthenticated ? (
-              <>
-                <Link href="/auth/login" className="text-xl text-white hover:text-gray-400 transition" onClick={() => setIsMenuOpen(false)}>Log in</Link>
-                <Link href="/auth/register" className="text-xl bg-zinc-500 text-white px-6 py-2 rounded-full hover:bg-gray-700 transition" onClick={() => setIsMenuOpen(false)}>Sign up</Link>
-              </>
-            ) : (
-              <button onClick={() => { logout(); setIsMenuOpen(false); }} className="text-xl text-white hover:text-gray-400 transition">Logout</button>
-            )}
+            {renderMobileLinks()}
           </div>
         </div>
       </div>

@@ -2,7 +2,7 @@ package com.project.G1_T3.matchmaking.model;
 
 public class QueueRequest {
     private String playerId;
-    private Location location;
+    private MatchLocation location;
 
     // Getters and setters
     public String getPlayerId() {
@@ -13,11 +13,11 @@ public class QueueRequest {
         this.playerId = playerId;
     }
 
-    public Location getLocation() {
+    public MatchLocation getLocation() {
         return location;
     }
 
-    public void setLocation(Location location) {
+    public void setLocation(MatchLocation location) {
         this.location = location;
     }
 }

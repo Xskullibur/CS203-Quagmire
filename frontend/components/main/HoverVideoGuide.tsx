@@ -11,6 +11,32 @@ interface HoverVideoGuideProps {
     steps: Step[];
 }
 
+/**
+ * HoverVideoGuide component displays a list of steps with associated videos.
+ * When a step is clicked, the corresponding video is played.
+ * The component also adjusts its layout based on the screen size.
+ *
+ * @component
+ * @param {HoverVideoGuideProps} props - The properties for the HoverVideoGuide component.
+ * @param {Step[]} props.steps - An array of steps, each containing a title, description, and video URL.
+ *
+ * @example
+ * const steps = [
+ *   { title: 'Step 1', description: 'Description for step 1', videoUrl: 'video1.mp4' },
+ *   { title: 'Step 2', description: 'Description for step 2', videoUrl: 'video2.mp4' },
+ * ];
+ * <HoverVideoGuide steps={steps} />
+ *
+ * @returns {JSX.Element} The rendered HoverVideoGuide component.
+ *
+ * @remarks
+ * The component uses IntersectionObserver to detect when the section is in view and sets the active step accordingly.
+ * It also listens for window resize events to determine if the screen is mobile-sized.
+ *
+ * @internal
+ * @function
+ * @name HoverVideoGuide
+ */
 const HoverVideoGuide: React.FC<HoverVideoGuideProps> = ({ steps }) => {
     const [activeStep, setActiveStep] = useState<Step>(steps[0]);
     const sectionRef = useRef<HTMLDivElement>(null);

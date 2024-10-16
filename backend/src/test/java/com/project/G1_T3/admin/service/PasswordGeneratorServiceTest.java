@@ -9,7 +9,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.project.G1_T3.authentication.service.PasswordGeneratorService;
+import com.project.G1_T3.authentication.service.PasswordGeneratorServiceImpl;
 import com.project.G1_T3.config.PasswordPolicyConfig;
 
 @ExtendWith(MockitoExtension.class)
@@ -19,7 +19,7 @@ class PasswordGeneratorServiceTest {
     private PasswordPolicyConfig passwordPolicyConfig;
 
     @InjectMocks
-    private PasswordGeneratorService passwordGeneratorService;
+    private PasswordGeneratorServiceImpl passwordGeneratorService;
 
     @Test
     void testGeneratePassword() {

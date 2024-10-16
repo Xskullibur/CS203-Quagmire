@@ -31,6 +31,36 @@ const Card: React.FC<CardProps> = ({ icon, title, description }) => {
     );
 };
 
+/**
+ * HeroCards component renders a collection of Card components with interactive mouse movement effects.
+ * 
+ * This component uses a `useRef` hook to reference the container div and a `useEffect` hook to add
+ * and clean up a mousemove event listener. The event listener updates custom CSS properties 
+ * (`--mouse-x` and `--mouse-y`) on each card to create a dynamic visual effect based on the mouse position.
+ * 
+ * @component
+ * @returns {JSX.Element} The rendered HeroCards component.
+ * 
+ * @example
+ * // Example usage of HeroCards component
+ * import HeroCards from './HeroCards';
+ * 
+ * function App() {
+ *   return (
+ *     <div>
+ *       <HeroCards />
+ *     </div>
+ *   );
+ * }
+ * 
+ * @remarks
+ * - The component assumes that each Card component has a class name of "card".
+ * - The CSS properties `--mouse-x` and `--mouse-y` should be used within the Card component's styles to achieve the desired effect.
+ * - Ensure that the FontAwesome icons (faBuilding, faWarehouse, etc.) are imported and available in the scope.
+ * 
+ * @see {@link https://reactjs.org/docs/hooks-reference.html#useref | useRef}
+ * @see {@link https://reactjs.org/docs/hooks-reference.html#useeffect | useEffect}
+ */
 const HeroCards: React.FC = () => {
     const cardsRef = useRef<HTMLDivElement>(null);
 
@@ -59,7 +89,7 @@ const HeroCards: React.FC = () => {
     return (
         <div
             ref={cardsRef}
-            className="flex flex-wrap gap-2 w-[calc(100%-10vw)] m-12 mx-auto justify-center px-20"
+            className="flex flex-wrap gap-2 mx-auto justify-center py-8"
         >
             <Card
                 icon={faBuilding}

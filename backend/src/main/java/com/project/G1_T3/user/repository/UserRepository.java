@@ -6,8 +6,6 @@ import org.springframework.stereotype.Repository;
 
 import com.project.G1_T3.user.model.User;
 
-import lombok.NonNull;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -24,6 +22,8 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     long deleteByUsername(String username);
 
-    @Query("SELECT new User(u.userId, u.username, u.email, null, u.role, u.createdAt, u.updatedAt) FROM User u")
+    long deleteByEmail(String email);
+
+    @Query("SELECT new User(u.userId, u.username, u.email, null, u.role, u.createdAt, u.updatedAt, u.emailVerified) FROM User u")
     List<User> findAllUsersWithoutPassword();
 }

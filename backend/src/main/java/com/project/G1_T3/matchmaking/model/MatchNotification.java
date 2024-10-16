@@ -1,7 +1,14 @@
 package com.project.G1_T3.matchmaking.model;
 
 import com.project.G1_T3.player.model.PlayerProfile;
+
+import lombok.NoArgsConstructor;
+
+import java.util.UUID;
+
 import com.project.G1_T3.match.model.Match;
+
+@NoArgsConstructor
 
 public class MatchNotification {
     private Match match;
@@ -19,43 +26,16 @@ public class MatchNotification {
     }
     // Getters and setters
 
+    public UUID getMatchId() {
+        return match.getMatchId();
+    }
+
     public Match getMatch() {
         return match;
     }
 
+    // Setter
     public void setMatch(Match match) {
         this.match = match;
-    }
-
-    public String getOpponentName() {
-        return opponentName;
-    }
-
-    public void setOpponentName(String opponentName) {
-        this.opponentName = opponentName;
-    }
-
-    public double getMeetingLatitude() {
-        return meetingLatitude;
-    }
-
-    public void setMeetingLatitude(double meetingLatitude) {
-        this.meetingLatitude = meetingLatitude;
-    }
-
-    public double getMeetingLongitude() {
-        return meetingLongitude;
-    }
-
-    public void setMeetingLongitude(double meetingLongitude) {
-        this.meetingLongitude = meetingLongitude;
-    }
-
-    public PlayerProfile getOpponentProfile() {
-        return opponentProfile;
-    }
-
-    public void setOpponentProfile(PlayerProfile opponentProfile) {
-        this.opponentProfile = opponentProfile;
     }
 }

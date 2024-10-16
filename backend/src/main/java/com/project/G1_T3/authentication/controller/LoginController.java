@@ -5,14 +5,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.project.G1_T3.authentication.model.LoginRequest;
 import com.project.G1_T3.authentication.model.LoginResponseDTO;
-import com.project.G1_T3.authentication.service.AuthService;
+import com.project.G1_T3.authentication.service.AuthServiceImpl;
 
 @RestController
 @RequestMapping("/authentication")
 public class LoginController {
 
     @Autowired
-    private AuthService authService;
+    private AuthServiceImpl authService;
 
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@RequestBody LoginRequest loginRequest) {
