@@ -103,6 +103,7 @@ public class TournamentServiceImpl implements TournamentService {
         tournament.setDeadline(tournamentDTO.getDeadline());
         tournament.setDescription(tournamentDTO.getDescription());
         tournament.setStatus(tournamentDTO.getStatus() != null ? tournamentDTO.getStatus() : Status.SCHEDULED);
+        tournament.setMaxParticipants(tournamentDTO.getMaxParticipants());
 
         Set<UUID> refereeIds = tournamentDTO.getRefereeIds();
         Set<PlayerProfile> referees = new HashSet<>(playerProfileRepository.findAllById(refereeIds));
