@@ -1,20 +1,13 @@
 package com.project.G1_T3.tournament.model;
 
 import com.project.G1_T3.player.model.PlayerProfile;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 import java.time.LocalDateTime;
 import java.util.*;
-import org.hibernate.annotations.UuidGenerator;
 
 @Entity
 @Getter
@@ -23,26 +16,30 @@ import org.hibernate.annotations.UuidGenerator;
 public class Tournament {
 
     @Id
-    @GeneratedValue(generator = "UUID")
-    @UuidGenerator
+    @GeneratedValue
     private UUID id;
 
     @Column(nullable = false)
+    @NotNull(message = "Tournament name cannot be null")
+    @Size(min = 5, max = 50)
     private String name;
 
     @Column(nullable = false)
+    @NotNull(message = "Tournament location cannot be null")
     private String location;
 
     @Column(name = "start_date", columnDefinition = "TIMESTAMP")
+    @NotNull(message = "Tournament start date cannot be null")
     private LocalDateTime startDate;
 
     @Column(name = "end_date", columnDefinition = "TIMESTAMP")
+    @NotNull(message = "Tournament end date cannot be null")
     private LocalDateTime endDate;
 
     @Column(name = "deadline", columnDefinition = "TIMESTAMP")
+    @NotNull(message = "Tournament deadline cannot be null")
     private LocalDateTime deadline;
 
-    @Column(nullable = false)
     private String description;
 
     @ManyToMany(fetch = FetchType.LAZY)
@@ -52,8 +49,4 @@ public class Tournament {
         inverseJoinColumns = @JoinColumn(name = "profile_id")
     )
     private Set<PlayerProfile> players = new HashSet<>();
-
-    public Set<PlayerProfile> getPlayers(){
-        return players;
-    }
 }

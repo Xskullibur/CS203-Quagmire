@@ -27,14 +27,19 @@ public class TournamentServiceImpl implements TournamentService {
     }
 
     @Override
-    public List<Tournament> findAllTournaments() {
-        return tournamentRepository.findAll();
+    public Page<Tournament> getAllTournaments(Pageable pageable) {
+        return tournamentRepository.findAll(pageable);
     }
 
     @Override
     public Tournament findTournamentById(UUID id) {
         return tournamentRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Tournament not found with id: " + id));
+    }
+
+    @Override
+    public Page<Tournament> searchByName(String name, Pageable pageable) {
+        return tournamentRepository.searchByName(name, pageable);
     }
 
     @Override
@@ -48,23 +53,23 @@ public class TournamentServiceImpl implements TournamentService {
     }
 
     @Override
-    public Page<Tournament> findTournamentsByDeadline(Pageable pageable, LocalDateTime deadline) {
-        return tournamentRepository.findByDeadlineBefore(deadline, pageable);
+    public Page<Tournament> findTournamentsByAvailability(Pageable pageable, LocalDateTime availableStartDate, LocalDateTime availableEndDate) {
+        return tournamentRepository.findByStartAndEndDateWithinAvailability(availableStartDate, availableEndDate, pageable);
     }
 
     @Override
-    public List<Tournament> findTournamentsByLocation(String location) {
-        return tournamentRepository.findByLocation(location);
+    public Page<Tournament> findRegistrableTournaments(Pageable pageable) {
+        return tournamentRepository.findByDeadlineBefore(LocalDateTime.now(), pageable);
     }
 
     @Override
-    public Page<Tournament> getAllTournaments(Pageable pageable) {
-        return tournamentRepository.findAll(pageable);
+    public Page<Tournament> findTournamentsByLocation(String location, Pageable pageable) {
+        return tournamentRepository.findByLocation(location, pageable);
     }
 
     @Override
-    public List<Tournament> searchByName(String name) {
-        return tournamentRepository.searchByName(name);
+    public Page<Tournament> findByKeywordInDescription(String keyword, Pageable pageable) {
+        return tournamentRepository.findByKeywordInDescription(keyword, pageable);
     }
 
     @Override
@@ -72,26 +77,33 @@ public class TournamentServiceImpl implements TournamentService {
         return tournamentRepository.save(tournament);
     }
 
+    @Override
+    public Tournament updateTournament(UUID id, Tournament updatedTournament) {
+        updatedTournament.setId(id);
+        return tournamentRepository.save(updatedTournament);
+    }
+
+    @Override
+    public void deleteTournament(UUID tournamentId) {
+        if (!tournamentRepository.existsById(tournamentId)) {
+            throw new NoSuchElementException("Tournament not found with id: " + tournamentId);
+        }
+        tournamentRepository.deleteById(tournamentId);
+    }
+
+    @Override
     public Set<PlayerProfile> getPlayers(UUID tournamentId) {
-        Tournament tournament = tournamentRepository.findById(tournamentId).get();
+        Tournament tournament = tournamentRepository.findById(tournamentId)
+                .orElseThrow(() -> new NoSuchElementException("Tournament not found with id: " + tournamentId));
         return tournament.getPlayers();
     }
 
+    @Override
     public Tournament addPlayerToTournament(UUID tournamentId, UUID userId) {
-        Tournament tournament = tournamentRepository.findById(tournamentId).get();
+        Tournament tournament = tournamentRepository.findById(tournamentId)
+                .orElseThrow(() -> new NoSuchElementException("Tournament not found with id: " + tournamentId));
         PlayerProfile player = playerProfileRepository.findByUserId(userId);
         tournament.getPlayers().add(player);
         return tournamentRepository.save(tournament);
-    }
-
-    public Tournament updateTournament(UUID id, Tournament updatedTournament) {
-       updatedTournament.setId(id);
-       return tournamentRepository.save(updatedTournament);
-    }
-    
-    // Add this method
-    public Tournament getTournamentById(UUID id) {
-        return tournamentRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Tournament not found with id: " + id));
     }
 }
