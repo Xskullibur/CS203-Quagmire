@@ -36,7 +36,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // Retrieve and validate token format
         final String authHeader = request.getHeader("Authorization");
-        
+
         jwtService.validateTokenFormat(authHeader);
 
         // Extract information from header
@@ -68,7 +68,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(@NonNull HttpServletRequest request) throws ServletException {
         String path = request.getRequestURI();
-        return path.startsWith("/authentication/") || path.startsWith("/ws/");
+        return path.startsWith("/authentication/") || path.startsWith("/ws/") || path.startsWith("/profile/")
+                || path.startsWith("/leaderboard/user/");
     }
 
 }

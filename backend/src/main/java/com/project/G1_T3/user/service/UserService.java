@@ -98,6 +98,10 @@ public class UserService {
         username = username.toLowerCase();
         return userRepository.findByUsername(username);
     }
+    
+    public Optional<User> findByUserId(String userId) {
+        return userRepository.findById(UUID.fromString(userId));
+    }
 
     public List<UserDTO> getAllUsers() {
         return userRepository.findAllUsersWithoutPassword()
