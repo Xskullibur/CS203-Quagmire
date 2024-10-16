@@ -93,7 +93,7 @@ class EloMatchmakingAlgorithmTests {
     private PlayerProfile createPlayerProfile(float rating) {
         PlayerProfile profile = new PlayerProfile();
         profile.setUserId(UUID.randomUUID());
-        profile.setRating(rating);
+        profile.setCurrentRating(rating);
         return profile;
     }
 }

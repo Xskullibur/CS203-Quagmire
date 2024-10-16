@@ -43,4 +43,18 @@ public class PlayerProfileController {
         return ResponseEntity.ok(playerProfile);
     }
 
+    @GetMapping("/rank/{userId}")
+    public ResponseEntity<Integer> getPlayerRankByUserId(@PathVariable String userId) {
+        PlayerProfile playerProfile = playerProfileService.findByUserId(userId);
+        
+        if (playerProfile == null) {
+            return ResponseEntity.notFound().build();
+        }
+        
+        // Get the rank (position) of the player by their profileId
+        int rank = playerProfileService.getPlayerRank(playerProfile.getProfileId().toString());
+        
+        return ResponseEntity.ok(rank);
+    }
+
 }

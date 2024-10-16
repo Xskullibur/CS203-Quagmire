@@ -35,8 +35,8 @@ public class TournamentController {
 
     // Get tournaments by name with filtering
     @GetMapping("/search")
-    public ResponseEntity<List<Tournament>> searchByName(@RequestParam("name") String name) {
-        List<Tournament> tournaments = tournamentService.searchByName(name);
+    public ResponseEntity<Page<Tournament>> searchByName(@RequestParam("name") String name, Pageable pageable) {
+        Page<Tournament> tournaments = tournamentService.searchByName(name, pageable);
         return ResponseEntity.ok(tournaments);
     }
 
@@ -68,7 +68,7 @@ public class TournamentController {
     // Get tournament by ID
     @GetMapping("/{id}")
     public ResponseEntity<Tournament> getTournamentById(@PathVariable UUID id) {
-        Tournament tournament = tournamentService.getTournamentById(id);
+        Tournament tournament = tournamentService.findTournamentById(id);
         if (tournament == null) {
             return ResponseEntity.notFound().build();
         }

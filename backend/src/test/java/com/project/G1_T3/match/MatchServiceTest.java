@@ -3,6 +3,8 @@ package com.project.G1_T3.match;
 import com.project.G1_T3.match.model.Match;
 import com.project.G1_T3.match.model.MatchDTO;
 import com.project.G1_T3.match.service.MatchServiceImpl;
+import com.project.G1_T3.player.model.PlayerProfile;
+import com.project.G1_T3.player.service.PlayerProfileService;
 import com.project.G1_T3.match.repository.MatchRepository;
 import com.project.G1_T3.common.model.Status;
 
@@ -34,6 +36,9 @@ class MatchServiceTest {
 
     @InjectMocks
     private MatchServiceImpl matchServiceImpl;
+
+    @Mock
+    private PlayerProfileService playerProfileService;
 
     private MatchDTO matchDTO;
     private Match match;
@@ -323,10 +328,16 @@ class MatchServiceTest {
 
     @Test
     void completeMatch_successfulCompletion_savesMatch() {
-        setUpForCompleteMatch();
-
         // Arrange
+        setUpForCompleteMatch();
+        PlayerProfile player1Profile = new PlayerProfile();
+        player1Profile.setProfileId(matchDTO.getPlayer1Id());
+        PlayerProfile player2Profile = new PlayerProfile();
+        player1Profile.setProfileId(matchDTO.getPlayer2Id());
+
         when(matchRepository.findById(validMatchId)).thenReturn(Optional.of(match));
+        when(playerProfileService.findByProfileId(matchDTO.getPlayer1Id().toString())).thenReturn(player1Profile);
+        when(playerProfileService.findByProfileId(matchDTO.getPlayer2Id().toString())).thenReturn(player2Profile);
 
         // Act
         matchServiceImpl.completeMatch(validMatchId, matchDTO);

@@ -74,7 +74,7 @@ class AdminControllerTest {
 
         when(adminService.registerAdmin("newAdmin", "newadmin@example.com")).thenReturn(expectedUser);
 
-        ResponseEntity<UserDTO> response = adminController.postMethodName(request);
+        ResponseEntity<UserDTO> response = adminController.registerAdmin(request);
 
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertEquals(expectedUser, response.getBody());
@@ -91,7 +91,7 @@ class AdminControllerTest {
                 .thenThrow(new RuntimeException("Registration failed"));
 
         Exception exception = assertThrows(RuntimeException.class, () -> {
-            adminController.postMethodName(request);
+            adminController.registerAdmin(request);
         });
 
         assertEquals("Registration failed", exception.getMessage());

@@ -7,8 +7,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import java.util.UUID;
 
-import java.util.UUID;
-
 public interface MatchService {
 
     public Match createMatch(MatchDTO matchDTO);

@@ -1,13 +1,11 @@
 package com.project.G1_T3.stage.service;
 
-import com.project.G1_T3.player.model.PlayerProfile;
 import com.project.G1_T3.stage.model.Stage;
 import com.project.G1_T3.stage.model.StageDTO;
 import com.project.G1_T3.tournament.model.Tournament;
 
 
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 public interface StageService {
