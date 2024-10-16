@@ -84,6 +84,10 @@ public class UserService {
         return UserDTO.fromUser(savedUser);
     }
 
+    public List<User> findUsersByUsernameContaining(String username) {
+        return userRepository.findByUsernameContainingIgnoreCase(username);
+    }
+    
     public boolean existsByUsername(String username) {
         username = username.toLowerCase();
         return userRepository.existsByUsername(username);

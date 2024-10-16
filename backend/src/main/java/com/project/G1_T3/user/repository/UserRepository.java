@@ -24,6 +24,9 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     long deleteByEmail(String email);
 
+    List<User> findByUsernameContainingIgnoreCase(String username);
+
+
     @Query("SELECT new User(u.userId, u.username, u.email, null, u.role, u.createdAt, u.updatedAt, u.emailVerified) FROM User u")
     List<User> findAllUsersWithoutPassword();
 }
