@@ -38,9 +38,9 @@ public class MatchmakingServiceImpl implements MatchmakingService {
      * Constructor for MatchmakingServiceImpl.
      *
      * @param matchmakingAlgorithm the matchmaking algorithm to use
-     * @param meetingPointService the service to find meeting points
-     * @param matchService the service to handle match creation
-     * @param messagingTemplate the messaging template for notifications
+     * @param meetingPointService   the service to find meeting points
+     * @param matchService                 the service to handle match creation
+     * @param messagingTemplate       the messaging template for notifications
      * @param playerProfileService the service to handle player profiles
      */
     public MatchmakingServiceImpl(MatchmakingAlgorithm matchmakingAlgorithm,
@@ -57,8 +57,8 @@ public class MatchmakingServiceImpl implements MatchmakingService {
     /**
      * Adds a player to the matchmaking queue.
      *
-     * @param player the player profile
-     * @param latitude the latitude of the player's location
+     * @param player       the player profile
+     * @param latitude   the latitude of the player's location
      * @param longitude the longitude of the player's location
      */
     @Override
@@ -154,7 +154,7 @@ public class MatchmakingServiceImpl implements MatchmakingService {
      * Creates a match notification for a player.
      *
      * @param match the match
-     * @param uuid the UUID of the player to notify
+     * @param uuid   the UUID of the player to notify
      * @return the match notification
      */
     @Override

@@ -52,8 +52,8 @@ export default function NotFound() {
                     modelPosition={models[0].modelPosition}
                 />
             </div>
-            <h2 className="text-2xl font-bold mb-4 mt-8">404 - Page Not Found</h2>
-            <p className="text-lg mb-4 text-muted-foreground">Oops! The page you&apos;re looking for doesn&apos;t exist.</p>
+            <h2 className="text-2xl font-bold mb-4 mt-8">403 - Forbidden!</h2>
+            <p className="text-lg mb-4 text-muted-foreground">Oops! The page you&apos;re looking for is forbidden.</p>
             <Button variant="outline" className='hover:bg-muted transition duration-300' onClick={() => router.push('/')}>Go Home</Button>
         </div>
     );
