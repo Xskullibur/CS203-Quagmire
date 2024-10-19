@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 
+import com.project.G1_T3.common.glicko.Glicko2Result;
 import com.project.G1_T3.player.model.PlayerProfile;
 
 @Service
@@ -18,6 +19,9 @@ public class PlayerProfileService {
 
     @Autowired
     private PlayerProfileRepository playerProfileRepository;
+
+    @Autowired
+    private PlayerRatingService playerRatingService;
 
     public List<PlayerProfile> findAll() {
         return playerProfileRepository.findAll();
@@ -59,6 +63,25 @@ public class PlayerProfileService {
         // Invalidate cache for player rankings
         return playerProfileRepository.save(playerProfile);
     }
+
+    public void updatePlayerRating(UUID playerId, List<Glicko2Result> results) {
+        Optional<PlayerProfile> playerOpt = playerProfileRepository.findById(playerId);
+        if (playerOpt.isPresent()) {
+            PlayerProfile playerProfile = playerOpt.get();
+            int oldRating = playerProfile.getGlickoRating();
+
+            playerProfile.updateRating(results);
+
+            int newRating = playerProfile.getGlickoRating();
+            playerProfileRepository.save(playerProfile);
+
+            // Update the rating counts
+            playerRatingService.updateRating(oldRating, newRating);
+        } else {
+            throw new NoSuchElementException("Player with ID " + playerId + " not found.");
+        }
+    }
+
 
     // For editing profile
     public PlayerProfile updateProfile(UUID id, PlayerProfile profileUpdates) {
