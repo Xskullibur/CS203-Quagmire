@@ -46,17 +46,17 @@ public class LeaderboardServiceTest {
         player1.setProfileId(UUID.randomUUID());
         player1.setFirstName("Alice");
         player1.setLastName("Smith");
-        player1.setCurrentRating(2000.0f);
+        player1.setCurrentRating(2000f);
 
         PlayerProfile player2 = new PlayerProfile();
         player2.setProfileId(UUID.randomUUID());
         player2.setFirstName("Bob");
         player2.setLastName("Johnson");
-        player2.setGlickoRating(1950.0f);
+        player2.setCurrentRating(1950f);
 
         List<PlayerProfile> mockPlayerProfiles = Arrays.asList(player1, player2);
 
-        when(playerProfileRepository.findTop10ByOrderByGlickoRatingDesc()).thenReturn(mockPlayerProfiles);
+        when(playerProfileRepository.findTop10ByOrderByCurrentRatingDesc()).thenReturn(mockPlayerProfiles);
 
         // Act
         List<LeaderboardPlayerProfile> result = leaderboardService.getTop10LeaderboardPlayerProfiles();
@@ -87,7 +87,7 @@ public class LeaderboardServiceTest {
         mockPlayerProfile.setUserId(userId);
         mockPlayerProfile.setFirstName("Alice");
         mockPlayerProfile.setLastName("Smith");
-        mockPlayerProfile.setGlickoRating(2000.0f);
+        mockPlayerProfile.setGlickoRating(2000);
 
         long position = 1L;
 
