@@ -23,6 +23,10 @@ public interface TournamentService {
     Page<Tournament> findPastTournaments(Pageable pageable); // Fetch tournaments ending before now
 
     Page<Tournament> findTournamentsByAvailability(Pageable pageable, LocalDateTime availableStartDate, LocalDateTime availableEndDate); // Search tournaments that start and end within the user's available dates
+    
+    Page<Tournament> findCurrentTournaments(Pageable pageable);
+
+    // Page<Tournament> findTournamentsByDeadline(Pageable pageable, LocalDateTime deadline); // Fetch tournaments with a deadline before a specific date
 
     Page<Tournament> findCurrentTournaments(Pageable pageable);
 
@@ -35,8 +39,11 @@ public interface TournamentService {
     Page<Tournament> findByKeywordInDescription(String keyword, Pageable pageable); // Search tournaments by keyword in description with pagination
 
     public Tournament createTournament(TournamentDTO tournament);
+    
+    // Add this method
+    Tournament getTournamentById(UUID id); // Get tournament by ID
 
-    public void startTournament(UUID tournamentId, TournamentDTO tournamentDTO);
+    public void startTournament(UUID tournamentId);
 
     Set<PlayerProfile> getPlayers(UUID tournamentId);
 

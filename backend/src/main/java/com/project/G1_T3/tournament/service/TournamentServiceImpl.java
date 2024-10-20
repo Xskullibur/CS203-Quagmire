@@ -52,6 +52,16 @@ public class TournamentServiceImpl implements TournamentService {
         return result;
     }
 
+    // @Override
+    // public Page<Tournament> findUpcomingTournaments(Pageable pageable) {
+    //     return tournamentRepository.findByStartDateAfter(LocalDateTime.now(), pageable);
+    // }
+
+    // @Override
+    // public Page<Tournament> findPastTournaments(Pageable pageable) {
+    //     return tournamentRepository.findByEndDateBefore(LocalDateTime.now(), pageable);
+    // }
+
     @Override
     public Page<Tournament> searchByName(String name, Pageable pageable) {
         return tournamentRepository.searchByName(name, pageable);
@@ -129,26 +139,28 @@ public class TournamentServiceImpl implements TournamentService {
         if (tournamentDTO.getStageDTOs() != null && !tournamentDTO.getStageDTOs().isEmpty()) {
             // Convert StageDTO to Stage entity and link with the tournament
             for (StageDTO stageDTO : tournamentDTO.getStageDTOs()) {
-                Stage stage = new Stage();
-                stage.setStageName(stageDTO.getStageName());
-                stage.setStartDate(stageDTO.getStartDate());
-                stage.setEndDate(stageDTO.getEndDate());
-                stage.setFormat(stageDTO.getFormat());
-                stage.setStatus(stageDTO.getStatus() != null ? stageDTO.getStatus() : Status.SCHEDULED);
-                stage.setTournament(tournament);  // Link the stage with the tournament
+                Stage stage = stageService.createStage(stageDTO, tournament);
+                // Stage stage = new Stage();
+                // stage.setStageName(stageDTO.getStageName());
+                // stage.setStartDate(stageDTO.getStartDate());
+                // stage.setEndDate(stageDTO.getEndDate());
+                // stage.setFormat(stageDTO.getFormat());
+                // stage.setStatus(stageDTO.getStatus() != null ? stageDTO.getStatus() : Status.SCHEDULED);
+                // stage.setTournament(tournament);  // Link the stage with the tournament
                 tournament.getStages().add(stage);  // Add the stage to the tournament
             }
-        } else {
-            // Automatically create a default single elimination stage if no stages are provided
-            Stage defaultStage = new Stage();
-            defaultStage.setStageName("Single Elimination");
-            defaultStage.setStartDate(tournamentDTO.getStartDate());
-            defaultStage.setEndDate(tournamentDTO.getEndDate());
-            defaultStage.setFormat(Format.SINGLE_ELIMINATION);  // Assuming this is an enum
-            defaultStage.setStatus(Status.SCHEDULED);
-            defaultStage.setTournament(tournament);  // Link to tournament
-            tournament.getStages().add(defaultStage);
-        }
+        } 
+        // else {
+        //     // Automatically create a default single elimination stage if no stages are provided
+        //     Stage defaultStage = new Stage();
+        //     defaultStage.setStageName("Single Elimination");
+        //     defaultStage.setStartDate(tournamentDTO.getStartDate());
+        //     defaultStage.setEndDate(tournamentDTO.getEndDate());
+        //     defaultStage.setFormat(Format.SINGLE_ELIMINATION);  // Assuming this is an enum
+        //     defaultStage.setStatus(Status.SCHEDULED);
+        //     defaultStage.setTournament(tournament);  // Link to tournament
+        //     tournament.getStages().add(defaultStage);
+        // }
 
         // Save the tournament along with its stages
         return tournamentRepository.save(tournament);
@@ -209,7 +221,8 @@ public class TournamentServiceImpl implements TournamentService {
     }
 
 
-    public void startTournament(UUID tournamentId, TournamentDTO tournamentDTO) {
+    @Transactional
+    public void startTournament(UUID tournamentId) {
         // Retrieve the tournament
 
         Tournament tournament = tournamentRepository.findById(tournamentId)
@@ -232,7 +245,11 @@ public class TournamentServiceImpl implements TournamentService {
 
         int numStages = allStages.size();
         tournament.setNumStages(numStages);
-    
+        
+        if (tournament.getStatus() != Status.SCHEDULED) {
+            throw new IllegalArgumentException("Tournament has already started.");
+        }
+
         // Set the tournament as started (IN_PROGRESS)
         tournament.setStatus(Status.IN_PROGRESS);
 
