@@ -154,7 +154,14 @@ Before you begin, please ensure you have the following installed on your system:
     ```
     - Create a `docker.env` file in the root directory
     - Add necessary environment variables (e.g., database credentials, API keys)
-    
+
+    On your local machine:
+    ```sh
+    NEXT_PUBLIC_API_URL=http://localhost:3000
+    NEXT_PUBLIC_SPRINGBOOT_API_URL=http://localhost:8080
+    ```
+    - Create a `.env.local` file in the frontend/ directory
+    - Add the paths to your loopback addr.
 
 3. Build and start the Docker containers:
      ```
