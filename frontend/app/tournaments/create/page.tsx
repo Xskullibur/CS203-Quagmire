@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import TournamentForm from '@/components/tournaments/TournamentForm1';
 import AdditionalDetailsForm from '@/components/tournaments/TournamentForm2';
 import { Tournament } from '@/types/tournament';
+import axiosInstance from '@/lib/axios';
 
 const API_URL = process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL;
 const WEB_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -42,9 +43,17 @@ const CreateTournament = () => {
 
     if (e.target.value.length >= 3) {  // Start searching after 3 characters
       try {
-        const res = await fetch(`${API_URL}/users/search?username=${e.target.value}`);
-        const data = await res.json();
-        setSearchResults(data);
+
+        const res = await axiosInstance.get(
+          new URL(
+            `/users/search?username=${e.target.value}`,
+            API_URL
+          ).toString()
+        );
+
+        // const res = await fetch(`${API_URL}/users/search?username=${e.target.value}`);
+        // const data = await res.json();
+        setSearchResults(res.data);
       } catch (error) {
         console.error('Error searching for referees:', error);
       }
@@ -109,19 +118,18 @@ const CreateTournament = () => {
     };
 
     try {
-      const res = await fetch(API_URL + '/tournament/create', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-      });
 
-      if (res.ok) {
-        router.push(WEB_URL + '/tournaments'); // Redirect after successful creation
-      } else {
-        alert('Error creating tournament');
-      }
+      const res = await axiosInstance.post(
+        new URL("/tournament/create", API_URL).toString(),
+        data
+      
+      );
+
+      router.push(WEB_URL + '/tournaments'); // Redirect after successful creation
+      // if (res.status) {
+      // } else {
+      //   alert('Error creating tournament');
+      // }
     } catch (error) {
       console.error('Error creating tournament:', error);
     }

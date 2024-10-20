@@ -1,24 +1,13 @@
 package com.project.G1_T3.stage.service;
 
 import com.project.G1_T3.common.model.Status;
-import com.project.G1_T3.match.model.Match;
-import com.project.G1_T3.match.model.MatchDTO;
 import com.project.G1_T3.player.model.PlayerProfile;
-import com.project.G1_T3.player.repository.PlayerProfileRepository;
-import com.project.G1_T3.round.model.Round;
-import com.project.G1_T3.round.repository.RoundRepository;
 import com.project.G1_T3.round.service.RoundService;
 import com.project.G1_T3.stage.model.Format;
 import com.project.G1_T3.stage.model.Stage;
 import com.project.G1_T3.stage.model.StageDTO;
 import com.project.G1_T3.stage.repository.StageRepository;
 import com.project.G1_T3.tournament.model.Tournament;
-import com.project.G1_T3.tournament.service.TournamentService;
-import com.project.G1_T3.tournament.repository.TournamentRepository;
-
-import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.TransactionScoped;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,7 +16,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.UUID;
 
 @Service

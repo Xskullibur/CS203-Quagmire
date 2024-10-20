@@ -4,7 +4,6 @@ import com.project.G1_T3.player.model.PlayerProfile;
 import com.project.G1_T3.player.repository.PlayerProfileRepository;
 import com.project.G1_T3.stage.model.StageDTO;
 import com.project.G1_T3.stage.service.StageService;
-import com.project.G1_T3.stage.repository.StageRepository;
 import com.project.G1_T3.tournament.model.Tournament;
 import com.project.G1_T3.tournament.model.TournamentDTO;
 import com.project.G1_T3.tournament.repository.TournamentRepository;
@@ -34,14 +33,9 @@ public class TournamentServiceImpl implements TournamentService {
     @Autowired
     private StageService stageService;
 
-    @Autowired
-    public TournamentServiceImpl(TournamentRepository tournamentRepository) {
-        this.tournamentRepository = tournamentRepository;
-    }
-
     @Override
-    public List<Tournament> findAllTournaments() {
-        return tournamentRepository.findAll();
+    public Page<Tournament> getAllTournaments(Pageable pageable) {
+        return tournamentRepository.findAll(pageable);
     }
 
     @Override
@@ -58,6 +52,11 @@ public class TournamentServiceImpl implements TournamentService {
     }
 
     @Override
+    public Page<Tournament> searchByName(String name, Pageable pageable) {
+        return tournamentRepository.searchByName(name, pageable);
+    }
+
+    @Override
     public Page<Tournament> findUpcomingTournaments(Pageable pageable) {
         return tournamentRepository.findByStartDateAfter(LocalDateTime.now(), pageable);
     }
@@ -68,23 +67,23 @@ public class TournamentServiceImpl implements TournamentService {
     }
 
     @Override
-    public Page<Tournament> findTournamentsByDeadline(Pageable pageable, LocalDateTime deadline) {
-        return tournamentRepository.findByDeadlineBefore(deadline, pageable);
+    public Page<Tournament> findTournamentsByAvailability(Pageable pageable, LocalDateTime availableStartDate, LocalDateTime availableEndDate) {
+        return tournamentRepository.findByStartAndEndDateWithinAvailability(availableStartDate, availableEndDate, pageable);
     }
 
     @Override
-    public List<Tournament> findTournamentsByLocation(String location) {
-        return tournamentRepository.findByLocation(location);
+    public Page<Tournament> findRegistrableTournaments(Pageable pageable) {
+        return tournamentRepository.findByDeadlineBefore(LocalDateTime.now(), pageable);
     }
 
     @Override
-    public Page<Tournament> getAllTournaments(Pageable pageable) {
-        return tournamentRepository.findAll(pageable);
+    public Page<Tournament> findTournamentsByLocation(String location, Pageable pageable) {
+        return tournamentRepository.findByLocation(location, pageable);
     }
 
     @Override
-    public List<Tournament> searchByName(String name) {
-        return tournamentRepository.searchByName(name);
+    public Page<Tournament> findByKeywordInDescription(String keyword, Pageable pageable) {
+        return tournamentRepository.findByKeywordInDescription(keyword, pageable);
     }
 
     // @Override
@@ -104,6 +103,7 @@ public class TournamentServiceImpl implements TournamentService {
         tournament.setDeadline(tournamentDTO.getDeadline());
         tournament.setDescription(tournamentDTO.getDescription());
         tournament.setStatus(tournamentDTO.getStatus() != null ? tournamentDTO.getStatus() : Status.SCHEDULED);
+        tournament.setMaxParticipants(tournamentDTO.getMaxParticipants());
 
         Set<UUID> refereeIds = tournamentDTO.getRefereeIds();
         Set<PlayerProfile> referees = new HashSet<>(playerProfileRepository.findAllById(refereeIds));
@@ -266,5 +266,13 @@ public class TournamentServiceImpl implements TournamentService {
         tournamentRepository.save(tournament);
 
         System.out.println("Tournament " + tournament.getName() + " has been completed.");
+    }
+
+    @Override
+    public void deleteTournament(UUID tournamentId) {
+        if (!tournamentRepository.existsById(tournamentId)) {
+            throw new NoSuchElementException("Tournament not found with id: " + tournamentId);
+        }
+        tournamentRepository.deleteById(tournamentId);
     }
 }

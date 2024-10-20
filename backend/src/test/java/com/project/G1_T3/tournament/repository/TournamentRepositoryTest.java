@@ -1,6 +1,5 @@
-package com.project.G1_T3.tournament;
+package com.project.G1_T3.tournament.repository;
 
-import com.project.G1_T3.tournament.repository.*;
 import com.project.G1_T3.tournament.model.Tournament;
 
 import org.junit.jupiter.api.Test;

@@ -7,9 +7,12 @@ import com.project.G1_T3.player.model.PlayerProfile;
 import com.project.G1_T3.stage.model.Stage;
 
 import jakarta.persistence.*;
+import com.project.G1_T3.player.model.PlayerProfile;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
-
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -24,18 +27,24 @@ public class Tournament {
     private UUID id;
 
     @Column(nullable = false)
+    @NotNull(message = "Tournament name cannot be null")
+    @Size(min = 5, max = 50)
     private String name;
 
     @Column(nullable = false)
+    @NotNull(message = "Tournament location cannot be null")
     private String location;
 
     @Column(name = "start_date", columnDefinition = "TIMESTAMP")
+    @NotNull(message = "Tournament start date cannot be null")
     private LocalDateTime startDate;
 
     @Column(name = "end_date", columnDefinition = "TIMESTAMP")
+    @NotNull(message = "Tournament end date cannot be null")
     private LocalDateTime endDate;
 
     @Column(name = "deadline", columnDefinition = "TIMESTAMP")
+    @NotNull(message = "Tournament deadline cannot be null")
     private LocalDateTime deadline;
 
     // @Column(nullable = false)

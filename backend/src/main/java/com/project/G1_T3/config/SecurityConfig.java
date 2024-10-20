@@ -11,8 +11,8 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -86,10 +86,11 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/authentication/**").permitAll()
                         .requestMatchers("/leaderboard/**").permitAll()
-                        .requestMatchers("/profile/**").hasAnyRole("PLAYER", "USER", "ADMIN")
+                        .requestMatchers("/profile/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/user/**").hasAnyRole("PLAYER", "USER", "ADMIN")
                         .requestMatchers("/tournament/**").hasAnyRole("PLAYER", "USER", "ADMIN")
+                        .requestMatchers("/leaderboard/user/**").permitAll()
                         .requestMatchers("/ws/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/matches/current/**").hasAnyRole("PLAYER", "USER", "ADMIN")
                         .anyRequest().authenticated())

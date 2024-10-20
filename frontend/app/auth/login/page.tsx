@@ -132,7 +132,7 @@ const Login: React.FC = () => {
             const { user, response } = await login(username, password);
 
             if (response.status === 200) {
-                const destination = redirectUrl ?? (user?.role === "ADMIN" ? "/admin/dashboard" : "/profile");
+                const destination = redirectUrl ?? (user?.role === "ADMIN" ? "/admin/dashboard" : "/");
                 router.push(destination);
             }
         } catch (error: any) {

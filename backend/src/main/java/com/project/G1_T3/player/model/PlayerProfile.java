@@ -78,6 +78,15 @@ public class PlayerProfile {
                 this.community.equals(other.community);
     }
 
+    // Path that profile picture is stored in
+    @Column(name = "profile_picture_path")
+    private String profilePicturePath;
+
+    // Getters, setters, and other methods...
+    public UUID getProfileId() {
+        return profileId;
+    }
+
     public void setCurrentRating(){
         currentRating = glickoRating + DEVIATION_SCALE / ratingDeviation + VOLATILITY_SCALE / volatility;
     }

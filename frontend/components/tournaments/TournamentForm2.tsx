@@ -109,9 +109,11 @@ const AdditionalDetailsForm: React.FC<AdditionalDetailsFormProps> = ({
           {searchResults.length > 0 && (
             <ul className="mt-2 bg-zinc-700 p-2 rounded-md">
               {searchResults.map((user) => (
-                <li key={user.id} onClick={() => handleAddReferee(user.id)} className="cursor-pointer text-white">
+                <div onClick={() => handleAddReferee(user.id)} className="cursor-pointer text-white">
+                <li key={user.id} >
                   {user.username}
                 </li>
+                </div>
               ))}
             </ul>
           )}

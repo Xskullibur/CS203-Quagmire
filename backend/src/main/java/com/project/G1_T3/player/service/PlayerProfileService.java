@@ -1,6 +1,9 @@
 package com.project.G1_T3.player.service;
 
 import com.project.G1_T3.player.repository.PlayerProfileRepository;
+
+import jakarta.persistence.EntityNotFoundException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -12,8 +15,7 @@ import com.project.G1_T3.player.model.PlayerProfile;
 
 @Service
 public class PlayerProfileService {
-    
-    
+
     @Autowired
     private PlayerProfileRepository playerProfileRepository;
 
@@ -21,15 +23,15 @@ public class PlayerProfileService {
         return playerProfileRepository.findAll();
     }
 
-    public PlayerProfile findByUserId(String id){
+    public PlayerProfile findByUserId(String id) {
         return playerProfileRepository.findByUserId(UUID.fromString(id));
     }
 
-    public PlayerProfile findByProfileId(String id){
+    public PlayerProfile findByProfileId(String id) {
         return playerProfileRepository.findByProfileId(UUID.fromString(id));
     }
 
-    public PlayerProfile save(PlayerProfile profile){
+    public PlayerProfile save(PlayerProfile profile) {
         return playerProfileRepository.save(profile);
     }
 
@@ -58,4 +60,40 @@ public class PlayerProfileService {
         return playerProfileRepository.save(playerProfile);
     }
 
+    // For editing profile
+    public PlayerProfile updateProfile(UUID id, PlayerProfile profileUpdates) {
+        PlayerProfile existingProfile = playerProfileRepository.findByUserId(id);
+
+        // Throw an exception if the profile is not found
+        if (existingProfile == null) {
+            throw new EntityNotFoundException("Player profile not found for user ID: " + id);
+        }
+
+        // Update fields
+        if (profileUpdates.getFirstName() != null) {
+            existingProfile.setFirstName(profileUpdates.getFirstName());
+        }
+        if (profileUpdates.getLastName() != null) {
+            existingProfile.setLastName(profileUpdates.getLastName());
+        }
+        if (profileUpdates.getBio() != null) {
+            existingProfile.setBio(profileUpdates.getBio());
+        }
+        if (profileUpdates.getCountry() != null) {
+            existingProfile.setCountry(profileUpdates.getCountry());
+        }
+        if (profileUpdates.getDateOfBirth() != null) {
+            existingProfile.setDateOfBirth(profileUpdates.getDateOfBirth());
+        }
+
+        // Save the updated profile
+        return playerProfileRepository.save(existingProfile);
+    }
+
+    // For uploading profile photo
+    public PlayerProfile updateProfilePicture(UUID id, String profilePicturePath) {
+        PlayerProfile profile = playerProfileRepository.findByUserId(id);
+        profile.setProfilePicturePath(profilePicturePath);
+        return playerProfileRepository.save(profile);
+    }
 }

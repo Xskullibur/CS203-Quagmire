@@ -50,4 +50,11 @@ public class LeaderboardService {
         return new LeaderboardPlayerProfile(player, position);
     }
 
+    public LeaderboardPlayerProfile getPlayerInfoById(String userId) {
+        UUID uuid = UUID.fromString(userId);
+        PlayerProfile player = playerProfileRepository.findByUserId(uuid);
+        long position = playerProfileRepository.getPositionOfPlayer(uuid);
+        return new LeaderboardPlayerProfile(player, position);
+    }
+
 }

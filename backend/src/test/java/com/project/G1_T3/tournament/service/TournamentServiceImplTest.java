@@ -1,4 +1,4 @@
-package com.project.G1_T3.tournament;
+package com.project.G1_T3.tournament.service;
 
 import com.project.G1_T3.tournament.model.Tournament;
 import com.project.G1_T3.tournament.repository.TournamentRepository;

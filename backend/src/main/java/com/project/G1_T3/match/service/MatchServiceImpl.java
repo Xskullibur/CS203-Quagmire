@@ -90,6 +90,7 @@ public class MatchServiceImpl implements MatchService {
         match.setGameType(Match.GameType.SOLO);
         match.setPlayer1Id(matchDTO.getPlayer1Id());
         match.setPlayer2Id(matchDTO.getPlayer2Id());
+        match.setRefereeId(matchDTO.getRefereeId());
         match.setStatus(Status.SCHEDULED);
         match.setMeetingLatitude(matchDTO.getMeetingLatitude());
         match.setMeetingLongitude(matchDTO.getMeetingLongitude());

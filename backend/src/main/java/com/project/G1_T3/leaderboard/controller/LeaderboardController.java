@@ -29,11 +29,10 @@ public class LeaderboardController {
 
     // Get a specific player's position and info
  
-    // @GetMapping("user/{userId}") 
-    // public LeaderboardPlayerProfile getPlayerInfo(@PathVariable long userId) { 
-     
-    //     return leaderboardService.getPlayerInfo(userId); 
-    // }
+    @GetMapping("user/{userId}") 
+    public LeaderboardPlayerProfile getPlayerInfoById(@PathVariable String userId) { 
+        return leaderboardService.getPlayerInfoById(userId); 
+    }
 
     @GetMapping("/{username}")
     public LeaderboardPlayerProfile getPlayerInfo(@PathVariable String username) {
