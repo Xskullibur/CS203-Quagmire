@@ -1,10 +1,14 @@
 package com.project.G1_T3.player.service;
 
 import com.project.G1_T3.player.repository.PlayerProfileRepository;
+
+import jakarta.persistence.EntityNotFoundException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.dao.DataAccessException;
 
 import java.util.*;
 
@@ -12,50 +16,98 @@ import com.project.G1_T3.player.model.PlayerProfile;
 
 @Service
 public class PlayerProfileService {
-    
-    
+
     @Autowired
     private PlayerProfileRepository playerProfileRepository;
 
     public List<PlayerProfile> findAll() {
-        return playerProfileRepository.findAll();
+        try {
+            return playerProfileRepository.findAll();
+        } catch (DataAccessException e) {
+            throw new RuntimeException("Error fetching all player profiles", e);
+        }
     }
 
-    public PlayerProfile findByUserId(String id){
-        return playerProfileRepository.findByUserId(UUID.fromString(id));
+    public PlayerProfile findByUserId(UUID id) {
+        PlayerProfile profile = playerProfileRepository.findByUserId(id);
+        if (profile == null) {
+            throw new EntityNotFoundException("Player profile not found for userId: " + id);
+        }
+        return profile;
     }
 
-    public PlayerProfile findByProfileId(String id){
-        return playerProfileRepository.findByProfileId(UUID.fromString(id));
+    public PlayerProfile findByUserId(String id) {
+        try {
+            UUID userId = UUID.fromString(id);
+            return findByUserId(userId);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid UUID format for userId: " + id, e);
+        }
     }
 
-    public PlayerProfile save(PlayerProfile profile){
-        return playerProfileRepository.save(profile);
+    public PlayerProfile findByProfileId(UUID id) {
+        try {
+            PlayerProfile profile = playerProfileRepository.findByProfileId(id);
+            if (profile == null) {
+                throw new EntityNotFoundException("Player profile not found for profileId: " + id);
+            }
+            return profile;
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid UUID format for profileId: " + id, e);
+        }
+    }
+
+    public PlayerProfile findByProfileId(String id) {
+        try {
+            UUID profileId = UUID.fromString(id);
+            PlayerProfile profile = playerProfileRepository.findByProfileId(profileId);
+            if (profile == null) {
+                throw new EntityNotFoundException("Player profile not found for profileId: " + id);
+            }
+            return profile;
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid UUID format for profileId: " + id, e);
+        }
+    }
+
+    public PlayerProfile save(PlayerProfile profile) {
+        try {
+            return playerProfileRepository.save(profile);
+        } catch (DataAccessException e) {
+            throw new RuntimeException("Error saving player profile", e);
+        }
     }
 
     @Cacheable(value = "playerRankings", key = "'rankings'")
     public List<PlayerProfile> getSortedPlayerProfiles() {
-        // Fetch all players sorted by current rating
-        return playerProfileRepository.findAllByOrderByCurrentRatingDesc();
+        try {
+            return playerProfileRepository.findAllByOrderByCurrentRatingDesc();
+        } catch (DataAccessException e) {
+            throw new RuntimeException("Error fetching sorted player profiles", e);
+        }
     }
 
     public int getPlayerRank(String profileId) {
-        List<PlayerProfile> sortedPlayers = getSortedPlayerProfiles();
+        try {
+            List<PlayerProfile> sortedPlayers = getSortedPlayerProfiles();
 
-        // Find the player's rank in the sorted list
-        for (int i = 0; i < sortedPlayers.size(); i++) {
-            if (sortedPlayers.get(i).getProfileId().toString().equals(profileId)) {
-                return i + 1; // Rank is 1-based index
+            for (int i = 0; i < sortedPlayers.size(); i++) {
+                if (sortedPlayers.get(i).getProfileId().toString().equals(profileId)) {
+                    return i + 1; // Rank is 1-based index
+                }
             }
+            return -1; // Return -1 if the player is not found
+        } catch (Exception e) {
+            throw new RuntimeException("Error getting player rank for profileId: " + profileId, e);
         }
-        return -1; // Return -1 if the player is not found
     }
 
     @CacheEvict(value = "playerRankings", key = "'rankings'")
     public PlayerProfile updatePlayerRating(PlayerProfile playerProfile) {
-        // Update the player's rating (e.g., after a match)
-        // Invalidate cache for player rankings
-        return playerProfileRepository.save(playerProfile);
+        try {
+            return playerProfileRepository.save(playerProfile);
+        } catch (DataAccessException e) {
+            throw new RuntimeException("Error updating player rating", e);
+        }
     }
-
 }

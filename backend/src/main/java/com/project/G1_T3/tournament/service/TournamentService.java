@@ -22,6 +22,8 @@ public interface TournamentService {
 
     Page<Tournament> findPastTournaments(Pageable pageable); // Fetch tournaments ending before now
 
+    Page<Tournament> findCurrentTournaments(Pageable pageable);
+
     Page<Tournament> findTournamentsByDeadline(Pageable pageable, LocalDateTime deadline); // Fetch tournaments with a deadline before a specific date
 
     List<Tournament> findTournamentsByLocation(String location); // Filter tournaments by location
@@ -41,7 +43,7 @@ public interface TournamentService {
     // Add this method
     Tournament getTournamentById(UUID id); // Get tournament by ID
 
-    public void startTournament(UUID tournamentId, TournamentDTO tournamentDTO);
+    public void startTournament(UUID tournamentId);
 
     public void progressToNextStage(UUID tournamentId);
 }

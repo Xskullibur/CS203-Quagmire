@@ -1,6 +1,7 @@
 package com.project.G1_T3.tournament.repository;
 
 import com.project.G1_T3.tournament.model.Tournament;
+import com.project.G1_T3.common.model.Status;
 
 import jakarta.validation.constraints.NotNull;
 
@@ -25,6 +26,9 @@ public interface TournamentRepository extends JpaRepository<Tournament, UUID> {
 
     // Find tournaments by location
     List<Tournament> findByLocation(String location);
+
+    // Find tournaments by status
+    Page<Tournament> findByStatus(Status status, Pageable pageable);
 
     // Find tournaments by a range of start dates
     List<Tournament> findByStartDateBetween(LocalDateTime startDate, LocalDateTime endDate);
