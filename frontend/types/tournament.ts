@@ -1,15 +1,17 @@
+
 export interface Tournament {
-    start_date: string;
-    end_date: string;
-    registration_deadline: string;
-    max_participants: any;
-    id: number;
+    id: string | null;
     name: string;
     location: string;
     startDate: string;
+    startTime: string;
     endDate: string;
-    deadline: string;
+    endTime: string;
+    status: 'SCHEDULED'| 'INPROGRESS' | 'COMPLETED' | 'CANCELLED';
+    deadlineDate: string;
+    deadlineTime: string;
     maxParticipants: number;
-    status: string;
     description: string;
-}
+    refereeIds: string[];
+  }
+  
