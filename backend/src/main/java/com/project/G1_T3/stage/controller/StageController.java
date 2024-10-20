@@ -41,18 +41,18 @@ public class StageController {
     }
 
     // Get stage by ID
-    // @GetMapping("/{stageId}")
-    // public ResponseEntity<Stage> getStageById(@PathVariable UUID tournamentId, @PathVariable UUID stageId) {
-    //     try {
-    //         Stage stage = stageService.getStageById(tournamentId, stageId);
-    //         if (stage == null) {
-    //             return ResponseEntity.notFound().build();
-    //         }
-    //         return ResponseEntity.ok(stage);
-    //     } catch (RuntimeException e) {
-    //         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-    //     }
-    // }
+    @GetMapping("/{stageId}")
+    public ResponseEntity<Stage> getStageById(@PathVariable UUID tournamentId, @PathVariable UUID stageId) {
+        try {
+            Stage stage = stageService.getStageById(tournamentId, stageId);
+            if (stage == null) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.ok(stage);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
 
 }
 

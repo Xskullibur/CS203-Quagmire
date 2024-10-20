@@ -68,10 +68,10 @@ public class StageServiceImpl implements StageService {
     }
 
     // Get stage by ID
-    // public Stage getStageById(UUID tournamentId, UUID stageId) {
-    //     return stageRepository.findByStageIdAndTournamentId(stageId, tournamentId)
-    //         .orElseThrow(() -> new RuntimeException("Stage not found for the given tournament"));
-    // }
+    public Stage getStageById(UUID tournamentId, UUID stageId) {
+        return stageRepository.findByStageIdAndTournamentId(stageId, tournamentId)
+            .orElseThrow(() -> new RuntimeException("Stage not found for the given tournament"));
+    }
 
 
     // Method to start a stage and initialize the first round
