@@ -45,21 +45,28 @@ public class TournamentServiceImpl implements TournamentService {
                 .orElseThrow(() -> new NoSuchElementException("Tournament not found with id: " + id));
     }
 
-    public TournamentDTO findTournamentDTO(UUID id){
+    public TournamentDTO findTournamentDTO(UUID id) {
         Tournament t = findTournamentById(id);
         TournamentDTO result = new TournamentDTO(t);
-        
+
         return result;
+    }
+
+    @Override
+    public Page<Tournament> findTournamentsByDeadline(Pageable pageable, LocalDateTime deadline) {
+        return tournamentRepository.findByDeadlineBefore(deadline, pageable);
     }
 
     // @Override
     // public Page<Tournament> findUpcomingTournaments(Pageable pageable) {
-    //     return tournamentRepository.findByStartDateAfter(LocalDateTime.now(), pageable);
+    // return tournamentRepository.findByStartDateAfter(LocalDateTime.now(),
+    // pageable);
     // }
 
     // @Override
     // public Page<Tournament> findPastTournaments(Pageable pageable) {
-    //     return tournamentRepository.findByEndDateBefore(LocalDateTime.now(), pageable);
+    // return tournamentRepository.findByEndDateBefore(LocalDateTime.now(),
+    // pageable);
     // }
 
     @Override
@@ -86,8 +93,10 @@ public class TournamentServiceImpl implements TournamentService {
     }
 
     @Override
-    public Page<Tournament> findTournamentsByAvailability(Pageable pageable, LocalDateTime availableStartDate, LocalDateTime availableEndDate) {
-        return tournamentRepository.findByStartAndEndDateWithinAvailability(availableStartDate, availableEndDate, pageable);
+    public Page<Tournament> findTournamentsByAvailability(Pageable pageable, LocalDateTime availableStartDate,
+            LocalDateTime availableEndDate) {
+        return tournamentRepository.findByStartAndEndDateWithinAvailability(availableStartDate, availableEndDate,
+                pageable);
     }
 
     @Override
@@ -107,7 +116,7 @@ public class TournamentServiceImpl implements TournamentService {
 
     // @Override
     // public Tournament createTournament(Tournament tournament) {
-    //     return tournamentRepository.save(tournament);
+    // return tournamentRepository.save(tournament);
     // }
 
     @Override
@@ -143,26 +152,30 @@ public class TournamentServiceImpl implements TournamentService {
                 // stage.setStartDate(stageDTO.getStartDate());
                 // stage.setEndDate(stageDTO.getEndDate());
                 // stage.setFormat(stageDTO.getFormat());
-                // stage.setStatus(stageDTO.getStatus() != null ? stageDTO.getStatus() : Status.SCHEDULED);
-                // stage.setTournament(tournament);  // Link the stage with the tournament
-                tournament.getStages().add(stage);  // Add the stage to the tournament
+                // stage.setStatus(stageDTO.getStatus() != null ? stageDTO.getStatus() :
+                // Status.SCHEDULED);
+                // stage.setTournament(tournament); // Link the stage with the tournament
+                tournament.getStages().add(stage); // Add the stage to the tournament
             }
-        } 
+        }
         // else {
-        //     // Automatically create a default single elimination stage if no stages are provided
-        //     Stage defaultStage = new Stage();
-        //     defaultStage.setStageName("Single Elimination");
-        //     defaultStage.setStartDate(tournamentDTO.getStartDate());
-        //     defaultStage.setEndDate(tournamentDTO.getEndDate());
-        //     defaultStage.setFormat(Format.SINGLE_ELIMINATION);  // Assuming this is an enum
-        //     defaultStage.setStatus(Status.SCHEDULED);
-        //     defaultStage.setTournament(tournament);  // Link to tournament
-        //     tournament.getStages().add(defaultStage);
+        // // Automatically create a default single elimination stage if no stages are
+        // provided
+        // Stage defaultStage = new Stage();
+        // defaultStage.setStageName("Single Elimination");
+        // defaultStage.setStartDate(tournamentDTO.getStartDate());
+        // defaultStage.setEndDate(tournamentDTO.getEndDate());
+        // defaultStage.setFormat(Format.SINGLE_ELIMINATION); // Assuming this is an
+        // enum
+        // defaultStage.setStatus(Status.SCHEDULED);
+        // defaultStage.setTournament(tournament); // Link to tournament
+        // tournament.getStages().add(defaultStage);
         // }
 
         // Save the tournament along with its stages
         return tournamentRepository.save(tournament);
     }
+
 
     public Set<PlayerProfile> getPlayers(UUID tournamentId) {
         Tournament tournament = tournamentRepository.findById(tournamentId).get();
@@ -202,21 +215,20 @@ public class TournamentServiceImpl implements TournamentService {
         } else {
             System.out.println("Player is already in tournament.");
         }
-        
+
         return tournamentRepository.save(tournament);
     }
 
     public Tournament updateTournament(UUID id, Tournament updatedTournament) {
-       updatedTournament.setId(id);
-       return tournamentRepository.save(updatedTournament);
+        updatedTournament.setId(id);
+        return tournamentRepository.save(updatedTournament);
     }
-    
+
     // Add this method
     public Tournament getTournamentById(UUID id) {
         return tournamentRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Tournament not found with id: " + id));
     }
-
 
     @Transactional
     public void startTournament(UUID tournamentId) {
@@ -242,7 +254,7 @@ public class TournamentServiceImpl implements TournamentService {
 
         int numStages = allStages.size();
         tournament.setNumStages(numStages);
-        
+
         if (tournament.getStatus() != Status.SCHEDULED) {
             throw new IllegalArgumentException("Tournament has already started.");
         }
@@ -262,7 +274,7 @@ public class TournamentServiceImpl implements TournamentService {
     }
 
     public void progressToNextStage(UUID tournamentId) {
-        
+
         Tournament tournament = tournamentRepository.findById(tournamentId)
                 .orElseThrow(() -> new EntityNotFoundException("Tournament with ID " + tournamentId + " not found"));
 

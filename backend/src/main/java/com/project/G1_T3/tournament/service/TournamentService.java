@@ -35,7 +35,6 @@ public interface TournamentService {
 
     public Tournament createTournament(TournamentDTO tournament);
 
-    public void startTournament(UUID tournamentId, TournamentDTO tournamentDTO);
     Set<PlayerProfile> getPlayers(UUID tournamentId);
 
     Tournament addPlayerToTournament(UUID tournamentId, UUID user_id);
