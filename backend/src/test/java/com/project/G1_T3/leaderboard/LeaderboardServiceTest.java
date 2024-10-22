@@ -46,17 +46,17 @@ public class LeaderboardServiceTest {
         player1.setProfileId(UUID.randomUUID());
         player1.setFirstName("Alice");
         player1.setLastName("Smith");
-        player1.setCurrentRating(2000f);
+        player1.setGlickoRating(2000);
 
         PlayerProfile player2 = new PlayerProfile();
         player2.setProfileId(UUID.randomUUID());
         player2.setFirstName("Bob");
         player2.setLastName("Johnson");
-        player2.setCurrentRating(1950f);
+        player2.setGlickoRating(1950);
 
         List<PlayerProfile> mockPlayerProfiles = Arrays.asList(player1, player2);
 
-        when(playerProfileRepository.findTop10ByOrderByCurrentRatingDesc()).thenReturn(mockPlayerProfiles);
+        when(playerProfileRepository.findTop10ByOrderByGlickoRatingDesc()).thenReturn(mockPlayerProfiles);
 
         // Act
         List<LeaderboardPlayerProfile> result = leaderboardService.getTop10LeaderboardPlayerProfiles();
@@ -69,7 +69,7 @@ public class LeaderboardServiceTest {
         assertEquals(player1.getProfileId(), firstPlayer.getProfileId());
         assertEquals("Alice", firstPlayer.getFirstName());
         assertEquals("Smith", firstPlayer.getLastName());
-        assertEquals(2000.0, firstPlayer.getELO(), 0.001);
+        assertEquals(2000, firstPlayer.getGlickoRating(), 0.001);
     }
 
     @Test
@@ -103,7 +103,7 @@ public class LeaderboardServiceTest {
         assertEquals(mockPlayerProfile.getProfileId(), result.getProfileId());
         assertEquals("Alice", result.getFirstName());
         assertEquals("Smith", result.getLastName());
-        assertEquals(2000.0, result.getELO(), 0.001);
+        assertEquals(2000, result.getGlickoRating(), 0.001);
         assertEquals(position, result.getPosition());
     }
 

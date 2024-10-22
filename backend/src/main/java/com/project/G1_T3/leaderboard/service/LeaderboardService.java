@@ -30,14 +30,14 @@ public class LeaderboardService {
                 .map(profile -> new LeaderboardPlayerProfile(profile.getProfileId(),
                         profile.getFirstName(),
                         profile.getLastName(),
-                        profile.getCurrentRating()))
+                        profile.getGlickoRating()))
                 .collect(Collectors.toList());
 
         return top10Players;
     }
 
     private List<PlayerProfile> getTop10PlayerProfiles() {
-        return playerProfileRepository.findTop10ByOrderByCurrentRatingDesc();
+        return playerProfileRepository.findTop10ByOrderByGlickoRatingDesc();
     }
 
 

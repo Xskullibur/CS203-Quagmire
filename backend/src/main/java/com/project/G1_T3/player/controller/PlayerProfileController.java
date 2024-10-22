@@ -23,7 +23,7 @@ public class PlayerProfileController {
     @PostMapping("/create") // Map to URL for creating player profile
     @ResponseStatus(HttpStatus.CREATED)
     public PlayerProfile create(@RequestBody PlayerProfile playerProfile) {
-        return playerProfileService.save(playerProfile);
+        return playerProfileService.createPlayer(playerProfile);
     }
 
     @GetMapping("/{id}")
@@ -48,8 +48,8 @@ public class PlayerProfileController {
         return ResponseEntity.ok(playerProfile);
     }
 
-    @GetMapping("/rank/{userId}")
-    public ResponseEntity<Integer> getPlayerRankByUserId(@PathVariable String userId) {
+    @GetMapping("/rankPercentile/{userId}")
+    public ResponseEntity<Double> getPercentilePlayerRankByUserId(@PathVariable String userId) {
         PlayerProfile playerProfile = playerProfileService.findByUserId(userId);
         
         if (playerProfile == null) {
@@ -57,7 +57,7 @@ public class PlayerProfileController {
         }
         
         // Get the rank (position) of the player by their profileId
-        int rank = playerProfileService.getPlayerRank(playerProfile.getProfileId().toString());
+        Double rank = playerProfileService.getPlayerRank(playerProfile.getProfileId().toString());
         
         return ResponseEntity.ok(rank);
     }

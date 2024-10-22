@@ -39,6 +39,14 @@ public class PlayerRatingService {
         return bucketCounts;
     }
 
+    public int[] getPrefixSums(){
+        return prefixSums;
+    }
+
+    public int getTotalPlayers(){
+        return prefixSums[0];
+    }
+
     private void computePrefixSums() {
         lock.writeLock().lock();
         try {
@@ -61,6 +69,21 @@ public class PlayerRatingService {
             }
         } finally {
             lock.readLock().unlock();
+        }
+    }
+
+    public void addPlayer(int rating) {
+        lock.writeLock().lock();
+        try {
+            // Update bucket counts
+            bucketCounts[rating] += 1;
+
+            // Update prefix sums starting from the rating
+            for (int i = rating; i >= 0; i--) {
+                prefixSums[i] = bucketCounts[i] + ((i + 1 <= MAX_RATING) ? prefixSums[i + 1] : 0);
+            }
+        } finally {
+            lock.writeLock().unlock();
         }
     }
 

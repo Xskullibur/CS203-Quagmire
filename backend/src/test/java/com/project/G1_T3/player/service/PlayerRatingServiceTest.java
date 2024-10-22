@@ -1,5 +1,6 @@
 package com.project.G1_T3.player.service;
 
+import com.project.G1_T3.player.model.PlayerProfile;
 import com.project.G1_T3.player.repository.PlayerProfileRepository;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -26,9 +27,9 @@ public class PlayerRatingServiceTest {
     public void setUp() {
         // Mock the getRatingCounts() method
         List<Object[]> mockCounts = new ArrayList<>();
-        mockCounts.add(new Object[]{1500, 10L});
-        mockCounts.add(new Object[]{1501, 5L});
-        mockCounts.add(new Object[]{1499, 8L});
+        mockCounts.add(new Object[] { 1500, 10L });
+        mockCounts.add(new Object[] { 1501, 5L });
+        mockCounts.add(new Object[] { 1499, 8L });
 
         when(playerProfileRepository.getRatingCounts()).thenReturn(mockCounts);
 
@@ -39,7 +40,8 @@ public class PlayerRatingServiceTest {
     @Test
     public void testInitialBucketCounts() {
         // Test that the bucketCounts are initialized correctly
-        int[] bucketCounts = playerRatingService.getBucketCounts(); // You'll need to add a getter or make the field package-private for testing
+        int[] bucketCounts = playerRatingService.getBucketCounts(); // You'll need to add a getter or make the field
+                                                                    // package-private for testing
         assertEquals(10, bucketCounts[1500], "Bucket for rating 1500 should have 10 players");
         assertEquals(5, bucketCounts[1501], "Bucket for rating 1501 should have 5 players");
         assertEquals(8, bucketCounts[1499], "Bucket for rating 1499 should have 8 players");
@@ -69,4 +71,27 @@ public class PlayerRatingServiceTest {
         int numberOfPlayersAhead1500 = playerRatingService.getNumberOfPlayersAhead(1500);
         assertEquals(6, numberOfPlayersAhead1500, "Number of players ahead of rating 1500 should be 6");
     }
+
+    @Test
+    public void testAddPlayer() {
+        //act
+        int initialRating = 1500;
+        playerRatingService.addPlayer(initialRating);
+
+        //assert
+        assertEquals(11, playerRatingService.getBucketCounts()[initialRating], 
+                "The bucket count for the rating should be incremented.");
+
+        // Verify prefix sums are correctly updated
+        int numberOfPlayersAhead1500 = playerRatingService.getNumberOfPlayersAhead(initialRating);
+        int numberOfPlayersAhead1501 = playerRatingService.getNumberOfPlayersAhead(initialRating - 1);
+        int totalPlayers = playerRatingService.getTotalPlayers();
+
+        assertEquals(5, numberOfPlayersAhead1500, "The number of players higher than inital rating should remain the same");
+        assertEquals(16, numberOfPlayersAhead1501, "number of players ahead 1501 should be one more now");
+        assertEquals(24, totalPlayers, "total players should have increased");
+    }
+
+  
+
 }

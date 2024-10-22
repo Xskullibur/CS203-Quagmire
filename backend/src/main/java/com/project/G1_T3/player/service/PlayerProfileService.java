@@ -39,22 +39,17 @@ public class PlayerProfileService {
         return playerProfileRepository.save(profile);
     }
 
+    public PlayerProfile createPlayer(PlayerProfile profile) {
+        int rating = profile.getGlickoRating();
+        playerRatingService.addPlayer(rating);
+
+        return save(profile);
+    }
+
     @Cacheable(value = "playerRankings", key = "'rankings'")
     public List<PlayerProfile> getSortedPlayerProfiles() {
         // Fetch all players sorted by current rating
         return playerProfileRepository.findAllByOrderByCurrentRatingDesc();
-    }
-
-    public int getPlayerRank(String profileId) {
-        List<PlayerProfile> sortedPlayers = getSortedPlayerProfiles();
-
-        // Find the player's rank in the sorted list
-        for (int i = 0; i < sortedPlayers.size(); i++) {
-            if (sortedPlayers.get(i).getProfileId().toString().equals(profileId)) {
-                return i + 1; // Rank is 1-based index
-            }
-        }
-        return -1; // Return -1 if the player is not found
     }
 
     @CacheEvict(value = "playerRankings", key = "'rankings'")
@@ -62,6 +57,23 @@ public class PlayerProfileService {
         // Update the player's rating (e.g., after a match)
         // Invalidate cache for player rankings
         return playerProfileRepository.save(playerProfile);
+    }
+
+    public double getPlayerRank(String profileId) {
+        // Get the player's profile
+        PlayerProfile playerProfile = playerProfileRepository.findByProfileId(UUID.fromString(profileId));
+        if (playerProfile == null) {
+            // Handle player not found
+            throw new NoSuchElementException("Player with ID " + profileId + " not found.");
+        }
+
+        int playerRating = playerProfile.getGlickoRating();
+        int numberOfPlayersAhead = playerRatingService.getNumberOfPlayersAhead(playerRating);
+        int totalPlayers = playerRatingService.getTotalPlayers();
+
+        double rankPercentage = ((double) (totalPlayers - numberOfPlayersAhead)) / totalPlayers * 100;
+
+        return rankPercentage;
     }
 
     public void updatePlayerRating(UUID playerId, List<Glicko2Result> results) {
@@ -81,7 +93,6 @@ public class PlayerProfileService {
             throw new NoSuchElementException("Player with ID " + playerId + " not found.");
         }
     }
-
 
     // For editing profile
     public PlayerProfile updateProfile(UUID id, PlayerProfile profileUpdates) {
