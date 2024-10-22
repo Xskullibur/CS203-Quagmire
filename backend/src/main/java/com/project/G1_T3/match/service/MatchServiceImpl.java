@@ -59,6 +59,17 @@ public class MatchServiceImpl implements MatchService {
         }
     }
 
+    // Get a match by matchId
+    public Match getMatchById(UUID matchId) {
+        return matchRepository.findById(matchId)
+                .orElseThrow(() -> new IllegalArgumentException("Match not found with id: " + matchId));
+    }
+
+    // Get a list of matches by roundId, sorted by createdAt
+    public List<Match> getMatchesByRoundId(UUID roundId) {
+        return matchRepository.findByRound_RoundIdOrderByCreatedAt(roundId);
+    }
+
     @Transactional
     public Match createMatch(MatchDTO matchDTO) {
 

@@ -13,19 +13,19 @@ public interface StageService {
     // Save a new stage
     Stage saveStage(Stage stage);
 
+    public Stage getStageById(UUID stageId);
+
     // Find all stages for a specific tournament
     List<Stage> findAllStagesByTournamentIdSortedByCreatedAtAsc(UUID tournamentId);
 
     // Find a specific stage by stageId and tournamentId
-    Stage findStageByIdAndTournamentId(UUID stageId, UUID tournamentId);
+    // Stage findStageByIdAndTournamentId(UUID stageId, UUID tournamentId);
 
     // Update a stage for a specific tournament
     Stage updateStageForTournament(UUID tournamentId, UUID stageId, Stage updatedStage);
 
     // Delete a stage by stageId and tournamentId
     void deleteStageByTournamentId(UUID tournamentId, UUID stageId);
-
-    public Stage getStageById(UUID tournamentId, UUID stageId);
 
     public void startStage(UUID stageId);
     

@@ -38,6 +38,17 @@ public class RoundServiceImpl implements RoundService {
     @Autowired
     private PlayerProfileService playerProfileService;
 
+    // Get a round by roundId
+    public Round getRoundById(UUID roundId) {
+        return roundRepository.findById(roundId)
+                .orElseThrow(() -> new IllegalArgumentException("Round not found with id: " + roundId));
+    }
+
+    // Get a list of rounds by stageId, sorted by roundNumber
+    public List<Round> getRoundsByStageId(UUID stageId) {
+        return roundRepository.findByStage_StageIdOrderByRoundNumber(stageId);
+    }
+
     public void createFirstRound(UUID stageId, List<PlayerProfile> sortedPlayers) {
 
         if (stageId == null) {

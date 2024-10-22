@@ -33,20 +33,26 @@ public class StageServiceImpl implements StageService {
         return stageRepository.save(stage);
     }
 
+    public Stage getStageById(UUID stageId) {
+        // Find the stage by stageId, or throw an exception if not found
+        return stageRepository.findById(stageId)
+                .orElseThrow(() -> new IllegalArgumentException("Stage not found with id: " + stageId));
+    }
+
     // Find all stages for a specific tournament
     public List<Stage> findAllStagesByTournamentIdSortedByCreatedAtAsc(UUID tournamentId) {
         return stageRepository.findByTournamentIdOrderByCreatedAtAsc(tournamentId);
     }
 
     // Find a specific stage by stageId and tournamentId
-    public Stage findStageByIdAndTournamentId(UUID stageId, UUID tournamentId) {
-        return stageRepository.findByStageIdAndTournamentId(stageId, tournamentId)
-                .orElseThrow(() -> new RuntimeException("Stage not found"));
-    }
+    // public Stage findStageByIdAndTournamentId(UUID stageId, UUID tournamentId) {
+    //     return stageRepository.findByStageIdAndTournamentId(stageId, tournamentId)
+    //             .orElseThrow(() -> new RuntimeException("Stage not found"));
+    // }
 
     // Update a stage for a specific tournament
     public Stage updateStageForTournament(UUID tournamentId, UUID stageId, Stage updatedStage) {
-        Stage stage = findStageByIdAndTournamentId(stageId, tournamentId);
+        Stage stage = getStageById(stageId);
         stage.setStageName(updatedStage.getStageName());
         stage.setStartDate(updatedStage.getStartDate());
         stage.setEndDate(updatedStage.getEndDate());
@@ -57,15 +63,15 @@ public class StageServiceImpl implements StageService {
 
     // Delete a stage by stageId and tournamentId
     public void deleteStageByTournamentId(UUID tournamentId, UUID stageId) {
-        Stage stage = findStageByIdAndTournamentId(stageId, tournamentId);
+        Stage stage = getStageById(stageId);
         stageRepository.delete(stage);
     }
 
     // Get stage by ID
-    public Stage getStageById(UUID tournamentId, UUID stageId) {
-        return stageRepository.findByStageIdAndTournamentId(stageId, tournamentId)
-            .orElseThrow(() -> new RuntimeException("Stage not found for the given tournament"));
-    }
+    // public Stage getStageById(UUID tournamentId, UUID stageId) {
+    //     return stageRepository.findByStageIdAndTournamentId(stageId, tournamentId)
+    //         .orElseThrow(() -> new RuntimeException("Stage not found for the given tournament"));
+    // }
 
 
     // Method to start a stage and initialize the first round
