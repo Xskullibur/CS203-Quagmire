@@ -1,6 +1,5 @@
 package com.project.G1_T3.player.service;
 
-import com.project.G1_T3.player.model.PlayerProfile;
 import com.project.G1_T3.player.repository.PlayerProfileRepository;
 
 import org.junit.jupiter.api.BeforeEach;
