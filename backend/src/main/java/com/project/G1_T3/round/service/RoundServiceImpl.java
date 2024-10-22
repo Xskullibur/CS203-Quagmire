@@ -1,7 +1,7 @@
 package com.project.G1_T3.round.service;
 
 import com.project.G1_T3.player.model.PlayerProfile;
-import com.project.G1_T3.player.repository.PlayerProfileRepository;
+import com.project.G1_T3.player.service.PlayerProfileService;
 import com.project.G1_T3.round.model.Round;
 import com.project.G1_T3.round.repository.RoundRepository;
 import com.project.G1_T3.stage.model.Stage;
@@ -36,7 +36,7 @@ public class RoundServiceImpl implements RoundService {
     private StageRepository stageRepository;
 
     @Autowired
-    private PlayerProfileRepository playerProfileRepository;
+    private PlayerProfileService playerProfileService;
 
     public void createFirstRound(UUID stageId, List<PlayerProfile> sortedPlayers) {
 
@@ -78,7 +78,7 @@ public class RoundServiceImpl implements RoundService {
     
         // Loop through the matches in the round and collect the winners
         for (Match match : roundMatches) {
-            PlayerProfile winner = playerProfileRepository.findByProfileId(match.getWinnerId());
+            PlayerProfile winner = playerProfileService.findByUserId(match.getWinnerId());
             if (winner == null) {
                 throw new IllegalStateException("Winner not found for match with ID: " + match.getMatchId());
             }
