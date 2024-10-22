@@ -157,5 +157,4 @@ public class PlayerProfile {
     public PlayerProfileDTO getProfile() {
         return new PlayerProfileDTO(this);
     }
-
 }

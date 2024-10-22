@@ -19,6 +19,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useErrorHandler } from "@/app/context/ErrorMessageProvider";
+import { toast } from "@/hooks/use-toast";
 
 const API_URL = `${process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL}`;
 
@@ -98,13 +99,46 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
-  const handleEditUser = (user: User) => {
-    alert(`This feature has not been implemented yet`);
-  };
+  const handleLockUser = useCallback((user: User, newLockStatus: boolean) => {
+    axiosInstance.put(
+        new URL(`/admin/edit-isLocked`, API_URL).toString(),
+        {
+            userId: user.userId,
+            isLocked: newLockStatus
+        }
+    ).then(response => {
+        if (response.status === 200) {
+            toast({
+                variant: "success",
+                title: "Success",
+                description: `User ${user.username} lock status has been updated to ${newLockStatus ? "locked" : "unlocked"}.`,
+              });
+        }
+    }).catch(error => {
+        showErrorToast("Internal Error", "Failed to update lock user status");
+    })
+  }, [showErrorToast]);
 
-  const handleDeleteUser = (user: User) => {
-    alert(`This feature has not been implemented yet`);
-  };
+  const handleDeleteUser = useCallback((user: User) => {
+    axiosInstance.delete(
+        new URL(`/admin/delete-user`, API_URL).toString(),
+        {
+          data: {
+            id: user.userId
+          }
+        }
+    ).then(response => {
+        if (response.status === 200) {
+            toast({
+                variant: "success",
+                title: "Success",
+                description: `User ${user.username} has been locked.`,
+              });
+        }
+    }).catch(error => {
+        showErrorToast("Internal Error", "Failed to lock/delete user");
+    })
+  }, [showErrorToast]);
 
   const handlePageChange = (currentPage: number) => {
     setCurrentPage(currentPage);
@@ -130,7 +164,7 @@ const AdminDashboard: React.FC = () => {
       ) : (
         <UserTable
           users={users}
-          onEdit={handleEditUser}
+          onLock={handleLockUser}
           onDelete={handleDeleteUser}
           currentPage={currentPage}
           totalPages={totalPages}

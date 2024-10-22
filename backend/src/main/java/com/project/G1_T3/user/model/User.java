@@ -60,6 +60,10 @@ public class User implements Serializable {
     @Builder.Default
     private boolean emailVerified = false;
 
+    @Column(name = "is_locked", nullable = false)
+    @Builder.Default
+    private boolean isLocked = false;
+
     @PrePersist
     private void onCreate() {
         LocalDateTime now = LocalDateTime.now();
@@ -88,5 +92,13 @@ public class User implements Serializable {
 
     public void setEmailVerified(boolean emailVerified) {
         this.emailVerified = emailVerified;
+    }
+
+    public boolean isLocked() {
+        return isLocked;
+    }
+
+    public void setIsLocked(boolean isLocked) {
+        this.isLocked = isLocked;
     }
 }

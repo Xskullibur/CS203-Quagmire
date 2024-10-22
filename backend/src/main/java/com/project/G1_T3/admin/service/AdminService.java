@@ -1,5 +1,7 @@
 package com.project.G1_T3.admin.service;
 
+import java.util.UUID;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,5 +57,13 @@ public class AdminService {
         Page<User> userPage = userRepository.findAll(pageable);
 
         return userPage.map(UserDTO::fromUser);
+    }
+
+    public void updateUserLockedStatus(UUID id, boolean isLocked) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        user.setIsLocked(isLocked); 
+        userRepository.save(user);
     }
 }
