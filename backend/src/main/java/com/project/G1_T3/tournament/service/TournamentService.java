@@ -39,6 +39,15 @@ public interface TournamentService {
     Page<Tournament> findByKeywordInDescription(String keyword, Pageable pageable); // Search tournaments by keyword in description with pagination
 
     public Tournament createTournament(TournamentDTO tournament);
+<<<<<<< HEAD
+=======
+
+    Set<PlayerProfile> getPlayers(UUID tournamentId);
+
+    Tournament addPlayerToTournament(UUID tournamentId, UUID user_id);
+
+    Tournament updateTournament(UUID tournamentId, Tournament updatedTournament);
+>>>>>>> d4f0826 (<backend> idk anymore, debugged this but tehre were unecessary methods. Just gonna create a new tournament off of main)
     
     // Add this method
     Tournament getTournamentById(UUID id); // Get tournament by ID

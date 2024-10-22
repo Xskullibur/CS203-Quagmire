@@ -52,14 +52,21 @@ public class TournamentServiceImpl implements TournamentService {
         return result;
     }
 
+    @Override
+    public Page<Tournament> findTournamentsByDeadline(Pageable pageable, LocalDateTime deadline) {
+        return tournamentRepository.findByDeadlineBefore(deadline, pageable);
+    }
+
     // @Override
     // public Page<Tournament> findUpcomingTournaments(Pageable pageable) {
-    //     return tournamentRepository.findByStartDateAfter(LocalDateTime.now(), pageable);
+    // return tournamentRepository.findByStartDateAfter(LocalDateTime.now(),
+    // pageable);
     // }
 
     // @Override
     // public Page<Tournament> findPastTournaments(Pageable pageable) {
-    //     return tournamentRepository.findByEndDateBefore(LocalDateTime.now(), pageable);
+    // return tournamentRepository.findByEndDateBefore(LocalDateTime.now(),
+    // pageable);
     // }
 
     @Override
@@ -145,21 +152,24 @@ public class TournamentServiceImpl implements TournamentService {
                 // stage.setStartDate(stageDTO.getStartDate());
                 // stage.setEndDate(stageDTO.getEndDate());
                 // stage.setFormat(stageDTO.getFormat());
-                // stage.setStatus(stageDTO.getStatus() != null ? stageDTO.getStatus() : Status.SCHEDULED);
-                // stage.setTournament(tournament);  // Link the stage with the tournament
-                tournament.getStages().add(stage);  // Add the stage to the tournament
+                // stage.setStatus(stageDTO.getStatus() != null ? stageDTO.getStatus() :
+                // Status.SCHEDULED);
+                // stage.setTournament(tournament); // Link the stage with the tournament
+                tournament.getStages().add(stage); // Add the stage to the tournament
             }
-        } 
+        }
         // else {
-        //     // Automatically create a default single elimination stage if no stages are provided
-        //     Stage defaultStage = new Stage();
-        //     defaultStage.setStageName("Single Elimination");
-        //     defaultStage.setStartDate(tournamentDTO.getStartDate());
-        //     defaultStage.setEndDate(tournamentDTO.getEndDate());
-        //     defaultStage.setFormat(Format.SINGLE_ELIMINATION);  // Assuming this is an enum
-        //     defaultStage.setStatus(Status.SCHEDULED);
-        //     defaultStage.setTournament(tournament);  // Link to tournament
-        //     tournament.getStages().add(defaultStage);
+        // // Automatically create a default single elimination stage if no stages are
+        // provided
+        // Stage defaultStage = new Stage();
+        // defaultStage.setStageName("Single Elimination");
+        // defaultStage.setStartDate(tournamentDTO.getStartDate());
+        // defaultStage.setEndDate(tournamentDTO.getEndDate());
+        // defaultStage.setFormat(Format.SINGLE_ELIMINATION); // Assuming this is an
+        // enum
+        // defaultStage.setStatus(Status.SCHEDULED);
+        // defaultStage.setTournament(tournament); // Link to tournament
+        // tournament.getStages().add(defaultStage);
         // }
 
         // Save the tournament along with its stages
@@ -220,7 +230,6 @@ public class TournamentServiceImpl implements TournamentService {
                 .orElseThrow(() -> new NoSuchElementException("Tournament not found with id: " + id));
     }
 
-
     @Transactional
     public void startTournament(UUID tournamentId) {
         // Retrieve the tournament
@@ -245,7 +254,7 @@ public class TournamentServiceImpl implements TournamentService {
 
         int numStages = allStages.size();
         tournament.setNumStages(numStages);
-        
+
         if (tournament.getStatus() != Status.SCHEDULED) {
             throw new IllegalArgumentException("Tournament has already started.");
         }
