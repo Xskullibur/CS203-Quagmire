@@ -87,6 +87,14 @@ const Register: React.FC = () => {
   const router = useRouter();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+
+    const { name, value } = e.target;
+    if (name === "username" && value.includes(" ")) {
+      setError("Username must not contain spaces");
+    } else {
+      setError(null);
+    }
+
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
@@ -106,6 +114,7 @@ const Register: React.FC = () => {
       setError("Passwords do not match");
       return;
     }
+
     try {
       const response = await axiosInstance.post(
         new URL("/authentication/register", API_URL).toString(),
