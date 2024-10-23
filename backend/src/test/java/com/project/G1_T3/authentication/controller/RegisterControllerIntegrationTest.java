@@ -105,4 +105,16 @@ class RegisterControllerIntegrationTest {
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
+
+    
+    @Test
+    public void registerUser_UsernameWithSpaces_Failure() throws Exception {
+        URI uri = new URI(baseUrl + port + "/authentication/register");
+        RegisterRequest invalidRequest = new RegisterRequest("invalid username", TEST_EMAIL, "password123");
+
+        ResponseEntity<String> response = restTemplate.postForEntity(uri, invalidRequest, String.class);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
 }
