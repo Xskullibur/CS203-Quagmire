@@ -3,8 +3,6 @@ package com.project.G1_T3.player.service;
 import com.project.G1_T3.player.repository.PlayerProfileRepository;
 import com.project.G1_T3.security.service.SecurityService;
 import com.project.G1_T3.user.model.CustomUserDetails;
-
-import io.jsonwebtoken.security.SecurityException;
 import jakarta.persistence.EntityNotFoundException;
 
 import org.springframework.beans.factory.annotation.Autowired;
