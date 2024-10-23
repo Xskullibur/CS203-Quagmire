@@ -21,6 +21,8 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import com.project.G1_T3.validation.NoSpaces;
+
 @Entity
 @Builder
 @Getter
@@ -36,7 +38,8 @@ public class User implements Serializable {
     private UUID userId;
 
     @Column(name = "username", nullable = false, unique = true)
-    @NotBlank
+    @NotBlank(message = "Username cannot be empty.")
+    @NoSpaces(message = "Username cannot contain spaces.")
     private String username;
 
     @Column(name = "email", nullable = false, unique = true)
