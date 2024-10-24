@@ -25,4 +25,16 @@ public class FileController {
             return ResponseEntity.status(500).body("File upload failed: " + e.getMessage());
         }
     }
+
+    @DeleteMapping()
+    public ResponseEntity<String> deleteFile(@RequestParam String filePath) {
+        try {
+            fileStorageService.deleteFile(filePath);
+            return ResponseEntity.ok("File deleted successfully");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("File deletion failed: " + e.getMessage());
+        }
+    }
 }
