@@ -69,7 +69,7 @@ const UserTable: React.FC<UserTableProps> = ({
                             <TableCell className="truncate">
                                 {formatDistance(new Date(user.updatedAt), new Date(), { addSuffix: true })}
                             </TableCell>
-                            <TableCell className="2xl:space-x-4 sm:space-y-2">
+                            {/* <TableCell className="2xl:space-x-4 sm:space-y-2">
                                 <Button variant="outline" size="icon" onClick={() => onDelete(user)}>
                                     <FilePenIcon className="h-4 w-4" />
                                 </Button>
@@ -79,6 +79,31 @@ const UserTable: React.FC<UserTableProps> = ({
                                             <LockKeyholeIcon className="h-4 w-4" /> :
                                             <UnlockKeyholeIcon className="h-4 w-4" />
                                     }
+                                </Button>
+                            </TableCell> */}
+                            <TableCell className="2xl:space-x-4 sm:space-y-2">
+                                <Button variant="outline" size="icon" onClick={() => onDelete(user)}>
+                                    <FilePenIcon className="h-4 w-4" />
+                                </Button>
+
+                                {/* Lock Button */}
+                                <Button 
+                                    variant="destructive" 
+                                    size="icon" 
+                                    onClick={() => onLock(user, true)}
+                                    className="w-20"  // Adjust width as needed
+                                >
+                                    <LockKeyholeIcon className="h-4 w-4 mr-2" /> Lock
+                                </Button>
+
+                                {/* Unlock Button */}
+                                <Button 
+                                    variant="outline" 
+                                    size="icon" 
+                                    onClick={() => onLock(user, false)}
+                                    className="w-20"  // Adjust width as needed
+                                >
+                                    <UnlockKeyholeIcon className="h-4 w-4 mr-2" /> Unlock
                                 </Button>
                             </TableCell>
                         </TableRow>

@@ -48,6 +48,18 @@ public class AdminService {
         return userDTO;
     }
 
+    public void resetAdminPassword(UUID id) {
+        User admin = userRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Admin not found"));
+
+        // Create new temporary password
+        String password = passwordGeneratorService.generatePassword();
+        userService.updatePassword(admin, password);
+        
+        // Send email with new password
+        emailService.sendTempPasswordEmail(UserDTO.fromUser(admin), password);
+    }
+
     public Page<UserDTO> getPaginatedUsers(int page, int size, String field, String order) {
 
         Sort sort = order.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(field).ascending()

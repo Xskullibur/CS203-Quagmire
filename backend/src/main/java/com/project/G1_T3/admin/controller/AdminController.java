@@ -71,4 +71,11 @@ public class AdminController {
         adminService.updateUserLockedStatus(UUID.fromString(id), true);  
         return ResponseEntity.ok("User locked successfully");
     }
+
+    // Reset admin email and password
+    @PostMapping("/reset-admin-password")
+    public ResponseEntity<String> resetAdminPassword(@RequestBody String adminId) {
+        adminService.resetAdminPassword(UUID.fromString(adminId));
+        return ResponseEntity.ok("Temporary password has been sent to the admin.");
+    }
 }

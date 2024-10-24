@@ -2,10 +2,13 @@ package com.project.G1_T3.authentication.service;
 
 import java.time.LocalDateTime;
 
+import org.apache.shiro.authc.LockedAccountException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.security.authentication.AccountStatusException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -43,15 +46,24 @@ public class AuthServiceImpl implements AuthService {
         username = username.toLowerCase();
 
         try {
-            authManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
             User user = userRepository.findByUsername(username)
                     .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+            // Checks if user isLocked
+            if (user.isLocked()) {
+                throw new LockedException("Account is locked.");
+            }
+
+            // Authenticate only after checking if locked
+            authManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
 
             String token = jwtService.generateToken(user);
             UserDTO userDTO = UserDTO.fromUser(user);
 
             return new LoginResponseDTO(userDTO, token);
 
+        } catch (AccountStatusException e) {
+            throw e;
         } catch (AuthenticationException e) {
             throw new BadCredentialsException("The username or password is incorrect", e);
         }
