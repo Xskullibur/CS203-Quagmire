@@ -3,13 +3,13 @@ package com.project.G1_T3.filestorage.service;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
 import com.google.firebase.cloud.StorageClient;
+import com.project.G1_T3.common.exception.FileNotFoundException;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.Paths;
 
 @Service
 public class FileStorageService {
@@ -29,9 +29,17 @@ public class FileStorageService {
             throw new IllegalArgumentException("File cannot be empty");
         }
 
-        String filePath = Paths.get(folder, fileName).toString();
         Bucket bucket = StorageClient.getInstance().bucket();
-        Blob blob = bucket.create(filePath, file.getBytes(), file.getContentType());
-        return storagePath + storageBucket + FILE_OPENER_URL + blob.getName() + MEDIA_URL_PARAMETER;
+        Blob blob = bucket.create(folder + "/" + fileName, file.getBytes(), file.getContentType());
+        return storagePath + storageBucket + FILE_OPENER_URL + folder + "%2F" + blob.getName() + MEDIA_URL_PARAMETER;
+    }
+
+    public void deleteFile(String filePath) {
+        Bucket bucket = StorageClient.getInstance().bucket();
+        Blob blob = bucket.get(filePath);
+        if (blob == null || !blob.exists()) {
+            throw new FileNotFoundException("File not found: " + filePath);
+        }
+        blob.delete();
     }
 }
