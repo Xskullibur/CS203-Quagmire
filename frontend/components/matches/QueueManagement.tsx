@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useWebSocket } from '@/hooks/useWebSocket';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { PlayerProfile } from '@/types/player';
+import { PlayerProfile } from '@/types/player-profile';
 import { useGeolocation } from '@/hooks/useGeolocation';
 
 interface QueueManagementProps {

@@ -5,7 +5,7 @@ import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import withAuth from "@/hooks/withAuth";
 import axiosInstance from "@/lib/axios";
-import { PlayerProfile } from "@/types/player";
+import { PlayerProfile } from "@/types/player-profile";
 import { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
 import React, { useState, useEffect } from "react";
