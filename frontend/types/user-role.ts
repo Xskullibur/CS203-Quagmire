@@ -1,4 +1,4 @@
-// frontend/models/user-role.ts
+// frontend/types/user-role.ts
 
 export enum UserRole {
   USER = "USER",
