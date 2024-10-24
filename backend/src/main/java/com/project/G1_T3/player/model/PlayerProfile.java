@@ -65,7 +65,6 @@ public class PlayerProfile {
     @Transient
     private Glicko2Rating glicko2Rating;
 
-
     // Override equals() method for proper comparison in matchmaking
     @Override
     public boolean equals(Object obj) {
@@ -87,7 +86,7 @@ public class PlayerProfile {
         return profileId;
     }
 
-    public void setCurrentRating(){
+    public void setCurrentRating() {
         currentRating = glickoRating + DEVIATION_SCALE / ratingDeviation + VOLATILITY_SCALE / volatility;
     }
 
@@ -99,10 +98,9 @@ public class PlayerProfile {
     private void syncGlicko2Rating() {
         if (this.glicko2Rating == null) {
             this.glicko2Rating = new Glicko2Rating(
-                this.glickoRating,
-                this.ratingDeviation,
-                this.volatility
-            );
+                    this.glickoRating,
+                    this.ratingDeviation,
+                    this.volatility);
         } else {
             this.glicko2Rating.setRating((float) this.glickoRating);
             this.glicko2Rating.setRatingDeviation(this.ratingDeviation);
@@ -138,7 +136,6 @@ public class PlayerProfile {
         setCurrentRating();
     }
 
-
     @ManyToMany(mappedBy = "players", cascade = CascadeType.ALL)
     private Set<Tournament> tournaments = new HashSet<>();
 
@@ -156,6 +153,15 @@ public class PlayerProfile {
 
     public PlayerProfileDTO getProfile() {
         return new PlayerProfileDTO(this);
+    }
+
+    public double getCurrentRD() {
+        return ratingDeviation;
+    }
+
+    // get firstname
+    public String getFirstName() {
+        return firstName;
     }
 
 }
