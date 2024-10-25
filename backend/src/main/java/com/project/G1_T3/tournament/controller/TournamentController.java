@@ -1,6 +1,7 @@
 package com.project.G1_T3.tournament.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.project.G1_T3.player.model.PlayerProfile;
 import com.project.G1_T3.tournament.model.Tournament;
 import com.project.G1_T3.tournament.model.TournamentDTO;
@@ -98,8 +99,11 @@ public class TournamentController {
             // Log to check if the request is received
             System.out.println("Received request to create tournament with data: " + tournamentJson);
 
-            // Convert JSON string to TournamentDTO
+            // Initialize ObjectMapper with JavaTimeModule
             ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.registerModule(new JavaTimeModule());
+
+            // Convert JSON string to TournamentDTO
             TournamentDTO tournamentDTO = objectMapper.readValue(tournamentJson, TournamentDTO.class);
 
             // Call the service to create the tournament, passing the photo if present

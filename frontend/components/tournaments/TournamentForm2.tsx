@@ -18,6 +18,7 @@ interface AdditionalDetailsFormProps {
   searchResults: any[];
   handleRefereeSearch: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleAddReferee: (refereeId: string) => void;
+  handlePhotoChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
   
@@ -30,6 +31,7 @@ const AdditionalDetailsForm: React.FC<AdditionalDetailsFormProps> = ({
   searchResults,
   handleRefereeSearch,
   handleAddReferee,
+  handlePhotoChange,
 }) => {
   return (
     <div className="w-[95vw] md:w-1/2 max-w-xl p-6 bg-primary-foreground rounded-lg shadow-md relative
@@ -90,6 +92,19 @@ const AdditionalDetailsForm: React.FC<AdditionalDetailsFormProps> = ({
             className="h-20 bg-transparent border-b border-zinc-600 text-white placeholder-zinc-500 transition duration-300"
             rows={4}
             style={{ resize: 'none' }}
+          />
+        </div>
+
+        {/* Photo Upload */}
+        <div className="mb-4">
+          <label className="text-sm font-medium text-white" htmlFor="photo">Upload Tournament Photo</label>
+          <Input
+            type="file"
+            id="photo"
+            name="photo"
+            accept="image/*"
+            onChange={handlePhotoChange}
+            className="bg-transparent border-b border-zinc-600 text-white placeholder-zinc-500 transition duration-300"
           />
         </div>
 

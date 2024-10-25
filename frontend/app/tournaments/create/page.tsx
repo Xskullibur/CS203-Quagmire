@@ -34,6 +34,7 @@ const CreateTournament = () => {
     refereeIds: []
   });
 
+  const [photo, setPhoto] = useState<File | null>(null);
   const [refereeSearchQuery, setRefereeSearchQuery] = useState<string>('');
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [selectedReferees, setSelectedReferees] = useState<string[]>([]);
@@ -81,6 +82,12 @@ const CreateTournament = () => {
       ...tournament,
       [name]: value
     });
+  };
+
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setPhoto(e.target.files[0]);
+    }
   };
 
   // Handle next step
@@ -156,6 +163,7 @@ const CreateTournament = () => {
         searchResults={searchResults}
         handleRefereeSearch={handleRefereeSearch}
         handleAddReferee={handleAddReferee}
+        handlePhotoChange={handlePhotoChange}
       />
 
       )}

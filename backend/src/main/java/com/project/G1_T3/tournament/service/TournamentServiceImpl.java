@@ -127,9 +127,9 @@ public class TournamentServiceImpl implements TournamentService {
         // Upload the photo if it's provided
         if (photo != null && !photo.isEmpty()) {
             try {
-                String filePath = "tournaments/" + UUID.randomUUID(); // Generate unique path for each photo
-                fileStorageService.uploadFile("tournaments", filePath, photo); // Upload using FileStorageService
-                tournament.setPhotoUrl(filePath); // Store only the filename in the database
+                String fileName = UUID.randomUUID().toString(); // Generate unique path for each photo
+                fileStorageService.uploadFile("tournaments", fileName, photo); // Upload using FileStorageService
+                tournament.setPhotoUrl("tournaments/" + fileName); // Store only the filename in the database
             } catch (IOException e) {
                 throw new RuntimeException("Error uploading photo", e);
             }

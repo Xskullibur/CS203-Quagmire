@@ -11,6 +11,8 @@ interface Tournament {
     description: string;
     deadline: string;
     location: string;
+    // photoFilename?: string;
+    photoUrl?: string;
 }
 
 const TournamentDetails: React.FC<{ params: { id: string } }> = ({ params }) => {
@@ -19,6 +21,9 @@ const TournamentDetails: React.FC<{ params: { id: string } }> = ({ params }) => 
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [registrationClosed, setRegistrationClosed] = useState<boolean>(false);
+
+    // Base URL for accessing photos in Firebase
+    const firebaseBaseURL = "https://firebasestorage.googleapis.com/v0/b/quagmire-smu.appspot.com/o/";
 
     useEffect(() => {
         const fetchTournamentDetails = async () => {
@@ -30,6 +35,12 @@ const TournamentDetails: React.FC<{ params: { id: string } }> = ({ params }) => 
             try {
                 const response = await axiosInstance.get(`${process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL}/tournament/${id}`);
                 const tournamentData = response.data;
+
+                // Add full photo URL if only the filename/path is provided
+                if (tournamentData.photoUrl) {
+                    tournamentData.photoUrl = `${firebaseBaseURL}${encodeURIComponent(tournamentData.photoUrl)}?alt=media`;
+                }
+
                 setTournament(tournamentData);
 
                 const currentDate = new Date();
@@ -56,6 +67,15 @@ const TournamentDetails: React.FC<{ params: { id: string } }> = ({ params }) => 
             <header className="bg-background/10 w-full py-4 text-center text-white">
                 <h1 className="text-3xl font-bold text-center">{tournament.name}</h1>
             </header>
+
+            {/* Display the tournament image if available */}
+            {tournament.photoUrl && (
+                <img
+                    src={tournament.photoUrl}
+                    alt={`${tournament.name} photo`}
+                    className="w-full max-w-md mt-6 mb-4 rounded-lg shadow-lg object-cover"
+                />
+            )}
 
             <p className="text-xl text-center">{`${new Date(tournament.startDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })} - ${new Date(tournament.endDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}`}</p>
 
