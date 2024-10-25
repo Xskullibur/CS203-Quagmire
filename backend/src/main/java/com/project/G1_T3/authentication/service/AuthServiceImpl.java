@@ -91,4 +91,28 @@ public class AuthServiceImpl implements AuthService {
 
         return true;
     }
+
+    /**
+     * Retrieves the currently authenticated user.
+     *
+     * @return the current {@link User} object associated with the authenticated session.
+     * @throws IllegalStateException if the authentication or principal is null.
+     * @throws ClassCastException if the principal is not an instance of {@link CustomUserDetails}.
+     */
+    @Override
+    public User getCurrentUser() {
+        
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || authentication.getPrincipal() == null) {
+            throw new IllegalStateException("No authenticated user found");
+        }
+
+        if (!(authentication.getPrincipal() instanceof CustomUserDetails)) {
+            throw new ClassCastException("Principal is not an instance of CustomUserDetails");
+        }
+
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        return userDetails.getUser();
+    }
 }
