@@ -34,10 +34,14 @@ public class PlayerProfileDTO {
     private Float currentRating;
 
     @JsonProperty("profilePicturePath")
-    private String profilePicturePath;
+    private String profileImagePath;
+
+    public PlayerProfileDTO() {
+        
+    }
 
     public PlayerProfileDTO(UUID profileId, String username, String firstName, String lastName,
-        LocalDate dateOfBirth, String country, String bio, Float currentRating) {
+        LocalDate dateOfBirth, String country, String bio, Float currentRating, String profileImagePath) {
         this.profileId = profileId;
         this.username = username;
         this.firstName = firstName;
@@ -46,6 +50,7 @@ public class PlayerProfileDTO {
         this.country = country;
         this.bio = bio;
         this.currentRating = currentRating;
+        this.profileImagePath = profileImagePath;
     }
 
     public PlayerProfileDTO(PlayerProfile playerProfile) {
@@ -57,6 +62,7 @@ public class PlayerProfileDTO {
         this.country = playerProfile.getCountry();
         this.bio = playerProfile.getBio();
         this.currentRating = playerProfile.getCurrentRating();
+        this.profileImagePath = playerProfile.getProfilePicturePath();
     }
 
     // Constructor, getters, and setters
@@ -125,11 +131,11 @@ public class PlayerProfileDTO {
         this.currentRating = currentRating;
     }
 
-    public String getProfilePicturePath() {
-        return profilePicturePath;
+    public String getProfileImagePath() {
+        return profileImagePath;
     }
 
-    public void setProfilePicturePath(String profilePicturePath) {
-        this.profilePicturePath = profilePicturePath;
+    public void setProfileImagePath(String profilePicturePath) {
+        this.profileImagePath = profilePicturePath;
     }
 }

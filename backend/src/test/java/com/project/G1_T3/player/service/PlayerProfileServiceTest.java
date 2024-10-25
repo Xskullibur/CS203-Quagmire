@@ -6,6 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.project.G1_T3.player.model.PlayerProfile;
 import com.project.G1_T3.player.model.PlayerProfileDTO;
@@ -13,9 +14,11 @@ import com.project.G1_T3.player.repository.PlayerProfileRepository;
 import com.project.G1_T3.security.service.SecurityService;
 import com.project.G1_T3.user.model.CustomUserDetails;
 import com.project.G1_T3.user.model.User;
+import com.project.G1_T3.filestorage.service.FileStorageService;
 
 import jakarta.persistence.EntityNotFoundException;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.UUID;
 
@@ -31,6 +34,12 @@ public class PlayerProfileServiceTest {
 
     @Mock
     private PlayerProfileRepository playerProfileRepository;
+
+    @Mock
+    private MultipartFile profileImage;
+
+    @Mock
+    private FileStorageService fileStorageService;
 
     @InjectMocks
     private PlayerProfileService playerProfileService;
@@ -73,13 +82,12 @@ public class PlayerProfileServiceTest {
     }
 
     @Test
-    void updateProfile_SuccessfulUpdate() {
-
+    void updateProfile_SuccessfulUpdate() throws IOException {
         when(securityService.getAuthenticatedUser()).thenReturn(userDetails);
         when(playerProfileRepository.findByUserId(userId)).thenReturn(existingProfile);
         when(playerProfileRepository.save(any(PlayerProfile.class))).thenReturn(existingProfile);
 
-        PlayerProfile updatedProfile = playerProfileService.updateProfile(userId, profileUpdates);
+        PlayerProfile updatedProfile = playerProfileService.updateProfile(userId, profileUpdates, null);
 
         assertNotNull(updatedProfile);
         assertEquals(profileUpdates.getFirstName(), updatedProfile.getFirstName());
@@ -94,7 +102,6 @@ public class PlayerProfileServiceTest {
 
     @Test
     void updateProfile_UnauthorizedUser() {
-
         UUID differentUserId = UUID.randomUUID();
         User differentUser = new User();
         differentUser.setId(differentUserId.toString());
@@ -104,7 +111,7 @@ public class PlayerProfileServiceTest {
         when(securityService.getAuthenticatedUser()).thenReturn(differentUserDetails);
 
         assertThrows(SecurityException.class,
-                () -> playerProfileService.updateProfile(userId, profileUpdates));
+                () -> playerProfileService.updateProfile(userId, profileUpdates, profileImage));
 
         verify(playerProfileRepository, never()).findByUserId(any());
         verify(playerProfileRepository, never()).save(any());
@@ -112,11 +119,10 @@ public class PlayerProfileServiceTest {
 
     @Test
     void updateProfile_NullUserDetails() {
-
         when(securityService.getAuthenticatedUser()).thenReturn(null);
 
         assertThrows(SecurityException.class,
-                () -> playerProfileService.updateProfile(userId, profileUpdates));
+                () -> playerProfileService.updateProfile(userId, profileUpdates, profileImage));
 
         verify(playerProfileRepository, never()).findByUserId(any());
         verify(playerProfileRepository, never()).save(any());
@@ -124,12 +130,11 @@ public class PlayerProfileServiceTest {
 
     @Test
     void updateProfile_ProfileNotFound() {
-
         when(securityService.getAuthenticatedUser()).thenReturn(userDetails);
         when(playerProfileRepository.findByUserId(userId)).thenReturn(null);
 
         assertThrows(EntityNotFoundException.class,
-                () -> playerProfileService.updateProfile(userId, profileUpdates));
+                () -> playerProfileService.updateProfile(userId, profileUpdates, profileImage));
 
         verify(playerProfileRepository).findByUserId(userId);
         verify(playerProfileRepository, never()).save(any());
@@ -137,12 +142,11 @@ public class PlayerProfileServiceTest {
 
     @Test
     void updateProfile_NullUpdates() {
-
         when(securityService.getAuthenticatedUser()).thenReturn(userDetails);
         when(playerProfileRepository.findByUserId(userId)).thenReturn(existingProfile);
 
         assertThrows(NullPointerException.class,
-                () -> playerProfileService.updateProfile(userId, null));
+                () -> playerProfileService.updateProfile(userId, null, profileImage));
 
         verify(playerProfileRepository).findByUserId(userId);
         verify(playerProfileRepository, never()).save(any());

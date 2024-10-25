@@ -6,6 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import withAuth from "@/hooks/withAuth";
 import axiosInstance from "@/lib/axios";
 import { PlayerProfile } from "@/types/player-profile";
+import { PlayerProfileRequest } from "@/types/player-profile-request";
 import { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
@@ -18,30 +19,37 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import ProfilePicture from "@/components/profile/EditProfilePicture";
+import { validateImageFile } from "@/utils/fileValidation";
 
 const API_URL = `${process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL}`;
-const PROFILEPICTURE_API = `${process.env.NEXT_PUBLIC_PROFILEPICTURE_API_URL}`;
+const PROFILE_IMAGE_API = `${process.env.NEXT_PUBLIC_PROFILEPICTURE_API_URL}`;
 
 const EditProfile = () => {
   const { user } = useAuth();
   const { showErrorToast } = useErrorHandler();
-  const [playerProfile, setPlayerProfile] = useState<PlayerProfile>();
+  const [playerProfileRequest, setPlayerProfileRequest] =
+    useState<PlayerProfileRequest>({
+      id: user?.userId || "",
+      profileUpdates: {} as PlayerProfile,
+      profileImage: new File([], ""),
+    });
   const [isLoading, setIsLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const router = useRouter();
 
   const fetchProfile = async () => {
-    const response = await fetch(
-      `http://localhost:8080/profile/${user?.userId}`
-    );
+    const response = await fetch(`${API_URL}/profile/${user?.userId}`);
     const data = await response.json();
 
-    // Check if profile picture path is empty and set DiceBear URL if it is
     if (!data.profilePicturePath) {
-      data.profilePicturePath = PROFILEPICTURE_API + data.username;
+      data.profilePicturePath = PROFILE_IMAGE_API + data.username;
     }
 
-    setPlayerProfile(data);
+    setPlayerProfileRequest((prev) => ({
+      ...prev,
+      profileUpdates: data,
+    }));
+
     setIsLoading(false);
   };
 
@@ -52,13 +60,33 @@ const EditProfile = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    axiosInstance
-      .put(new URL(`/profile/edit`, API_URL).toString(), {
-        id: user?.userId,
-        profileUpdates: playerProfile,
+    // Create FormData object
+    const formData = new FormData();
+
+    // Add the id
+    formData.append("id", playerProfileRequest.id);
+
+    // Add the profile updates as a JSON string
+    formData.append(
+      "profileUpdates",
+      new Blob([JSON.stringify(playerProfileRequest.profileUpdates)], {
+        type: "application/json",
       })
-      .then((res) => {
-        if (res.status == 200) {
+    );
+
+    // Add the profile image if it exists and is not empty
+    if (playerProfileRequest.profileImage.size > 0) {
+      formData.append("profileImage", playerProfileRequest.profileImage);
+    }
+
+    axiosInstance
+      .put(new URL(`/profile`, API_URL).toString(), formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      })
+      .then((response) => {
+        if (response.status === 200) {
           toast({
             variant: "success",
             title: "Success",
@@ -109,35 +137,46 @@ const EditProfile = () => {
     const { name, value, files } = e.target as HTMLInputElement;
     if (name === "profilePicturePath" && files && files[0]) {
       const file = files[0];
+
+      // Validate the image file
+      const validation = validateImageFile(file);
+      if (!validation.isValid) {
+        showErrorToast("Invalid File", validation.error || "Invalid file");
+        return;
+      }
+
       const imageUrl = URL.createObjectURL(file);
       setSelectedImage(imageUrl);
-      setPlayerProfile(
-        (playerProfile) =>
-          ({
-            ...playerProfile,
-            profilePicturePath: imageUrl,
-          }) as PlayerProfile
-      );
+      setPlayerProfileRequest((prev) => ({
+        ...prev,
+        profileUpdates: {
+          ...prev.profileUpdates,
+          profilePicturePath: imageUrl,
+        },
+        profileImage: file,
+      }));
     } else {
-      setPlayerProfile(
-        (playerProfile) =>
-          ({
-            ...playerProfile,
-            [name]: value || null,
-          }) as PlayerProfile
-      );
+      setPlayerProfileRequest((prev) => ({
+        ...prev,
+        profileUpdates: {
+          ...prev.profileUpdates,
+          [name]: value || null,
+        },
+      }));
     }
   };
 
   const handleClearImage = () => {
     setSelectedImage(null);
-    setPlayerProfile(
-      (playerProfile) =>
-        ({
-          ...playerProfile,
-          profilePicturePath: PROFILEPICTURE_API + playerProfile?.username,
-        }) as PlayerProfile
-    );
+    setPlayerProfileRequest((prev) => ({
+      ...prev,
+      profileUpdates: {
+        ...prev.profileUpdates,
+        profilePicturePath:
+          PROFILE_IMAGE_API + playerProfileRequest.profileUpdates.username,
+      },
+      profileImage: new File([], ""),
+    }));
   };
 
   if (isLoading) return <div>Loading...</div>;
@@ -154,7 +193,9 @@ const EditProfile = () => {
             {/* Profile Picture */}
             <ProfilePicture
               selectedImage={selectedImage}
-              profilePicturePath={playerProfile!.profilePicturePath}
+              profilePicturePath={
+                playerProfileRequest.profileUpdates.profilePicturePath
+              }
               handleChange={handleChange}
               handleClearImage={handleClearImage}
             />
@@ -168,7 +209,7 @@ const EditProfile = () => {
                 type="text"
                 id="firstName"
                 name="firstName"
-                value={playerProfile?.firstName || ""}
+                value={playerProfileRequest.profileUpdates.firstName || ""}
                 onChange={handleChange}
                 className="w-full p-2 rounded-lg bg-[#333333] text-white"
               />
@@ -181,7 +222,7 @@ const EditProfile = () => {
                 type="text"
                 id="lastName"
                 name="lastName"
-                value={playerProfile?.lastName || ""}
+                value={playerProfileRequest.profileUpdates.lastName || ""}
                 onChange={handleChange}
                 className="w-full p-2 rounded-lg bg-[#333333] text-white"
               />
@@ -193,7 +234,7 @@ const EditProfile = () => {
               <textarea
                 id="bio"
                 name="bio"
-                value={playerProfile?.bio || ""}
+                value={playerProfileRequest.profileUpdates.bio || ""}
                 onChange={handleChange}
                 className="w-full p-2 rounded-lg bg-[#333333] text-white"
               />
@@ -206,7 +247,7 @@ const EditProfile = () => {
                 type="text"
                 id="country"
                 name="country"
-                value={playerProfile?.country || ""}
+                value={playerProfileRequest.profileUpdates.country || ""}
                 onChange={handleChange}
                 className="w-full p-2 rounded-lg bg-[#333333] text-white"
               />
@@ -219,7 +260,7 @@ const EditProfile = () => {
                 type="date"
                 id="dateOfBirth"
                 name="dateOfBirth"
-                value={playerProfile?.dateOfBirth || ""}
+                value={playerProfileRequest.profileUpdates.dateOfBirth || ""}
                 onChange={handleChange}
                 className="w-full p-2 rounded-lg bg-[#333333] text-white"
               />

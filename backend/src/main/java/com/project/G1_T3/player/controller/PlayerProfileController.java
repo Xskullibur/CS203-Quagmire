@@ -4,12 +4,16 @@ import com.project.G1_T3.player.model.PlayerProfileRequest;
 import com.project.G1_T3.player.model.PlayerProfile;
 import com.project.G1_T3.player.model.PlayerProfileDTO;
 import com.project.G1_T3.player.service.PlayerProfileService;
+
+import java.io.IOException;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/profile")
@@ -61,12 +65,14 @@ public class PlayerProfileController {
     }
 
     // For editing profile
-    @PutMapping("/edit")
-    public ResponseEntity<PlayerProfile> updateProfile(@RequestBody PlayerProfileRequest playerProfileRequest) {
+    @PutMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<PlayerProfile> updateProfile(
+            @RequestPart("id") String id,
+            @RequestPart("profileUpdates") PlayerProfileDTO profileUpdates,
+            @RequestPart(value = "profileImage", required = false) MultipartFile profileImage) throws IOException {
 
-        PlayerProfile updatedProfile = playerProfileService.updateProfile(UUID.fromString(playerProfileRequest.getId()),
-                playerProfileRequest.getProfileUpdates());
-
+        PlayerProfile updatedProfile = playerProfileService.updateProfile(UUID.fromString(id), profileUpdates, profileImage);
         return ResponseEntity.ok(updatedProfile);
     }
+
 }

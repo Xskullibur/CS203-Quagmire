@@ -44,6 +44,7 @@ const ProfilePicture: React.FC<ProfilePictureProps> = ({
         name="profilePicturePath"
         onChange={handleChange}
         className="hidden"
+        accept="image/*"
       />
       <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0 justify-center items-center">
         <Button variant={"outline"} type="button" onClick={handleClearImage}>
