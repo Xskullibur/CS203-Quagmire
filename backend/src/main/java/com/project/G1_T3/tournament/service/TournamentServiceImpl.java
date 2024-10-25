@@ -227,7 +227,7 @@ public class TournamentServiceImpl implements TournamentService {
     }
 
 
-    public void startTournament(UUID tournamentId, TournamentDTO tournamentDTO) {
+    public void startTournament(UUID tournamentId) {
         // Retrieve the tournament
 
         Tournament tournament = tournamentRepository.findById(tournamentId)
