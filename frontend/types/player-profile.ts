@@ -8,4 +8,5 @@ export interface PlayerProfile {
     country: string;
     bio: string;
     currentRating: number;
+    profilePicturePath: string;
   }

@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 
 public class PlayerProfileDTO {
+
     @JsonProperty("profileId")
     private UUID profileId;
 
@@ -32,8 +33,11 @@ public class PlayerProfileDTO {
     @JsonProperty("currentRating")
     private Float currentRating;
 
-    public PlayerProfileDTO(UUID profileId, String username, String firstName, String lastName, LocalDate dateOfBirth,
-            String country, String bio, Float currentRating) {
+    @JsonProperty("profilePicturePath")
+    private String profilePicturePath;
+
+    public PlayerProfileDTO(UUID profileId, String username, String firstName, String lastName,
+        LocalDate dateOfBirth, String country, String bio, Float currentRating) {
         this.profileId = profileId;
         this.username = username;
         this.firstName = firstName;
@@ -119,5 +123,13 @@ public class PlayerProfileDTO {
 
     public void setCurrentRating(Float currentRating) {
         this.currentRating = currentRating;
+    }
+
+    public String getProfilePicturePath() {
+        return profilePicturePath;
+    }
+
+    public void setProfilePicturePath(String profilePicturePath) {
+        this.profilePicturePath = profilePicturePath;
     }
 }
