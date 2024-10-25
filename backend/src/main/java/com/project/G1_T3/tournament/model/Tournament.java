@@ -80,6 +80,7 @@ public class Tournament {
     private Set<PlayerProfile> referees;
 
     @OneToMany(mappedBy = "tournament", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<Stage> stages = new ArrayList<>();  // Add a list to hold the stage
 
     @Column

@@ -23,6 +23,9 @@ public interface TournamentService {
     Page<Tournament> findPastTournaments(Pageable pageable); // Fetch tournaments ending before now
 
     Page<Tournament> findTournamentsByAvailability(Pageable pageable, LocalDateTime availableStartDate, LocalDateTime availableEndDate); // Search tournaments that start and end within the user's available dates
+    Page<Tournament> findCurrentTournaments(Pageable pageable);
+
+    Page<Tournament> findTournamentsByDeadline(Pageable pageable, LocalDateTime deadline); // Fetch tournaments with a deadline before a specific date
 
     Page<Tournament> findRegistrableTournaments(Pageable pageable); // Fetch tournaments with a deadline before now
 
@@ -32,15 +35,20 @@ public interface TournamentService {
 
     public Tournament createTournament(TournamentDTO tournament);
 
-    public void startTournament(UUID tournamentId, TournamentDTO tournamentDTO);
+    Set<PlayerProfile> getPlayers(UUID tournamentId);
+
+    Tournament addPlayerToTournament(UUID tournamentId, UUID user_id);
+
+    Tournament updateTournament(UUID tournamentId, Tournament updatedTournament);
+    
+    // Add this method
+    Tournament getTournamentById(UUID id); // Get tournament by ID
+
+    public void startTournament(UUID tournamentId);
 
     public void progressToNextStage(UUID tournamentId);
 
-    Tournament updateTournament(UUID tournamentId, Tournament updatedTournament); // Update an existing tournament
 
     void deleteTournament(UUID tournamentId);
     
-    Set<PlayerProfile> getPlayers(UUID tournamentId); // Get players of a specific tournament
-
-    Tournament addPlayerToTournament(UUID tournamentId, UUID userId); // Add a player to a specific tournament
 }

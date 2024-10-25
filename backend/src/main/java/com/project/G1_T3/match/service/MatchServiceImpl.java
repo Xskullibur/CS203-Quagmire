@@ -6,7 +6,6 @@ import com.project.G1_T3.match.model.Match;
 import com.project.G1_T3.match.model.MatchDTO;
 import com.project.G1_T3.match.repository.MatchRepository;
 import com.project.G1_T3.player.model.PlayerProfile;
-import com.project.G1_T3.player.repository.PlayerProfileRepository;
 
 import lombok.extern.slf4j.Slf4j;
 import com.project.G1_T3.player.service.PlayerProfileService;
@@ -29,14 +28,11 @@ public class MatchServiceImpl implements MatchService {
     private MatchRepository matchRepository;
 
     @Autowired
-    private PlayerProfileRepository playerProfileRepository;
-
-    @Autowired
     private PlayerProfileService playerProfileService;
 
     @Override
     public Match getCurrentMatchForUser(UUID userId) {
-        PlayerProfile playerProfile = playerProfileRepository.findByUserId(userId);
+        PlayerProfile playerProfile = playerProfileService.findByUserId(userId);
         if (playerProfile == null) {
             return null;
         }
@@ -50,7 +46,7 @@ public class MatchServiceImpl implements MatchService {
     @Override
     public Match getCurrentMatchForUserById(UUID userId) {
         try {
-            PlayerProfile playerProfile = playerProfileRepository.findByUserId(userId);
+            PlayerProfile playerProfile = playerProfileService.findByUserId(userId);
             if (playerProfile == null) {
                 throw new IllegalArgumentException("Invalid user ID");
             }
@@ -61,6 +57,17 @@ public class MatchServiceImpl implements MatchService {
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
+    }
+
+    // Get a match by matchId
+    public Match getMatchById(UUID matchId) {
+        return matchRepository.findById(matchId)
+                .orElseThrow(() -> new IllegalArgumentException("Match not found with id: " + matchId));
+    }
+
+    // Get a list of matches by roundId, sorted by createdAt
+    public List<Match> getMatchesByRoundId(UUID roundId) {
+        return matchRepository.findByRound_RoundIdOrderByCreatedAt(roundId);
     }
 
     @Transactional

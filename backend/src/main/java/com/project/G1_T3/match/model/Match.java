@@ -1,5 +1,6 @@
 package com.project.G1_T3.match.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.project.G1_T3.common.model.Status;
 import com.project.G1_T3.round.model.Round;
 import jakarta.persistence.*;
@@ -20,6 +21,7 @@ public class Match {
 
     @ManyToOne
     @JoinColumn(name = "round_id", nullable = true)
+    @JsonIgnore
     private Round round;
 
     @Column(nullable = false)
