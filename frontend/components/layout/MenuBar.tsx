@@ -1,11 +1,17 @@
 import { useAuth } from '@/hooks/useAuth';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 
 export default function MenuBar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user, logout, isAuthenticated, isLoading } = useAuth();
+  const router = useRouter();
+
+  const handleNavigateToProfile = () => {
+    router.push("/profile/" + user?.userId)
+  }
 
   useEffect(() => {
     const handleScroll = () => {
@@ -32,7 +38,7 @@ export default function MenuBar() {
 
     return (
       <>
-        <Link href="/profile" className="text-sm text-white hover:text-gray-600 transition">Profile</Link>
+        <button onClick={handleNavigateToProfile} className="text-sm text-white hover:text-gray-600 transition">Profile</button>
         <button onClick={logout} className="text-sm text-white hover:text-gray-600 transition">Logout</button>
         <Link href="/match" className="text-sm bg-zinc-500 text-white px-4 py-2 rounded-full hover:bg-gray-700 transition">Queue</Link>
       </>
@@ -55,7 +61,7 @@ export default function MenuBar() {
 
     return (
       <>
-        <Link href="/profile" className="text-xl text-white hover:text-gray-400 transition" onClick={() => setIsMenuOpen(false)}>Profile</Link>
+        <Link href={"/profile" + user?.userId} className="text-xl text-white hover:text-gray-400 transition" onClick={() => setIsMenuOpen(false)}>Profile</Link>
         <Link href="/match" className="text-xl text-white hover:text-gray-400 transition" onClick={() => setIsMenuOpen(false)}>Queue</Link>
         <button onClick={() => { logout(); setIsMenuOpen(false); }} className="text-xl text-white hover:text-gray-400 transition">Logout</button>
       </>
