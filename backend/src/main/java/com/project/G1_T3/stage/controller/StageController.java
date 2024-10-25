@@ -44,7 +44,7 @@ public class StageController {
     @GetMapping("/{stageId}")
     public ResponseEntity<Stage> getStageById(@PathVariable UUID tournamentId, @PathVariable UUID stageId) {
         try {
-            Stage stage = stageService.getStageById(tournamentId, stageId);
+            Stage stage = stageService.getStageById(stageId);
             if (stage == null) {
                 return ResponseEntity.notFound().build();
             }

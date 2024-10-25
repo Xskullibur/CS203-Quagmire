@@ -39,13 +39,11 @@ public interface TournamentService {
     Page<Tournament> findByKeywordInDescription(String keyword, Pageable pageable); // Search tournaments by keyword in description with pagination
 
     public Tournament createTournament(TournamentDTO tournament);
-
-    public void startTournament(UUID tournamentId, TournamentDTO tournamentDTO);
     
     // Add this method
     Tournament getTournamentById(UUID id); // Get tournament by ID
 
-    // public void startTournament(UUID tournamentId);
+    public void startTournament(UUID tournamentId, TournamentDTO tournamentDTO);
 
     Set<PlayerProfile> getPlayers(UUID tournamentId);
 

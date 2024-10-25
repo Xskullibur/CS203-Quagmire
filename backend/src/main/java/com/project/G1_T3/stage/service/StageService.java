@@ -27,8 +27,6 @@ public interface StageService {
     // Delete a stage by stageId and tournamentId
     void deleteStageByTournamentId(UUID tournamentId, UUID stageId);
 
-    public Stage getStageById(UUID tournamentId, UUID stageId);
-
     public void startStage(UUID stageId);
     
     public Stage createStage(StageDTO stageDTO, Tournament tournament);
