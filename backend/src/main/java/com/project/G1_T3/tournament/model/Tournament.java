@@ -6,6 +6,8 @@ import com.project.G1_T3.common.model.Status;
 import com.project.G1_T3.player.model.PlayerProfile;
 import com.project.G1_T3.stage.model.Stage;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import jakarta.persistence.*;
 import com.project.G1_T3.player.model.PlayerProfile;
 import jakarta.persistence.*;
@@ -88,5 +90,8 @@ public class Tournament {
 
     @Column
     private int currentStageIndex = 0;
+
+    @Column
+    private String photoUrl;
 
 }

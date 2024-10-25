@@ -6,6 +6,8 @@ import com.project.G1_T3.tournament.model.TournamentDTO;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -38,7 +40,7 @@ public interface TournamentService {
 
     Page<Tournament> findByKeywordInDescription(String keyword, Pageable pageable); // Search tournaments by keyword in description with pagination
 
-    public Tournament createTournament(TournamentDTO tournament);
+    public Tournament createTournament(TournamentDTO tournament, MultipartFile photo);
     
     // Add this method
     Tournament getTournamentById(UUID id); // Get tournament by ID

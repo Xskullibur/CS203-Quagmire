@@ -7,9 +7,11 @@ import com.project.G1_T3.stage.service.StageService;
 import com.project.G1_T3.tournament.model.Tournament;
 import com.project.G1_T3.tournament.model.TournamentDTO;
 import com.project.G1_T3.tournament.repository.TournamentRepository;
+
 import com.project.G1_T3.stage.model.Format;
 import com.project.G1_T3.stage.model.Stage;
 import com.project.G1_T3.common.model.Status;
+import com.project.G1_T3.filestorage.service.FileStorageService;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -18,8 +20,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
+import java.io.IOException;
 import java.util.*;
 
 @Service
@@ -33,6 +37,9 @@ public class TournamentServiceImpl implements TournamentService {
 
     @Autowired
     private StageService stageService;
+
+    @Autowired
+    private FileStorageService fileStorageService;
 
     @Override
     public Page<Tournament> getAllTournaments(Pageable pageable) {
@@ -104,7 +111,7 @@ public class TournamentServiceImpl implements TournamentService {
 
     @Override
     @Transactional
-    public Tournament createTournament(TournamentDTO tournamentDTO) {
+    public Tournament createTournament(TournamentDTO tournamentDTO, MultipartFile photo) {
 
         // Create the Tournament entity from the TournamentDTO
         Tournament tournament = new Tournament();
@@ -116,6 +123,17 @@ public class TournamentServiceImpl implements TournamentService {
         tournament.setDescription(tournamentDTO.getDescription());
         tournament.setStatus(tournamentDTO.getStatus() != null ? tournamentDTO.getStatus() : Status.SCHEDULED);
         tournament.setMaxParticipants(tournamentDTO.getMaxParticipants());
+
+        // Upload the photo if it's provided
+        if (photo != null && !photo.isEmpty()) {
+            try {
+                String filePath = "tournaments/" + UUID.randomUUID(); // Generate unique path for each photo
+                fileStorageService.uploadFile("tournaments", filePath, photo); // Upload using FileStorageService
+                tournament.setPhotoUrl(filePath); // Store only the filename in the database
+            } catch (IOException e) {
+                throw new RuntimeException("Error uploading photo", e);
+            }
+        }
 
         Set<UUID> refereeIds = tournamentDTO.getRefereeIds();
         Set<PlayerProfile> referees = new HashSet<>();

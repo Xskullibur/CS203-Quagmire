@@ -1,5 +1,6 @@
 package com.project.G1_T3.tournament.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.G1_T3.player.model.PlayerProfile;
 import com.project.G1_T3.tournament.model.Tournament;
 import com.project.G1_T3.tournament.model.TournamentDTO;
@@ -13,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
 
@@ -87,15 +89,22 @@ public class TournamentController {
     //     Tournament createdTournament = tournamentService.createTournament(tournamentDTO);
     //     return ResponseEntity.ok(createdTournament);
     // }
-    @PostMapping("/create")
-    public ResponseEntity<?> createTournament(@RequestBody TournamentDTO tournamentDTO) {
+    @PostMapping(value = "/create", consumes = "multipart/form-data")
+    public ResponseEntity<?> createTournament(
+        @RequestPart("tournament") String tournamentJson, // JSON as a String
+        @RequestPart(value = "photo", required = false) MultipartFile photo // Optional photo file
+    ) {
         try {
             // Log to check if the request is received
-            System.out.println("Received request to create tournament: " + tournamentDTO.getName());
+            System.out.println("Received request to create tournament with data: " + tournamentJson);
 
-            // Call the service to create the tournament
-            Tournament createdTournament = tournamentService.createTournament(tournamentDTO);
-            
+            // Convert JSON string to TournamentDTO
+            ObjectMapper objectMapper = new ObjectMapper();
+            TournamentDTO tournamentDTO = objectMapper.readValue(tournamentJson, TournamentDTO.class);
+
+            // Call the service to create the tournament, passing the photo if present
+            Tournament createdTournament = tournamentService.createTournament(tournamentDTO, photo);
+
             // Log successful creation
             System.out.println("Tournament created successfully: " + createdTournament.getName());
 
@@ -105,7 +114,7 @@ public class TournamentController {
             // Log any error that occurs
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                 .body("Error creating tournament: " + e.getMessage());
+                                .body("Error creating tournament: " + e.getMessage());
         }
     }
 
