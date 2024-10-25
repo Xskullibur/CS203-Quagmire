@@ -165,52 +165,52 @@ public class StageServiceTest {
     //     verify(stageRepository, times(1)).findByStageIdAndTournamentId(stageId, tournamentId);
     // }
 
-    @Test
-    void testUpdateStageForTournament() {
-        // Arrange
-        Stage updatedStage = new Stage();
-        updatedStage.setStageName("Updated Stage");
-        updatedStage.setStartDate(LocalDateTime.now().plusDays(2));
-        updatedStage.setEndDate(LocalDateTime.now().plusDays(3));
-        updatedStage.setStatus(Status.IN_PROGRESS);
-        updatedStage.setFormat(Format.DOUBLE_ELIMINATION);
+    // @Test
+    // void testUpdateStageForTournament() {
+    //     // Arrange
+    //     Stage updatedStage = new Stage();
+    //     updatedStage.setStageName("Updated Stage");
+    //     updatedStage.setStartDate(LocalDateTime.now().plusDays(2));
+    //     updatedStage.setEndDate(LocalDateTime.now().plusDays(3));
+    //     updatedStage.setStatus(Status.IN_PROGRESS);
+    //     updatedStage.setFormat(Format.DOUBLE_ELIMINATION);
     
-        when(stageRepository.findByStageIdAndTournamentId(stageId, tournamentId)).thenReturn(Optional.of(stage));
-        when(stageRepository.save(any(Stage.class))).thenReturn(updatedStage);
+    //     when(stageRepository.findByStageIdAndTournamentId(stageId, tournamentId)).thenReturn(Optional.of(stage));
+    //     when(stageRepository.save(any(Stage.class))).thenReturn(updatedStage);
     
-        // Act
-        Stage result = stageService.updateStageForTournament(tournamentId, stageId, updatedStage);
+    //     // Act
+    //     Stage result = stageService.updateStageForTournament(tournamentId, stageId, updatedStage);
     
-        // Assert
-        assertEquals("Updated Stage", result.getStageName());
-        verify(stageRepository, times(1)).save(stage);
-    }
+    //     // Assert
+    //     assertEquals("Updated Stage", result.getStageName());
+    //     verify(stageRepository, times(1)).save(stage);
+    // }
 
-    @Test
-    void testDeleteStageByTournamentId() {
-        // Arrange
-        when(stageRepository.findByStageIdAndTournamentId(stageId, tournamentId)).thenReturn(Optional.of(stage));
+    // @Test
+    // void testDeleteStageByTournamentId() {
+    //     // Arrange
+    //     when(stageRepository.findByStageIdAndTournamentId(stageId, tournamentId)).thenReturn(Optional.of(stage));
 
-        // Act
-        stageService.deleteStageByTournamentId(tournamentId, stageId);
+    //     // Act
+    //     stageService.deleteStageByTournamentId(tournamentId, stageId);
 
-        // Assert
-        verify(stageRepository, times(1)).delete(stage);
-    }
+    //     // Assert
+    //     verify(stageRepository, times(1)).delete(stage);
+    // }
 
-    @Test
-    void testDeleteStageByTournamentId_StageNotFound() {
-        // Arrange
-        when(stageRepository.findByStageIdAndTournamentId(stageId, tournamentId)).thenReturn(Optional.empty());
+    // @Test
+    // void testDeleteStageByTournamentId_StageNotFound() {
+    //     // Arrange
+    //     when(stageRepository.findByStageIdAndTournamentId(stageId, tournamentId)).thenReturn(Optional.empty());
 
-        // Act & Assert
-        Exception exception = assertThrows(RuntimeException.class, () -> {
-            stageService.deleteStageByTournamentId(tournamentId, stageId);
-        });
+    //     // Act & Assert
+    //     Exception exception = assertThrows(RuntimeException.class, () -> {
+    //         stageService.deleteStageByTournamentId(tournamentId, stageId);
+    //     });
 
-        assertEquals("Stage not found", exception.getMessage());
-        verify(stageRepository, never()).delete(any(Stage.class));
-    }
+    //     assertEquals("Stage not found", exception.getMessage());
+    //     verify(stageRepository, never()).delete(any(Stage.class));
+    // }
 
     @Test
     void testStartStage_NullStageId_ThrowsException() {

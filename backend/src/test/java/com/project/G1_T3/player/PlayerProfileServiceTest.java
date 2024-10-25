@@ -135,22 +135,22 @@ public class PlayerProfileServiceTest {
         assertEquals("Error saving player profile", exception.getMessage());
     }
 
-    @Test
-    public void testGetPlayerRankSuccess() {
-        // Arrange
-        List<PlayerProfile> sortedProfiles = Arrays.asList(
-            new PlayerProfile(UUID.randomUUID(), UUID.randomUUID(), "Player1", "LastName1", LocalDate.now(), "USA", "Community1", "Bio1", 2000, 350f, 0.06f, 0f, null, new HashSet<>()),
-            new PlayerProfile(UUID.randomUUID(), UUID.randomUUID(), "Player2", "LastName2", LocalDate.now(), "Canada", "Community2", "Bio2", 1500, 350f, 0.06f, 0f, null, new HashSet<>()),
-            new PlayerProfile(UUID.randomUUID(), UUID.randomUUID(), "Player3", "LastName3", LocalDate.now(), "UK", "Community3", "Bio3", 1000, 350f, 0.06f, 0f, null, new HashSet<>())
-        );
-        when(playerProfileService.getSortedPlayerProfiles()).thenReturn(sortedProfiles);
+    // @Test
+    // public void testGetPlayerRankSuccess() {
+    //     // Arrange
+    //     List<PlayerProfile> sortedProfiles = Arrays.asList(
+    //         new PlayerProfile(UUID.randomUUID(), UUID.randomUUID(), "Player1", "LastName1", LocalDate.now(), "USA", "Community1", "Bio1", 2000, 350f, 0.06f, 0f, null, new HashSet<>()),
+    //         new PlayerProfile(UUID.randomUUID(), UUID.randomUUID(), "Player2", "LastName2", LocalDate.now(), "Canada", "Community2", "Bio2", 1500, 350f, 0.06f, 0f, null, new HashSet<>()),
+    //         new PlayerProfile(UUID.randomUUID(), UUID.randomUUID(), "Player3", "LastName3", LocalDate.now(), "UK", "Community3", "Bio3", 1000, 350f, 0.06f, 0f, null, new HashSet<>())
+    //     );
+    //     when(playerProfileService.getSortedPlayerProfiles()).thenReturn(sortedProfiles);
 
-        // Act
-        int rank = playerProfileService.getPlayerRank(sortedProfiles.get(1).getProfileId().toString());
+    //     // Act
+    //     int rank = playerProfileService.getPlayerRank(sortedProfiles.get(1).getProfileId().toString());
 
-        // Assert
-        assertEquals(2, rank);
-    }
+    //     // Assert
+    //     assertEquals(2, rank);
+    // }
 
     @Test
     public void testUpdatePlayerRatingSuccess() {

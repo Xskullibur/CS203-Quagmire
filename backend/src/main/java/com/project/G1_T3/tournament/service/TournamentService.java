@@ -23,7 +23,7 @@ public interface TournamentService {
     Page<Tournament> findPastTournaments(Pageable pageable); // Fetch tournaments ending before now
 
     Page<Tournament> findTournamentsByAvailability(Pageable pageable, LocalDateTime availableStartDate, LocalDateTime availableEndDate); // Search tournaments that start and end within the user's available dates
-    
+
     Page<Tournament> findCurrentTournaments(Pageable pageable);
 
     Page<Tournament> findTournamentsByDeadline(Pageable pageable, LocalDateTime deadline); // Fetch tournaments with a deadline before a specific date
