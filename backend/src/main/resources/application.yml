@@ -69,6 +69,8 @@ app:
         url: 'http://localhost:8080'
 
 firebase:
+    credentials:
+        path: '.firebase\'  # Insert path to private key here
     storage:
-        url: 'https://firebasestorage.googleapis.com/v0/b'
+        url: 'https://firebasestorage.googleapis.com/v0/b/'
         bucket: 'quagmire-smu.appspot.com'

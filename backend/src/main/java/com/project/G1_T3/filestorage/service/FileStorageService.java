@@ -29,9 +29,13 @@ public class FileStorageService {
             throw new IllegalArgumentException("File cannot be empty");
         }
 
-        Bucket bucket = StorageClient.getInstance().bucket();
-        Blob blob = bucket.create(folder + "/" + fileName, file.getBytes(), file.getContentType());
-        return storagePath + storageBucket + FILE_OPENER_URL + folder + "%2F" + blob.getName() + MEDIA_URL_PARAMETER;
+        try {
+            Bucket bucket = StorageClient.getInstance().bucket();
+            Blob blob = bucket.create(folder + "/" + fileName, file.getBytes(), file.getContentType());
+            return storagePath + storageBucket + FILE_OPENER_URL + folder + "%2F" + fileName + MEDIA_URL_PARAMETER;
+        } catch (IOException e) {
+            throw new IOException("Failed to upload file", e);
+        }
     }
 
     public void deleteFile(String filePath) {
