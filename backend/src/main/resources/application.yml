@@ -70,5 +70,5 @@ app:
 
 firebase:
     storage:
-        url: 'https://firebasestorage.googleapis.com/v0/b'
+        url: 'https://firebasestorage.googleapis.com/v0/b/'
         bucket: 'quagmire-smu.appspot.com'

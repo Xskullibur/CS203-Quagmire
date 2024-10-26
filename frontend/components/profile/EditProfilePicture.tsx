@@ -19,14 +19,17 @@ const ProfilePicture: React.FC<ProfilePictureProps> = ({
   handleClearImage,
 }) => {
   return (
-    <div className="mb-4 space-y-6">
+    <div className="mb-4 space-y-4">
       <div className="flex justify-center">
-        <div
+        <Button
           onClick={() => document.getElementById("profilePicturePath")?.click()}
-          className="relative cursor-pointer group"
+          variant={"image"}
+          className="relative cursor-pointer group p-0"
+          style={{ width: 'auto', height: 'auto' }}
+          type="button"
         >
           <Image
-            src={selectedImage || profilePicturePath}
+            src={selectedImage ?? profilePicturePath}
             alt="Profile Picture"
             width={100}
             height={100}
@@ -35,7 +38,7 @@ const ProfilePicture: React.FC<ProfilePictureProps> = ({
           <div className="absolute bottom-0 right-0 bg-white p-1 rounded-full group-hover:bg-accent transition-colors">
             <PencilLineIcon className="w-4 h-4 text-gray-700 group-hover:text-accent-foreground transition-colors" />
           </div>
-        </div>
+        </Button>
       </div>
 
       <input

@@ -135,13 +135,13 @@ const EditProfile = () => {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value, files } = e.target as HTMLInputElement;
-    if (name === "profilePicturePath" && files && files[0]) {
+    if (name === "profilePicturePath" && files?.[0]) {
       const file = files[0];
 
       // Validate the image file
       const validation = validateImageFile(file);
       if (!validation.isValid) {
-        showErrorToast("Invalid File", validation.error || "Invalid file");
+        showErrorToast("Invalid File", validation.error ?? "Invalid file");
         return;
       }
 
