@@ -9,7 +9,7 @@ import withAuth from '@/hooks/withAuth';
 import dynamic from 'next/dynamic';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import ProfilePlayerCard from '@/components/matches/ProfilePlayerCard';
-import { PlayerProfile } from '@/types/player';
+import { PlayerProfile } from '@/types/player-profile';
 import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { useGeolocation } from '@/hooks/useGeolocation'; // Import the useGeolocation hook

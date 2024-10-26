@@ -1,6 +1,6 @@
 package com.project.G1_T3.authentication.controller;
 
-import com.project.G1_T3.authentication.service.AuthServiceImpl;
+import com.project.G1_T3.authentication.service.AuthService;
 import com.project.G1_T3.user.model.UserDTO;
 import com.project.G1_T3.user.service.UserService;
 
@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.*;
 public class AuthenticationController {
 
     @Autowired
-    private AuthServiceImpl authService;
+    private AuthService authService;
 
     @Autowired
     private UserService userService;

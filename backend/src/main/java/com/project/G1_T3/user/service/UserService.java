@@ -122,6 +122,13 @@ public class UserService {
                 .orElseThrow(() -> new UsernameNotFoundException(finalUsername));
     }
 
+    public void setUserVerified(User user, boolean isEmailVerified) {
+
+        user.setEmailVerified(isEmailVerified);
+        user.setUpdatedAt(LocalDateTime.now());
+        userRepository.save(user);
+    }
+
     private void sendVerificationEmail(User user) {
         String token = jwtService.generateEmailVerificationToken(user);
         String verificationLink = backendUrl + "/authentication/verify-email?token=" + token;

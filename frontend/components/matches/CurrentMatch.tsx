@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import ProfilePlayerCard from '@/components/matches/ProfilePlayerCard';
-import { PlayerProfile } from '@/types/player';
+import { PlayerProfile } from '@/types/player-profile';
 import MatchMap from '@/components/matches/MatchMap';
 
 interface CurrentMatchProps {

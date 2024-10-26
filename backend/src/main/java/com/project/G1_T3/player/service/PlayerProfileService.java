@@ -1,23 +1,38 @@
 package com.project.G1_T3.player.service;
 
 import com.project.G1_T3.player.repository.PlayerProfileRepository;
-
+import com.project.G1_T3.security.service.SecurityService;
+import com.project.G1_T3.user.model.CustomUserDetails;
 import jakarta.persistence.EntityNotFoundException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.*;
 
+import com.project.G1_T3.filestorage.service.FileStorageService;
+import com.project.G1_T3.filestorage.service.ImageValidationService;
 import com.project.G1_T3.player.model.PlayerProfile;
+import com.project.G1_T3.player.model.PlayerProfileDTO;
 
 @Service
 public class PlayerProfileService {
 
     @Autowired
+    private SecurityService securityService;
+
+    @Autowired
+    private ImageValidationService imageValidationService;
+
+    @Autowired
     private PlayerProfileRepository playerProfileRepository;
+
+    @Autowired
+    private FileStorageService fileStorageService;
 
     public List<PlayerProfile> findAll() {
         return playerProfileRepository.findAll();
@@ -61,12 +76,25 @@ public class PlayerProfileService {
     }
 
     // For editing profile
-    public PlayerProfile updateProfile(UUID id, PlayerProfile profileUpdates) {
+    public PlayerProfile updateProfile(UUID id, PlayerProfileDTO profileUpdates, MultipartFile profileImage) throws IOException {
+
+        CustomUserDetails userDetails = securityService.getAuthenticatedUser();
+
+        if (userDetails == null || !userDetails.getUser().getId().equals(id)) {
+            throw new SecurityException("User not authorized to update this profile");
+        }
+
         PlayerProfile existingProfile = playerProfileRepository.findByUserId(id);
 
         // Throw an exception if the profile is not found
         if (existingProfile == null) {
             throw new EntityNotFoundException("Player profile not found for user ID: " + id);
+        }
+
+        // Upload Image
+        if (profileImage != null) {
+            String profileImagePath = uploadProfileImage(id.toString(), profileImage);
+            existingProfile.setProfilePicturePath(profileImagePath);
         }
 
         // Update fields
@@ -95,5 +123,15 @@ public class PlayerProfileService {
         PlayerProfile profile = playerProfileRepository.findByUserId(id);
         profile.setProfilePicturePath(profilePicturePath);
         return playerProfileRepository.save(profile);
+    }
+
+    private String uploadProfileImage(String userId, MultipartFile profileImage) throws IOException {
+
+        // Validate image if present
+        if (profileImage != null && !profileImage.isEmpty()) {
+            imageValidationService.validateImage(profileImage);
+        }
+
+        return fileStorageService.uploadFile("ProfileImages", userId, profileImage);
     }
 }

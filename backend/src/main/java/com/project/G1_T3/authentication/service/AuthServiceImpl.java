@@ -1,7 +1,5 @@
 package com.project.G1_T3.authentication.service;
 
-import java.time.LocalDateTime;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -18,8 +16,8 @@ import com.project.G1_T3.common.exception.InvalidTokenException;
 import com.project.G1_T3.user.model.CustomUserDetails;
 import com.project.G1_T3.user.model.User;
 import com.project.G1_T3.user.model.UserDTO;
-import com.project.G1_T3.user.repository.UserRepository;
 import com.project.G1_T3.user.service.CustomUserDetailsService;
+import com.project.G1_T3.user.service.UserService;
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -34,7 +32,7 @@ public class AuthServiceImpl implements AuthService {
     private ApplicationContext applicationContext;
 
     @Autowired
-    private UserRepository userRepository;
+    private UserService userService;
 
     public LoginResponseDTO authenticateAndGenerateToken(String username, String password) {
 
@@ -45,8 +43,10 @@ public class AuthServiceImpl implements AuthService {
         username = username.toLowerCase();
 
         try {
-            authManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
-            User user = userRepository.findByUsername(username)
+            Authentication authentication = authManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            User user = userService.findByUsername(username)
                     .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
             String token = jwtService.generateToken(user);
@@ -80,16 +80,14 @@ public class AuthServiceImpl implements AuthService {
     public boolean verifyEmail(String token) {
 
         String username = jwtService.validateEmailVerificationToken(token);
-        User user = userRepository.findByUsername(username)
+        User user = userService.findByUsername(username)
                 .orElseThrow(() -> new InvalidTokenException("User not found for token", token));
 
         if (user.isEmailVerified()) {
             throw new IllegalStateException("Email is already verified");
         }
 
-        user.setEmailVerified(true);
-        user.setUpdatedAt(LocalDateTime.now());
-        userRepository.save(user);
+        userService.setUserVerified(user, true);
 
         return true;
     }
