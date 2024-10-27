@@ -10,7 +10,7 @@ import {
 import { useRouter } from "next/navigation";
 import axios, { AxiosResponse } from "axios";
 import Cookies from "js-cookie";
-import { User } from "@/models/user";
+import { User } from "@/types/user";
 import axiosInstance from "@/lib/axios";
 import { useErrorHandler } from "@/app/context/ErrorMessageProvider";
 import { ErrorCodes } from "@/types/error-codes";

@@ -62,24 +62,28 @@ public class PlayerProfile {
     @Column(name = "current_rating")
     private float currentRating = 0f;
 
+    @Column()
     @Transient
     private Glicko2Rating glicko2Rating;
+
+    @Column(name = "profile_picture_path")
+    private String profilePicturePath;
+
+    @ManyToMany(mappedBy = "players", cascade = CascadeType.ALL)
+    private Set<Tournament> tournaments = new HashSet<>();
 
     // Override equals() method for proper comparison in matchmaking
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (!(obj instanceof PlayerProfile))
+        }
+        if (!(obj instanceof PlayerProfile)) {
             return false;
+        }
         PlayerProfile other = (PlayerProfile) obj;
-        return this.glickoRating == other.glickoRating &&
-                this.community.equals(other.community);
+        return this.glickoRating == other.glickoRating && this.community.equals(other.community);
     }
-
-    // Path that profile picture is stored in
-    @Column(name = "profile_picture_path")
-    private String profilePicturePath;
 
     // Getters, setters, and other methods...
     public UUID getProfileId() {
@@ -97,6 +101,8 @@ public class PlayerProfile {
 
     private void syncGlicko2Rating() {
         if (this.glicko2Rating == null) {
+            this.glicko2Rating = new Glicko2Rating(this.glickoRating, this.ratingDeviation,
+                this.volatility);
             this.glicko2Rating = new Glicko2Rating(
                     this.glickoRating,
                     this.ratingDeviation,
@@ -135,9 +141,6 @@ public class PlayerProfile {
         // Update currentRating
         setCurrentRating();
     }
-
-    @ManyToMany(mappedBy = "players", cascade = CascadeType.ALL)
-    private Set<Tournament> tournaments = new HashSet<>();
 
     public String getUsername() {
         return firstName + " " + lastName;

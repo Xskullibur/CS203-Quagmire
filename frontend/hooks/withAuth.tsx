@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
-import { UserRole } from "@/models/user-role";
+import { UserRole } from "@/types/user-role";
 
 const withAuth = (WrappedComponent: React.FC, requiredRole?: UserRole) => {
   const WithAuthComponent = (props: any) => {

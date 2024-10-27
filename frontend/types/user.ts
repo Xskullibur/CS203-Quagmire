@@ -1,4 +1,4 @@
-// frontend/models/User.ts
+// frontend/types/user.ts
 
 import { UserRole } from "./user-role";
 

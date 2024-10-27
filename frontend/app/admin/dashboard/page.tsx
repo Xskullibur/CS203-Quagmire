@@ -1,8 +1,8 @@
 "use client";
 import React, { useEffect, useState, useCallback } from "react";
 import withAuth from "@/hooks/withAuth";
-import { UserRole } from "@/models/user-role";
-import { User } from "@/models/user";
+import { UserRole } from "@/types/user-role";
+import { User } from "@/types/user";
 import UserTable from "./user-table";
 import axiosInstance from "@/lib/axios";
 import { Button } from "@/components/ui/button";

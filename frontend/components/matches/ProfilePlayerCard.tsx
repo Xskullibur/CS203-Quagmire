@@ -1,7 +1,7 @@
 // components/matches/Opponentprofile.tsx
 import React from 'react';
 import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
-import { PlayerProfile } from '@/types/player';
+import { PlayerProfile } from '@/types/player-profile';
 
 // Define the props for the Opponentprofile component
 interface OpponentprofileProps {

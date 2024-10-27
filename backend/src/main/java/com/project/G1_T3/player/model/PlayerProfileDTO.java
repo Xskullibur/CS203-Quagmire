@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 
 public class PlayerProfileDTO {
+
     @JsonProperty("profileId")
     private UUID profileId;
 
@@ -32,8 +33,15 @@ public class PlayerProfileDTO {
     @JsonProperty("currentRating")
     private Float currentRating;
 
-    public PlayerProfileDTO(UUID profileId, String username, String firstName, String lastName, LocalDate dateOfBirth,
-            String country, String bio, Float currentRating) {
+    @JsonProperty("profilePicturePath")
+    private String profileImagePath;
+
+    public PlayerProfileDTO() {
+        
+    }
+
+    public PlayerProfileDTO(UUID profileId, String username, String firstName, String lastName,
+        LocalDate dateOfBirth, String country, String bio, Float currentRating, String profileImagePath) {
         this.profileId = profileId;
         this.username = username;
         this.firstName = firstName;
@@ -42,6 +50,7 @@ public class PlayerProfileDTO {
         this.country = country;
         this.bio = bio;
         this.currentRating = currentRating;
+        this.profileImagePath = profileImagePath;
     }
 
     public PlayerProfileDTO(PlayerProfile playerProfile) {
@@ -53,6 +62,7 @@ public class PlayerProfileDTO {
         this.country = playerProfile.getCountry();
         this.bio = playerProfile.getBio();
         this.currentRating = playerProfile.getCurrentRating();
+        this.profileImagePath = playerProfile.getProfilePicturePath();
     }
 
     // Constructor, getters, and setters
@@ -119,5 +129,13 @@ public class PlayerProfileDTO {
 
     public void setCurrentRating(Float currentRating) {
         this.currentRating = currentRating;
+    }
+
+    public String getProfileImagePath() {
+        return profileImagePath;
+    }
+
+    public void setProfileImagePath(String profilePicturePath) {
+        this.profileImagePath = profilePicturePath;
     }
 }

@@ -65,7 +65,7 @@ class AuthServiceTest {
         String token = "generatedToken";
 
         when(authManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).thenReturn(mock(Authentication.class));
-        when(userRepository.findByUsername(username.toLowerCase())).thenReturn(Optional.of(user));
+        when(userService.findByUsername(username.toLowerCase())).thenReturn(Optional.of(user));
         when(jwtService.generateToken(user)).thenReturn(token);
 
         LoginResponseDTO response = authService.authenticateAndGenerateToken(username, password);
@@ -74,7 +74,7 @@ class AuthServiceTest {
         assertEquals(userDTO, response.getUser());
         assertEquals(token, response.getToken());
         verify(authManager).authenticate(any(UsernamePasswordAuthenticationToken.class));
-        verify(userRepository).findByUsername(username.toLowerCase());
+        verify(userService).findByUsername(username.toLowerCase());
     }
 
     @Test
@@ -95,11 +95,11 @@ class AuthServiceTest {
         String password = "testPassword";
 
         when(authManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).thenReturn(mock(Authentication.class));
-        when(userRepository.findByUsername(username.toLowerCase())).thenReturn(Optional.empty());
+        when(userService.findByUsername(username.toLowerCase())).thenReturn(Optional.empty());
 
         assertThrows(BadCredentialsException.class, () -> authService.authenticateAndGenerateToken(username, password));
         verify(authManager).authenticate(any(UsernamePasswordAuthenticationToken.class));
-        verify(userRepository).findByUsername(username.toLowerCase());
+        verify(userService).findByUsername(username.toLowerCase());
     }
 
     @Test

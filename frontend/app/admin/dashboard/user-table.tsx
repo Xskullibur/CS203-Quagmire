@@ -1,7 +1,7 @@
 import React from "react";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { User } from "@/models/user";
+import { User } from "@/types/user";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { formatDistance } from "date-fns";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
