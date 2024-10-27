@@ -1,7 +1,5 @@
 package com.project.G1_T3.tournament.service;
 
-import com.project.G1_T3.player.model.PlayerProfile;
-import com.project.G1_T3.player.repository.PlayerProfileRepository;
 import com.project.G1_T3.stage.model.StageDTO;
 import com.project.G1_T3.stage.service.StageService;
 import com.project.G1_T3.tournament.model.Tournament;
@@ -10,6 +8,8 @@ import com.project.G1_T3.tournament.repository.TournamentRepository;
 import com.project.G1_T3.stage.model.Format;
 import com.project.G1_T3.stage.model.Stage;
 import com.project.G1_T3.common.model.Status;
+import com.project.G1_T3.playerprofile.model.PlayerProfile;
+import com.project.G1_T3.playerprofile.repository.PlayerProfileRepository;
 
 import jakarta.persistence.EntityNotFoundException;
 

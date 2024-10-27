@@ -1,7 +1,8 @@
 package com.project.G1_T3.matchmaking.service;
 
-import com.project.G1_T3.player.model.PlayerProfile;
 import com.project.G1_T3.matchmaking.model.QueuedPlayer;
+import com.project.G1_T3.playerprofile.model.PlayerProfile;
+
 import org.springframework.stereotype.Component;
 
 import java.util.Comparator;

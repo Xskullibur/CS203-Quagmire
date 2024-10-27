@@ -9,8 +9,8 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import com.project.G1_T3.match.model.Match;
 import com.project.G1_T3.match.repository.MatchRepository;
 import com.project.G1_T3.matchmaking.service.MatchmakingService;
-import com.project.G1_T3.player.model.PlayerProfile;
-import com.project.G1_T3.player.repository.PlayerProfileRepository;
+import com.project.G1_T3.playerprofile.model.PlayerProfile;
+import com.project.G1_T3.playerprofile.repository.PlayerProfileRepository;
 import com.project.G1_T3.user.model.User;
 import com.project.G1_T3.user.repository.UserRepository;
 

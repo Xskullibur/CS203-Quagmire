@@ -1,6 +1,6 @@
 package com.project.G1_T3.round.service;
 
-import com.project.G1_T3.player.model.PlayerProfile;
+import com.project.G1_T3.playerprofile.model.PlayerProfile;
 import com.project.G1_T3.stage.model.Stage;
 
 import java.util.List;

@@ -1,6 +1,5 @@
-package com.project.G1_T3.player.service;
+package com.project.G1_T3.playerprofile.service;
 
-import com.project.G1_T3.player.repository.PlayerProfileRepository;
 import com.project.G1_T3.security.service.SecurityService;
 import com.project.G1_T3.user.model.CustomUserDetails;
 import jakarta.persistence.EntityNotFoundException;
@@ -16,8 +15,9 @@ import java.util.*;
 
 import com.project.G1_T3.filestorage.service.FileStorageService;
 import com.project.G1_T3.filestorage.service.ImageValidationService;
-import com.project.G1_T3.player.model.PlayerProfile;
-import com.project.G1_T3.player.model.PlayerProfileDTO;
+import com.project.G1_T3.playerprofile.model.PlayerProfile;
+import com.project.G1_T3.playerprofile.model.PlayerProfileDTO;
+import com.project.G1_T3.playerprofile.repository.PlayerProfileRepository;
 
 @Service
 public class PlayerProfileService {

@@ -1,9 +1,4 @@
-package com.project.G1_T3.player.controller;
-
-import com.project.G1_T3.player.model.PlayerProfileRequest;
-import com.project.G1_T3.player.model.PlayerProfile;
-import com.project.G1_T3.player.model.PlayerProfileDTO;
-import com.project.G1_T3.player.service.PlayerProfileService;
+package com.project.G1_T3.playerprofile.controller;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -14,6 +9,10 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import com.project.G1_T3.playerprofile.model.PlayerProfile;
+import com.project.G1_T3.playerprofile.model.PlayerProfileDTO;
+import com.project.G1_T3.playerprofile.service.PlayerProfileService;
 
 @RestController
 @RequestMapping("/profile")

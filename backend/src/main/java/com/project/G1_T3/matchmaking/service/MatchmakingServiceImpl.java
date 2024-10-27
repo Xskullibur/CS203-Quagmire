@@ -1,13 +1,12 @@
 package com.project.G1_T3.matchmaking.service;
 
-import com.project.G1_T3.common.model.Status;
 import com.project.G1_T3.match.model.Match;
 import com.project.G1_T3.match.model.MatchDTO;
 import com.project.G1_T3.match.service.MatchService;
 import com.project.G1_T3.matchmaking.model.MatchNotification;
 import com.project.G1_T3.matchmaking.model.QueuedPlayer;
-import com.project.G1_T3.player.model.PlayerProfile;
-import com.project.G1_T3.player.service.PlayerProfileService;
+import com.project.G1_T3.playerprofile.model.PlayerProfile;
+import com.project.G1_T3.playerprofile.service.PlayerProfileService;
 import com.project.G1_T3.common.exception.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,7 +18,6 @@ import java.util.List;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.Date;
 
 /**
  * Service implementation for matchmaking functionality.

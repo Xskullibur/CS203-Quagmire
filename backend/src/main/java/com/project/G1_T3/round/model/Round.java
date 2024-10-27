@@ -1,7 +1,7 @@
 package com.project.G1_T3.round.model;
 
 import com.project.G1_T3.match.model.Match;
-import com.project.G1_T3.player.model.PlayerProfile;
+import com.project.G1_T3.playerprofile.model.PlayerProfile;
 import com.project.G1_T3.stage.model.Stage;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.project.G1_T3.common.model.Status;
@@ -13,7 +13,6 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;

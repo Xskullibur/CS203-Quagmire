@@ -6,15 +6,14 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
-import com.project.G1_T3.common.exception.InsufficientPlayersException;
 import com.project.G1_T3.common.exception.MatchmakingException;
 import com.project.G1_T3.common.exception.PlayerAlreadyInQueueException;
 import com.project.G1_T3.common.exception.PlayerNotFoundException;
 import com.project.G1_T3.match.model.Match;
 import com.project.G1_T3.match.model.MatchDTO;
 import com.project.G1_T3.match.service.MatchService;
-import com.project.G1_T3.player.model.PlayerProfile;
-import com.project.G1_T3.player.service.PlayerProfileService;
+import com.project.G1_T3.playerprofile.model.PlayerProfile;
+import com.project.G1_T3.playerprofile.service.PlayerProfileService;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;

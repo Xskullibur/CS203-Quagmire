@@ -1,4 +1,4 @@
-package com.project.G1_T3.player.model;
+package com.project.G1_T3.playerprofile.model;
 
 import java.time.LocalDate;
 import java.util.UUID;

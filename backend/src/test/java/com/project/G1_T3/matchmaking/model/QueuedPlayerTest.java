@@ -1,9 +1,10 @@
 package com.project.G1_T3.matchmaking.model;
 
-import com.project.G1_T3.player.model.PlayerProfile;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import java.time.Instant;
+
+import com.project.G1_T3.playerprofile.model.PlayerProfile;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 

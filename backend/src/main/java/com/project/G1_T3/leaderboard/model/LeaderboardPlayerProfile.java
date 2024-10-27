@@ -7,7 +7,7 @@ import lombok.Setter;
 
 import java.util.UUID;
 
-import com.project.G1_T3.player.model.PlayerProfile;
+import com.project.G1_T3.playerprofile.model.PlayerProfile;
 
 @Getter
 @Setter
