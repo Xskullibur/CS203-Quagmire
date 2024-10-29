@@ -1,22 +1,22 @@
 package com.project.G1_T3.player.service;
 
+import com.project.G1_T3.filestorage.service.FileStorageService;
+import com.project.G1_T3.filestorage.service.ImageValidationService;
+import com.project.G1_T3.player.model.PlayerProfile;
+import com.project.G1_T3.player.model.PlayerProfileDTO;
 import com.project.G1_T3.player.repository.PlayerProfileRepository;
 import com.project.G1_T3.security.service.AuthorizationService;
+import com.project.G1_T3.user.model.User;
+import com.project.G1_T3.user.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
-
+import java.io.IOException;
+import java.util.List;
+import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
-import java.util.*;
-
-import com.project.G1_T3.filestorage.service.FileStorageService;
-import com.project.G1_T3.filestorage.service.ImageValidationService;
-import com.project.G1_T3.player.model.PlayerProfile;
-import com.project.G1_T3.player.model.PlayerProfileDTO;
 
 @Service
 public class PlayerProfileService {
@@ -33,26 +33,25 @@ public class PlayerProfileService {
     @Autowired
     private FileStorageService fileStorageService;
 
+    @Autowired
+    private UserService userService;
+
     public List<PlayerProfile> findAll() {
         return playerProfileRepository.findAll();
     }
 
     public PlayerProfile findByUserId(String id) {
-        return playerProfileRepository.findByUserId(UUID.fromString(id));
+        return userService.findByUserId(id).map(user -> playerProfileRepository.findByUser(user))
+            .orElseThrow(() -> new EntityNotFoundException("User not found for user ID: " + id));
     }
 
     public PlayerProfile findByProfileId(String id) {
-        return playerProfileRepository.findByProfileId(UUID.fromString(id));
+        return playerProfileRepository.findById(UUID.fromString(id)).orElseThrow(
+            () -> new EntityNotFoundException("Player profile not found for ID: " + id));
     }
 
     public PlayerProfile save(PlayerProfile profile) {
         return playerProfileRepository.save(profile);
-    }
-
-    @Cacheable(value = "playerRankings", key = "'rankings'")
-    public List<PlayerProfile> getSortedPlayerProfiles() {
-        // Fetch all players sorted by current rating
-        return playerProfileRepository.findAllByOrderByCurrentRatingDesc();
     }
 
     public int getPlayerRank(String profileId) {
@@ -67,6 +66,12 @@ public class PlayerProfileService {
         return -1; // Return -1 if the player is not found
     }
 
+    @Cacheable(value = "playerRankings", key = "'rankings'")
+    public List<PlayerProfile> getSortedPlayerProfiles() {
+        // Fetch all players sorted by current rating
+        return playerProfileRepository.findAllByOrderByCurrentRatingDesc();
+    }
+
     @CacheEvict(value = "playerRankings", key = "'rankings'")
     public PlayerProfile updatePlayerRating(PlayerProfile playerProfile) {
         // Update the player's rating (e.g., after a match)
@@ -75,12 +80,14 @@ public class PlayerProfileService {
     }
 
     // For editing profile
-    public PlayerProfile updateProfile(UUID id, PlayerProfileDTO profileUpdates, MultipartFile profileImage) throws IOException {
+    public PlayerProfile updateProfile(UUID id, PlayerProfileDTO profileUpdates,
+        MultipartFile profileImage) throws IOException {
 
         // Check if the user is who they claim they are
-        authorizationService.authorizeUserById(id);
+        User user = authorizationService.authorizeUserById(id);
 
-        PlayerProfile existingProfile = playerProfileRepository.findByUserId(id);
+        // Retrieve the existing profile
+        PlayerProfile existingProfile = playerProfileRepository.findByUser(user);
 
         // Throw an exception if the profile is not found
         if (existingProfile == null) {
@@ -114,14 +121,8 @@ public class PlayerProfileService {
         return playerProfileRepository.save(existingProfile);
     }
 
-    // For uploading profile photo
-    public PlayerProfile updateProfilePicture(UUID id, String profilePicturePath) {
-        PlayerProfile profile = playerProfileRepository.findByUserId(id);
-        profile.setProfilePicturePath(profilePicturePath);
-        return playerProfileRepository.save(profile);
-    }
-
-    private String uploadProfileImage(String userId, MultipartFile profileImage) throws IOException {
+    private String uploadProfileImage(String userId, MultipartFile profileImage)
+        throws IOException {
 
         // Validate image if present
         if (profileImage != null && !profileImage.isEmpty()) {
@@ -129,5 +130,12 @@ public class PlayerProfileService {
         }
 
         return fileStorageService.uploadFile("ProfileImages", userId, profileImage);
+    }
+
+    // For uploading profile photo
+    public PlayerProfile updateProfilePicture(UUID id, String profilePicturePath) {
+        PlayerProfile profile = playerProfileRepository.findByUserId(id);
+        profile.setProfilePicturePath(profilePicturePath);
+        return playerProfileRepository.save(profile);
     }
 }

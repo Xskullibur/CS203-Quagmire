@@ -8,7 +8,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.project.G1_T3.common.model.Status;
 import com.project.G1_T3.match.model.Match;
-import com.project.G1_T3.matchmaking.model.MatchNotification;
 import com.project.G1_T3.matchmaking.model.MatchNotificationDTO;
 import com.project.G1_T3.match.repository.MatchRepository;
 import com.project.G1_T3.player.model.PlayerProfile;
@@ -73,10 +72,8 @@ public class MatchChecker {
                                 PlayerProfile player2 = playerProfileRepository.findById(match.getPlayer2Id())
                                                 .orElseThrow(() -> new RuntimeException("Player 2 not found"));
 
-                                User user1 = userRepository.findById(player1.getUserId())
-                                                .orElseThrow(() -> new RuntimeException("User 1 not found"));
-                                User user2 = userRepository.findById(player2.getUserId())
-                                                .orElseThrow(() -> new RuntimeException("User 2 not found"));
+                                User user1 = player1.getUser();
+                                User user2 = player2.getUser();
 
                                 // Update match status to IN_PROGRESS and save it
                                 match.setStatus(Status.IN_PROGRESS);
@@ -102,9 +99,9 @@ public class MatchChecker {
                                                 player1DTO);
 
                                 // Send notifications to both players
-                                messagingTemplate.convertAndSend("/topic/solo/match/" + player1.getUserId(),
+                                messagingTemplate.convertAndSend("/topic/solo/match/" + user1.getId(),
                                                 notificationForPlayer1);
-                                messagingTemplate.convertAndSend("/topic/solo/match/" + player2.getUserId(),
+                                messagingTemplate.convertAndSend("/topic/solo/match/" + user2.getId(),
                                                 notificationForPlayer2);
 
                                 log.info("Match found and notifications sent for players {} and {}",

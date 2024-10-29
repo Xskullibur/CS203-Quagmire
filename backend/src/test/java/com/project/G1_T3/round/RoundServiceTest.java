@@ -12,6 +12,7 @@ import com.project.G1_T3.stage.model.Stage;
 import com.project.G1_T3.stage.repository.StageRepository;
 import com.project.G1_T3.common.model.Status;
 
+import com.project.G1_T3.user.model.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -124,7 +125,7 @@ class RoundServiceTest {
 
         PlayerProfile playerProfile = new PlayerProfile();
         playerProfile.setProfileId(UUID.randomUUID());
-        playerProfile.setUserId(UUID.randomUUID());
+        playerProfile.setUser(new User());;
         playerProfile.setFirstName("John");
         playerProfile.setLastName("Doe");
         playerProfile.setDateOfBirth(LocalDate.of(1990, 1, 1));

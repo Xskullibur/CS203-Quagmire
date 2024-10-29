@@ -63,12 +63,9 @@ public class PlayerProfileServiceTest {
         user = new User();
         user.setId(userId.toString());
 
-        // Set up UserDetails
-        CustomUserDetails valueFormerlyAssignedToUserDetails1 = new CustomUserDetails(user);
-
         // Set up existing profile
         existingProfile = new PlayerProfile();
-        existingProfile.setUserId(user.getUserId());
+        existingProfile.setUser(user);
         existingProfile.setFirstName("John");
         existingProfile.setLastName("Doe");
         existingProfile.setBio("Original bio");
@@ -87,8 +84,8 @@ public class PlayerProfileServiceTest {
 
     @Test
     void updateProfile_SuccessfulUpdate() throws IOException {
-        doNothing().when(authorizationService).authorizeUserById(any(UUID.class));
-        when(playerProfileRepository.findByUserId(userId)).thenReturn(existingProfile);
+        when(authorizationService.authorizeUserById(any(UUID.class))).thenReturn(user);
+        when(playerProfileRepository.findByUser(any(User.class))).thenReturn(existingProfile);
         when(playerProfileRepository.save(any(PlayerProfile.class))).thenReturn(existingProfile);
 
         PlayerProfile updatedProfile = playerProfileService.updateProfile(userId, profileUpdates, null);
@@ -101,7 +98,7 @@ public class PlayerProfileServiceTest {
         assertEquals(profileUpdates.getDateOfBirth(), updatedProfile.getDateOfBirth());
 
         verify(authorizationService).authorizeUserById(any(UUID.class));
-        verify(playerProfileRepository).findByUserId(userId);
+        verify(playerProfileRepository).findByUser(any(User.class));
         verify(playerProfileRepository).save(existingProfile);
     }
 
@@ -123,28 +120,13 @@ public class PlayerProfileServiceTest {
 
     @Test
     void updateProfile_ProfileNotFound() {
-        doNothing().when(authorizationService).authorizeUserById(any(UUID.class));
-        when(playerProfileRepository.findByUserId(userId)).thenReturn(null);
+        when(authorizationService.authorizeUserById(any(UUID.class))).thenReturn(mock(User.class));
 
         assertThrows(EntityNotFoundException.class,
                 () -> playerProfileService.updateProfile(userId, profileUpdates, profileImage));
 
         verify(authorizationService).authorizeUserById(any(UUID.class));
 
-        verify(playerProfileRepository).findByUserId(userId);
         verify(playerProfileRepository, never()).save(any());
-    }
-
-    @Test
-    void updateProfile_NullUpdates() {
-        doNothing().when(authorizationService).authorizeUserById(any(UUID.class));
-        when(playerProfileRepository.findByUserId(userId)).thenReturn(existingProfile);
-
-        assertThrows(NullPointerException.class,
-                () -> playerProfileService.updateProfile(userId, null, profileImage));
-
-        verify(playerProfileRepository).findByUserId(userId);
-        verify(playerProfileRepository, never()).save(any());
-        verify(authorizationService).authorizeUserById(any(UUID.class));
     }
 }

@@ -1,18 +1,23 @@
 package com.project.G1_T3.player.controller;
 
-import com.project.G1_T3.player.model.PlayerProfileRequest;
 import com.project.G1_T3.player.model.PlayerProfile;
 import com.project.G1_T3.player.model.PlayerProfileDTO;
 import com.project.G1_T3.player.service.PlayerProfileService;
-
 import java.io.IOException;
 import java.util.UUID;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
@@ -67,11 +72,13 @@ public class PlayerProfileController {
     // For editing profile
     @PutMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<PlayerProfile> updateProfile(
-            @RequestPart("id") String id,
-            @RequestPart("profileUpdates") PlayerProfileDTO profileUpdates,
-            @RequestPart(value = "profileImage", required = false) MultipartFile profileImage) throws IOException {
+        @RequestPart("id") String id,
+        @RequestPart("profileUpdates") PlayerProfileDTO profileUpdates,
+        @RequestPart(value = "profileImage", required = false) MultipartFile profileImage)
+        throws IOException {
 
-        PlayerProfile updatedProfile = playerProfileService.updateProfile(UUID.fromString(id), profileUpdates, profileImage);
+        PlayerProfile updatedProfile = playerProfileService.updateProfile(UUID.fromString(id),
+            profileUpdates, profileImage);
         return ResponseEntity.ok(updatedProfile);
     }
 

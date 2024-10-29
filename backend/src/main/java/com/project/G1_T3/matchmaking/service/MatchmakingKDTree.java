@@ -195,7 +195,7 @@ class MatchmakingKDTree {
         if (node == null) {
             return false;
         }
-        if (node.player.getPlayer().getUserId().equals(playerId)) {
+        if (node.player.getPlayer().getUser().getUserId().equals(playerId)) {
             return true;
         }
         return containsPlayer(node.left, playerId) || containsPlayer(node.right, playerId);
@@ -209,7 +209,7 @@ class MatchmakingKDTree {
         if (node == null) {
             return;
         }
-        if (node.player.getPlayer().getUserId().equals(playerId)) {
+        if (node.player.getPlayer().getUser().getUserId().equals(playerId)) {
             remove(node.player);
         } else {
             removeByPlayerId(node.left, playerId, depth + 1);
