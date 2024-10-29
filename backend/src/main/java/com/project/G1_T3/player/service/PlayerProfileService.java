@@ -1,8 +1,7 @@
 package com.project.G1_T3.player.service;
 
 import com.project.G1_T3.player.repository.PlayerProfileRepository;
-import com.project.G1_T3.security.service.SecurityService;
-import com.project.G1_T3.user.model.CustomUserDetails;
+import com.project.G1_T3.security.service.AuthorizationService;
 import jakarta.persistence.EntityNotFoundException;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +22,7 @@ import com.project.G1_T3.player.model.PlayerProfileDTO;
 public class PlayerProfileService {
 
     @Autowired
-    private SecurityService securityService;
+    private AuthorizationService authorizationService;
 
     @Autowired
     private ImageValidationService imageValidationService;
@@ -78,11 +77,8 @@ public class PlayerProfileService {
     // For editing profile
     public PlayerProfile updateProfile(UUID id, PlayerProfileDTO profileUpdates, MultipartFile profileImage) throws IOException {
 
-        CustomUserDetails userDetails = securityService.getAuthenticatedUser();
-
-        if (userDetails == null || !userDetails.getUser().getId().equals(id)) {
-            throw new SecurityException("User not authorized to update this profile");
-        }
+        // Check if the user is who they claim they are
+        authorizationService.authorizeUserById(id);
 
         PlayerProfile existingProfile = playerProfileRepository.findByUserId(id);
 
