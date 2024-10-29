@@ -23,8 +23,8 @@ interface UserTableProps {
 
 const UserTable: React.FC<UserTableProps> = ({
     users,
-    onLock: onLock,
-    onDelete: onDelete,
+    onLock,
+    onDelete,
     currentPage,
     totalPages,
     pageSize,
