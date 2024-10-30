@@ -31,7 +31,7 @@ public class FileStorageService {
 
         try {
             Bucket bucket = StorageClient.getInstance().bucket();
-            Blob blob = bucket.create(folder + "/" + fileName, file.getBytes(), file.getContentType());
+            bucket.create(folder + "/" + fileName, file.getBytes(), file.getContentType());
             return storagePath + storageBucket + FILE_OPENER_URL + folder + "%2F" + fileName + MEDIA_URL_PARAMETER;
         } catch (IOException e) {
             throw new IOException("Failed to upload file", e);
