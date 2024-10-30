@@ -1,8 +1,8 @@
 "use client";
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import { Button } from "@/components/ui/button";
 import axiosInstance from '@/lib/axios';
+import { Button } from "@/components/ui/button";
+import { useAuth } from '@/hooks/useAuth';
 
 interface Tournament {
     name: string;
@@ -15,10 +15,13 @@ interface Tournament {
 
 const TournamentDetails: React.FC<{ params: { id: string } }> = ({ params }) => {
     const { id } = params;
+    const { user } = useAuth();  // Accessing user context via useAuth hook
+    const userId = user?.userId; // Retrieve userId from user object
     const [tournament, setTournament] = useState<Tournament | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [registrationClosed, setRegistrationClosed] = useState<boolean>(false);
+    const [registered, setRegistered] = useState<boolean>(false);
 
     useEffect(() => {
         const fetchTournamentDetails = async () => {
@@ -36,6 +39,11 @@ const TournamentDetails: React.FC<{ params: { id: string } }> = ({ params }) => 
                 const deadlineDate = new Date(tournamentData.deadline);
                 setRegistrationClosed(currentDate > deadlineDate);
 
+                // Check if player is already registered
+                const playerId = "player-id"; // Replace with actual player ID
+                const registeredResponse = await axiosInstance.get(`${process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL}/tournament/${id}/players`);
+                setRegistered(registeredResponse.data.some((player: { id: string }) => player.id === playerId));
+
             } catch (error) {
                 console.error('Error fetching tournament details:', error);
                 setError('Failed to load tournament details. Please try again.');
@@ -46,6 +54,21 @@ const TournamentDetails: React.FC<{ params: { id: string } }> = ({ params }) => 
 
         fetchTournamentDetails();
     }, [id]);
+
+    const onRegisterToggle = async () => {
+        try {
+            if (!userId) return; // Ensure userId exists
+
+            if (!registered) {
+                await axiosInstance.put(`${process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL}/tournament/${id}/players/${userId}`);
+            } else {
+                await axiosInstance.delete(`${process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL}/tournament/${id}/players/${userId}`);
+            }
+            setRegistered(!registered);
+        } catch (error) {
+            console.error('Error toggling registration:', error);
+        }
+    };
 
     if (loading) return <p className="text-lg text-gray-500">Loading...</p>;
     if (error) return <p className="text-lg text-red-500">Error: {error}</p>;
@@ -67,24 +90,20 @@ const TournamentDetails: React.FC<{ params: { id: string } }> = ({ params }) => 
                 <h2 className="mt-4 text-lg font-semibold">Registration Deadline:</h2>
                 <p className="text-base">{new Date(tournament.deadline).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}</p>
                 <div className="flex justify-center w-full">
-                    <Button 
-                        variant={registrationClosed ? "outline" : "default"} 
-                        disabled={registrationClosed} 
+                    <Button
+                        variant={registrationClosed || registered ? "outline" : "default"}
+                        disabled={registrationClosed}
                         className="mt-4 flex justify-center w-auto"
+                        onClick={onRegisterToggle}
                     >
-                        {registrationClosed ? "Registration Closed" : "Register Now"}
+                        {registered ? "Withdraw" : "Register Now"}
                     </Button>
                 </div>
             </div>
 
-            {/* Register Button */}
             <div className="mt-4">
-                {/* Horizontal line */}
                 <hr className="w-full my-4 border-t border-gray-300" />
-
-                {/* Tournament Draw Heading */}
                 <h2 className="text-2xl font-semibold my-8 text-center">Tournament Draw</h2>
-
                 <p className="text-center text-gray-500">Draw has yet to be released</p>
             </div>
         </div>

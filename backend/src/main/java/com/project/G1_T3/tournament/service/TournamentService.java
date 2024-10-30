@@ -43,4 +43,6 @@ public interface TournamentService {
     Set<PlayerProfile> getPlayers(UUID tournamentId); // Get players of a specific tournament
 
     Tournament addPlayerToTournament(UUID tournamentId, UUID userId); // Add a player to a specific tournament
+
+    Tournament deletePlayerFromTournament(UUID tournamentId, UUID userId); // Add a player to a specific tournament
 }

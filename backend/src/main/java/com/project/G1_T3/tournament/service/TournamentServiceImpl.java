@@ -174,6 +174,40 @@ public class TournamentServiceImpl implements TournamentService {
         return tournamentRepository.save(tournament);
     }
 
+    public Tournament deletePlayerFromTournament(UUID tournamentId, UUID userId) {
+        System.out.println("Removing player: " + userId);
+    
+        // Fetch the tournament by ID
+        Tournament tournament = tournamentRepository.findById(tournamentId).orElse(null);
+        if (tournament == null) {
+            System.out.println("Invalid tournament ID");
+            return null;
+        } else {
+            System.out.println("Tournament ID: " + tournament.getId());
+        }
+    
+        // Fetch the player by ID
+        PlayerProfile player = playerProfileRepository.findByProfileId(userId);
+        if (player == null) {
+            System.out.println("Invalid player ID");
+            return null;
+        } else {
+            System.out.println("Player Name: " + player.getFirstName());
+        }
+    
+        // Check if the player is in the tournament and remove if present
+        if (tournament.getPlayers().contains(player)) {
+            tournament.getPlayers().remove(player);
+            System.out.println("Player removed from tournament.");
+        } else {
+            System.out.println("Player is not in tournament.");
+        }
+    
+        // Save and return the updated tournament
+        return tournamentRepository.save(tournament);
+    }
+    
+
     public Tournament updateTournament(UUID id, Tournament updatedTournament) {
        updatedTournament.setId(id);
        return tournamentRepository.save(updatedTournament);

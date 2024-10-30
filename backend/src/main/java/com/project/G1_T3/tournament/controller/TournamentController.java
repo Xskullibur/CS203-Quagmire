@@ -121,6 +121,15 @@ public class TournamentController {
         Tournament updatedTournament = tournamentService.addPlayerToTournament(tournamentId, playerId);
         return ResponseEntity.ok(updatedTournament);
     }
+
+    @DeleteMapping("/{tournamentId}/players/{playerId}")
+    public ResponseEntity<Tournament> deletePlayerFromTournament(
+            @PathVariable UUID tournamentId, @PathVariable UUID playerId) {
+        Tournament updatedTournament = tournamentService.deletePlayerFromTournament(tournamentId, playerId);
+        return ResponseEntity.ok(updatedTournament);
+    }
+
+
     // @PutMapping("/{tournamentId}/players/{playerId}")
     // public ResponseEntity<Tournament> addPlayerToTournament(
     //         @PathVariable UUID tournamentId, @PathVariable String playerId) {
