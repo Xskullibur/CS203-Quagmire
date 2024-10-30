@@ -7,16 +7,19 @@ import React, {
 } from "react";
 import { ToastProvider, ToastViewport } from "@/components/ui/toast";
 import { useToast } from "@/hooks/use-toast";
+import { ErrorHandler } from "@/utils/errorHandler";
+import { AxiosError } from "axios";
 
 interface ErrorHandlerContextType {
   showErrorToast: (title: string, message: string) => void;
+  handleError: (error: AxiosError) => void;
 }
 
 const ErrorHandlerContext = createContext<ErrorHandlerContextType | undefined>(
   undefined
 );
 
-export const useErrorHandler = (): ErrorHandlerContextType => {
+export const useGlobalErrorHandler = (): ErrorHandlerContextType => {
   const context = useContext(ErrorHandlerContext);
   if (!context) {
     throw new Error(
@@ -46,7 +49,18 @@ export const ErrorHandlerProvider: React.FC<ErrorHandlerProviderProps> = ({
     [toast]
   );
 
-  const contextValue = useMemo(() => ({ showErrorToast }), [showErrorToast]);
+  const handleError = useCallback(
+    (error: AxiosError) => {
+      const { title, message } = ErrorHandler.handleError(error);
+      showErrorToast(title, message);
+    },
+    [showErrorToast]
+  );
+
+  const contextValue = useMemo(
+    () => ({ showErrorToast, handleError }),
+    [showErrorToast, handleError]
+  );
 
   return (
     <ErrorHandlerContext.Provider value={contextValue}>
