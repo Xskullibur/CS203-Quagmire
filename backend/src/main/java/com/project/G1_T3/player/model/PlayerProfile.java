@@ -5,6 +5,7 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.project.G1_T3.tournament.model.Tournament;
+import com.project.G1_T3.achievement.model.Achievement;
 import com.project.G1_T3.common.glicko.*;
 
 import jakarta.persistence.*;
@@ -71,6 +72,14 @@ public class PlayerProfile {
 
     @ManyToMany(mappedBy = "players", cascade = CascadeType.ALL)
     private Set<Tournament> tournaments = new HashSet<>();
+
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(
+        name = "player_achievements",
+        joinColumns = @JoinColumn(name = "profile_id"),
+        inverseJoinColumns = @JoinColumn(name = "achievement_id")
+    )
+    private Set<Achievement> achievements = new HashSet<>();
 
     // Override equals() method for proper comparison in matchmaking
     @Override
@@ -167,4 +176,12 @@ public class PlayerProfile {
         return firstName;
     }
 
+    public void addAchievement(Achievement achievement) {
+        achievements.add(achievement);
+        achievement.getPlayers().add(this); // Ensure bidirectional relationship
+    }
+
+    public Set<Achievement> getAchievements() {
+        return achievements;
+    }
 }
