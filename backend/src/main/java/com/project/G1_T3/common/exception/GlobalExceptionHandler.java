@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.ProblemDetail;
 import org.springframework.security.authentication.AccountStatusException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingRequestHeaderException;
@@ -91,6 +92,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(body, status);
     }
 
+
     // Handle security-related exceptions
     @ExceptionHandler({
             BadCredentialsException.class,
@@ -106,6 +108,13 @@ public class GlobalExceptionHandler {
         ProblemDetail errorDetail = null;
 
         exception.printStackTrace();
+
+        
+        if (exception instanceof LockedException) {
+            errorDetail = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, exception.getMessage());
+            errorDetail.setProperty(DESC, "Your account is locked");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorDetail);
+        }
 
         if (exception instanceof BadCredentialsException) {
             errorDetail = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, exception.getMessage());

@@ -31,8 +31,7 @@ import com.project.G1_T3.user.model.UserRole;
 import com.project.G1_T3.matchmaking.service.MatchmakingService;
 import com.project.G1_T3.playerprofile.model.PlayerProfile;
 import com.project.G1_T3.playerprofile.repository.PlayerProfileRepository;
-import com.project.G1_T3.matchmaking.service.MatchmakingAlgorithm;
-
+import com.project.G1_T3.matchmaking.service.GlickoMatchmaking;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -67,7 +66,7 @@ class MatchmakingIntegrationTests {
     private MatchmakingService matchmakingService;
 
     @MockBean
-    private MatchmakingAlgorithm matchmakingAlgorithm;
+    private GlickoMatchmaking glickoMatchmaking;
 
     private User user1;
     private User user2;
@@ -95,7 +94,7 @@ class MatchmakingIntegrationTests {
         converter.setObjectMapper(objectMapper);
         stompClient.setMessageConverter(converter);
 
-        when(matchmakingAlgorithm.isGoodMatch(any(), any())).thenReturn(true);
+        when(glickoMatchmaking.isGoodMatch(any(), any())).thenReturn(true);
     }
 
     @AfterEach

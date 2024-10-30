@@ -2,8 +2,10 @@ package com.project.G1_T3.authentication.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.security.authentication.AccountStatusException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -49,11 +51,18 @@ public class AuthServiceImpl implements AuthService {
             User user = userService.findByUsername(username)
                     .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
+            // Checks if user isLocked
+            if (user.isLocked()) {
+                throw new LockedException("Account is locked.");
+            }
+
             String token = jwtService.generateToken(user);
             UserDTO userDTO = UserDTO.fromUser(user);
 
             return new LoginResponseDTO(userDTO, token);
 
+        } catch (AccountStatusException e) {
+            throw e;
         } catch (AuthenticationException e) {
             throw new BadCredentialsException("The username or password is incorrect", e);
         }

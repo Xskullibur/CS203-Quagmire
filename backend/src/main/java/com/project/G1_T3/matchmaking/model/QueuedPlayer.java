@@ -42,4 +42,14 @@ public class QueuedPlayer {
         long waitTimeSeconds = getQueueTimeSeconds();
         return (waitTimeSeconds * 0.1) + player.getCurrentRating();
     }
+
+    // getglickorating
+    public double getGlickoRating() {
+        return player.getCurrentRating();
+    }
+
+    // getglickord
+    public double getGlickoRD() {
+        return player.getCurrentRD();
+    }
 }

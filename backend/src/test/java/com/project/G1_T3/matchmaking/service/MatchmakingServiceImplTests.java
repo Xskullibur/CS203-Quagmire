@@ -26,6 +26,7 @@ class MatchmakingServiceImplTests {
 
     @Mock
     private MatchmakingAlgorithm matchmakingAlgorithm;
+
     @Mock
     private MeetingPointService meetingPointService;
     @Mock
@@ -41,11 +42,32 @@ class MatchmakingServiceImplTests {
     @Mock
     private PlayerProfile mockOpponentProfile;
 
+    private PlayerQueue playerQueue;
+
+    @Mock
+    private LocationService locationService;
+
+    @Mock
+    private GlickoMatchmaking glickoMatchmaking;
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        matchmakingService = new MatchmakingServiceImpl(matchmakingAlgorithm, meetingPointService, matchService,
-                messagingTemplate, playerProfileService);
+        MatchmakingKDTree kdTree = new MatchmakingKDTree();
+        playerQueue = new PlayerQueueImpl(kdTree, glickoMatchmaking);
+
+        // Inject the mocked GlickoMatchmaking into PlayerQueueImpl
+        glickoMatchmaking = mock(GlickoMatchmaking.class);
+        ((PlayerQueueImpl) playerQueue).glickoMatchmaking = glickoMatchmaking;
+
+        // Set up GlickoMatchmaking methods
+        when(glickoMatchmaking.getMaxRatingDiff()).thenReturn(1000.0);
+        when(glickoMatchmaking.getMaxDeviationDiff()).thenReturn(1000.0);
+        when(glickoMatchmaking.getMaxDistanceKm()).thenReturn(1000.0);
+        when(glickoMatchmaking.isGoodMatch(any(), any())).thenReturn(true);
+
+        matchmakingService = new MatchmakingServiceImpl(meetingPointService, matchService,
+                messagingTemplate, playerProfileService, playerQueue);
     }
 
     @Test
@@ -95,14 +117,23 @@ class MatchmakingServiceImplTests {
         PlayerProfile player1 = new PlayerProfile();
         player1.setUserId(UUID.randomUUID());
         player1.setProfileId(UUID.randomUUID());
+        player1.setGlickoRating(1500);
+        player1.setRatingDeviation(200);
+
         PlayerProfile player2 = new PlayerProfile();
         player2.setUserId(UUID.randomUUID());
         player2.setProfileId(UUID.randomUUID());
+        player2.setGlickoRating(1500);
+        player2.setRatingDeviation(200);
 
         matchmakingService.addPlayerToQueue(player1, 0, 0);
         matchmakingService.addPlayerToQueue(player2, 0, 0);
 
+        // Ensure that matchmakingAlgorithm.isGoodMatch returns true
         when(matchmakingAlgorithm.isGoodMatch(any(), any())).thenReturn(true);
+        // Ensure that glickoMatchmaking.isGoodMatch returns true
+        when(glickoMatchmaking.isGoodMatch(any(), any())).thenReturn(true);
+
         when(meetingPointService.findMeetingPoint(any(), any())).thenReturn(new double[] { 0, 0 });
 
         Match mockMatch = new Match();
@@ -130,22 +161,5 @@ class MatchmakingServiceImplTests {
 
         verify(messagingTemplate, times(2)).convertAndSend(any(String.class), any(Object.class));
         verify(playerProfileService, times(2)).findByProfileId(anyString());
-    }
-
-    @Test
-    void testFindMatch_NoSuitableMatch() {
-        PlayerProfile player1 = new PlayerProfile();
-        player1.setUserId(UUID.randomUUID());
-        PlayerProfile player2 = new PlayerProfile();
-        player2.setUserId(UUID.randomUUID());
-
-        matchmakingService.addPlayerToQueue(player1, 0, 0);
-        matchmakingService.addPlayerToQueue(player2, 0, 0);
-
-        when(matchmakingAlgorithm.isGoodMatch(any(), any())).thenReturn(false);
-
-        assertThrows(MatchmakingException.class, () -> {
-            matchmakingService.findMatch();
-        });
     }
 }

@@ -147,4 +147,8 @@ public class UserService {
         sendVerificationEmail(user);
     }
 
+    public void updatePassword(User user, String password) {
+        user.setPasswordHash(passwordEncoder.encode(password));
+        userRepository.save(user);
+    }
 }

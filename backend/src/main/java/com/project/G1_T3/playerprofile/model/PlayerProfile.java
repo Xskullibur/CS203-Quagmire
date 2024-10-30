@@ -90,6 +90,10 @@ public class PlayerProfile {
         return profileId;
     }
 
+    public void setCurrentRating() {
+        currentRating = glickoRating + DEVIATION_SCALE / ratingDeviation + VOLATILITY_SCALE / volatility;
+    }
+
     @PostLoad
     private void postLoad() {
         syncGlicko2Rating();
@@ -99,6 +103,10 @@ public class PlayerProfile {
         if (this.glicko2Rating == null) {
             this.glicko2Rating = new Glicko2Rating(this.glickoRating, this.ratingDeviation,
                 this.volatility);
+            this.glicko2Rating = new Glicko2Rating(
+                    this.glickoRating,
+                    this.ratingDeviation,
+                    this.volatility);
         } else {
             this.glicko2Rating.setRating((float) this.glickoRating);
             this.glicko2Rating.setRatingDeviation(this.ratingDeviation);
@@ -134,11 +142,6 @@ public class PlayerProfile {
         setCurrentRating();
     }
 
-    public void setCurrentRating() {
-        currentRating =
-            glickoRating + DEVIATION_SCALE / ratingDeviation + VOLATILITY_SCALE / volatility;
-    }
-
     public String getUsername() {
         return firstName + " " + lastName;
     }
@@ -153,6 +156,15 @@ public class PlayerProfile {
 
     public PlayerProfileDTO getProfile() {
         return new PlayerProfileDTO(this);
+    }
+
+    public double getCurrentRD() {
+        return ratingDeviation;
+    }
+
+    // get firstname
+    public String getFirstName() {
+        return firstName;
     }
 
 }
