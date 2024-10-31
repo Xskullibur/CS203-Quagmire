@@ -3,7 +3,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import withAuth from "@/hooks/withAuth";
 import { UserRole } from "@/types/user-role";
 import { User } from "@/types/user";
-import UserTable from "./user-table";
+import UserTable from "../../../components/admin/dashboard/user-table";
 import axiosInstance from "@/lib/axios";
 import { Button } from "@/components/ui/button";
 import { PlusIcon } from "lucide-react";
@@ -21,6 +21,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useGlobalErrorHandler } from "@/app/context/ErrorMessageProvider";
 import { toast } from "@/hooks/use-toast";
 import { AxiosError } from "axios";
+import { ErrorHandler } from "@/utils/errorHandler";
 
 const API_URL = `${process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL}`;
 
@@ -79,24 +80,20 @@ const AdminDashboard: React.FC = () => {
   const handleAddUser = async (e: React.FormEvent) => {
     setError(null);
     setSuccess(null);
-
+  
     e.preventDefault();
-
-    try {
-      const response = await axiosInstance.post(
-        new URL("/admin/register-admin", API_URL).toString(),
-        formData
-      );
-      if (response.status === 201) {
-        setSuccess("Successfully Registered: " + response.data.username);
-      }
-    } catch (error: any) {
-      if (error?.response?.data) {
-        setError(error.response.data.description);
-      } else {
-        setError("Registration failed. Please try again.");
-      }
-    }
+  
+    axiosInstance
+      .post(new URL("/admin/register-admin", API_URL).toString(), formData)
+      .then((response) => {
+        if (response.status === 201) {
+          setSuccess("Successfully Registered: " + response.data.username);
+        }
+      })
+      .catch((error: AxiosError) => {
+        const { message } = ErrorHandler.handleError(error);
+        setError(message);
+      });
   };
 
   const handleLockUser = useCallback(

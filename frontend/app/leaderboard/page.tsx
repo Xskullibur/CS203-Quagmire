@@ -1,9 +1,9 @@
 "use client";
 
-import React from "react";
-import { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { LeaderboardPosition } from "@/components/ui/leaderboardPosition";
 import axiosInstance from "@/lib/axios";
+import { useGlobalErrorHandler } from "../context/ErrorMessageProvider";
 // import { data } from '@/app/leaderboard/db.js';
 
 // data.sort((a, b) => {
@@ -17,16 +17,29 @@ const API_URL = `${process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL}`;
 
 export default function Leaderboard() {
   const [data, setData] = useState([]);
+  const { handleError } = useGlobalErrorHandler();
+  const [hasFetched, setHasFetched] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  const fetchLeaderboard = useCallback(async () => {
+    axiosInstance
+      .get(new URL("/leaderboard", API_URL).toString())
+      .then((response) => {
+        setData(response.data);
+      })
+      .catch((error) => {
+        handleError(error);
+      })
+      .finally(() => {
+        setHasFetched(true);
+        setLoading(false);
+      });
+  }, [handleError]);
 
   useEffect(() => {
-    try {
-      axiosInstance
-        .get(new URL("/leaderboard", API_URL).toString())
-        .then((response) => {
-          setData(response.data);
-        });
-    } catch (error) {
-      console.error("Error fetching data:", error);
+    if (!hasFetched) {
+      setLoading(true);
+      fetchLeaderboard();
     }
   }, []);
 
