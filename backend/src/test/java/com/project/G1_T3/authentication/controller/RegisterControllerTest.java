@@ -2,8 +2,8 @@ package com.project.G1_T3.authentication.controller;
 
 import com.project.G1_T3.authentication.model.RegisterRequest;
 import com.project.G1_T3.common.exception.EmailAlreadyInUseException;
-import com.project.G1_T3.common.exception.UsernameAlreadyTakenException;
 import com.project.G1_T3.common.exception.GlobalExceptionHandler;
+import com.project.G1_T3.common.exception.UsernameAlreadyTakenException;
 import com.project.G1_T3.user.model.UserDTO;
 import com.project.G1_T3.user.model.UserRole;
 import com.project.G1_T3.user.service.UserService;

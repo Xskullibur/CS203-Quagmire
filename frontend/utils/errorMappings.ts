@@ -25,6 +25,10 @@ export const httpStatusMappings: Record<HttpStatusCode, ErrorMapping> = {
 
 export const errorCodeMappings: Record<ErrorCode, ErrorMapping> = {
     // Authentication & Authorization
+    [ErrorCode.AUTHENTICATION_FAILED]: {
+        title: 'Authentication Failed',
+        message: 'Invalid username or password.'
+    },
     [ErrorCode.INVALID_CREDENTIALS]: {
         title: 'Authentication Failed',
         message: 'Invalid username or password.'
@@ -40,6 +44,24 @@ export const errorCodeMappings: Record<ErrorCode, ErrorMapping> = {
     [ErrorCode.ACCOUNT_LOCKED]: {
         title: 'Account Locked',
         message: 'Your account has been locked. Please contact support.'
+    },
+
+    // Registration
+    [ErrorCode.USERNAME_TAKEN]: {
+        title: 'Username Not Available',
+        message: 'This username is already taken. Please choose another username.'
+    },
+    [ErrorCode.EMAIL_IN_USE]: {
+        title: 'Email Already Registered',
+        message: 'An account with this email already exists.'
+    },
+    [ErrorCode.REGISTRATION_FAILED]: {
+        title: 'Registration Failed',
+        message: 'Unable to complete registration. Please try again.'
+    },
+    [ErrorCode.EMAIL_VERIFICATION_FAILED]: {
+        title: 'Verification Failed',
+        message: 'Failed to send verification email. Please try again.'
     },
 
     // User Operations
@@ -73,7 +95,20 @@ export const errorCodeMappings: Record<ErrorCode, ErrorMapping> = {
         title: 'Missing Information',
         message: 'Please fill in all required fields.'
     },
-
+    // Validation mappings
+    [ErrorCode.INVALID_USERNAME]: {
+        title: 'Invalid Username',
+        message: 'Username must be between 3 and 50 characters.'
+    },
+    [ErrorCode.INVALID_EMAIL]: {
+        title: 'Invalid Email',
+        message: 'Please enter a valid email address.'
+    },
+    [ErrorCode.INVALID_PASSWORD]: {
+        title: 'Invalid Password',
+        message: 'Password must be at least 7 characters long.'
+    },
+    
     // Network & System
     [ErrorCode.NETWORK_ERROR]: {
         title: 'Network Error',
@@ -86,6 +121,10 @@ export const errorCodeMappings: Record<ErrorCode, ErrorMapping> = {
     [ErrorCode.TIMEOUT_ERROR]: {
         title: 'Request Timeout',
         message: 'The request took too long to complete. Please try again.'
+    },
+    [ErrorCode.EMAIL_SERVICE_ERROR]: {
+        title: 'Email Service Error',
+        message: 'Failed to send email. Please try again later.'
     },
 
     // Data Operations

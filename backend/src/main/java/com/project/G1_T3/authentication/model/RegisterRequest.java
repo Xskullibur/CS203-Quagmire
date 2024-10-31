@@ -9,15 +9,15 @@ import jakarta.validation.constraints.Size;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class RegisterRequest {
 
-    @NotBlank(message = "Username is mandatory")
+    @NotBlank(message = "Username is required")
     @Size(min = 3, max = 50, message = "Username must be between 3 and 50 characters")
     private String username;
 
-    @NotBlank(message = "Email is mandatory")
-    @Email(message = "Email should be valid")
+    @NotBlank(message = "Email is required")
+    @Email(message = "Please enter a valid email address")
     private String email;
 
-    @NotBlank(message = "Password is mandatory")
+    @NotBlank(message = "Password is required")
     @Size(min = 7, message = "Password must be at least 7 characters")
     private String password;
 

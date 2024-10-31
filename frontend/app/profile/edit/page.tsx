@@ -1,6 +1,6 @@
 "use client";
 
-import { useErrorHandler } from "@/app/context/ErrorMessageProvider";
+import { useGlobalErrorHandler } from "@/app/context/ErrorMessageProvider";
 import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import withAuth from "@/hooks/withAuth";
@@ -26,10 +26,10 @@ const PROFILE_IMAGE_API = `${process.env.NEXT_PUBLIC_PROFILEPICTURE_API_URL}`;
 
 const EditProfile = () => {
   const { user } = useAuth();
-  const { showErrorToast } = useErrorHandler();
+  const { handleError } = useGlobalErrorHandler();
   const [playerProfileRequest, setPlayerProfileRequest] =
     useState<PlayerProfileRequest>({
-      id: user?.userId || "",
+      id: user?.userId ?? "",
       profileUpdates: {} as PlayerProfile,
       profileImage: new File([], ""),
     });
@@ -96,38 +96,7 @@ const EditProfile = () => {
         }
       })
       .catch((error: AxiosError) => {
-        let title = "Error";
-        let message = error.message;
-
-        if (error.response) {
-          switch (error.response.status) {
-            case 400:
-              message =
-                "The request was invalid. Please check your input and try again.";
-              break;
-            case 401:
-              message = "You are not authorized to edit this profile.";
-              break;
-            case 403:
-              message = "You do not have permission to perform this action.";
-              break;
-            case 404:
-              message = "The profile you are trying to edit does not exist.";
-              break;
-            case 500:
-              message =
-                "An internal server error occurred. Please try again later.";
-              break;
-            case 503:
-              message =
-                "The service is currently unavailable. Please try again later.";
-              break;
-            default:
-              message = "An unexpected error occurred. Please try again.";
-          }
-        }
-
-        showErrorToast(title, message);
+        handleError(error);
       });
   };
 
@@ -142,7 +111,6 @@ const EditProfile = () => {
       const validation = validateImageFile(file);
       if (!validation.isValid) {
         showErrorToast("Invalid File", validation.error ?? "Invalid file");
-        return;
       }
 
       const imageUrl = URL.createObjectURL(file);
@@ -277,3 +245,6 @@ const EditProfile = () => {
 };
 
 export default withAuth(EditProfile);
+function showErrorToast(arg0: string, arg1: string) {
+  throw new Error("Function not implemented.");
+}
