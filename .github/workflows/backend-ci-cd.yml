@@ -43,7 +43,7 @@ jobs:
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./backend
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
-      - name: Download backend task definition
+      - name: Download backend task definition from Amazon ECS
         run: |
           aws ecs describe-task-definition --task-definition ${{ secrets.BACKEND_ECS_TASK_DEFINITION }} \
           --query taskDefinition > backend-task-definition.json

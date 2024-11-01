@@ -21,7 +21,6 @@ ENV NEXT_PUBLIC_SPRINGBOOT_API_URL=$NEXT_PUBLIC_SPRINGBOOT_API_URL
 
 # Print the contents of node_modules to verify installation, then build the app
 RUN ls -la node_modules | grep framer-motion && npm run build
-
 # Production image, copy all the files and run next
 FROM node:18.17.0-alpine AS runner
 

@@ -53,7 +53,7 @@ jobs:
             -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./frontend
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
-      - name: Download frontend task definition
+      - name: Download frontend task definition from Amazon ECS
         run: |
           aws ecs describe-task-definition --task-definition ${{ secrets.FRONTEND_ECS_TASK_DEFINITION }} \
           --query taskDefinition > frontend-task-definition.json
