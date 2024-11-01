@@ -41,7 +41,6 @@ RUN adduser -S nextjs -u 1001
 
 # Change ownership of the app directory to the non-root user
 RUN chown -R nextjs:nodejs /app
-
 # Switch to non-root user
 USER nextjs
 
