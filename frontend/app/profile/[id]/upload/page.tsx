@@ -56,14 +56,14 @@
 //                 <h1 className="text-3xl font-bold mb-6">Upload Profile Picture</h1>
 //                 <form onSubmit={handleSubmit}>
 //                     <div className="mb-4">
-//                         <input 
-//                             type="file" 
-//                             onChange={handleFileChange} 
+//                         <input
+//                             type="file"
+//                             onChange={handleFileChange}
 //                             className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#4CAF50] file:text-white hover:file:bg-green-500"
 //                         />
 //                     </div>
-//                     <button 
-//                         type="submit" 
+//                     <button
+//                         type="submit"
 //                         className="w-full bg-[#4CAF50] text-white py-2 px-4 rounded-lg hover:bg-green-600">
 //                         Upload
 //                     </button>
@@ -75,3 +75,20 @@
 // };
 
 // export default UploadProfilePicture;
+
+// temporary default export, need to push to production,
+// remove when you are done. -cy
+
+"use client";
+
+import React from 'react';
+
+const UploadProfilePicture = () => {
+    return (
+        <div className="min-h-screen bg-[#212121] text-white flex items-center justify-center p-4">
+            <h1>temp</h1>
+        </div>
+    );
+};
+
+export default UploadProfilePicture;

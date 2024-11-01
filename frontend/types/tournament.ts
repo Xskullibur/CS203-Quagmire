@@ -14,4 +14,3 @@ export interface Tournament {
     description: string;
     refereeIds: string[];
   }
-  

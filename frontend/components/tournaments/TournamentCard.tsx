@@ -13,7 +13,7 @@ const TournamentCard = ({ tournament }: { tournament: Tournament }) => {
             className="h-full"
         >
             <Card className="h-full flex flex-col border-border overflow-x-hidden
-                 bg-primary-foregorund hover:shadow-[0_0_15px_rgba(200,200,200,0.1)] transition 
+                 bg-primary-foregorund hover:shadow-[0_0_15px_rgba(200,200,200,0.1)] transition
                  duration-200 ease-in-out transform hover:bg-zinc-900">
                 <CardHeader className="space-y-1 p-4">
                     <CardTitle className="text-lg md:text-xl font-semibold">{tournament.name}</CardTitle>
@@ -21,11 +21,11 @@ const TournamentCard = ({ tournament }: { tournament: Tournament }) => {
                 </CardHeader>
                 <CardContent className="space-y-2 text-sm flex-grow p-4">
                     <div className="grid grid-cols-2 gap-2">
-                        <p><span className="font-medium">Start:</span> {formatDate(tournament.start_date)}</p>
-                        <p><span className="font-medium">End:</span> {formatDate(tournament.end_date)}</p>
+                        <p><span className="font-medium">Start:</span> {formatDate(tournament.startDate)}</p>
+                        <p><span className="font-medium">End:</span> {formatDate(tournament.endDate)}</p>
                     </div>
-                    <p><span className="font-medium">Registration:</span> {formatDate(tournament.registration_deadline)}</p>
-                    <p><span className="font-medium">Max Participants:</span> {tournament.max_participants}</p>
+                    <p><span className="font-medium">Registration:</span> {formatDate(tournament.deadlineDate)}</p>
+                    <p><span className="font-medium">Max Participants:</span> {tournament.maxParticipants}</p>
                     <p><span className="font-medium">Status:</span> {tournament.status}</p>
                 </CardContent>
                 <CardFooter className="p-4">

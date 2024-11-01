@@ -14,10 +14,10 @@ const API_URL = process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL;
 const WEB_URL = process.env.NEXT_PUBLIC_API_URL;
 
 const CreateTournament = () => {
-  const router = useRouter();
+    const router = useRouter();
 
-  // State to control the form step (1 for Basic Info, 2 for Additional Details)
-  const [step, setStep] = useState(1);
+    // State to control the form step (1 for Basic Info, 2 for Additional Details)
+    const [step, setStep] = useState(1);
 
   // Tournament state
   const [tournament, setTournament] = useState<Tournament>({
@@ -93,30 +93,30 @@ const CreateTournament = () => {
     });
   };
 
-  // Handle next step
-  const handleNext = (e: React.FormEvent) => {
-    e.preventDefault();
-    setStep(2);
-  };
+    // Handle next step
+    const handleNext = (e: React.FormEvent) => {
+        e.preventDefault();
+        setStep(2);
+    };
 
-  // Handle going back to the previous step
-  const handleBack = (e: React.FormEvent) => {
-    e.preventDefault();
-    setStep(1);
-  };
+    // Handle going back to the previous step
+    const handleBack = (e: React.FormEvent) => {
+        e.preventDefault();
+        setStep(1);
+    };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
 
-    // Validate maxParticipants before sending the request
-    if (tournament.maxParticipants <= 0) {
-      alert("Max participants must be a positive number");
-      return;
-    }
+        // Validate maxParticipants before sending the request
+        if (tournament.maxParticipants <= 0) {
+            alert("Max participants must be a positive number");
+            return;
+        }
 
-    const startdatetime = `${tournament.startDate}T${tournament.startTime}:00`;
-    const enddatetime = `${tournament.endDate}T${tournament.endTime}:00`;
-    const deadline = `${tournament.deadlineDate}T${tournament.deadlineTime}:00`;
+        const startdatetime = `${tournament.startDate}T${tournament.startTime}:00`;
+        const enddatetime = `${tournament.endDate}T${tournament.endTime}:00`;
+        const deadline = `${tournament.deadlineDate}T${tournament.deadlineTime}:00`;
 
     const {
       startDate,
@@ -155,16 +155,16 @@ const CreateTournament = () => {
     }
   };
 
-  return (
-    <div className="mt-20 flex flex-col items-center justify-center mx-auto min-h-screen bg-primary-foreground">
-      {step === 1 && (
-        <TournamentForm
-          tournament={tournament}
-          handleChange={handleChange}
-          handleSubmit={handleNext}
-          buttonLabel="Next"
-        />
-      )}
+    return (
+        <div className="mt-20 flex flex-col items-center justify-center mx-auto min-h-screen bg-primary-foreground">
+            {step === 1 && (
+                <TournamentForm
+                    tournament={tournament}
+                    handleChange={handleChange}
+                    handleSubmit={handleNext}
+                    buttonLabel="Next"
+                />
+            )}
 
       {step === 2 && (
         <AdditionalDetailsForm
