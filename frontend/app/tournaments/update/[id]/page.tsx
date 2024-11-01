@@ -7,6 +7,9 @@ import { useRouter, useParams } from "next/navigation";
 import TournamentForm from '@/components/tournaments/TournamentForm1';
 import AdditionalDetailsForm from '@/components/tournaments/TournamentForm2';
 import { Tournament } from "@/types/tournament";
+import axiosInstance from "@/lib/axios";
+import axios from "axios";
+import { useGlobalErrorHandler } from "@/app/context/ErrorMessageProvider";
 
 const API_URL = process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL;
 const WEB_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -38,22 +41,38 @@ const UpdateTournament = () => {
   const [refereeSearchQuery, setRefereeSearchQuery] = useState<string>('');
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [selectedReferees, setSelectedReferees] = useState<string[]>([]);
+  const { handleError } = useGlobalErrorHandler();
 
-  const handleRefereeSearch = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleRefereeSearch = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     setRefereeSearchQuery(e.target.value);
 
-    if (e.target.value.length >= 3) {  // Start searching after 3 characters
+    if (e.target.value.length >= 3) {
+      // Start searching after 3 characters
       try {
-        const res = await fetch(`${API_URL}/users/search?username=${e.target.value}`);
-        const data = await res.json();
-        setSearchResults(data);
+        const res = await axiosInstance.get(
+          new URL(
+            `/users/search?username=${e.target.value}`,
+            API_URL
+          ).toString()
+        );
+
+        // const res = await fetch(`${API_URL}/users/search?username=${e.target.value}`);
+        // const data = await res.json();
+        setSearchResults(res.data);
       } catch (error) {
-        console.error('Error searching for referees:', error);
+        if (axios.isAxiosError(error)) {
+          handleError(error);
+        }
+
+        console.error("Error searching for referees:", error);
       }
     } else {
       setSearchResults([]);
     }
   };
+
 
   const handleAddReferee = (refereeId: string) => {
     if (!selectedReferees.includes(refereeId)) {

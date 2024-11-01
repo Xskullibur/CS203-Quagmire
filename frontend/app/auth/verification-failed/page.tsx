@@ -7,19 +7,20 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { useAuth } from "@/hooks/useAuth";
 import axiosInstance from "@/lib/axios";
-import { useErrorHandler } from "@/app/context/ErrorMessageProvider";
+import { useGlobalErrorHandler } from "@/app/context/ErrorMessageProvider";
 import { toast } from "@/hooks/use-toast";
+import { AxiosError } from "axios";
 
 const API_URL = `${process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL}`;
 
 const VerificationFailed: React.FC = () => {
-  const { showErrorToast } = useErrorHandler();
+  const { handleError } = useGlobalErrorHandler();
   const router = useRouter();
   const { user, isAuthenticated } = useAuth();
 
   const handleResendVerification = async () => {
-    try {
-      const response = await axiosInstance.post(
+    axiosInstance
+      .post(
         new URL("/authentication/send-verification-email", API_URL).toString(),
         user!.userId,
         {
@@ -27,26 +28,22 @@ const VerificationFailed: React.FC = () => {
             "Content-Type": "text/plain",
           },
         }
-      );
+      )
+      .then((response) => {
+        if (response.status === 201) {
+          
+          toast({
+            variant: "success",
+            title: "Success",
+            description: "Successfully resend verification email.",
+          });
 
-      if (response.status === 201) {
-        toast({
-          variant: "success",
-          title: "Success",
-          description: "Successfully resend verification email.",
-        });
-        router.push("/auth/login");
-      }
-    } catch (error: any) {
-      showErrorToast(
-        "Error",
-        "Failed to resend verification email. Please try again at a later time."
-      );
-
-      if (error?.response?.data) {
-        console.error(error.response.data.description);
-      }
-    }
+          router.push("/auth/login");
+        }
+      })
+      .catch((error: AxiosError) => {
+        handleError(error);
+      });
   };
 
   const handleSignIn = () => {
