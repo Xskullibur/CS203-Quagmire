@@ -1,5 +1,7 @@
 "use client";
 
+import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useGlobalErrorHandler } from "@/app/context/ErrorMessageProvider";
 import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
@@ -7,9 +9,14 @@ import withAuth from "@/hooks/withAuth";
 import axiosInstance from "@/lib/axios";
 import { PlayerProfile } from "@/types/player-profile";
 import { PlayerProfileRequest } from "@/types/player-profile-request";
-import { AxiosError } from "axios";
-import { useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import {
+  validateImageFile,
+  fetchDefaultImage,
+  cleanupObjectURL,
+  addCacheBustingParameter,
+} from "@/utils/imageUtils";
+import ProfilePicture from "@/components/profile/ProfilePicture";
+import FormFields from "@/components/profile/FormFields";
 import {
   Card,
   CardContent,
@@ -18,55 +25,73 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import ProfilePicture from "@/components/profile/EditProfilePicture";
-import { validateImageFile } from "@/utils/fileValidation";
+import axios from "axios";
 
-const API_URL = `${process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL}`;
-const PROFILE_IMAGE_API = `${process.env.NEXT_PUBLIC_PROFILEPICTURE_API_URL}`;
+const API_URL = process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL;
+const PROFILE_IMAGE_API = process.env.NEXT_PUBLIC_PROFILEPICTURE_API_URL;
 
 const EditProfile = () => {
+  const router = useRouter();
   const { user } = useAuth();
   const { handleError } = useGlobalErrorHandler();
+
+  const [isLoading, setIsLoading] = useState(true);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [isDefaultImage, setIsDefaultImage] = useState(true);
   const [playerProfileRequest, setPlayerProfileRequest] =
     useState<PlayerProfileRequest>({
       id: user?.userId ?? "",
       profileUpdates: {} as PlayerProfile,
-      profileImage: new File([], ""),
+      profileImage: null,
     });
-  const [isLoading, setIsLoading] = useState(true);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const router = useRouter();
+
+  // Cleanup object URLs on unmount
+  useEffect(() => {
+    return () => {
+      cleanupObjectURL(selectedImage);
+    };
+  }, [selectedImage]);
 
   const fetchProfile = async () => {
-    const response = await fetch(`${API_URL}/profile/${user?.userId}`);
-    const data = await response.json();
+    try {
+      const response = await fetch(`${API_URL}/profile/${user?.userId}`);
+      const data = await response.json();
 
-    if (!data.profilePicturePath) {
-      data.profilePicturePath = PROFILE_IMAGE_API + data.username;
+      const isDefault =
+        !data.profilePicturePath ||
+        data.profilePicturePath.includes(PROFILE_IMAGE_API);
+
+      setIsDefaultImage(isDefault);
+
+      // Add cache busting to the profile picture URL
+      const profilePicturePath = !data.profilePicturePath
+        ? `${PROFILE_IMAGE_API}${data.username}`
+        : data.profilePicturePath;
+
+      data.profilePicturePath = addCacheBustingParameter(profilePicturePath);
+
+      setPlayerProfileRequest((prev) => ({
+        ...prev,
+        profileUpdates: data,
+      }));
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        handleError(error);
+      }
+    } finally {
+      setIsLoading(false);
     }
-
-    setPlayerProfileRequest((prev) => ({
-      ...prev,
-      profileUpdates: data,
-    }));
-
-    setIsLoading(false);
   };
 
   useEffect(() => {
     fetchProfile();
-  }, []);
+  }, [user?.userId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Create FormData object
     const formData = new FormData();
-
-    // Add the id
     formData.append("id", playerProfileRequest.id);
-
-    // Add the profile updates as a JSON string
     formData.append(
       "profileUpdates",
       new Blob([JSON.stringify(playerProfileRequest.profileUpdates)], {
@@ -74,77 +99,99 @@ const EditProfile = () => {
       })
     );
 
-    // Add the profile image if it exists and is not empty
-    if (playerProfileRequest.profileImage.size > 0) {
+    if (playerProfileRequest.profileImage) {
       formData.append("profileImage", playerProfileRequest.profileImage);
     }
 
-    axiosInstance
-      .put(new URL(`/profile`, API_URL).toString(), formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      })
-      .then((response) => {
-        if (response.status === 200) {
-          toast({
-            variant: "success",
-            title: "Success",
-            description: "Profile updated.",
-          });
-          router.push("/profile/" + user?.userId);
-        }
-      })
-      .catch((error: AxiosError) => {
-        handleError(error);
+    try {
+      const response = await axiosInstance.put(`${API_URL}/profile`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
       });
-  };
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value, files } = e.target as HTMLInputElement;
-    if (name === "profilePicturePath" && files?.[0]) {
-      const file = files[0];
-
-      // Validate the image file
-      const validation = validateImageFile(file);
-      if (!validation.isValid) {
-        showErrorToast("Invalid File", validation.error ?? "Invalid file");
+      if (response.status === 200) {
+        toast({
+          variant: "success",
+          title: "Success",
+          description: "Profile updated successfully.",
+        });
+        router.push(`/profile/${playerProfileRequest.id}`);
       }
-
-      const imageUrl = URL.createObjectURL(file);
-      setSelectedImage(imageUrl);
-      setPlayerProfileRequest((prev) => ({
-        ...prev,
-        profileUpdates: {
-          ...prev.profileUpdates,
-          profilePicturePath: imageUrl,
-        },
-        profileImage: file,
-      }));
-    } else {
-      setPlayerProfileRequest((prev) => ({
-        ...prev,
-        profileUpdates: {
-          ...prev.profileUpdates,
-          [name]: value || null,
-        },
-      }));
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        handleError(error);
+      }
     }
   };
 
-  const handleClearImage = () => {
-    setSelectedImage(null);
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
     setPlayerProfileRequest((prev) => ({
       ...prev,
       profileUpdates: {
         ...prev.profileUpdates,
-        profilePicturePath:
-          PROFILE_IMAGE_API + playerProfileRequest.profileUpdates.username,
+        [name]: value || null,
       },
-      profileImage: new File([], ""),
     }));
+  };
+
+  const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const validation = validateImageFile(file);
+    if (!validation.isValid) {
+      toast({
+        variant: "destructive",
+        title: "Invalid File",
+        description: validation.error,
+      });
+      return;
+    }
+
+    cleanupObjectURL(selectedImage);
+
+    const imageUrl = URL.createObjectURL(file);
+    setSelectedImage(imageUrl);
+    setIsDefaultImage(false);
+    setPlayerProfileRequest((prev) => ({
+      ...prev,
+      profileImage: file,
+      profileUpdates: {
+        ...prev.profileUpdates,
+        profilePicturePath: imageUrl,
+      },
+    }));
+  };
+
+  const handleResetToDefault = async () => {
+    try {
+      const defaultImageUrl = `${PROFILE_IMAGE_API}${playerProfileRequest.profileUpdates.username}`;
+      const defaultImageFile = await fetchDefaultImage(
+        defaultImageUrl,
+        `${playerProfileRequest.profileUpdates.username}-default.png`
+      );
+
+      cleanupObjectURL(selectedImage);
+
+      setSelectedImage(null);
+      setIsDefaultImage(true);
+      setPlayerProfileRequest((prev) => ({
+        ...prev,
+        profileImage: defaultImageFile,
+        profileUpdates: {
+          ...prev.profileUpdates,
+          profilePicturePath: defaultImageUrl,
+        },
+      }));
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to reset to default image",
+      });
+    }
   };
 
   if (isLoading) return <div>Loading...</div>;
@@ -158,81 +205,22 @@ const EditProfile = () => {
           </CardHeader>
 
           <CardContent>
-            {/* Profile Picture */}
             <ProfilePicture
-              selectedImage={selectedImage}
-              profilePicturePath={
-                playerProfileRequest.profileUpdates.profilePicturePath
+              currentImageUrl={
+                selectedImage ??
+                addCacheBustingParameter(
+                  playerProfileRequest.profileUpdates.profilePicturePath
+                )
               }
-              handleChange={handleChange}
-              handleClearImage={handleClearImage}
+              isDefaultImage={isDefaultImage}
+              onImageSelect={handleImageSelect}
+              onReset={handleResetToDefault}
             />
 
-            {/* First Name */}
-            <div className="mb-4">
-              <label htmlFor="firstName" className="block text-xl mb-2">
-                First Name:
-              </label>
-              <input
-                type="text"
-                id="firstName"
-                name="firstName"
-                value={playerProfileRequest.profileUpdates.firstName || ""}
-                onChange={handleChange}
-                className="w-full p-2 rounded-lg bg-[#333333] text-white"
-              />
-            </div>
-            <div className="mb-4">
-              <label htmlFor="lastName" className="block text-xl mb-2">
-                Last Name:
-              </label>
-              <input
-                type="text"
-                id="lastName"
-                name="lastName"
-                value={playerProfileRequest.profileUpdates.lastName || ""}
-                onChange={handleChange}
-                className="w-full p-2 rounded-lg bg-[#333333] text-white"
-              />
-            </div>
-            <div className="mb-4">
-              <label htmlFor="bio" className="block text-xl mb-2">
-                Bio:
-              </label>
-              <textarea
-                id="bio"
-                name="bio"
-                value={playerProfileRequest.profileUpdates.bio || ""}
-                onChange={handleChange}
-                className="w-full p-2 rounded-lg bg-[#333333] text-white"
-              />
-            </div>
-            <div className="mb-4">
-              <label htmlFor="country" className="block text-xl mb-2">
-                Country:
-              </label>
-              <input
-                type="text"
-                id="country"
-                name="country"
-                value={playerProfileRequest.profileUpdates.country || ""}
-                onChange={handleChange}
-                className="w-full p-2 rounded-lg bg-[#333333] text-white"
-              />
-            </div>
-            <div className="mb-4">
-              <label htmlFor="dateOfBirth" className="block text-xl mb-2">
-                Date of Birth:
-              </label>
-              <input
-                type="date"
-                id="dateOfBirth"
-                name="dateOfBirth"
-                value={playerProfileRequest.profileUpdates.dateOfBirth || ""}
-                onChange={handleChange}
-                className="w-full p-2 rounded-lg bg-[#333333] text-white"
-              />
-            </div>
+            <FormFields
+              profileData={playerProfileRequest.profileUpdates}
+              onChange={handleInputChange}
+            />
           </CardContent>
 
           <CardFooter>
@@ -245,6 +233,3 @@ const EditProfile = () => {
 };
 
 export default withAuth(EditProfile);
-function showErrorToast(arg0: string, arg1: string) {
-  throw new Error("Function not implemented.");
-}
