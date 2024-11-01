@@ -3,7 +3,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import withAuth from "@/hooks/withAuth";
 import { UserRole } from "@/types/user-role";
 import { User } from "@/types/user";
-import UserTable from "./user-table";
+import UserTable from "../../../components/admin/dashboard/user-table";
 import axiosInstance from "@/lib/axios";
 import { Button } from "@/components/ui/button";
 import { PlusIcon } from "lucide-react";
@@ -18,13 +18,15 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { useErrorHandler } from "@/app/context/ErrorMessageProvider";
+import { useGlobalErrorHandler } from "@/app/context/ErrorMessageProvider";
 import { toast } from "@/hooks/use-toast";
+import { AxiosError } from "axios";
+import { ErrorHandler } from "@/utils/errorHandler";
 
 const API_URL = `${process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL}`;
 
 const AdminDashboard: React.FC = () => {
-  const { showErrorToast } = useErrorHandler();
+  const { handleError } = useGlobalErrorHandler();
   const [loading, setLoading] = useState(true);
   const [users, setUsers] = useState<User[]>([]);
   const [totalPages, setTotalPages] = useState(0);
@@ -43,33 +45,32 @@ const AdminDashboard: React.FC = () => {
   const [hasFetched, setHasFetched] = useState(false);
 
   const fetchUsers = useCallback(async () => {
-    try {
-      const response = await axiosInstance.get(
+    axiosInstance
+      .get(
         new URL(
           `/admin/get-users?page=${currentPage}&size=${pageSize}&field=${sortingField}&order=${order}`,
           API_URL
         ).toString()
-      );
-
-      setUsers(response.data.content);
-      setTotalPages(response.data.totalPages);
-      
-    } catch (error) {
-      showErrorToast("Internal Error", "Failed to retrieve users");
-    } finally {
-      setHasFetched(true);
-    }
-  }, [currentPage, pageSize, sortingField, order, showErrorToast]);
+      )
+      .then((response) => {
+        setUsers(response.data.content);
+        setTotalPages(response.data.totalPages);
+      })
+      .catch((error: AxiosError) => {
+        handleError(error);
+      })
+      .finally(() => {
+        setHasFetched(true);
+      });
+  }, [currentPage, pageSize, sortingField, order, handleError]);
 
   useEffect(() => {
-
     if (!hasFetched) {
       setLoading(true);
       fetchUsers().then(() => {
         setLoading(false);
       });
     }
-
   }, [fetchUsers, hasFetched]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -79,82 +80,88 @@ const AdminDashboard: React.FC = () => {
   const handleAddUser = async (e: React.FormEvent) => {
     setError(null);
     setSuccess(null);
-
+  
     e.preventDefault();
-
-    try {
-      const response = await axiosInstance.post(
-        new URL("/admin/register-admin", API_URL).toString(),
-        formData
-      );
-      if (response.status === 201) {
-        setSuccess("Successfully Registered: " + response.data.username);
-      }
-    } catch (error: any) {
-      if (error?.response?.data) {
-        setError(error.response.data.description);
-      } else {
-        setError("Registration failed. Please try again.");
-      }
-    }
+  
+    axiosInstance
+      .post(new URL("/admin/register-admin", API_URL).toString(), formData)
+      .then((response) => {
+        if (response.status === 201) {
+          setSuccess("Successfully Registered: " + response.data.username);
+        }
+      })
+      .catch((error: AxiosError) => {
+        const { message } = ErrorHandler.handleError(error);
+        setError(message);
+      });
   };
 
-  const handleLockUser = useCallback((user: User, newLockStatus: boolean) => {
-    axiosInstance.put(
-        new URL(`/admin/edit-isLocked`, API_URL).toString(),
-        {
-            userId: user.userId,
-            isLocked: newLockStatus
-        }
-    ).then(response => {
-        if (response.status === 200) {
+  const handleLockUser = useCallback(
+    async (user: User, newLockStatus: boolean) => {
+      axiosInstance
+        .put(new URL(`/admin/edit-isLocked`, API_URL).toString(), {
+          userId: user.userId,
+          isLocked: newLockStatus,
+        })
+        .then((response) => {
+          if (response.status === 200) {
             toast({
-                variant: "success",
-                title: "Success",
-                description: `User ${user.username} lock status has been updated to ${newLockStatus ? "locked" : "unlocked"}.`,
-              });
-        }
-    }).catch(error => {
-        showErrorToast("Internal Error", "Failed to update lock user status");
-    })
-  }, [showErrorToast]);
-
-  const handleDeleteUser = useCallback((user: User) => {
-    axiosInstance.delete(
-        new URL(`/admin/delete-user`, API_URL).toString(),
-        {
-          data: {
-            id: user.userId
+              variant: "success",
+              title: "Success",
+              description: `User ${user.username} lock status has been updated to ${newLockStatus ? "locked" : "unlocked"}.`,
+            });
+            // Refresh the user list
+            fetchUsers();
           }
-        }
-    ).then(response => {
-        if (response.status === 200) {
+        })
+        .catch((error: AxiosError) => {
+          handleError(error);
+        });
+    },
+    [fetchUsers, handleError]
+  );
+
+  const handleDeleteUser = useCallback(
+    async (user: User) => {
+      axiosInstance
+        .delete(new URL(`/admin/delete-user`, API_URL).toString(), {
+          data: {
+            id: user.userId,
+          },
+        })
+        .then((response) => {
+          if (response.status === 200) {
             toast({
-                variant: "success",
-                title: "Success",
-                description: `User ${user.username} has been locked.`,
-              });
-        }
-    }).catch(error => {
-        showErrorToast("Internal Error", "Failed to lock/delete user");
-    })
-  }, [showErrorToast]);
+              variant: "success",
+              title: "Success",
+              description: `User ${user.username} has been deleted.`,
+            });
+            // Refresh the user list
+            fetchUsers();
+          }
+        })
+        .catch((error: AxiosError) => {
+          handleError(error);
+        });
+    },
+    [fetchUsers, handleError]
+  );
 
   const handlePageChange = (currentPage: number) => {
     setCurrentPage(currentPage);
     setHasFetched(false);
-  }
+  };
 
   const handlePageSizeChange = (pageSize: number) => {
     setPageSize(pageSize);
     setHasFetched(false);
-  }
+  };
 
   const handleSort = (sortingField: string) => {
     setSortingField(sortingField);
     setOrder(order === "asc" ? "desc" : "asc");
     setHasFetched(false);
-  }
+  };
 
   return (
     <div className="flex flex-col items-center min-h-screen mt-24">

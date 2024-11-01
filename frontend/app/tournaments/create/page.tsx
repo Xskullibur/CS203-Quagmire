@@ -1,12 +1,14 @@
 // CreateTournament.tsx
-'use client'
+"use client";
 
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import TournamentForm from '@/components/tournaments/TournamentForm1';
-import AdditionalDetailsForm from '@/components/tournaments/TournamentForm2';
-import { Tournament } from '@/types/tournament';
-import axiosInstance from '@/lib/axios';
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import TournamentForm from "@/components/tournaments/TournamentForm1";
+import AdditionalDetailsForm from "@/components/tournaments/TournamentForm2";
+import { Tournament } from "@/types/tournament";
+import axiosInstance from "@/lib/axios";
+import axios from "axios";
+import { useGlobalErrorHandler } from "@/app/context/ErrorMessageProvider";
 
 const API_URL = process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL;
 const WEB_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -19,31 +21,34 @@ const CreateTournament = () => {
 
   // Tournament state
   const [tournament, setTournament] = useState<Tournament>({
-    id : null,
-    name: '',
-    location: '',
-    startDate: '',
-    startTime: '',
-    endDate: '',
-    endTime: '',
-    status: 'SCHEDULED',
-    deadlineDate: '',
-    deadlineTime: '',
+    id: null,
+    name: "",
+    location: "",
+    startDate: "",
+    startTime: "",
+    endDate: "",
+    endTime: "",
+    status: "SCHEDULED",
+    deadlineDate: "",
+    deadlineTime: "",
     maxParticipants: 0,
-    description: '',
-    refereeIds: []
+    description: "",
+    refereeIds: [],
   });
 
-  const [refereeSearchQuery, setRefereeSearchQuery] = useState<string>('');
+  const [refereeSearchQuery, setRefereeSearchQuery] = useState<string>("");
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [selectedReferees, setSelectedReferees] = useState<string[]>([]);
+  const { handleError } = useGlobalErrorHandler();
 
-  const handleRefereeSearch = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleRefereeSearch = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     setRefereeSearchQuery(e.target.value);
 
-    if (e.target.value.length >= 3) {  // Start searching after 3 characters
+    if (e.target.value.length >= 3) {
+      // Start searching after 3 characters
       try {
-
         const res = await axiosInstance.get(
           new URL(
             `/users/search?username=${e.target.value}`,
@@ -55,7 +60,11 @@ const CreateTournament = () => {
         // const data = await res.json();
         setSearchResults(res.data);
       } catch (error) {
-        console.error('Error searching for referees:', error);
+        if (axios.isAxiosError(error)) {
+          handleError(error);
+        }
+
+        console.error("Error searching for referees:", error);
       }
     } else {
       setSearchResults([]);
@@ -68,18 +77,19 @@ const CreateTournament = () => {
       setSelectedReferees([...selectedReferees, refereeId]);
       setTournament({
         ...tournament,
-        refereeIds: [...tournament.refereeIds, refereeId]  // Update the list of refereeIds in tournament
+        refereeIds: [...tournament.refereeIds, refereeId], // Update the list of refereeIds in tournament
       });
     }
   };
 
-
   // Handle input change
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
     setTournament({
       ...tournament,
-      [name]: value
+      [name]: value,
     });
   };
 
@@ -108,30 +118,40 @@ const CreateTournament = () => {
     const enddatetime = `${tournament.endDate}T${tournament.endTime}:00`;
     const deadline = `${tournament.deadlineDate}T${tournament.deadlineTime}:00`;
 
-    const { startDate, startTime, endDate, endTime, deadlineDate, deadlineTime, ...tournamentDetails } = tournament;
+    const {
+      startDate,
+      startTime,
+      endDate,
+      endTime,
+      deadlineDate,
+      deadlineTime,
+      ...tournamentDetails
+    } = tournament;
 
     const data = {
       ...tournamentDetails,
       startDate: startdatetime,
       endDate: enddatetime,
-      deadline: deadline
+      deadline: deadline,
     };
 
     try {
-
       const res = await axiosInstance.post(
         new URL("/tournament/create", API_URL).toString(),
         data
-      
       );
 
-      router.push(WEB_URL + '/tournaments'); // Redirect after successful creation
+      router.push(WEB_URL + "/tournaments"); // Redirect after successful creation
       // if (res.status) {
       // } else {
       //   alert('Error creating tournament');
       // }
     } catch (error) {
-      console.error('Error creating tournament:', error);
+      if (axios.isAxiosError(error)) {
+        handleError(error);
+      }
+
+      console.error("Error creating tournament:", error);
     }
   };
 
@@ -148,16 +168,15 @@ const CreateTournament = () => {
 
       {step === 2 && (
         <AdditionalDetailsForm
-        tournament={tournament}
-        handleChange={handleChange}
-        handleBack={handleBack}
-        handleSubmit={handleSubmit}
-        refereeSearchQuery={refereeSearchQuery}
-        searchResults={searchResults}
-        handleRefereeSearch={handleRefereeSearch}
-        handleAddReferee={handleAddReferee}
-      />
-
+          tournament={tournament}
+          handleChange={handleChange}
+          handleBack={handleBack}
+          handleSubmit={handleSubmit}
+          refereeSearchQuery={refereeSearchQuery}
+          searchResults={searchResults}
+          handleRefereeSearch={handleRefereeSearch}
+          handleAddReferee={handleAddReferee}
+        />
       )}
     </div>
   );

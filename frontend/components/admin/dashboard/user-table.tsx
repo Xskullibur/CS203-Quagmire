@@ -31,7 +31,7 @@ const UserTable: React.FC<UserTableProps> = ({
     onPageChange,
     onPageSizeChange,
     sortBy,
-    sortOrder: sortOrder,
+    sortOrder,
     onSort,
 }) => {
     return (

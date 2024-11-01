@@ -2,7 +2,6 @@ package com.project.G1_T3.authentication.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.security.authentication.AccountStatusException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.LockedException;
@@ -14,7 +13,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.project.G1_T3.authentication.model.LoginResponseDTO;
+import com.project.G1_T3.common.exception.AuthenticationFailedException;
 import com.project.G1_T3.common.exception.InvalidTokenException;
+import com.project.G1_T3.common.exception.ValidationException;
 import com.project.G1_T3.user.model.CustomUserDetails;
 import com.project.G1_T3.user.model.User;
 import com.project.G1_T3.user.model.UserDTO;
@@ -38,34 +39,41 @@ public class AuthServiceImpl implements AuthService {
 
     public LoginResponseDTO authenticateAndGenerateToken(String username, String password) {
 
-        if (username.isBlank() || password.isBlank()) {
-            throw new IllegalArgumentException();
+        // Validate arguments
+        if (username == null || password == null || username.isBlank() || password.isBlank()) {
+            throw new ValidationException("Username and password are required");
         }
 
-        username = username.toLowerCase();
+        username = username.toLowerCase().trim();
 
         try {
-            Authentication authentication = authManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+            // Attempt authentication
+            Authentication authentication = authManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(username, password));
 
-            User user = userService.findByUsername(username)
-                    .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+            // If we get here, authentication was successful
+            User user = ((CustomUserDetails) authentication.getPrincipal()).getUser();
 
-            // Checks if user isLocked
+            // Check account status
             if (user.isLocked()) {
-                throw new LockedException("Account is locked.");
+                throw new LockedException("Account is locked");
             }
 
+            // Generate token and create response
+            SecurityContextHolder.getContext().setAuthentication(authentication);
             String token = jwtService.generateToken(user);
             UserDTO userDTO = UserDTO.fromUser(user);
 
             return new LoginResponseDTO(userDTO, token);
 
-        } catch (AccountStatusException e) {
-            throw e;
+        } catch (LockedException e) {
+            throw new LockedException("Account is locked");
+        } catch (BadCredentialsException | UsernameNotFoundException e) {
+            throw new BadCredentialsException("Authentication failed");
         } catch (AuthenticationException e) {
-            throw new BadCredentialsException("The username or password is incorrect", e);
+            throw new AuthenticationFailedException("Authentication failed");
         }
+
     }
 
     public UserDTO validateToken(String token) {
@@ -104,13 +112,15 @@ public class AuthServiceImpl implements AuthService {
     /**
      * Retrieves the currently authenticated user.
      *
-     * @return the current {@link User} object associated with the authenticated session.
+     * @return the current {@link User} object associated with the authenticated
+     *         session.
      * @throws IllegalStateException if the authentication or principal is null.
-     * @throws ClassCastException if the principal is not an instance of {@link CustomUserDetails}.
+     * @throws ClassCastException    if the principal is not an instance of
+     *                               {@link CustomUserDetails}.
      */
     @Override
     public User getCurrentUser() {
-        
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication == null || authentication.getPrincipal() == null) {

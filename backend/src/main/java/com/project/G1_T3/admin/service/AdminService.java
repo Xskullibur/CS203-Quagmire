@@ -19,7 +19,10 @@ import com.project.G1_T3.user.model.UserRole;
 import com.project.G1_T3.user.repository.UserRepository;
 import com.project.G1_T3.user.service.UserService;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Service
+@Slf4j
 @PreAuthorize("hasRole('ADMIN')")
 public class AdminService {
 

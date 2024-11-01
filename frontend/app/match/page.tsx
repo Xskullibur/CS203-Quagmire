@@ -13,6 +13,7 @@ import { PlayerProfile } from '@/types/player-profile';
 import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { useGeolocation } from '@/hooks/useGeolocation'; // Import the useGeolocation hook
+import { useGlobalErrorHandler } from '../context/ErrorMessageProvider';
 
 const MatchMap = dynamic(() => import('@/components/matches/MatchMap'), { ssr: false });
 
@@ -73,6 +74,7 @@ const API_URL = `${process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL}`;
  */
 const Match: React.FC = () => {
     const { user } = useAuth();
+    const { handleError } = useGlobalErrorHandler();
     const [playerId, setPlayerId] = useState<string | null>(null);
     const [matchFound, setMatchFound] = useState(false);
     const [opponentName, setOpponentName] = useState('');
@@ -115,6 +117,11 @@ const Match: React.FC = () => {
             }
         } catch (error) {
             console.error("Error checking for active match:", error);
+
+            if (axios.isAxiosError(error)) {
+                handleError(error)
+            }
+
             setActiveMatch(null);
             setMatchFound(false);
             setOpponentProfile(null);
@@ -127,6 +134,10 @@ const Match: React.FC = () => {
             setPlayerProfile(response.data);
         } catch (error) {
             console.error("Error fetching player profile:", error);
+
+            if (axios.isAxiosError(error)) {
+                handleError(error)
+            }
         }
     };
 
@@ -140,6 +151,10 @@ const Match: React.FC = () => {
         } catch (error) {
             console.error("Error fetching opponent profile:", error);
             setOpponentProfile(null);
+
+            if (axios.isAxiosError(error)) {
+                handleError(error)
+            }
         }
     };
 
