@@ -40,22 +40,9 @@ public class PlayerProfileDTO {
         
     }
 
-    public PlayerProfileDTO(UUID profileId, String username, String firstName, String lastName,
-        LocalDate dateOfBirth, String country, String bio, Float currentRating, String profileImagePath) {
-        this.profileId = profileId;
-        this.username = username;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.dateOfBirth = dateOfBirth;
-        this.country = country;
-        this.bio = bio;
-        this.currentRating = currentRating;
-        this.profileImagePath = profileImagePath;
-    }
-
     public PlayerProfileDTO(PlayerProfile playerProfile) {
         this.profileId = playerProfile.getProfileId();
-        this.username = playerProfile.getUsername();
+        this.username = playerProfile.getName();
         this.firstName = playerProfile.getFirstName();
         this.lastName = playerProfile.getLastName();
         this.dateOfBirth = playerProfile.getDateOfBirth();

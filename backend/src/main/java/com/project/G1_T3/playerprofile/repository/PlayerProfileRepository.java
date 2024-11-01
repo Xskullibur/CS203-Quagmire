@@ -6,6 +6,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.project.G1_T3.playerprofile.model.PlayerProfile;
+import com.project.G1_T3.user.model.User;
 
 import java.util.List;
 import java.util.UUID;
@@ -17,10 +18,10 @@ public interface PlayerProfileRepository extends JpaRepository<PlayerProfile, UU
 
     List<PlayerProfile> findAllByOrderByCurrentRatingDesc();
 
+    PlayerProfile findByUser(User user);
+
     // Fetch PlayerProfile by user ID
     PlayerProfile findByUserId(UUID id);
-
-    // PlayerProfile getPlayerProfileByUserId(UUID userId);
 
     PlayerProfile findByProfileId(UUID profileId);
 

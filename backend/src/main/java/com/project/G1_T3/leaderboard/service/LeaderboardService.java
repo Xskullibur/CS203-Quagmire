@@ -45,7 +45,7 @@ public class LeaderboardService {
     // LeaderboardService.java
     public LeaderboardPlayerProfile getPlayerInfo(String username) {
         Optional<User> user = userService.findByUsername(username);
-        UUID userId = user.get().getId();
+        UUID userId = user.get().getUserId();
         PlayerProfile player = playerProfileRepository.findByUserId(userId);
         long position = playerProfileRepository.getPositionOfPlayer(userId);
         return new LeaderboardPlayerProfile(player, position);

@@ -1,12 +1,18 @@
 package com.project.G1_T3.matchmaking.service;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-import com.project.G1_T3.common.exception.MatchmakingException;
 import com.project.G1_T3.common.exception.PlayerAlreadyInQueueException;
 import com.project.G1_T3.common.exception.PlayerNotFoundException;
 import com.project.G1_T3.match.model.Match;
@@ -14,13 +20,14 @@ import com.project.G1_T3.match.model.MatchDTO;
 import com.project.G1_T3.match.service.MatchService;
 import com.project.G1_T3.playerprofile.model.PlayerProfile;
 import com.project.G1_T3.playerprofile.service.PlayerProfileService;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
+import com.project.G1_T3.user.model.User;
 
 import java.util.UUID;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 class MatchmakingServiceImplTests {
 
@@ -73,22 +80,26 @@ class MatchmakingServiceImplTests {
     @Test
     void testAddPlayerToQueue() {
         PlayerProfile player = new PlayerProfile();
-        player.setUserId(UUID.randomUUID());
+        User user = new User();
+        user.setUserId(UUID.randomUUID());
+        player.setUser(user);
 
         matchmakingService.addPlayerToQueue(player, 0, 0);
 
-        assertTrue(matchmakingService.isPlayerInQueue(player.getUserId()));
+        assertTrue(matchmakingService.isPlayerInQueue(player.getUser().getId()));
     }
 
     @Test
     void testRemovePlayerFromQueue() {
         PlayerProfile player = new PlayerProfile();
-        player.setUserId(UUID.randomUUID());
+        User user = new User();
+        user.setUserId(UUID.randomUUID());
+        player.setUser(user);
         matchmakingService.addPlayerToQueue(player, 0, 0);
 
-        matchmakingService.removePlayerFromQueue(player.getUserId());
+        matchmakingService.removePlayerFromQueue(player.getUser().getId());
 
-        assertFalse(matchmakingService.isPlayerInQueue(player.getUserId()));
+        assertFalse(matchmakingService.isPlayerInQueue(player.getUser().getId()));
     }
 
     @Test
@@ -103,7 +114,9 @@ class MatchmakingServiceImplTests {
     @Test
     void testAddingSamePlayerTwice() {
         PlayerProfile player = new PlayerProfile();
-        player.setUserId(UUID.randomUUID());
+        User user = new User();
+        user.setUserId(UUID.randomUUID());
+        player.setUser(user);
 
         matchmakingService.addPlayerToQueue(player, 0, 0);
 
@@ -115,13 +128,17 @@ class MatchmakingServiceImplTests {
     @Test
     void testFindMatch_MatchFound() {
         PlayerProfile player1 = new PlayerProfile();
-        player1.setUserId(UUID.randomUUID());
+        User user1 = new User();
+        user1.setUserId(UUID.randomUUID());
+        player1.setUser(user1);
         player1.setProfileId(UUID.randomUUID());
         player1.setGlickoRating(1500);
         player1.setRatingDeviation(200);
 
         PlayerProfile player2 = new PlayerProfile();
-        player2.setUserId(UUID.randomUUID());
+        User user2 = mock(User.class);
+        user2.setUserId(UUID.randomUUID());
+        player2.setUser(user2);
         player2.setProfileId(UUID.randomUUID());
         player2.setGlickoRating(1500);
         player2.setRatingDeviation(200);
@@ -144,7 +161,7 @@ class MatchmakingServiceImplTests {
         when(matchService.createMatch(any(MatchDTO.class))).thenReturn(mockMatch);
 
         when(playerProfileService.findByProfileId(anyString())).thenReturn(mockOpponentProfile);
-        when(mockOpponentProfile.getUsername()).thenReturn("MockOpponent");
+        when(mockOpponentProfile.getName()).thenReturn("MockOpponent");
 
         doNothing().when(messagingTemplate).convertAndSend(any(String.class), any(Object.class));
 

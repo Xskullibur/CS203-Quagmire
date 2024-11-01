@@ -1,15 +1,28 @@
 package com.project.G1_T3.user.service;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+import com.project.G1_T3.authentication.service.JwtService;
+import com.project.G1_T3.common.exception.EmailAlreadyInUseException;
+import com.project.G1_T3.common.exception.UsernameAlreadyTakenException;
+import com.project.G1_T3.email.service.EmailService;
+import com.project.G1_T3.user.model.User;
+import com.project.G1_T3.user.model.UserDTO;
+import com.project.G1_T3.user.model.UserRole;
+import com.project.G1_T3.user.repository.UserRepository;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,16 +32,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import com.project.G1_T3.authentication.service.JwtService;
-import com.project.G1_T3.common.exception.EmailAlreadyInUseException;
-import com.project.G1_T3.common.exception.UsernameAlreadyTakenException;
-import com.project.G1_T3.email.service.EmailService;
 import com.project.G1_T3.playerprofile.model.PlayerProfile;
-import com.project.G1_T3.playerprofile.service.PlayerProfileService;
-import com.project.G1_T3.user.model.User;
-import com.project.G1_T3.user.model.UserDTO;
-import com.project.G1_T3.user.model.UserRole;
-import com.project.G1_T3.user.repository.UserRepository;
+import com.project.G1_T3.playerprofile.repository.PlayerProfileRepository;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
@@ -46,7 +51,7 @@ class UserServiceTest {
     private PasswordEncoder passwordEncoder;
 
     @Mock
-    private PlayerProfileService playerProfileService;
+    private PlayerProfileRepository playerProfileRepository;
 
     @InjectMocks
     private UserService userService;
@@ -55,6 +60,7 @@ class UserServiceTest {
 
     @BeforeEach
     void setUp() {
+
         testUser = new User();
         testUser.setId(UUID.randomUUID().toString());
         testUser.setUsername("testuser");
@@ -75,7 +81,7 @@ class UserServiceTest {
         when(userRepository.save(any(User.class))).thenReturn(testUser);
         when(jwtService.generateEmailVerificationToken(any(User.class))).thenReturn("valid-token");
         when(emailService.sendVerificationEmail(anyString(), anyString(), anyString())).thenReturn(null);
-        when(playerProfileService.save(any(PlayerProfile.class))).thenReturn(null);
+        when(playerProfileRepository.save(any(PlayerProfile.class))).thenReturn(null);
 
         UserDTO actualUserDTO = userService.registerUser(testUser.getUsername(), testUser.getEmail(), testUser.getPasswordHash(), testUser.getRole());
 
@@ -85,7 +91,7 @@ class UserServiceTest {
         verify(userRepository).save(any(User.class));
         verify(jwtService).generateEmailVerificationToken(any(User.class));
         verify(emailService).sendVerificationEmail(anyString(), anyString(), anyString());
-        verify(playerProfileService).save(any(PlayerProfile.class));
+        verify(playerProfileRepository).save(any(PlayerProfile.class));
     }
 
     @Test
@@ -93,7 +99,8 @@ class UserServiceTest {
         when(userRepository.existsByUsername("existinguser")).thenReturn(true);
 
         assertThrows(UsernameAlreadyTakenException.class,
-                () -> userService.registerUser("ExistingUser", "new@example.com", "password", UserRole.PLAYER));
+            () -> userService.registerUser("ExistingUser", "new@example.com", "password",
+                UserRole.PLAYER));
 
         verify(userRepository).existsByUsername("existinguser");
     }
@@ -103,7 +110,8 @@ class UserServiceTest {
         when(userRepository.existsByUsername("existinguser")).thenReturn(true);
 
         assertThrows(UsernameAlreadyTakenException.class,
-                () -> userService.registerUser("existinguser", "new@example.com", "password", UserRole.PLAYER));
+            () -> userService.registerUser("existinguser", "new@example.com", "password",
+                UserRole.PLAYER));
 
         verify(userRepository).existsByUsername("existinguser");
     }
@@ -114,7 +122,8 @@ class UserServiceTest {
         when(userRepository.existsByEmail("existing@example.com")).thenReturn(true);
 
         assertThrows(EmailAlreadyInUseException.class,
-                () -> userService.registerUser("newuser", "Existing@Example.com", "password", UserRole.PLAYER));
+            () -> userService.registerUser("newuser", "Existing@Example.com", "password",
+                UserRole.PLAYER));
 
         verify(userRepository).existsByEmail("existing@example.com");
     }
@@ -125,7 +134,8 @@ class UserServiceTest {
         when(userRepository.existsByEmail("existing@example.com")).thenReturn(true);
 
         assertThrows(EmailAlreadyInUseException.class,
-                () -> userService.registerUser("newuser", "existing@example.com", "password", UserRole.PLAYER));
+            () -> userService.registerUser("newuser", "existing@example.com", "password",
+                UserRole.PLAYER));
 
         verify(userRepository).existsByEmail("existing@example.com");
     }
@@ -135,7 +145,8 @@ class UserServiceTest {
         when(userRepository.existsByUsername("existinguser")).thenReturn(true);
 
         assertThrows(UsernameAlreadyTakenException.class,
-                () -> userService.registerUser("existingUser", "new@example.com", "password", UserRole.PLAYER));
+            () -> userService.registerUser("existingUser", "new@example.com", "password",
+                UserRole.PLAYER));
     }
 
     @Test
@@ -144,7 +155,8 @@ class UserServiceTest {
         when(userRepository.existsByEmail("existing@example.com")).thenReturn(true);
 
         assertThrows(EmailAlreadyInUseException.class,
-                () -> userService.registerUser("newUser", "existing@example.com", "password", UserRole.PLAYER));
+            () -> userService.registerUser("newUser", "existing@example.com", "password",
+                UserRole.PLAYER));
     }
 
     @Test
@@ -226,6 +238,7 @@ class UserServiceTest {
     void getUserDTOByUsername_UsernameDoesNotExist_ThrowsUsernameNotFoundException() {
         when(userRepository.findByUsername("nonexistentuser")).thenReturn(Optional.empty());
 
-        assertThrows(UsernameNotFoundException.class, () -> userService.getUserDTOByUsername("nonexistentUser"));
+        assertThrows(UsernameNotFoundException.class,
+            () -> userService.getUserDTOByUsername("nonexistentUser"));
     }
 }

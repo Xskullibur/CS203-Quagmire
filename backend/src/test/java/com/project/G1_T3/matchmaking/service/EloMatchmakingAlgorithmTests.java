@@ -1,14 +1,15 @@
 package com.project.G1_T3.matchmaking.service;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.project.G1_T3.matchmaking.model.QueuedPlayer;
 import com.project.G1_T3.playerprofile.model.PlayerProfile;
-
-import static org.junit.jupiter.api.Assertions.*;
+import com.project.G1_T3.user.model.User;
 
 import java.time.Instant;
-import java.util.UUID;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 class EloMatchmakingAlgorithmTests {
 
@@ -33,6 +34,13 @@ class EloMatchmakingAlgorithmTests {
 
         // Assert
         assertTrue(isGoodMatch);
+    }
+
+    private PlayerProfile createPlayerProfile(float rating) {
+        PlayerProfile profile = new PlayerProfile();
+        profile.setCurrentRating(rating);
+        profile.setUser(new User());
+        return profile;
     }
 
     @Test
@@ -90,10 +98,4 @@ class EloMatchmakingAlgorithmTests {
         assertFalse(isGoodMatch);
     }
 
-    private PlayerProfile createPlayerProfile(float rating) {
-        PlayerProfile profile = new PlayerProfile();
-        profile.setUserId(UUID.randomUUID());
-        profile.setCurrentRating(rating);
-        return profile;
-    }
 }

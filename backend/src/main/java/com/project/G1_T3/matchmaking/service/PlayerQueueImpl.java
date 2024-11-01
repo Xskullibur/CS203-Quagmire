@@ -93,7 +93,7 @@ public class PlayerQueueImpl implements PlayerQueue {
 
     public void removePlayer(UUID playerId) {
         kdTree.removeByPlayerId(playerId);
-        priorityQueue.removeIf(player -> player.getPlayer().getUserId().equals(playerId));
+        priorityQueue.removeIf(player -> player.getPlayer().getUser().getId().equals(playerId));
     }
 
     public boolean containsPlayer(UUID playerId) {

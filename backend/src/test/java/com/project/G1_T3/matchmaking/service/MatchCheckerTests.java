@@ -8,12 +8,12 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import com.project.G1_T3.match.model.Match;
 import com.project.G1_T3.match.repository.MatchRepository;
-import com.project.G1_T3.matchmaking.service.MatchmakingService;
 import com.project.G1_T3.playerprofile.model.PlayerProfile;
 import com.project.G1_T3.playerprofile.repository.PlayerProfileRepository;
 import com.project.G1_T3.user.model.User;
 import com.project.G1_T3.user.repository.UserRepository;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import java.util.Optional;
@@ -50,15 +50,26 @@ class MatchCheckerTests {
         match.setPlayer1Id(player1Id);
         match.setPlayer2Id(player2Id);
 
+        User user1 = mock(User.class);
+        User user2 = mock(User.class);
+        PlayerProfile player1Profile = mock(PlayerProfile.class);
+        PlayerProfile player2Profile = mock(PlayerProfile.class);
+
+        when(player1Profile.getUser()).thenReturn(user1);
+        when(player2Profile.getUser()).thenReturn(user2);
         when(matchmakingService.findMatch()).thenReturn(match);
-        when(playerProfileRepository.findById(player1Id)).thenReturn(Optional.of(new PlayerProfile()));
-        when(playerProfileRepository.findById(player2Id)).thenReturn(Optional.of(new PlayerProfile()));
-        when(userRepository.findById(any())).thenReturn(Optional.of(new User()));
+        when(playerProfileRepository.findById(player1Id)).thenReturn(Optional.of(player1Profile));
+        when(playerProfileRepository.findById(player2Id)).thenReturn(Optional.of(player2Profile));
 
         // Act
         matchChecker.checkForMatches();
 
         // Assert
+        verify(player1Profile).getUser();
+        verify(player2Profile).getUser();
+        verify(matchmakingService).findMatch();
+        verify(playerProfileRepository).findById(player1Id);
+        verify(playerProfileRepository).findById(player2Id);
         verify(matchRepository).save(match);
         verify(messagingTemplate, times(2)).convertAndSend(any(String.class), any(Object.class));
     }

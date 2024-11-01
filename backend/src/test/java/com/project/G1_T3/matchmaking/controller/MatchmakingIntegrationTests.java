@@ -179,7 +179,7 @@ class MatchmakingIntegrationTests {
         StompSession session = connectToWebSocket();
 
         QueueRequest nullLocationRequest = new QueueRequest();
-        nullLocationRequest.setPlayerId(profile1.getUserId().toString());
+        nullLocationRequest.setPlayerId(profile1.getUser().getId().toString());
         nullLocationRequest.setLocation(null);
 
         // Send the request with null location
@@ -189,7 +189,7 @@ class MatchmakingIntegrationTests {
         Thread.sleep(1000);
 
         // Verify that the player was not added to the queue
-        assertFalse(matchmakingService.isPlayerInQueue(profile1.getUserId()));
+        assertFalse(matchmakingService.isPlayerInQueue(profile1.getUser().getId()));
     }
 
     @Test
@@ -204,7 +204,7 @@ class MatchmakingIntegrationTests {
         Thread.sleep(1000);
 
         // Verify that the player is in the queue
-        assertTrue(matchmakingService.isPlayerInQueue(profile1.getUserId()));
+        assertTrue(matchmakingService.isPlayerInQueue(profile1.getUser().getId()));
 
         // Now, remove the player from the queue
         session.send("/app/solo/dequeue", queueRequest);
@@ -213,7 +213,7 @@ class MatchmakingIntegrationTests {
         Thread.sleep(1000);
 
         // Verify that the player is no longer in the queue
-        assertFalse(matchmakingService.isPlayerInQueue(profile1.getUserId()));
+        assertFalse(matchmakingService.isPlayerInQueue(profile1.getUser().getId()));
     }
 
     private CompletableFuture<MatchNotification> subscribeToMatchNotifications(StompSession session,
@@ -251,7 +251,7 @@ class MatchmakingIntegrationTests {
         QueueRequest queueRequest1 = createQueueRequest(profile1);
         QueueRequest queueRequest2 = createQueueRequest(profile2);
 
-        logger.info("Sending queue requests for players: {} and {}", profile1.getUserId(), profile2.getUserId());
+        logger.info("Sending queue requests for players: {} and {}", profile1.getUser().getId(), profile2.getUser().getId());
         session.send("/app/solo/queue", queueRequest1);
         session.send("/app/solo/queue", queueRequest2);
         logger.info("Queue requests sent");
@@ -274,7 +274,7 @@ class MatchmakingIntegrationTests {
 
     private QueueRequest createQueueRequest(PlayerProfile profile) {
         QueueRequest queueRequest = new QueueRequest();
-        queueRequest.setPlayerId(profile.getUserId().toString());
+        queueRequest.setPlayerId(profile.getUser().getId().toString());
         queueRequest.setLocation(new MatchLocation(0.0, 0.0));
         return queueRequest;
     }
@@ -290,7 +290,7 @@ class MatchmakingIntegrationTests {
 
     private PlayerProfile createPlayerProfile(User user) {
         PlayerProfile profile = new PlayerProfile();
-        profile.setUserId(user.getUserId());
+        profile.setUser(user);
         profile.setFirstName("Test");
         profile.setLastName("User");
         profile.setCurrentRating(1500f);
