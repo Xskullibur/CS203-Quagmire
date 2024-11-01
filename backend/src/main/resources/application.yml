@@ -1,12 +1,13 @@
+# src/main/resources/application.yml
 spring:
     application:
         name: 'G1-T3'
 
     datasource:
-        url: jdbc:postgresql://localhost:5432/g1t3
+        url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
         driver-class-name: org.postgresql.Driver
-        username: postgres
-        password: P@ssw0rd
+        username: ${DB_USER}
+        password: ${DB_PASSWORD}
 
     jpa:
         properties:
@@ -14,14 +15,13 @@ spring:
                 format-sql: true
         hibernate:
             ddl-auto: create-drop
-        # show-sql: true
         database: postgresql
 
     mail:
         host: smtp.gmail.com
         port: 587
-        username: # Insert Gmail Address
-        password: # Insert Password
+        username: ${MAIL_USERNAME}
+        password: ${MAIL_PASSWORD}
         protocol: smtp
         properties:
             mail:
@@ -45,10 +45,10 @@ logging:
                             BasicBinder: TRACE
 
 jwt:
-    secret-key: 'b94801bb5520b2b660fe5a88c59b219366d6e3919c2630a32be2d41bc3d676de'
+    secret-key: ${JWT_SECRET_KEY}
     expiration-time:
-        authentication: 864000000
-        email-verification: 8640000
+        authentication: ${JWT_AUTH_EXPIRATION}
+        email-verification: ${JWT_EMAIL_VERIFICATION_EXPIRATION}
 
 password:
     policy:
@@ -63,14 +63,13 @@ password:
 
 app:
     frontend:
-        url: 'http://localhost:3000'
-
+        url: ${FRONTEND_URL}
     backend:
-        url: 'http://localhost:8080'
+        url: ${BACKEND_URL}
 
 firebase:
     credentials:
-        path: '.firebase\'  # Insert path to private key here
+        path: ${FIREBASE_CREDENTIALS_PATH}
     storage:
         url: 'https://firebasestorage.googleapis.com/v0/b/'
-        bucket: 'quagmire-smu.appspot.com'
+        bucket: ${FIREBASE_BUCKET}
