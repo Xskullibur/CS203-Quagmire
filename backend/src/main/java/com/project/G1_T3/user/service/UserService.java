@@ -1,5 +1,6 @@
 package com.project.G1_T3.user.service;
 
+import com.project.G1_T3.player.repository.PlayerProfileRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -25,7 +26,6 @@ import com.project.G1_T3.user.model.User;
 import com.project.G1_T3.user.model.UserDTO;
 import com.project.G1_T3.user.model.UserRole;
 import com.project.G1_T3.user.repository.UserRepository;
-
 import jakarta.transaction.Transactional;
 
 @Service
@@ -34,19 +34,15 @@ public class UserService {
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
     @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private PlayerProfileRepository playerProfileRepository;
+    @Autowired
     private JwtService jwtService;
-
     @Autowired
     private EmailService emailService;
-
-    @Autowired
-    private UserRepository userRepository;
-
     @Autowired
     private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private PlayerProfileService playerProfileService;
 
     @Value("${app.backend.url}")
     private String backendUrl;
@@ -55,7 +51,7 @@ public class UserService {
     public UserDTO registerUser(String username, String email, String password, UserRole role) {
 
         try {
-            
+
             username = username.toLowerCase();
             email = email.toLowerCase();
 
@@ -94,8 +90,8 @@ public class UserService {
 
     private void createPlayerProfile(User user) {
         PlayerProfile newProfile = new PlayerProfile();
-        newProfile.setUserId(user.getId());
-        playerProfileService.save(newProfile);
+        newProfile.setUser(user);
+        playerProfileRepository.save(newProfile);
     }
 
     private User createUser(String username, String email, String password, UserRole role) {
@@ -109,10 +105,6 @@ public class UserService {
         return newUser;
     }
 
-    public List<User> findUsersByUsernameContaining(String username) {
-        return userRepository.findByUsernameContainingIgnoreCase(username);
-    }
-
     public boolean existsByUsername(String username) {
         username = username.toLowerCase();
         return userRepository.existsByUsername(username);
@@ -121,6 +113,16 @@ public class UserService {
     public boolean existsByEmail(String email) {
         email = email.toLowerCase();
         return userRepository.existsByEmail(email);
+    }
+
+    private void sendVerificationEmail(User user) {
+        String token = jwtService.generateEmailVerificationToken(user);
+        String verificationLink = backendUrl + "/authentication/verify-email?token=" + token;
+        emailService.sendVerificationEmail(user.getEmail(), user.getUsername(), verificationLink);
+    }
+
+    public List<User> findUsersByUsernameContaining(String username) {
+        return userRepository.findByUsernameContainingIgnoreCase(username);
     }
 
     public Optional<User> findByUsername(String username) {
@@ -133,17 +135,14 @@ public class UserService {
     }
 
     public List<UserDTO> getAllUsers() {
-        return userRepository.findAllUsersWithoutPassword()
-                .stream()
-                .map(UserDTO::fromUser)
+        return userRepository.findAllUsersWithoutPassword().stream().map(UserDTO::fromUser)
                 .collect(Collectors.toList());
     }
 
     public UserDTO getUserDTOByUsername(String username) {
 
         final String finalUsername = username.toLowerCase();
-        return userRepository.findByUsername(finalUsername)
-                .map(UserDTO::fromUser)
+        return userRepository.findByUsername(finalUsername).map(UserDTO::fromUser)
                 .orElseThrow(() -> new UsernameNotFoundException(finalUsername));
     }
 
@@ -152,12 +151,6 @@ public class UserService {
         user.setEmailVerified(isEmailVerified);
         user.setUpdatedAt(LocalDateTime.now());
         userRepository.save(user);
-    }
-
-    private void sendVerificationEmail(User user) {
-        String token = jwtService.generateEmailVerificationToken(user);
-        String verificationLink = backendUrl + "/authentication/verify-email?token=" + token;
-        emailService.sendVerificationEmail(user.getEmail(), user.getUsername(), verificationLink);
     }
 
     public void sendVerificationEmailByUserId(String uuid) {

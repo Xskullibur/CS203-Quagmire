@@ -12,25 +12,18 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.data.util.Pair;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.converter.MappingJackson2MessageConverter;
-import org.springframework.messaging.converter.StringMessageConverter;
 import org.springframework.messaging.simp.stomp.StompFrameHandler;
 import org.springframework.messaging.simp.stomp.StompHeaders;
 import org.springframework.messaging.simp.stomp.StompSession;
-import org.springframework.messaging.simp.stomp.StompSessionHandler;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
 import org.springframework.web.socket.sockjs.client.SockJsClient;
 import org.springframework.web.socket.sockjs.client.WebSocketTransport;
 
-import com.project.G1_T3.matchmaking.controller.websocket.TestStompFrameHandler;
 import com.project.G1_T3.matchmaking.controller.websocket.TestStompSessionHandler;
 import com.project.G1_T3.matchmaking.model.MatchLocation;
 import com.project.G1_T3.matchmaking.model.MatchNotification;
-import com.project.G1_T3.match.model.Match;
 import com.project.G1_T3.matchmaking.model.QueueRequest;
 import com.project.G1_T3.player.model.PlayerProfile;
 import com.project.G1_T3.player.repository.PlayerProfileRepository;
@@ -39,21 +32,13 @@ import com.project.G1_T3.user.repository.UserRepository;
 import com.project.G1_T3.user.model.UserRole;
 import com.project.G1_T3.matchmaking.service.MatchmakingService;
 import com.project.G1_T3.matchmaking.service.GlickoMatchmaking;
-import com.project.G1_T3.matchmaking.service.MatchmakingAlgorithm;
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeoutException;
 import java.util.UUID;
 import java.lang.reflect.Type;
 
@@ -194,7 +179,7 @@ class MatchmakingIntegrationTests {
         StompSession session = connectToWebSocket();
 
         QueueRequest nullLocationRequest = new QueueRequest();
-        nullLocationRequest.setPlayerId(profile1.getUserId().toString());
+        nullLocationRequest.setPlayerId(profile1.getUser().getId().toString());
         nullLocationRequest.setLocation(null);
 
         // Send the request with null location
@@ -204,7 +189,7 @@ class MatchmakingIntegrationTests {
         Thread.sleep(1000);
 
         // Verify that the player was not added to the queue
-        assertFalse(matchmakingService.isPlayerInQueue(profile1.getUserId()));
+        assertFalse(matchmakingService.isPlayerInQueue(profile1.getUser().getId()));
     }
 
     @Test
@@ -219,7 +204,7 @@ class MatchmakingIntegrationTests {
         Thread.sleep(1000);
 
         // Verify that the player is in the queue
-        assertTrue(matchmakingService.isPlayerInQueue(profile1.getUserId()));
+        assertTrue(matchmakingService.isPlayerInQueue(profile1.getUser().getId()));
 
         // Now, remove the player from the queue
         session.send("/app/solo/dequeue", queueRequest);
@@ -228,7 +213,7 @@ class MatchmakingIntegrationTests {
         Thread.sleep(1000);
 
         // Verify that the player is no longer in the queue
-        assertFalse(matchmakingService.isPlayerInQueue(profile1.getUserId()));
+        assertFalse(matchmakingService.isPlayerInQueue(profile1.getUser().getId()));
     }
 
     private CompletableFuture<MatchNotification> subscribeToMatchNotifications(StompSession session,
@@ -266,7 +251,7 @@ class MatchmakingIntegrationTests {
         QueueRequest queueRequest1 = createQueueRequest(profile1);
         QueueRequest queueRequest2 = createQueueRequest(profile2);
 
-        logger.info("Sending queue requests for players: {} and {}", profile1.getUserId(), profile2.getUserId());
+        logger.info("Sending queue requests for players: {} and {}", profile1.getUser().getId(), profile2.getUser().getId());
         session.send("/app/solo/queue", queueRequest1);
         session.send("/app/solo/queue", queueRequest2);
         logger.info("Queue requests sent");
@@ -289,7 +274,7 @@ class MatchmakingIntegrationTests {
 
     private QueueRequest createQueueRequest(PlayerProfile profile) {
         QueueRequest queueRequest = new QueueRequest();
-        queueRequest.setPlayerId(profile.getUserId().toString());
+        queueRequest.setPlayerId(profile.getUser().getId().toString());
         queueRequest.setLocation(new MatchLocation(0.0, 0.0));
         return queueRequest;
     }
@@ -305,7 +290,7 @@ class MatchmakingIntegrationTests {
 
     private PlayerProfile createPlayerProfile(User user) {
         PlayerProfile profile = new PlayerProfile();
-        profile.setUserId(user.getUserId());
+        profile.setUser(user);
         profile.setFirstName("Test");
         profile.setLastName("User");
         profile.setCurrentRating(1500f);
