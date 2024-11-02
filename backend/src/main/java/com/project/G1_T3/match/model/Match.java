@@ -27,7 +27,7 @@ public class Match {
     @Column(nullable = false)
     private UUID player1Id;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private UUID player2Id;
 
     @Column(nullable = true)

@@ -102,43 +102,90 @@ const CreateTournament = () => {
     setStep(1);
   };
 
+  // const handleSubmit = async (e: React.FormEvent) => {
+  //   e.preventDefault();
+
+  //   // Validate maxParticipants before sending the request
+  //   if (tournament.maxParticipants <= 0) {
+  //     alert("Max participants must be a positive number");
+  //     return;
+  //   }
+
+  //   const startdatetime = `${tournament.startDate}T${tournament.startTime}:00`;
+  //   const enddatetime = `${tournament.endDate}T${tournament.endTime}:00`;
+  //   const deadline = `${tournament.deadlineDate}T${tournament.deadlineTime}:00`;
+
+  //   const { startDate, startTime, endDate, endTime, deadlineDate, deadlineTime, ...tournamentDetails } = tournament;
+
+  //   const data = {
+  //     ...tournamentDetails,
+  //     startDate: startdatetime,
+  //     endDate: enddatetime,
+  //     deadline: deadline
+  //   };
+
+  //   try {
+
+  //     const res = await axiosInstance.post(
+  //       new URL("/tournament/create", API_URL).toString(),
+  //       data
+      
+  //     );
+
+  //     router.push(WEB_URL + '/tournaments'); // Redirect after successful creation
+  //     // if (res.status) {
+  //     // } else {
+  //     //   alert('Error creating tournament');
+  //     // }
+  //   } catch (error) {
+  //     console.error('Error creating tournament:', error);
+  //   }
+  // };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    // Validate maxParticipants before sending the request
+  
     if (tournament.maxParticipants <= 0) {
       alert("Max participants must be a positive number");
       return;
     }
-
+  
     const startdatetime = `${tournament.startDate}T${tournament.startTime}:00`;
     const enddatetime = `${tournament.endDate}T${tournament.endTime}:00`;
     const deadline = `${tournament.deadlineDate}T${tournament.deadlineTime}:00`;
-
-    const { startDate, startTime, endDate, endTime, deadlineDate, deadlineTime, ...tournamentDetails } = tournament;
-
-    const data = {
-      ...tournamentDetails,
+  
+    const tournamentData = {
+      ...tournament,
       startDate: startdatetime,
       endDate: enddatetime,
-      deadline: deadline
+      deadline: deadline,
     };
-
+  
+    const formData = new FormData();
+    formData.append("tournament", JSON.stringify(tournamentData)); // Convert the entire object to a JSON string
+    if (photo) {
+      formData.append("photo", photo);
+    }
+  
     try {
-
       const res = await axiosInstance.post(
         new URL("/tournament/create", API_URL).toString(),
-        data
-      
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
       );
-
-      router.push(WEB_URL + '/tournaments'); // Redirect after successful creation
-      // if (res.status) {
-      // } else {
-      //   alert('Error creating tournament');
-      // }
+  
+      if (res.status === 200 || res.status === 201) {
+        router.push(WEB_URL + '/tournaments');
+      } else {
+        alert('Error creating tournament');
+      }
     } catch (error) {
       console.error('Error creating tournament:', error);
+      alert('An error occurred while creating the tournament.');
     }
   };
 

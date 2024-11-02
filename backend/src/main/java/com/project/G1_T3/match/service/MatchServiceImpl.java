@@ -77,10 +77,6 @@ public class MatchServiceImpl implements MatchService {
             throw new IllegalArgumentException("Player 1 ID must not be null");
         }
     
-        if (matchDTO.getPlayer2Id() == null) {
-            throw new IllegalArgumentException("Player 2 ID must not be null");
-        }
-    
         if (matchDTO.getPlayer1Id().equals(matchDTO.getPlayer2Id())) {
             throw new IllegalArgumentException("Player 1 and Player 2 cannot be the same");
         }
@@ -103,6 +99,12 @@ public class MatchServiceImpl implements MatchService {
         match.setMeetingLongitude(matchDTO.getMeetingLongitude());
         match.setCreatedAt(LocalDateTime.now());
         match.setUpdatedAt(LocalDateTime.now());
+
+        if (matchDTO.getPlayer2Id() == null) {
+            match.setWinnerId(matchDTO.getPlayer1Id());
+            match.setScore("auto-progress");
+            match.setStatus(Status.COMPLETED);
+        }
 
         match = matchRepository.save(match);
 

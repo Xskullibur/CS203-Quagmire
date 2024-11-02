@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.UUID;
+import java.lang.Math;
 
 @Service
 public class RoundServiceImpl implements RoundService {
@@ -89,7 +90,7 @@ public class RoundServiceImpl implements RoundService {
     
         // Loop through the matches in the round and collect the winners
         for (Match match : roundMatches) {
-            PlayerProfile winner = playerProfileService.findByUserId(match.getWinnerId());
+            PlayerProfile winner = playerProfileService.findByProfileId(match.getWinnerId());
             if (winner == null) {
                 throw new IllegalStateException("Winner not found for match with ID: " + match.getMatchId());
             }
@@ -163,11 +164,37 @@ public class RoundServiceImpl implements RoundService {
         List<PlayerProfile> refereeList = new ArrayList<>(referees);
     
         int totalPlayers = playerList.size();
+        int lowestGreaterPowerOfTwo = Integer.highestOneBit(totalPlayers) << 1;
+        int left = lowestGreaterPowerOfTwo % totalPlayers;
+        int right = totalPlayers - 1;
+
         List<MatchDTO> matchDTOs = new ArrayList<>();
-    
-        for (int i = 0; i < totalPlayers / 2; i++) {
+
+        // progress the top x players to next round if not 2^n players
+        for (int i = 0; i < left; i++) {
             PlayerProfile player1 = playerList.get(i);
-            PlayerProfile player2 = playerList.get(totalPlayers - 1 - i);
+    
+            MatchDTO matchDTO = new MatchDTO();
+            matchDTO.setPlayer1Id(player1.getProfileId());
+            matchDTO.setPlayer2Id(null);
+    
+            // Pick a random referee if there are multiple, otherwise pick the only referee
+            PlayerProfile selectedReferee;
+            if (refereeList.size() == 1) {
+                selectedReferee = refereeList.get(0);  // Pick the only referee
+            } else {
+                int randomRefereeIndex = new Random().nextInt(refereeList.size());
+                selectedReferee = refereeList.get(randomRefereeIndex);  // Pick a random referee
+            }
+            matchDTO.setRefereeId(selectedReferee.getProfileId());
+            matchDTO.setScheduledTime(LocalDateTime.now().plusDays(1));
+    
+            matchDTOs.add(matchDTO);
+        }
+    
+        while (left < right) {
+            PlayerProfile player1 = playerList.get(left);
+            PlayerProfile player2 = playerList.get(right);
     
             MatchDTO matchDTO = new MatchDTO();
             matchDTO.setPlayer1Id(player1.getProfileId());
@@ -185,6 +212,9 @@ public class RoundServiceImpl implements RoundService {
             matchDTO.setScheduledTime(LocalDateTime.now().plusDays(1));
     
             matchDTOs.add(matchDTO);
+
+            left++;
+            right--;
         }
     
         // Decoupled creation of matches
