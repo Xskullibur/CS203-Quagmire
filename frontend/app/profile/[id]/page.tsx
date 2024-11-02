@@ -1,80 +1,78 @@
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
+import { useGlobalErrorHandler } from "@/app/context/ErrorMessageProvider";
+import ProfileCard from "@/components/profile/ProfileCard/ProfileCard";
+import { PlayerProfile } from "@/types/player-profile";
+import axios, { AxiosError } from "axios";
+import { notFound, useRouter } from "next/navigation";
 import React, { useState, useEffect } from "react";
 
 const API_URL = `${process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL}`;
 
-const Profile = () => {
-  // Handles dynamic route params
-  const { id } = useParams();
-  const [userData, setUserData] = useState<any>(null);
+const Profile = ({ params }: { params: { id: string } }) => {
+  const [playerProfile, setPlayerProfile] = useState<PlayerProfile>();
   const [leaderboardData, setLeaderboardData] = useState<any>(null);
-
+  const { handleError } = useGlobalErrorHandler();
   const router = useRouter();
 
+  const fetchProfile = (id: string) => {
+    axios
+      .get(new URL(`/profile/${id}`, API_URL).toString())
+      .then((response) => {
+        if (response.status == 200) {
+          setPlayerProfile(response.data);
+        }
+      })
+      .catch((error: AxiosError) => {
+        handleError(error);
+
+        if (error.status == 400) {
+          router.push("/");
+        }
+      });
+  };
+
+  const fetchLeaderboard = (id: string) => {
+    axios
+      .get(new URL(`leaderboard/user/${id}`, API_URL).toString())
+      .then((response) => {
+        if (response.status == 200) {
+          setLeaderboardData(response.data);
+        }
+      })
+      .catch((error: AxiosError) => {
+        handleError(error);
+
+        if (error.status == 400) {
+          router.push("/");
+        }
+      });
+  };
+
   useEffect(() => {
-    const id = window.location.pathname.split("/").pop();
+    // Retrieve `id` from route
+    const id = params.id;
 
-    if (id) {
-      // Fetch user data from the backend using the dynamic route ID
-      fetch(API_URL + "/profile/" + id)
-        .then((response) => response.json())
-        .then((data) => setUserData(data))
-        .catch((error) => console.error("Error fetching profile:", error));
-
-      fetch(API_URL + "/leaderboard/user/" + id) // Your Spring Boot backend URL
-        .then((response) => response.json())
-        .then((result) => {
-          setLeaderboardData(result);
-        })
-        .catch((error) => {
-          console.error("Error fetching data:", error);
-        });
+    // Redirect user to not found page if no params
+    if (id == undefined) {
+      notFound();
     }
-  }, [id]);
 
-  if (!userData || !leaderboardData) return <div>Unable to locate user</div>;
+    // Fetch necessary information
+    fetchProfile(id);
+    fetchLeaderboard(id);
+  }, []);
+
+  if (!playerProfile || !leaderboardData)
+    return <div>Unable to locate user</div>;
 
   return (
-    <div className="bg-[#212121] text-white min-h-screen p-8 flex flex-col items-center justify-center">
-      <h1 className="text-4xl font-bold mb-8">
-        {userData.firstName} {userData.lastName}&apos;s Profile
-      </h1>
-
-      <div className="grid grid-cols-2 gap-8 w-full max-w-6xl">
-        {/* Personal Info */}
-        <div className="bg-[#171717] p-6 rounded-lg shadow-md">
-          <h2 className="text-2xl font-semibold mb-4">Personal Info</h2>
-          <p>
-            <strong>Full Name:</strong> {userData.firstName} {userData.lastName}
-          </p>
-          <p>
-            <strong>Country:</strong> {userData.country}
-          </p>
-          <p>
-            <strong>Date of Birth:</strong> {userData.dateOfBirth}
-          </p>
-        </div>
-
-        {/* Bio */}
-        <div className="bg-[#171717] p-6 rounded-lg shadow-md">
-          <h2 className="text-2xl font-semibold mb-4">Bio</h2>
-          <p>{userData.bio}</p>
-        </div>
-
-        {/* Game Info */}
-        <div className="bg-[#171717] p-6 rounded-lg shadow-md col-span-2">
-          <h2 className="text-2xl font-semibold mb-4">Game Info</h2>
-          <p>
-            <strong>Current Rating:</strong> {userData.currentRating}
-          </p>
-          <p>
-            <strong>Current Leaderboard Ranking:</strong>{" "}
-            {leaderboardData.position}
-          </p>
-        </div>
-      </div>
+    <div className="bg-[#212121] text-white min-h-screen flex flex-col items-center justify-center">
+      <ProfileCard
+        playerProfile={playerProfile}
+        ranking={leaderboardData.position}
+      />
+      {/* My Tournaments */}
     </div>
   );
 };
