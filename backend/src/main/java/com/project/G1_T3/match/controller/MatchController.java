@@ -38,6 +38,12 @@ public class MatchController {
         return ResponseEntity.ok(matches);
     }
 
+    @GetMapping("/round/{roundId}/completed")
+    public ResponseEntity<List<Match>> getCompletedMatchesByRoundId(@PathVariable UUID roundId) {
+        List<Match> completedMatches = matchService.getCompletedMatchesByRoundId(roundId);
+        return ResponseEntity.ok(completedMatches);
+    }
+
     // // Referee starts a match
     // @PutMapping("/{matchId}/start")
     // public ResponseEntity<?> startMatch(@PathVariable Long matchId, @RequestParam UUID refereeId) {

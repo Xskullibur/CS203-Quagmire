@@ -14,6 +14,8 @@ public interface MatchService {
 
     public List<Match> getMatchesByRoundId(UUID roundId);
 
+    public List<Match> getCompletedMatchesByRoundId(UUID roundId);
+
     public Match createMatch(MatchDTO matchDTO);
 
     public void startMatch(@PathVariable UUID matchId, @RequestBody MatchDTO matchDTO);

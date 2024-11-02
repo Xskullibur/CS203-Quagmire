@@ -70,6 +70,10 @@ public class MatchServiceImpl implements MatchService {
         return matchRepository.findByRound_RoundIdOrderByCreatedAt(roundId);
     }
 
+    public List<Match> getCompletedMatchesByRoundId(UUID roundId) {
+        return matchRepository.findByRoundIdAndStatusOrderByCreatedAt(roundId, Status.COMPLETED);
+    }
+
     @Transactional
     public Match createMatch(MatchDTO matchDTO) {
 
