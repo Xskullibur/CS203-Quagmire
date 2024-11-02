@@ -34,3 +34,5 @@ build/
 
 ### Profile Picture ###
 backend/images/profiles/
+
+application.yml

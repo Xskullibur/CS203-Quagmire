@@ -15,6 +15,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.project.G1_T3.authentication.model.UpdatePasswordDTO;
 import com.project.G1_T3.authentication.service.JwtService;
 import com.project.G1_T3.common.exception.EmailAlreadyInUseException;
 import com.project.G1_T3.common.exception.RegistrationException;
@@ -115,7 +116,7 @@ public class UserService {
         return userRepository.existsByEmail(email);
     }
 
-    private void sendVerificationEmail(User user) {
+    public void sendVerificationEmail(User user) {
         String token = jwtService.generateEmailVerificationToken(user);
         String verificationLink = backendUrl + "/authentication/verify-email?token=" + token;
         emailService.sendVerificationEmail(user.getEmail(), user.getUsername(), verificationLink);
@@ -168,5 +169,42 @@ public class UserService {
     public void updatePassword(User user, String password) {
         user.setPasswordHash(passwordEncoder.encode(password));
         userRepository.save(user);
+    }
+
+    // public void updatePassword(UUID userId, String oldPassword, String newPassword) {
+    //     // Find user by ID
+    //     User user = userRepository.findById(userId)
+    //             .orElseThrow(() -> new RuntimeException("User not found"));
+
+    //     // Check if old password matches
+    //     if (!passwordEncoder.matches(oldPassword, user.getPasswordHash())) {
+    //         throw new RuntimeException("Old password is incorrect");
+    //     }
+
+    //     // Update the password and save
+    //     user.setPasswordHash(passwordEncoder.encode(newPassword));
+    //     userRepository.save(user);
+    // }
+
+    public void resetPassword(UpdatePasswordDTO updatePasswordDTO) {
+        User user = userRepository.findByUsername(updatePasswordDTO.getUsername())
+                .orElseThrow(() -> new UsernameNotFoundException(updatePasswordDTO.getUsername()));
+
+        String currentPassword = updatePasswordDTO.getCurrentPassword();
+        if (!passwordEncoder.matches(currentPassword, user.getPasswordHash())) {
+            throw new IllegalArgumentException("Current password is incorrect");
+        }
+
+        user.setPasswordHash(passwordEncoder.encode(updatePasswordDTO.getNewPassword()));
+        userRepository.save(user);
+    }
+
+    public UserDTO getUserInfo(String username) {
+        // Find the user by username in the repository
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+        
+        // Convert the User entity to a UserDTO
+        return UserDTO.fromUser(user);
     }
 }
