@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useGlobalErrorHandler } from "@/app/context/ErrorMessageProvider";
 import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
@@ -30,92 +30,129 @@ import axios from "axios";
 const API_URL = process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL;
 const PROFILE_IMAGE_API = process.env.NEXT_PUBLIC_PROFILEPICTURE_API_URL;
 
+interface ProfileState {
+  isLoading: boolean;
+  selectedImage: string | null;
+  isDefaultImage: boolean;
+  playerProfileRequest: PlayerProfileRequest;
+}
+
+const createInitialState = (
+  userId: string | undefined,
+  username: string | undefined
+): ProfileState => ({
+  isLoading: true,
+  selectedImage: null,
+  isDefaultImage: true,
+  playerProfileRequest: {
+    id: userId ?? "",
+    profileUpdates: {
+      profilePicturePath: `${PROFILE_IMAGE_API}${username}`,
+    } as PlayerProfile,
+    profileImage: null,
+  },
+});
+
 const EditProfile = () => {
   const router = useRouter();
   const { user } = useAuth();
   const { handleError } = useGlobalErrorHandler();
+  const searchParams = useSearchParams();
+  const isNewProfile = searchParams.get("new") === "true";
 
-  const [isLoading, setIsLoading] = useState(true);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [isDefaultImage, setIsDefaultImage] = useState(true);
-  const [playerProfileRequest, setPlayerProfileRequest] =
-    useState<PlayerProfileRequest>({
-      id: user?.userId ?? "",
-      profileUpdates: {} as PlayerProfile,
-      profileImage: null,
-    });
+  const [state, setState] = useState<ProfileState>(
+    createInitialState(user?.userId, user?.username)
+  );
 
-  // Cleanup object URLs on unmount
+  // Profile initialization and cleanup
   useEffect(() => {
-    return () => {
-      cleanupObjectURL(selectedImage);
+    const initProfile = async () => {
+      if (isNewProfile) {
+        await initializeNewProfile();
+      } else {
+        await fetchExistingProfile();
+      }
     };
-  }, [selectedImage]);
 
-  const fetchProfile = async () => {
+    initProfile();
+    return () => cleanupObjectURL(state.selectedImage);
+  }, [user?.userId]);
+
+  // Profile initialization functions
+  const initializeNewProfile = async () => {
     try {
-      const response = await fetch(`${API_URL}/profile/${user?.userId}`);
-      const data = await response.json();
+      const defaultImageUrl = `${PROFILE_IMAGE_API}${user?.username}`;
+      const defaultImageFile = await fetchDefaultImage(
+        defaultImageUrl,
+        `${user?.username}-default.png`
+      );
 
-      const isDefault =
-        !data.profilePicturePath ||
-        data.profilePicturePath.includes(PROFILE_IMAGE_API);
-
-      setIsDefaultImage(isDefault);
-
-      // Add cache busting to the profile picture URL
-      const profilePicturePath = !data.profilePicturePath
-        ? `${PROFILE_IMAGE_API}${data.username}`
-        : data.profilePicturePath;
-
-      data.profilePicturePath = addCacheBustingParameter(profilePicturePath);
-
-      setPlayerProfileRequest((prev) => ({
+      setState((prev) => ({
         ...prev,
-        profileUpdates: data,
+        isLoading: false,
+        selectedImage: defaultImageUrl,
+        isDefaultImage: true,
+        playerProfileRequest: {
+          ...prev.playerProfileRequest,
+          profileImage: defaultImageFile,
+          profileUpdates: {
+            ...prev.playerProfileRequest.profileUpdates,
+            username: user?.username ?? "",
+            profilePicturePath: defaultImageUrl,
+          },
+        },
       }));
     } catch (error) {
       if (axios.isAxiosError(error)) {
         handleError(error);
       }
-    } finally {
-      setIsLoading(false);
+      setState((prev) => ({ ...prev, isLoading: false }));
     }
   };
 
-  useEffect(() => {
-    fetchProfile();
-  }, [user?.userId]);
+  const fetchExistingProfile = async () => {
+    try {
+      const response = await axios.get(
+        new URL(`/profile/${user?.userId}`, API_URL).toString()
+      );
+      const profileData: PlayerProfile = response.data;
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+      const isDefault =
+        !profileData.profilePicturePath ||
+        profileData.profilePicturePath.includes(PROFILE_IMAGE_API!);
 
-    const formData = new FormData();
-    formData.append("id", playerProfileRequest.id);
-    formData.append(
-      "profileUpdates",
-      new Blob([JSON.stringify(playerProfileRequest.profileUpdates)], {
-        type: "application/json",
-      })
-    );
+      const profilePicturePath = !profileData.profilePicturePath
+        ? `${PROFILE_IMAGE_API}${profileData.username}`
+        : profileData.profilePicturePath;
 
-    if (playerProfileRequest.profileImage) {
-      formData.append("profileImage", playerProfileRequest.profileImage);
+      setState((prev) => ({
+        ...prev,
+        isLoading: false,
+        isDefaultImage: isDefault,
+        playerProfileRequest: {
+          ...prev.playerProfileRequest,
+          profileUpdates: {
+            ...profileData,
+            profilePicturePath: addCacheBustingParameter(profilePicturePath),
+          },
+        },
+      }));
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        handleError(error);
+      }
+
+      setState((prev) => ({ ...prev, isLoading: false }));
     }
+  };
+
+  // Form handlers
+  const handleFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const formData = createFormData();
 
     try {
-      const response = await axiosInstance.put(`${API_URL}/profile`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-
-      if (response.status === 200) {
-        toast({
-          variant: "success",
-          title: "Success",
-          description: "Profile updated successfully.",
-        });
-        router.push(`/profile/${playerProfileRequest.id}`);
-      }
+      await updateProfile(formData);
     } catch (error) {
       if (axios.isAxiosError(error)) {
         handleError(error);
@@ -123,19 +160,59 @@ const EditProfile = () => {
     }
   };
 
+  const createFormData = () => {
+    const formData = new FormData();
+    formData.append("id", state.playerProfileRequest.id);
+    formData.append(
+      "profileUpdates",
+      new Blob([JSON.stringify(state.playerProfileRequest.profileUpdates)], {
+        type: "application/json",
+      })
+    );
+
+    if (state.playerProfileRequest.profileImage) {
+      formData.append("profileImage", state.playerProfileRequest.profileImage);
+    }
+
+    return formData;
+  };
+
+  const updateProfile = async (formData: FormData) => {
+    const response = await axiosInstance.put(`${API_URL}/profile`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+
+    if (response.status === 200) {
+      toast({
+        variant: "success",
+        title: "Success",
+        description: isNewProfile
+          ? "Profile created successfully."
+          : "Profile updated successfully.",
+      });
+
+      router.push(`/profile/${state.playerProfileRequest.id}`);
+    }
+  };
+
+  // Input handlers
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
-    setPlayerProfileRequest((prev) => ({
+    setState((prev) => ({
       ...prev,
-      profileUpdates: {
-        ...prev.profileUpdates,
-        [name]: value || null,
+      playerProfileRequest: {
+        ...prev.playerProfileRequest,
+        profileUpdates: {
+          ...prev.playerProfileRequest.profileUpdates,
+          [name]: value || null,
+        },
       },
     }));
   };
 
+  // Image handlers
   const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -150,39 +227,45 @@ const EditProfile = () => {
       return;
     }
 
-    cleanupObjectURL(selectedImage);
-
+    cleanupObjectURL(state.selectedImage);
     const imageUrl = URL.createObjectURL(file);
-    setSelectedImage(imageUrl);
-    setIsDefaultImage(false);
-    setPlayerProfileRequest((prev) => ({
+
+    setState((prev) => ({
       ...prev,
-      profileImage: file,
-      profileUpdates: {
-        ...prev.profileUpdates,
-        profilePicturePath: imageUrl,
+      selectedImage: imageUrl,
+      isDefaultImage: false,
+      playerProfileRequest: {
+        ...prev.playerProfileRequest,
+        profileImage: file,
+        profileUpdates: {
+          ...prev.playerProfileRequest.profileUpdates,
+          profilePicturePath: imageUrl,
+        },
       },
     }));
   };
 
   const handleResetToDefault = async () => {
     try {
-      const defaultImageUrl = `${PROFILE_IMAGE_API}${playerProfileRequest.profileUpdates.username}`;
+      const defaultImageUrl = `${PROFILE_IMAGE_API}${state.playerProfileRequest.profileUpdates.username}`;
       const defaultImageFile = await fetchDefaultImage(
         defaultImageUrl,
-        `${playerProfileRequest.profileUpdates.username}-default.png`
+        `${state.playerProfileRequest.profileUpdates.username}-default.png`
       );
 
-      cleanupObjectURL(selectedImage);
+      cleanupObjectURL(state.selectedImage);
 
-      setSelectedImage(null);
-      setIsDefaultImage(true);
-      setPlayerProfileRequest((prev) => ({
+      setState((prev) => ({
         ...prev,
-        profileImage: defaultImageFile,
-        profileUpdates: {
-          ...prev.profileUpdates,
-          profilePicturePath: defaultImageUrl,
+        selectedImage: null,
+        isDefaultImage: true,
+        playerProfileRequest: {
+          ...prev.playerProfileRequest,
+          profileImage: defaultImageFile,
+          profileUpdates: {
+            ...prev.playerProfileRequest.profileUpdates,
+            profilePicturePath: defaultImageUrl,
+          },
         },
       }));
     } catch (error) {
@@ -194,37 +277,41 @@ const EditProfile = () => {
     }
   };
 
-  if (isLoading) return <div>Loading...</div>;
+  if (state.isLoading) return <div>Loading...</div>;
 
   return (
     <div className="flex flex-col items-center min-h-screen mt-24">
       <Card className="w-full flex flex-col max-w-2xl">
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleFormSubmit}>
           <CardHeader>
-            <CardTitle className="text-center">Edit Profile</CardTitle>
+            <CardTitle className="text-center">
+              {isNewProfile ? "Create Profile" : "Edit Profile"}
+            </CardTitle>
           </CardHeader>
 
           <CardContent>
             <ProfilePicture
               currentImageUrl={
-                selectedImage ??
+                state.selectedImage ??
                 addCacheBustingParameter(
-                  playerProfileRequest.profileUpdates.profilePicturePath
+                  state.playerProfileRequest.profileUpdates.profilePicturePath
                 )
               }
-              isDefaultImage={isDefaultImage}
+              isDefaultImage={state.isDefaultImage}
               onImageSelect={handleImageSelect}
               onReset={handleResetToDefault}
             />
 
             <FormFields
-              profileData={playerProfileRequest.profileUpdates}
+              profileData={state.playerProfileRequest.profileUpdates}
               onChange={handleInputChange}
             />
           </CardContent>
 
           <CardFooter>
-            <Button type="submit">Save Changes</Button>
+            <Button type="submit">
+              {isNewProfile ? "Create Profile" : "Save Changes"}
+            </Button>
           </CardFooter>
         </form>
       </Card>
