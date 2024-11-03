@@ -21,7 +21,6 @@ import com.project.G1_T3.common.exception.RegistrationException;
 import com.project.G1_T3.common.exception.UsernameAlreadyTakenException;
 import com.project.G1_T3.email.service.EmailService;
 import com.project.G1_T3.playerprofile.model.PlayerProfile;
-import com.project.G1_T3.playerprofile.service.PlayerProfileService;
 import com.project.G1_T3.user.model.User;
 import com.project.G1_T3.user.model.UserDTO;
 import com.project.G1_T3.user.model.UserRole;
@@ -71,7 +70,6 @@ public class UserService {
 
                 try {
                     sendVerificationEmail(newUser);
-                    createPlayerProfile(savedUser);
                 } catch (Exception e) {
                     logger.error("Error in post-registration process", e);
                 }
@@ -86,12 +84,6 @@ public class UserService {
             logger.error("Registration failed", e);
             throw new RegistrationException("Failed to complete registration");
         }
-    }
-
-    private void createPlayerProfile(User user) {
-        PlayerProfile newProfile = new PlayerProfile();
-        newProfile.setUser(user);
-        playerProfileRepository.save(newProfile);
     }
 
     private User createUser(String username, String email, String password, UserRole role) {

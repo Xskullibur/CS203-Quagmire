@@ -14,6 +14,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.project.G1_T3.common.exception.ProfileAlreadyExistException;
 import com.project.G1_T3.filestorage.service.FileStorageService;
 import com.project.G1_T3.filestorage.service.ImageValidationService;
 import com.project.G1_T3.playerprofile.model.PlayerProfile;
@@ -50,10 +51,6 @@ public class PlayerProfileService {
     public PlayerProfile findByProfileId(String id) {
         return playerProfileRepository.findById(UUID.fromString(id)).orElseThrow(
                 () -> new EntityNotFoundException("Player profile not found for ID: " + id));
-    }
-
-    public PlayerProfile save(PlayerProfile profile) {
-        return playerProfileRepository.save(profile);
     }
 
     public int getPlayerRank(String profileId) {
@@ -121,6 +118,26 @@ public class PlayerProfileService {
 
         // Save the updated profile
         return playerProfileRepository.save(existingProfile);
+    }
+
+    public PlayerProfile createProfile(UUID id, PlayerProfileDTO profileUpdates,
+            MultipartFile profileImage) throws IOException {
+
+        // Check if the user is who they claim they are
+        User user = authorizationService.authorizeUserById(id);
+
+        // Retrieve the existing profile
+        PlayerProfile existingProfile = playerProfileRepository.findByUser(user);
+
+        // Throw an exception if the profile is not found
+        if (existingProfile != null) {
+            throw new ProfileAlreadyExistException("Player profile already exist for user ID: " + id);
+        }
+
+        // Save the updated profile
+        PlayerProfile newProfile = PlayerProfile.fromDTO(profileUpdates);
+        newProfile.setUser(user);
+        return playerProfileRepository.save(newProfile);
     }
 
     private String uploadProfileImage(String userId, MultipartFile profileImage)

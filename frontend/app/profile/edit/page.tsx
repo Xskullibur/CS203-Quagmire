@@ -60,6 +60,54 @@ const EditProfile = () => {
   const searchParams = useSearchParams();
   const isNewProfile = searchParams.get("new") === "true";
 
+  const checkProfileAndRedirect = async () => {
+    try {
+      const response = await axios.get(
+        new URL(`/profile/${user?.userId}`, API_URL).toString()
+      );
+
+      // If we're trying to create a new profile but one exists, redirect to edit
+      if (isNewProfile && response.status === 200) {
+        toast({
+          variant: "default",
+          title: "Profile Exists",
+          description: "You already have a profile.",
+        });
+        router.replace("/profile/edit");
+        return true;
+      }
+
+      // If we're trying to edit a non-existent profile, redirect to create
+      if (!isNewProfile && response.status === 404) {
+        toast({
+          variant: "default",
+          title: "No Profile Found",
+          description: "Please create your profile.",
+        });
+        router.replace("/profile/edit?new=true");
+        return false;
+      }
+
+      return response.status === 200;
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status === 404 && !isNewProfile) {
+          // Profile doesn't exist and we're not in create mode
+          toast({
+            variant: "default",
+            title: "No Profile Found",
+            description: "Please create your profile.",
+          });
+          router.replace("/profile/edit?new=true");
+          return false;
+        }
+
+        handleError(error);
+      }
+      return false;
+    }
+  };
+
   const [state, setState] = useState<ProfileState>(
     createInitialState(user?.userId, user?.username)
   );
@@ -67,16 +115,24 @@ const EditProfile = () => {
   // Profile initialization and cleanup
   useEffect(() => {
     const initProfile = async () => {
-      if (isNewProfile) {
-        await initializeNewProfile();
-      } else {
-        await fetchExistingProfile();
+      const profileExists = await checkProfileAndRedirect();
+
+      // Only continue with initialization if we're in the correct mode
+      if (
+        (isNewProfile && !profileExists) ||
+        (!isNewProfile && profileExists)
+      ) {
+        if (isNewProfile) {
+          await initializeNewProfile();
+        } else {
+          await fetchExistingProfile();
+        }
       }
     };
 
     initProfile();
     return () => cleanupObjectURL(state.selectedImage);
-  }, [user?.userId]);
+  }, [user?.userId, isNewProfile]);
 
   // Profile initialization functions
   const initializeNewProfile = async () => {
@@ -178,11 +234,12 @@ const EditProfile = () => {
   };
 
   const updateProfile = async (formData: FormData) => {
-    const response = await axiosInstance.put(`${API_URL}/profile`, formData, {
+    axiosInstance({
+      method: isNewProfile ? "post" : "put",
+      url: `${API_URL}/profile`,
+      data: formData,
       headers: { "Content-Type": "multipart/form-data" },
-    });
-
-    if (response.status === 200) {
+    }).then(() => {
       toast({
         variant: "success",
         title: "Success",
@@ -192,7 +249,7 @@ const EditProfile = () => {
       });
 
       router.push(`/profile/${state.playerProfileRequest.id}`);
-    }
+    });
   };
 
   // Input handlers

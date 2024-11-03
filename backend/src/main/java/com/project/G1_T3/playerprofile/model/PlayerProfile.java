@@ -91,6 +91,19 @@ public class PlayerProfile {
     @ManyToMany(mappedBy = "players", cascade = CascadeType.ALL)
     private Set<Tournament> tournaments = new HashSet<>();
 
+    public static PlayerProfile fromDTO(PlayerProfileDTO profileDTO) {
+        PlayerProfile playerProfile = new PlayerProfile();
+        playerProfile.setProfileId(profileDTO.getProfileId());
+        playerProfile.setFirstName(profileDTO.getFirstName());
+        playerProfile.setLastName(profileDTO.getLastName());
+        playerProfile.setDateOfBirth(profileDTO.getDateOfBirth());
+        playerProfile.setCountry(profileDTO.getCountry());
+        playerProfile.setBio(profileDTO.getBio());
+        playerProfile.setCurrentRating(profileDTO.getCurrentRating() != null ? profileDTO.getCurrentRating() : 0f);
+        playerProfile.setProfilePicturePath(profileDTO.getProfileImagePath());
+        return playerProfile;
+    }
+
     // Override equals() method for proper comparison in matchmaking
     @Override
     public boolean equals(Object obj) {
@@ -112,11 +125,11 @@ public class PlayerProfile {
     private void syncGlicko2Rating() {
         if (this.glicko2Rating == null) {
             this.glicko2Rating = new Glicko2Rating(this.glickoRating, this.ratingDeviation,
-                this.volatility);
+                    this.volatility);
             this.glicko2Rating = new Glicko2Rating(
-                this.glickoRating,
-                this.ratingDeviation,
-                this.volatility);
+                    this.glickoRating,
+                    this.ratingDeviation,
+                    this.volatility);
         } else {
             this.glicko2Rating.setRating((float) this.glickoRating);
             this.glicko2Rating.setRatingDeviation(this.ratingDeviation);
@@ -153,8 +166,7 @@ public class PlayerProfile {
     }
 
     public void setCurrentRating() {
-        currentRating =
-            glickoRating + DEVIATION_SCALE / ratingDeviation + VOLATILITY_SCALE / volatility;
+        currentRating = glickoRating + DEVIATION_SCALE / ratingDeviation + VOLATILITY_SCALE / volatility;
     }
 
     public String getName() {
