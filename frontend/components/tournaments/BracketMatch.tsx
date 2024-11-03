@@ -1,101 +1,71 @@
+// BracketMatch.tsx
 'use client'
 import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPencilAlt } from "@fortawesome/free-solid-svg-icons"; // Import the pencil icon
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-  CardFooter,
-} from "@/components/ui/card"; // Adjust the import according to your project structure
-import { Button } from "@/components/ui/button"; // Assuming you have a Button component
+import { faPencilAlt } from "@fortawesome/free-solid-svg-icons";
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 type Player = {
   name: string;
-  score: number;
+  id: string;
+  score: number | null;
 };
 
 type MatchProps = {
   player1: Player;
-  player2?: Player | null; // player2 is optional or can be null
-  onMatchComplete?: (winner: string) => void; // Add onMatchComplete as a prop
+  player2: Player;
+  onMatchComplete?: (winner: { name: string; id: string }) => void;
 };
 
 const BracketMatch: React.FC<MatchProps> = ({ player1, player2, onMatchComplete }) => {
   const [p1Score, setP1Score] = useState(0);
   const [p2Score, setP2Score] = useState(0);
-  const [winner, setWinner] = useState<string | null>(null);
-  const [isEditing, setIsEditing] = useState(false); // State to handle edit mode
+  const [winner, setWinner] = useState<{ name: string; id: string } | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
 
-  // Handle score increment and winner determination
+  // Handle winner determination based on score updates
   const handleRoundWin = (player: "player1" | "player2") => {
     if (player === "player1") {
-      setP1Score((prevScore) => {
-        const newScore = prevScore + 1;
-        if (newScore === 2) {
-          setWinner(player1.name);
-        }
+      setP1Score((prev) => {
+        const newScore = prev + 1;
+        if (newScore === 2) setWinner({ name: player1.name, id: player1.id });
         return newScore;
       });
     } else {
-      setP2Score((prevScore) => {
-        const newScore = prevScore + 1;
-        if (newScore === 2) {
-          setWinner(player2!.name); // player2 will always exist if this runs
-        }
+      setP2Score((prev) => {
+        const newScore = prev + 1;
+        if (newScore === 2) setWinner({ name: player2.name, id: player2.id });
         return newScore;
       });
     }
   };
 
-  // Ensure only valid inputs (0, 1, 2) are allowed
+  // Allow only valid score inputs
   const handleScoreChange = (e: React.ChangeEvent<HTMLInputElement>, setScore: React.Dispatch<React.SetStateAction<number>>) => {
     const value = Number(e.target.value);
-    if (value >= 0 && value <= 2) {
-      setScore(value);
-    }
+    if (value >= 0 && value <= 2) setScore(value);
   };
 
-  // Handle edit toggle
+  // Toggle edit mode
   const toggleEdit = () => {
-    if (isEditing) {
-      // If exiting edit mode, check if there's a winner based on the scores
-      if (p1Score === 2 && p2Score === 2) {
-        //make the method here
-        alert("Both Player 1 and Player 2 cannot have a score of 2 at the same time.");
-        return;
-      }
-      if (p1Score === 2) {
-        setWinner(player1.name);
-      } else if (p2Score === 2 && player2) {
-        setWinner(player2.name);
-      } else {
-        setWinner(null); // Reset winner if scores are less than 2
-      }
-    } else {
-      setWinner(null); // Reset winner when entering edit mode
+    if (isEditing && p1Score === 2 && p2Score === 2) {
+      alert("Both players cannot have a score of 2 at the same time.");
+      return;
     }
-
+    setWinner(p1Score === 2 ? { name: player1.name, id: player1.id } : p2Score === 2 ? { name: player2.name, id: player2.id } : null);
     setIsEditing(!isEditing);
   };
 
   useEffect(() => {
-    if (winner && onMatchComplete) {
-      onMatchComplete(winner); // Notify parent that match is complete
-    }
-  }, [winner]); // Only call when `winner` changes
-  
+    if (winner && onMatchComplete) onMatchComplete(winner);
+  }, [winner]);
+
   return (
     <Card className="mx-auto">
       <CardHeader className="flex flex-row justify-between items-center gap-4">
         <CardTitle>Tournament Match</CardTitle>
-        {/* Pencil icon wrapped inside a button */}
-        <button
-          onClick={toggleEdit}
-          className={`${isEditing ? "text-blue-500" : "text-gray-600"
-            } hover:text-gray-300 transition-colors duration-200`}
-        >
+        <button onClick={toggleEdit} className={`${isEditing ? "text-blue-500" : "text-gray-600"} hover:text-gray-300 transition-colors duration-200`}>
           <FontAwesomeIcon icon={faPencilAlt} className="w-5 h-5" />
         </button>
       </CardHeader>
@@ -118,63 +88,40 @@ const BracketMatch: React.FC<MatchProps> = ({ player1, player2, onMatchComplete 
             )}
           </div>
 
-          {/* Only show "VS" and player2 if player2 exists */}
-          {player2 ? (
-            <>
-              <span className="font-bold text-xl">VS</span>
-              <div>
-                <h4 className="text-lg font-semibold">{player2.name}</h4>
-                {isEditing ? (
-                  <input
-                    type="number"
-                    value={p2Score}
-                    onChange={(e) => handleScoreChange(e, setP2Score)}
-                    className="border rounded p-1 w-16 text-center text-black"
-                    min="0"
-                    max="2"
-                  />
-                ) : (
-                  <p>Score: {p2Score}</p>
-                )}
-              </div>
-            </>
-          ) : (
-            <p className="text-center text-green-600">Auto Advance</p>
-          )}
+          <span className="font-bold text-xl">VS</span>
+
+          <div>
+            <h4 className="text-lg font-semibold">{player2.name}</h4>
+            {isEditing ? (
+              <input
+                type="number"
+                value={p2Score}
+                onChange={(e) => handleScoreChange(e, setP2Score)}
+                className="border rounded p-1 w-16 text-center text-black"
+                min="0"
+                max="2"
+              />
+            ) : (
+              <p>Score: {p2Score}</p>
+            )}
+          </div>
         </div>
 
-        {winner && player2 ? (
+        {winner && (
           <div className="text-center text-xl font-semibold text-green-600">
-            Winner: {winner}
+            Winner: {winner.name}
           </div>
-        ) : (
-          player2 && (
-            <div className="text-center text-sm text-gray-500">
-              Select the winner for each round.
-            </div>
-          )
         )}
       </CardContent>
 
-      {/* Only show buttons if player2 exists */}
-      {player2 && (
-        <CardFooter className="space-x-4 flex place-content-center">
-          <div className="flex flex-col space-y-2 sm:flex-row sm:gap-4 sm:space-y-0">
-            <Button
-              onClick={() => handleRoundWin("player1")}
-              disabled={p1Score === 2 || winner !== null || isEditing}
-            >
-              {player1.name} Wins Round
-            </Button>
-            <Button
-              onClick={() => handleRoundWin("player2")}
-              disabled={p2Score === 2 || winner !== null || isEditing}
-            >
-              {player2.name} Wins Round
-            </Button>
-          </div>
-        </CardFooter>
-      )}
+      <CardFooter className="space-x-4 flex justify-center">
+        <Button onClick={() => handleRoundWin("player1")} disabled={p1Score === 2 || !!winner || isEditing}>
+          {player1.name} Wins Round
+        </Button>
+        <Button onClick={() => handleRoundWin("player2")} disabled={p2Score === 2 || !!winner || isEditing}>
+          {player2.name} Wins Round
+        </Button>
+      </CardFooter>
     </Card>
   );
 };
