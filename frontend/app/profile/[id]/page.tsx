@@ -2,6 +2,7 @@
 
 import { useGlobalErrorHandler } from "@/app/context/ErrorMessageProvider";
 import ProfileCard from "@/components/profile/ProfileCard/ProfileCard";
+import ProfileCardSkeleton from "@/components/profile/ProfileCard/ProfileCardSkeleton";
 import { PlayerProfile } from "@/types/player-profile";
 import axios, { AxiosError } from "axios";
 import { notFound, useRouter } from "next/navigation";
@@ -57,8 +58,7 @@ const Profile = ({ params }: { params: { id: string } }) => {
     fetchLeaderboard(id);
   }, []);
 
-  if (!playerProfile || !leaderboardData)
-    return <div>Unable to locate user</div>;
+  if (!playerProfile || !leaderboardData) return <ProfileCardSkeleton />;
 
   return (
     <div className="bg-[#212121] text-white min-h-screen flex flex-col items-center justify-center">

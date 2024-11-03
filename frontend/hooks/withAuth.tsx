@@ -3,7 +3,15 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { UserRole } from "@/types/user-role";
 
-const withAuth = (WrappedComponent: React.FC, requiredRole?: UserRole) => {
+// Add a new interface to define components that can use withAuth
+interface WithLoadingComponent extends React.FC {
+  Skeleton?: React.FC; // Optional skeleton component
+}
+
+const withAuth = (
+  WrappedComponent: WithLoadingComponent,
+  requiredRole?: UserRole
+) => {
   const WithAuthComponent = (props: any) => {
     const { isLoading, isAuthenticated, user } = useAuth();
     const router = useRouter();
@@ -18,8 +26,17 @@ const withAuth = (WrappedComponent: React.FC, requiredRole?: UserRole) => {
       }
     }, [isLoading, isAuthenticated, user, router]);
 
-    if (isLoading || !isAuthenticated || (requiredRole && user?.role !== requiredRole)) {
-      return <div>Loading...</div>;
+    if (
+      isLoading ||
+      !isAuthenticated ||
+      (requiredRole && user?.role !== requiredRole)
+    ) {
+      // Use the component's Skeleton if provided, otherwise return null
+      return WrappedComponent.Skeleton ? (
+        <WrappedComponent.Skeleton />
+      ) : (
+        <div>Loading...</div>
+      );
     }
 
     return <WrappedComponent {...props} />;

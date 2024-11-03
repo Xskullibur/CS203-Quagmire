@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import axios from "axios";
+import EditProfileSkeleton from "@/components/profile/edit/EditProfileSkeletion";
 
 const API_URL = process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL;
 const PROFILE_IMAGE_API = process.env.NEXT_PUBLIC_PROFILEPICTURE_API_URL;
@@ -55,7 +56,7 @@ const createInitialState = (
 
 const EditProfile = () => {
   const router = useRouter();
-  const { user } = useAuth();
+  const { isLoading, user } = useAuth();
   const { handleError } = useGlobalErrorHandler();
   const searchParams = useSearchParams();
   const isNewProfile = searchParams.get("new") === "true";
@@ -334,7 +335,7 @@ const EditProfile = () => {
     }
   };
 
-  if (state.isLoading) return <div>Loading...</div>;
+  if (state.isLoading || isLoading) return <EditProfileSkeleton />;
 
   return (
     <div className="flex flex-col items-center min-h-screen mt-24">
@@ -376,4 +377,5 @@ const EditProfile = () => {
   );
 };
 
+EditProfile.Skeleton = EditProfileSkeleton;
 export default withAuth(EditProfile);
