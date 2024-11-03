@@ -1,12 +1,8 @@
-// UpdatePasswordDTO.java
-package com.project.G1_T3.authentication.model;
+package com.project.G1_T3.user.model;
 
 import jakarta.validation.constraints.NotBlank;
 
 public class UpdatePasswordDTO {
-
-    @NotBlank
-    private String username;
 
     @NotBlank
     private String currentPassword;
@@ -15,14 +11,6 @@ public class UpdatePasswordDTO {
     private String newPassword;
 
     // Getters and setters
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
     public String getCurrentPassword() {
         return currentPassword;
     }

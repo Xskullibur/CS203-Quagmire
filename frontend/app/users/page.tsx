@@ -1,22 +1,24 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Skeleton } from "@/components/ui/skeleton";
 import axiosInstance from '@/lib/axios';
+import { Button } from "@/components/ui/button";
 
 interface User {
   username: string;
   email: string;
-  isVerified: boolean;
+  emailVerified: boolean; // Updated to match UserDTO's field name
 }
 
 const UserPage: React.FC = () => {
+  const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [message, setMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    // Fetch user data from the API
     const fetchUserData = async () => {
       try {
         const response = await axiosInstance.get(`${process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL}/users`);
@@ -34,15 +36,19 @@ const UserPage: React.FC = () => {
   const handleResendVerification = async () => {
     try {
       const response = await axiosInstance.post(`${process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL}/users/resend-email-verification`);
-      if (response.status === 200) {
-        setMessage("Verification email has been resent.");
-      } else {
-        setMessage("Failed to resend verification email. Please try again.");
-      }
+      setMessage(response.status === 200 ? "Verification email has been resent." : "Failed to resend verification email. Please try again.");
     } catch (error) {
       console.error("Error resending verification email:", error);
       setMessage("An error occurred. Please try again.");
     }
+  };
+
+  const handleUpdatePasswordRedirect = () => {
+    router.push('/users/update-password');
+  };
+
+  const handleUpdateEmailRedirect = () => {
+    router.push('/users/update-email');
   };
 
   if (isLoading) {
@@ -58,30 +64,47 @@ const UserPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen p-8 flex flex-col items-center mt-24"> {/* Added mt-24 for top margin */}
+    <div className="min-h-screen p-8 flex flex-col items-center mt-24">
       <h1 className="text-3xl font-bold mb-8 text-center">Account Information</h1>
       {user ? (
         <div className="bg-primary-foreground p-6 rounded-lg shadow-md w-96 space-y-4 text-center">
           <div className="p-4 bg-zinc-800 rounded-md shadow-sm">
             <h2 className="text-lg font-semibold">Username</h2>
-            <p className="text-xl text-gray-200">{user.username}</p>
+            <p className="text-sm text-gray-400">{user.username}</p>
           </div>
           <div className="p-4 bg-zinc-800 rounded-md shadow-sm">
             <h2 className="text-lg font-semibold">Email</h2>
-            <p className="text-xl text-gray-200">{user.email}</p>
+            <p className="text-sm text-gray-400">{user.email}</p>
           </div>
           <div className="p-4 bg-zinc-800 rounded-md shadow-sm">
             <h2 className="text-lg font-semibold">Verification Status</h2>
-            <p className="text-xl text-gray-200">{user.isVerified ? "Verified" : "Not Verified"}</p>
+            <p className="text-sm text-gray-400">{user.emailVerified ? "Verified" : "Not Verified"}</p> {/* Updated field */}
           </div>
-          {!user.isVerified && (
-            <button
-              onClick={handleResendVerification}
+
+          {/* Buttons in vertical order */}
+          <div className="space-y-4">
+            {!user.emailVerified && (
+              <Button
+                onClick={handleResendVerification}
+                className="w-full bg-accent text-white py-2 px-4 rounded-md hover:bg-accent-dark transition duration-300"
+              >
+                Resend Email Verification
+              </Button>
+            )}
+            <Button
+              onClick={handleUpdatePasswordRedirect}
               className="w-full bg-accent text-white py-2 px-4 rounded-md hover:bg-accent-dark transition duration-300"
             >
-              Resend Email Verification
-            </button>
-          )}
+              Update Password
+            </Button>
+            <Button
+              onClick={handleUpdateEmailRedirect}
+              className="w-full bg-accent text-white py-2 px-4 rounded-md hover:bg-accent-dark transition duration-300"
+            >
+              Update Email
+            </Button>
+          </div>
+
           {message && <p className="text-sm text-gray-400 mt-4">{message}</p>}
         </div>
       ) : (

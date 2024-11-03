@@ -1,6 +1,8 @@
 package com.project.G1_T3.user.controller;
 
-import com.project.G1_T3.authentication.model.UpdatePasswordDTO;
+import com.project.G1_T3.authentication.model.ResetPasswordDTO;
+import com.project.G1_T3.user.model.UpdateEmailDTO;
+import com.project.G1_T3.user.model.UpdatePasswordDTO;
 import com.project.G1_T3.user.model.User;
 import com.project.G1_T3.user.model.UserDTO;
 import com.project.G1_T3.user.service.UserService;
@@ -25,6 +27,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.http.HttpStatus;
 
 
 @RestController
@@ -61,6 +64,7 @@ public class UserController {
     @PostMapping("/resend-email-verification")
     public ResponseEntity<String> resendEmailVerification(Authentication authentication) {
         String username = authentication.getName(); // Get username from authentication context
+        System.out.println(username);
         
         Optional<User> optionalUser = userService.findByUsername(username);
         User user = optionalUser.orElseThrow(() -> new UsernameNotFoundException("User not found"));
@@ -71,14 +75,19 @@ public class UserController {
         return ResponseEntity.ok("Verification email has been resent.");
     }
 
-    // @PutMapping("/update-password")
-    // public ResponseEntity<String> updatePassword(
-    //         @RequestBody @Valid UpdatePasswordDTO updatePasswordDTO) {
+    @PutMapping("/update-password")
+    public ResponseEntity<String> updatePassword(Authentication authentication, @RequestBody @Valid UpdatePasswordDTO updatePasswordDTO) {
+        String username = authentication.getName(); 
+        System.out.println(username);
+        userService.updatePassword(username, updatePasswordDTO);
+        return ResponseEntity.ok("Password updated successfully.");
+    }
 
-    //     userService.updatePassword(updatePasswordDTO.getUserId(), 
-    //                             updatePasswordDTO.getOldPassword(), 
-    //                             updatePasswordDTO.getNewPassword());
+    @PutMapping("/update-email")
+    public ResponseEntity<String> updateEmail(Authentication authentication, @RequestBody @Valid UpdateEmailDTO updateEmailDTO) {
+        String username = authentication.getName();
+        boolean isUpdated = userService.updateEmail(username, updateEmailDTO);
 
-    //     return ResponseEntity.ok("Password updated successfully");
-    // }
+        return isUpdated ? ResponseEntity.ok("Email updated successfully.") : ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Incorrect password.");
+    }
 }

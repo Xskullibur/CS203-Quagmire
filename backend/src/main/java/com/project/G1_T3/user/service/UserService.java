@@ -15,7 +15,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.project.G1_T3.authentication.model.UpdatePasswordDTO;
+import com.project.G1_T3.authentication.model.ResetPasswordDTO;
 import com.project.G1_T3.authentication.service.JwtService;
 import com.project.G1_T3.common.exception.EmailAlreadyInUseException;
 import com.project.G1_T3.common.exception.RegistrationException;
@@ -23,6 +23,8 @@ import com.project.G1_T3.common.exception.UsernameAlreadyTakenException;
 import com.project.G1_T3.email.service.EmailService;
 import com.project.G1_T3.player.model.PlayerProfile;
 import com.project.G1_T3.player.service.PlayerProfileService;
+import com.project.G1_T3.user.model.UpdateEmailDTO;
+import com.project.G1_T3.user.model.UpdatePasswordDTO;
 import com.project.G1_T3.user.model.User;
 import com.project.G1_T3.user.model.UserDTO;
 import com.project.G1_T3.user.model.UserRole;
@@ -171,32 +173,44 @@ public class UserService {
         userRepository.save(user);
     }
 
-    // public void updatePassword(UUID userId, String oldPassword, String newPassword) {
-    //     // Find user by ID
-    //     User user = userRepository.findById(userId)
-    //             .orElseThrow(() -> new RuntimeException("User not found"));
+    public void resetPassword(ResetPasswordDTO resetPasswordDTO) {
+        User user = userRepository.findByUsername(resetPasswordDTO.getUsername())
+                .orElseThrow(() -> new UsernameNotFoundException(resetPasswordDTO.getUsername()));
 
-    //     // Check if old password matches
-    //     if (!passwordEncoder.matches(oldPassword, user.getPasswordHash())) {
-    //         throw new RuntimeException("Old password is incorrect");
-    //     }
-
-    //     // Update the password and save
-    //     user.setPasswordHash(passwordEncoder.encode(newPassword));
-    //     userRepository.save(user);
-    // }
-
-    public void resetPassword(UpdatePasswordDTO updatePasswordDTO) {
-        User user = userRepository.findByUsername(updatePasswordDTO.getUsername())
-                .orElseThrow(() -> new UsernameNotFoundException(updatePasswordDTO.getUsername()));
-
-        String currentPassword = updatePasswordDTO.getCurrentPassword();
+        String currentPassword = resetPasswordDTO.getCurrentPassword();
         if (!passwordEncoder.matches(currentPassword, user.getPasswordHash())) {
             throw new IllegalArgumentException("Current password is incorrect");
         }
 
-        user.setPasswordHash(passwordEncoder.encode(updatePasswordDTO.getNewPassword()));
+        user.setPasswordHash(passwordEncoder.encode(resetPasswordDTO.getNewPassword()));
         userRepository.save(user);
+    }
+
+    public void updatePassword(String username, UpdatePasswordDTO updatePasswordDTO) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        if (!passwordEncoder.matches(updatePasswordDTO.getCurrentPassword(), user.getPasswordHash())) {
+            throw new IllegalArgumentException("Current password is incorrect");
+        }
+
+        user.setPasswordHash(passwordEncoder.encode(updatePasswordDTO.getNewPassword()));
+        userRepository.save(user); 
+    }
+
+    public boolean updateEmail(String username, UpdateEmailDTO updateEmailDTO) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        // Verify the password
+        if (!passwordEncoder.matches(updateEmailDTO.getPassword(), user.getPasswordHash())) {
+            return false; // Password is incorrect
+        }
+
+        // Update the email
+        user.setEmail(updateEmailDTO.getNewEmail());
+        userRepository.save(user);
+        return true; // Email update successful
     }
 
     public UserDTO getUserInfo(String username) {
@@ -207,4 +221,5 @@ public class UserService {
         // Convert the User entity to a UserDTO
         return UserDTO.fromUser(user);
     }
+    
 }

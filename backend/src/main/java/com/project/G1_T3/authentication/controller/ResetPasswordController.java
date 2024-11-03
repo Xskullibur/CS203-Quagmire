@@ -9,7 +9,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import com.project.G1_T3.authentication.model.UpdatePasswordDTO;
+import com.project.G1_T3.authentication.model.ResetPasswordDTO;
 import com.project.G1_T3.user.service.UserService;
 
 
@@ -21,8 +21,8 @@ public class ResetPasswordController {
     private UserService userService;
 
     @PutMapping("/reset-password")
-    public ResponseEntity<String> resetPassword(@RequestBody @Valid UpdatePasswordDTO updatePasswordDTO) {
-        userService.resetPassword(updatePasswordDTO);
+    public ResponseEntity<String> resetPassword(@RequestBody @Valid ResetPasswordDTO resetPasswordDTO) {
+        userService.resetPassword(resetPasswordDTO);
         return ResponseEntity.ok("Password updated successfully.");
     }
 }

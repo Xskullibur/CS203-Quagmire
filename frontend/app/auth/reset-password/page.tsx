@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import axios from "axios";
+import axiosInstance from "@/lib/axios";
 
 const ResetPasswordPage: React.FC = () => {
     const [formData, setFormData] = useState({
