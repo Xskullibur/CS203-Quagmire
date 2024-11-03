@@ -40,6 +40,12 @@ public class StageController {
         }
     }
 
+    @GetMapping("/allStages")
+    public ResponseEntity<List<Stage>> getStagesByTournamentId(@PathVariable UUID tournamentId) {
+        List<Stage> stages = stageService.findAllStagesByTournamentIdSortedByCreatedAtAsc(tournamentId);
+        return ResponseEntity.ok(stages);
+    }
+
     // Get stage by ID
     // @GetMapping("/{stageId}")
     // public ResponseEntity<Stage> getStageById(@PathVariable UUID tournamentId, @PathVariable UUID stageId) {

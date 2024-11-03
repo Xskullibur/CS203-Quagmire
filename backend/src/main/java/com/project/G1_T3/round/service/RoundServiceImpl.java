@@ -254,7 +254,7 @@ public class RoundServiceImpl implements RoundService {
         round.setRoundNumber(roundNumber + 1);
         round.setStartDate(LocalDateTime.now());
         round.setEndDate(LocalDateTime.now().plusDays(1));
-        round.setStatus(Status.SCHEDULED);
+        round.setStatus(Status.IN_PROGRESS);
         round.setMatches(matches);
         round.setPlayers(new HashSet<>(players));
         round.setReferees(new HashSet<>(referees));
