@@ -7,7 +7,7 @@ import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/componen
 import { Button } from "@/components/ui/button";
 
 type Player = {
-  name: string;
+  userId: string;
   id: string;
   score: number | null;
 };
@@ -15,13 +15,13 @@ type Player = {
 type MatchProps = {
   player1: Player;
   player2: Player;
-  onMatchComplete?: (winner: { name: string; id: string }) => void;
+  onMatchComplete?: (winner: { userId: string; id: string }) => void;
 };
 
 const BracketMatch: React.FC<MatchProps> = ({ player1, player2, onMatchComplete }) => {
   const [p1Score, setP1Score] = useState(0);
   const [p2Score, setP2Score] = useState(0);
-  const [winner, setWinner] = useState<{ name: string; id: string } | null>(null);
+  const [winner, setWinner] = useState<{ userId: string; id: string } | null>(null);
   const [isEditing, setIsEditing] = useState(false);
 
   // Handle winner determination based on score updates
@@ -29,13 +29,13 @@ const BracketMatch: React.FC<MatchProps> = ({ player1, player2, onMatchComplete 
     if (player === "player1") {
       setP1Score((prev) => {
         const newScore = prev + 1;
-        if (newScore === 2) setWinner({ name: player1.name, id: player1.id });
+        if (newScore === 2) setWinner({ userId: player1.userId, id: player1.id });
         return newScore;
       });
     } else {
       setP2Score((prev) => {
         const newScore = prev + 1;
-        if (newScore === 2) setWinner({ name: player2.name, id: player2.id });
+        if (newScore === 2) setWinner({ userId: player2.userId, id: player2.id });
         return newScore;
       });
     }
@@ -53,7 +53,7 @@ const BracketMatch: React.FC<MatchProps> = ({ player1, player2, onMatchComplete 
       alert("Both players cannot have a score of 2 at the same time.");
       return;
     }
-    setWinner(p1Score === 2 ? { name: player1.name, id: player1.id } : p2Score === 2 ? { name: player2.name, id: player2.id } : null);
+    setWinner(p1Score === 2 ? { userId: player1.userId, id: player1.id } : p2Score === 2 ? { userId: player2.userId, id: player2.id } : null);
     setIsEditing(!isEditing);
   };
 
@@ -73,7 +73,7 @@ const BracketMatch: React.FC<MatchProps> = ({ player1, player2, onMatchComplete 
       <CardContent>
         <div className="flex justify-between items-center mb-4">
           <div>
-            <h4 className="text-lg font-semibold">{player1.name}</h4>
+            <h4 className="text-lg font-semibold">{player1.userId}</h4>
             {isEditing ? (
               <input
                 type="number"
@@ -91,7 +91,7 @@ const BracketMatch: React.FC<MatchProps> = ({ player1, player2, onMatchComplete 
           <span className="font-bold text-xl">VS</span>
 
           <div>
-            <h4 className="text-lg font-semibold">{player2.name}</h4>
+            <h4 className="text-lg font-semibold">{player2.userId}</h4>
             {isEditing ? (
               <input
                 type="number"
@@ -109,17 +109,17 @@ const BracketMatch: React.FC<MatchProps> = ({ player1, player2, onMatchComplete 
 
         {winner && (
           <div className="text-center text-xl font-semibold text-green-600">
-            Winner: {winner.name}
+            Winner: {winner.userId}
           </div>
         )}
       </CardContent>
 
       <CardFooter className="space-x-4 flex justify-center">
         <Button onClick={() => handleRoundWin("player1")} disabled={p1Score === 2 || !!winner || isEditing}>
-          {player1.name} Wins Round
+          {player1.userId} Wins Round
         </Button>
         <Button onClick={() => handleRoundWin("player2")} disabled={p2Score === 2 || !!winner || isEditing}>
-          {player2.name} Wins Round
+          {player2.userId} Wins Round
         </Button>
       </CardFooter>
     </Card>

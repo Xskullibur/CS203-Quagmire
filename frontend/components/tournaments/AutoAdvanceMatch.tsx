@@ -4,7 +4,7 @@ import React from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
 type AutoAdvanceMatchProps = {
-  player: { name: string; id: string };
+  player: { userId: string; id: string };
 };
 
 const AutoAdvanceMatch: React.FC<AutoAdvanceMatchProps> = ({ player }) => {
@@ -16,7 +16,7 @@ const AutoAdvanceMatch: React.FC<AutoAdvanceMatchProps> = ({ player }) => {
       <CardContent>
         <div className="text-center">
           <p className="text-lg font-semibold text-green-600">
-            {player.name} advances automatically.
+            {player.userId} advances automatically.
           </p>
         </div>
       </CardContent>
