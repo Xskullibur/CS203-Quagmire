@@ -25,10 +25,7 @@ const Profile = ({ params }: { params: { id: string } }) => {
       })
       .catch((error: AxiosError) => {
         handleError(error);
-
-        if (error.status == 400) {
-          router.push("/");
-        }
+        router.push("/notfound");
       });
   };
 
@@ -42,10 +39,7 @@ const Profile = ({ params }: { params: { id: string } }) => {
       })
       .catch((error: AxiosError) => {
         handleError(error);
-
-        if (error.status == 400) {
-          router.push("/");
-        }
+        router.push("/notfound");
       });
   };
 
