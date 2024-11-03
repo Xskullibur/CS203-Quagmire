@@ -19,7 +19,7 @@ INSERT INTO users (user_id, username, email, password_hash, role, created_at, up
 -- Insert player profiles into player_profiles table
 INSERT INTO player_profiles (profile_id, user_id, first_name, last_name, date_of_birth, country, community, bio, glicko_rating, rating_deviation, volatility, current_rating, profile_picture_path) VALUES
     (gen_random_uuid(), '22222222-2222-2222-2222-222222222222', 'Alice', 'Smith', '1985-06-15', 'USA', 'Community A', 'Enjoys strategy games.', 1500, 350.0, 0.06, 3875, NULL),
-    (gen_random_uuid(), '33333333-3333-3333-3333-333333333333', 'Bob', 'Johnson', '1992-08-24', 'Canada', 'Community B', 'Loves RPG and storytelling.', 1500, 350.0, 0.06, 0, 'https://firebasestorage.googleapis.com/v0/b/quagmire-smu.appspot.com/o/ProfileImages%2F33333333-3333-3333-3333-333333333333?alt=media&token=3afd8a03-ba8d-4e7d-8887-3b1c3eb875bc'),
+    (gen_random_uuid(), '33333333-3333-3333-3333-333333333333', 'Bob', 'Johnson', '1992-08-24', 'Canada', 'Community B', 'Loves RPG and storytelling.', 1500, 350.0, 0.06, 0, 'https://firebasestorage.googleapis.com/v0/b/quagmire-smu.appspot.com/o/ProfileImages%2F33333333-3333-3333-3333-333333333333?alt=media'),
     (gen_random_uuid(), '44444444-4444-4444-4444-444444444444', 'Catherine', 'Williams', '1990-03-30', 'UK', 'Community C', 'Competitive FPS player.', 1500, 350.0, 0.06, 0, NULL),
     (gen_random_uuid(), '55555555-5555-5555-5555-555555555555', 'David', 'Jones', '1988-11-12', 'Australia', 'Community D', 'Avid fan of open-world games.', 1500, 350.0, 0.06, 1980, NULL),
     (gen_random_uuid(), '66666666-6666-6666-6666-666666666666', 'Emily', 'Brown', '1993-07-21', 'New Zealand', 'Community E', 'Likes puzzle solving and mysteries.', 1500, 350.0, 0.06, 3675, NULL),
