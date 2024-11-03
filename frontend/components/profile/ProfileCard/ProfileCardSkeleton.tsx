@@ -1,54 +1,42 @@
-import { Skeleton } from "@/components/ui/skeleton"
+import { Skeleton } from "@/components/ui/skeleton";
 
 const ProfileCardSkeleton = () => {
   return (
-    <div className="bg-[#212121] text-white min-h-screen flex flex-col items-center justify-center">
-      <div className="bg-[#2C2C2C] rounded-lg p-8 w-full max-w-3xl flex flex-col md:flex-row gap-8">
-        {/* Left side - Profile Picture */}
-        <div className="flex flex-col items-center gap-4">
-          <Skeleton className="h-48 w-48 rounded-full" />
-          <Skeleton className="h-6 w-32" />
-          <Skeleton className="h-5 w-24" />
+    <div className="relative w-full h-full rounded-lg overflow-hidden flex items-center justify-center mt-16">
+      {/* Background Skeleton */}
+      <Skeleton className="absolute inset-0" />
+      <div className="absolute inset-0 bg-primary-foreground/80" />
+
+      <div className="relative w-full min-h-[calc(100vh-8rem)] z-20 flex flex-col justify-center p-10 text-primary">
+        {/* Trigger Button Skeleton */}
+        <div className="absolute right-10 top-10">
+          <Skeleton className="h-10 w-10 rounded-full" />
         </div>
 
-        {/* Right side - Profile Info */}
-        <div className="flex-1 space-y-6">
-          {/* Stats Section */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Skeleton className="h-4 w-24" />
-              <Skeleton className="h-6 w-16" />
-            </div>
-            <div className="space-y-2">
-              <Skeleton className="h-4 w-24" />
-              <Skeleton className="h-6 w-16" />
-            </div>
-            <div className="space-y-2">
-              <Skeleton className="h-4 w-24" />
-              <Skeleton className="h-6 w-16" />
-            </div>
-            <div className="space-y-2">
-              <Skeleton className="h-4 w-24" />
-              <Skeleton className="h-6 w-16" />
-            </div>
-          </div>
+        {/* Content Section */}
+        <div className="relative flex flex-col items-center transition-all duration-300 w-full">
+          {/* Player Info Skeleton */}
+          <div className="flex flex-col items-center space-y-6 w-full max-w-lg">
+            {/* Profile Picture */}
+            <Skeleton className="h-40 w-40 rounded-full" />
 
-          {/* Bio Section */}
-          <div className="space-y-2">
-            <Skeleton className="h-4 w-16" />
-            <Skeleton className="h-24 w-full" />
-          </div>
+            {/* Username */}
+            <Skeleton className="h-8 w-48" />
 
-          {/* Social Links */}
-          <div className="flex gap-4">
-            <Skeleton className="h-8 w-8 rounded-full" />
-            <Skeleton className="h-8 w-8 rounded-full" />
-            <Skeleton className="h-8 w-8 rounded-full" />
+            {/* Bio */}
+            <Skeleton className="h-20 w-full max-w-md" />
+
+            {/* Social Links */}
+            <div className="flex space-x-4">
+              <Skeleton className="h-8 w-8 rounded-full" />
+              <Skeleton className="h-8 w-8 rounded-full" />
+              <Skeleton className="h-8 w-8 rounded-full" />
+            </div>
           </div>
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
 export default ProfileCardSkeleton;
