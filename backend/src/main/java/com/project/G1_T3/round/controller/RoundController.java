@@ -6,9 +6,11 @@ import org.springframework.web.bind.annotation.*;
 
 import com.project.G1_T3.round.model.Round;
 import com.project.G1_T3.round.service.RoundService;
+import com.project.G1_T3.match.model.MatchDTO;
 
 import java.util.UUID;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/tournament/{tournamentId}/stage/{stageId}/round")
@@ -32,9 +34,9 @@ public class RoundController {
     }
 
     @PutMapping("/{roundId}/end")
-    public ResponseEntity<String> endRound(@PathVariable UUID roundId) {
+    public ResponseEntity<String> endRound(@PathVariable UUID roundId, @RequestBody Map<UUID, MatchDTO> matchDTOMap) {
         try {
-            roundService.endRound(roundId);  // Call the service method to end the round
+            roundService.endRound(roundId, matchDTOMap);  // Call the service method to end the round
             return ResponseEntity.ok("Round ended successfully");
         } catch (RuntimeException e) {
             // Handle any exceptions (e.g., round not found)

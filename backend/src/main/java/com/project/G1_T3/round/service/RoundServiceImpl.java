@@ -14,6 +14,7 @@ import com.project.G1_T3.common.model.Status;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Random;
@@ -21,6 +22,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.UUID;
 import java.lang.Math;
 
@@ -73,7 +75,8 @@ public class RoundServiceImpl implements RoundService {
 
     }
 
-    public void endRound(UUID roundId) {
+    @Transactional
+    public void endRound(UUID roundId, Map<UUID, MatchDTO> matchDTOMap) {
         if (roundId == null) {
             throw new IllegalArgumentException("Round ID must not be null");
         }
@@ -85,11 +88,25 @@ public class RoundServiceImpl implements RoundService {
         if (roundMatches == null || roundMatches.isEmpty()) {
             throw new IllegalStateException("No matches found for this round");
         }
+
+        UUID curId;
+        // complete matches in one shot if they are in the matchDTO map
+        for (Match match : roundMatches) {
+            curId = match.getId();
+            if (matchDTOMap.containsKey(curId) && match.getStatus() != Status.COMPLETED) {
+                matchService.completeMatch(curId, matchDTOMap.get(curId));
+            }
+        }
     
         List<PlayerProfile> advancingPlayers = new ArrayList<>();
     
         // Loop through the matches in the round and collect the winners
+        // Throw exception if match is not complete
         for (Match match : roundMatches) {
+            if (match.getStatus() != Status.COMPLETED) {
+                throw new IllegalStateException("Match " + match.getMatchId() + " has not been completed.");
+            }
+
             PlayerProfile winner = playerProfileService.findByProfileId(match.getWinnerId());
             if (winner == null) {
                 throw new IllegalStateException("Winner not found for match with ID: " + match.getMatchId());
