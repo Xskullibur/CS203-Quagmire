@@ -72,5 +72,6 @@ firebase:
     storage:
         url: 'https://firebasestorage.googleapis.com/v0/b/'
         bucket: 'quagmire-smu.appspot.com'
-    credentials: |-
-        # Paste json content here
+    credentials: 
+        json: |-
+            # Paste json content here
