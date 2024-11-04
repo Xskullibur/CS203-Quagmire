@@ -76,8 +76,8 @@ firebase:
             {
               "type": "service_account",
               "project_id": "quagmire-smu",
-              "private_key_id": "${FIREBASE_PRIVATE_KEY_ID}",
-              "private_key": "${FIREBASE_PRIVATE_KEY}",
+              "private_key_id": ${FIREBASE_PRIVATE_KEY_ID},
+              "private_key": ${FIREBASE_PRIVATE_KEY},
               "client_email": "firebase-adminsdk-7qc2z@quagmire-smu.iam.gserviceaccount.com",
               "client_id": "118127672694415003901",
               "auth_uri": "https://accounts.google.com/o/oauth2/auth",
