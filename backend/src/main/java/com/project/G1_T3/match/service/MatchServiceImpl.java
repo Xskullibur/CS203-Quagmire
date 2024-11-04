@@ -69,19 +69,19 @@ public class MatchServiceImpl implements MatchService {
         if (matchDTO.getPlayer1Id() == null) {
             throw new IllegalArgumentException("Player 1 ID must not be null");
         }
-    
+
         if (matchDTO.getPlayer2Id() == null) {
             throw new IllegalArgumentException("Player 2 ID must not be null");
         }
-    
+
         if (matchDTO.getPlayer1Id().equals(matchDTO.getPlayer2Id())) {
             throw new IllegalArgumentException("Player 1 and Player 2 cannot be the same");
         }
-    
+
         if (matchDTO.getScheduledTime() == null) {
             throw new IllegalArgumentException("Scheduled time must not be null");
         }
-    
+
         if (matchDTO.getScheduledTime().isBefore(LocalDateTime.now())) {
             throw new IllegalArgumentException("Scheduled time must be in the future");
         }
@@ -117,7 +117,7 @@ public class MatchServiceImpl implements MatchService {
         if (match.getStatus() != Status.SCHEDULED) {
             throw new IllegalStateException("Match is not scheduled");
         }
-        
+
         // Verify the referee is the correct one
         if (match.getRefereeId() == null || !match.getRefereeId().equals(matchDTO.getRefereeId())) {
             throw new RuntimeException("Unauthorized referee");
@@ -134,31 +134,31 @@ public class MatchServiceImpl implements MatchService {
         if (matchId == null || matchDTO == null) {
             throw new IllegalArgumentException("Match ID and match details must not be null");
         }
-        
+
         // Fetch the match, or throw an exception if not found
         UUID matchUUID = UUID.fromString(matchId.toString());
         Match match = matchRepository.findById(matchUUID)
                 .orElseThrow(() -> new RuntimeException("Match not found"));
-    
+
         // Ensure the match hasn't already been completed
         if (match.getStatus() == Status.COMPLETED) {
             throw new IllegalStateException("Match is already completed");
         }
-    
+
         // Verify the referee is authorized
         if (match.getRefereeId() == null || !match.getRefereeId().equals(matchDTO.getRefereeId())) {
             throw new RuntimeException("Unauthorized referee");
         }
-    
+
         // Verify that the winner is one of the players in the match
         if (matchDTO.getWinnerId() == null) {
             throw new IllegalArgumentException("Winner ID must not be null");
         }
-    
+
         if (!match.getPlayer1Id().equals(matchDTO.getWinnerId()) && !match.getPlayer2Id().equals(matchDTO.getWinnerId())) {
             throw new RuntimeException("Winner must be one of the players");
         }
-    
+
         // Complete the match
         match.completeMatch(matchDTO.getWinnerId(), matchDTO.getScore());
         matchRepository.save(match);

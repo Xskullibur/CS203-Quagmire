@@ -18,11 +18,11 @@ import {
 import ProfilePicture from "@/components/profile/ProfilePicture";
 import FormFields from "@/components/profile/FormFields";
 import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
+    Card,
+    CardContent,
+    CardFooter,
+    CardHeader,
+    CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import axios from "axios";

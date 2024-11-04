@@ -14,20 +14,20 @@ RUN npm i
 # Copy the rest of the code
 COPY . .
 
+ARG NEXT_PUBLIC_API_URL
+ARG NEXT_PUBLIC_SPRINGBOOT_API_URL
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_SPRINGBOOT_API_URL=$NEXT_PUBLIC_SPRINGBOOT_API_URL
+
 # Print the contents of node_modules to verify installation, then build the app
 RUN ls -la node_modules | grep framer-motion && npm run build
 
 # Production image, copy all the files and run next
 FROM node:18.17.0-alpine AS runner
-
 WORKDIR /app
 
 # Set environment variables
 ENV NODE_ENV=production
-ARG NEXT_PUBLIC_API_URL
-ARG NEXT_PUBLIC_SPRINGBOOT_API_URL
-ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
-ENV NEXT_PUBLIC_SPRINGBOOT_API_URL=$NEXT_PUBLIC_SPRINGBOOT_API_URL
 
 # Copy built assets from the builder stage
 COPY --from=builder /app/.next ./.next
@@ -41,7 +41,6 @@ RUN adduser -S nextjs -u 1001
 
 # Change ownership of the app directory to the non-root user
 RUN chown -R nextjs:nodejs /app
-
 # Switch to non-root user
 USER nextjs
 
