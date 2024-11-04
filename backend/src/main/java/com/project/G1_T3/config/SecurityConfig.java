@@ -27,6 +27,7 @@ import com.project.G1_T3.authentication.filter.JwtAuthenticationFilter;
 import com.project.G1_T3.user.service.CustomUserDetailsService;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.Arrays;
 
@@ -50,6 +51,9 @@ public class SecurityConfig {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Value("${app.frontend.url}")
+    private String frontendUrl;
 
     @Bean
     RestTemplate restTemplate() {
