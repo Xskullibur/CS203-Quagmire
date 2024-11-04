@@ -31,6 +31,7 @@ import java.util.function.Supplier;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -70,6 +71,7 @@ class PlayerProfileServiceTest {
         // Set up User
         user = new User();
         user.setId(userId.toString());
+        user.setUsername("testuser");
 
         // Set up existing profile
         existingProfile = new PlayerProfile();
@@ -117,6 +119,26 @@ class PlayerProfileServiceTest {
         when(userService.findByUserId(userId.toString())).thenReturn(Optional.empty());
 
         Supplier<PlayerProfile> findByUserIdCall = () -> playerProfileService.findByUserId(userId.toString());
+
+        assertThrows(EntityNotFoundException.class, findByUserIdCall::get);
+    }
+
+    @Test
+    void findByUsername_WithValidUserId_ReturnsProfile() {
+        when(userService.findByUsername(user.getUsername())).thenReturn(Optional.of(user));
+        when(playerProfileRepository.findByUser(user)).thenReturn(existingProfile);
+
+        PlayerProfile result = playerProfileService.findByUsername(user.getUsername());
+
+        assertNotNull(result);
+        assertEquals(existingProfile, result);
+    }
+
+    @Test
+    void findByUsername_WithInvalidUserId_ThrowsException() {
+        when(userService.findByUsername(user.getUsername())).thenReturn(Optional.empty());
+
+        Supplier<PlayerProfile> findByUserIdCall = () -> playerProfileService.findByUsername(user.getUsername());
 
         assertThrows(EntityNotFoundException.class, findByUserIdCall::get);
     }

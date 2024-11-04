@@ -10,17 +10,21 @@ import React, { useState, useEffect } from "react";
 
 const API_URL = `${process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL}`;
 
-const Profile = ({ params }: { params: { id: string } }) => {
+const Profile = ({ params }: { params: { username: string } }) => {
   const [playerProfile, setPlayerProfile] = useState<PlayerProfile>();
   const [leaderboardData, setLeaderboardData] = useState<any>(null);
   const { handleError } = useGlobalErrorHandler();
   const router = useRouter();
 
-  const fetchProfile = (id: string) => {
+  const fetchProfile = (username: string) => {
     axios
-      .get(new URL(`/profile/${id}`, API_URL).toString())
+      .get(new URL(`/profile`, API_URL).toString(), {
+        params: {
+          username: username,
+        },
+      })
       .then((response) => {
-        if (response.status == 200) {
+        if (response.status === 200) {
           setPlayerProfile(response.data);
         }
       })
@@ -30,9 +34,13 @@ const Profile = ({ params }: { params: { id: string } }) => {
       });
   };
 
-  const fetchLeaderboard = (id: string) => {
+  const fetchLeaderboard = (username: string) => {
     axios
-      .get(new URL(`leaderboard/user/${id}`, API_URL).toString())
+      .get(new URL(`/leaderboard/user`, API_URL).toString(), {
+        params: {
+          username: username,
+        },
+      })
       .then((response) => {
         if (response.status == 200) {
           setLeaderboardData(response.data);
@@ -46,16 +54,16 @@ const Profile = ({ params }: { params: { id: string } }) => {
 
   useEffect(() => {
     // Retrieve `id` from route
-    const id = params.id;
+    const username = params.username;
 
     // Redirect user to not found page if no params
-    if (id == undefined) {
+    if (username == undefined) {
       notFound();
     }
 
     // Fetch necessary information
-    fetchProfile(id);
-    fetchLeaderboard(id);
+    fetchProfile(username);
+    fetchLeaderboard(username);
   }, []);
 
   if (!playerProfile || !leaderboardData) return <ProfileCardSkeleton />;

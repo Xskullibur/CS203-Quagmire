@@ -3,6 +3,7 @@ package com.project.G1_T3.leaderboard.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import com.project.G1_T3.leaderboard.service.LeaderboardService;
+
 import com.project.G1_T3.leaderboard.model.LeaderboardPlayerProfile;
 
 import java.util.List;
@@ -34,8 +35,8 @@ public class LeaderboardController {
         return leaderboardService.getPlayerInfoById(userId); 
     }
 
-    @GetMapping("/{username}")
-    public LeaderboardPlayerProfile getPlayerInfo(@PathVariable String username) {
+    @GetMapping("user")
+    public LeaderboardPlayerProfile getPlayerInfo(@RequestParam String username) {
         return leaderboardService.getPlayerInfo(username);
     }
 }

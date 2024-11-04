@@ -7,10 +7,12 @@ import com.project.G1_T3.user.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -156,5 +158,13 @@ public class PlayerProfileService {
         PlayerProfile profile = playerProfileRepository.findByUserId(id);
         profile.setProfilePicturePath(profilePicturePath);
         return playerProfileRepository.save(profile);
+    }
+
+    public PlayerProfile findByUsername(String username) {
+        
+        Optional<User> optionalUser = userService.findByUsername(username);
+        return optionalUser.map(user -> playerProfileRepository.findByUser(user))
+                .orElseThrow(() -> new EntityNotFoundException("Player profile not found for username: " + username));
+
     }
 }

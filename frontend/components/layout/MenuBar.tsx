@@ -10,7 +10,7 @@ export default function MenuBar() {
   const router = useRouter();
 
   const handleNavigateToProfile = () => {
-    router.push("/profile/" + user?.userId)
+    router.push("/profile/" + user?.username)
   }
 
   useEffect(() => {
@@ -50,18 +50,9 @@ export default function MenuBar() {
       return null;
     }
 
-    if (!isAuthenticated) {
-      return (
-        <>
-          <Link href="/auth/login" className="text-xl text-white hover:text-gray-400 transition" onClick={() => setIsMenuOpen(false)}>Log in</Link>
-          <Link href="/auth/register" className="text-xl bg-zinc-500 text-white px-6 py-2 rounded-full hover:bg-gray-700 transition" onClick={() => setIsMenuOpen(false)}>Sign up</Link>
-        </>
-      );
-    }
-
     return (
       <>
-        <Link href={"/profile" + user?.userId} className="text-xl text-white hover:text-gray-400 transition" onClick={() => setIsMenuOpen(false)}>Profile</Link>
+        <Link href={"/profile" + user?.username} className="text-xl text-white hover:text-gray-400 transition" onClick={() => setIsMenuOpen(false)}>Profile</Link>
         <Link href="/match" className="text-xl text-white hover:text-gray-400 transition" onClick={() => setIsMenuOpen(false)}>Queue</Link>
         <button onClick={() => { logout(); setIsMenuOpen(false); }} className="text-xl text-white hover:text-gray-400 transition">Logout</button>
       </>
@@ -122,7 +113,7 @@ export default function MenuBar() {
             <Link href="/tournaments" className="text-xl text-white hover:text-gray-400 transition" onClick={() => setIsMenuOpen(false)}>Tournaments</Link>
             {isAuthenticated && (
               <>
-                <Link href="/profile" className="text-xl text-white hover:text-gray-400 transition" onClick={() => setIsMenuOpen(false)}>Profile</Link>
+                <Link href={"/profile" + user?.username} className="text-xl text-white hover:text-gray-400 transition" onClick={() => setIsMenuOpen(false)}>Profile</Link>
                 <Link href="/match" className="text-xl text-white hover:text-gray-400 transition" onClick={() => setIsMenuOpen(false)}>Queue</Link>
               </>
             )}

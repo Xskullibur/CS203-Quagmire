@@ -103,6 +103,26 @@ class PlayerProfileControllerIntegrationTest {
     }
 
     @Test
+    void getUserByUsername_ValidId_ReturnsProfile() throws Exception {
+        when(playerProfileService.findByUsername(testUser.getUsername())).thenReturn(testProfile);
+
+        mockMvc.perform(get("/profile?username={username}", testUser.getUsername()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.firstName").value(testProfile.getFirstName()))
+                .andExpect(jsonPath("$.lastName").value(testProfile.getLastName()))
+                .andExpect(jsonPath("$.bio").value(testProfile.getBio()))
+                .andExpect(jsonPath("$.country").value(testProfile.getCountry()));
+    }
+
+    @Test
+    void getUserByUsername_InvalidId_ReturnsNotFound() throws Exception {
+        when(playerProfileService.findByUsername(testUser.getUsername())).thenReturn(null);
+
+        mockMvc.perform(get("/profile?username={username}", testUser.getUsername()))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
     void getUserByPlayerId_ValidId_ReturnsProfile() throws Exception {
         when(playerProfileService.findByProfileId(TEST_PROFILE_ID)).thenReturn(testProfile);
 

@@ -70,10 +70,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String path = request.getRequestURI();
     
         return !(path.startsWith("/profile/edit")) && (
-                path.startsWith("/authentication/") ||
-                path.startsWith("/ws/") ||
-                path.startsWith("/profile/") ||
-                path.startsWith("/leaderboard/user/")
+                path.startsWith("/authentication") ||
+                path.startsWith("/ws") ||
+                path.startsWith("/profile") ||
+                path.startsWith("/leaderboard/user")
         );
     }
 
