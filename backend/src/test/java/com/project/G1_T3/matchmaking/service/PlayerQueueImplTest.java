@@ -18,7 +18,7 @@ class PlayerQueueImplTest {
     @Test
     void addPlayer_shouldIncreaseSize() {
         PlayerProfile mockProfile = mock(PlayerProfile.class);
-        when(mockProfile.getCurrentRating()).thenReturn((float) 1000.0);
+        when(mockProfile.getGlickoRating()).thenReturn((float) 1000.0);
 
         playerQueue.addPlayer(mockProfile, 0, 0);
         assertEquals(1, playerQueue.size());
@@ -32,7 +32,7 @@ class PlayerQueueImplTest {
     @Test
     void pollPlayer_shouldDecreaseSize() {
         PlayerProfile mockProfile = mock(PlayerProfile.class);
-        when(mockProfile.getCurrentRating()).thenReturn((float) 1000.0);
+        when(mockProfile.getGlickoRating()).thenReturn((float) 1000.0);
 
         playerQueue.addPlayer(mockProfile, 0, 0);
         assertNotNull(playerQueue.pollPlayer());
@@ -42,10 +42,10 @@ class PlayerQueueImplTest {
     @Test
     void pollPlayer_shouldReturnPlayersInPriorityOrder() throws InterruptedException {
         PlayerProfile highPriority = mock(PlayerProfile.class);
-        when(highPriority.getCurrentRating()).thenReturn((float) 2000.0);
+        when(highPriority.getGlickoRating()).thenReturn((float) 2000.0);
 
         PlayerProfile lowPriority = mock(PlayerProfile.class);
-        when(lowPriority.getCurrentRating()).thenReturn((float) 1000.0);
+        when(lowPriority.getGlickoRating()).thenReturn((float) 1000.0);
 
         playerQueue.addPlayer(lowPriority, 0, 0);
         Thread.sleep(100); // Ensure different join times
@@ -60,7 +60,7 @@ class PlayerQueueImplTest {
         assertEquals(0, playerQueue.size());
 
         PlayerProfile mockProfile = mock(PlayerProfile.class);
-        when(mockProfile.getCurrentRating()).thenReturn((float) 1000.0);
+        when(mockProfile.getGlickoRating()).thenReturn((float) 1000.0);
 
         playerQueue.addPlayer(mockProfile, 0, 0);
         assertEquals(1, playerQueue.size());

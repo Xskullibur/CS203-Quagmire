@@ -92,7 +92,7 @@ public class StageServiceImpl implements StageService {
     
         // Sort players by rating
         List<PlayerProfile> sortedPlayers = new ArrayList<>(players);
-        Collections.sort(sortedPlayers, (a, b) -> Double.compare(b.getCurrentRating(), a.getCurrentRating()));
+        Collections.sort(sortedPlayers, (a, b) -> Double.compare(b.getGlickoRating(), a.getGlickoRating()));
     
         // Create the first round with sorted players
         try {

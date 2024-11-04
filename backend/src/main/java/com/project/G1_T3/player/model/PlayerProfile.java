@@ -150,7 +150,7 @@ public class PlayerProfile {
         return dateOfBirth;
     }
 
-    public Float getCurrentRating() {
+    public Float getGlickoRating() {
         return currentRating;
     }
 

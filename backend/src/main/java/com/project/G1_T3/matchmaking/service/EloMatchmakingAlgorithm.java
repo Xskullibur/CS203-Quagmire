@@ -22,7 +22,7 @@ public class EloMatchmakingAlgorithm implements MatchmakingAlgorithm {
      */
     @Override
     public boolean isGoodMatch(QueuedPlayer player1, QueuedPlayer player2) {
-        int ratingDifference = (int) Math.abs(player1.getPlayer().getCurrentRating() - player2.getPlayer().getCurrentRating());
+        int ratingDifference = (int) Math.abs(player1.getPlayer().getGlickoRating() - player2.getPlayer().getGlickoRating());
         double distance = calculateDistance(player1, player2);
         long maxQueueTime = Math.max(player1.getQueueTimeSeconds(), player2.getQueueTimeSeconds());
 

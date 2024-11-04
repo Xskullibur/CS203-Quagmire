@@ -15,7 +15,7 @@ class QueuedPlayerTest {
     @BeforeEach
     void setUp() {
         mockProfile = mock(PlayerProfile.class);
-        when(mockProfile.getCurrentRating()).thenReturn((float) 1000.0);
+        when(mockProfile.getGlickoRating()).thenReturn((float) 1000.0);
         queuedPlayer = new QueuedPlayer(mockProfile, 10, 20);
     }
 
