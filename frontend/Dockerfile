@@ -24,7 +24,6 @@ RUN ls -la node_modules | grep framer-motion && npm run build
 
 # Production image, copy all the files and run next
 FROM node:18.17.0-alpine AS runner
-
 WORKDIR /app
 
 # Set environment variables
@@ -42,7 +41,6 @@ RUN adduser -S nextjs -u 1001
 
 # Change ownership of the app directory to the non-root user
 RUN chown -R nextjs:nodejs /app
-
 # Switch to non-root user
 USER nextjs
 
