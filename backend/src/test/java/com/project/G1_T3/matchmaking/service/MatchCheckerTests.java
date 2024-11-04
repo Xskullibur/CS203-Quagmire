@@ -65,8 +65,8 @@ class MatchCheckerTests {
         matchChecker.checkForMatches();
 
         // Assert
-        verify(player1Profile).getUser();
-        verify(player2Profile).getUser();
+        verify(player1Profile, atLeastOnce()).getUser();
+        verify(player2Profile, atLeastOnce()).getUser();
         verify(matchmakingService).findMatch();
         verify(playerProfileRepository).findById(player1Id);
         verify(playerProfileRepository).findById(player2Id);

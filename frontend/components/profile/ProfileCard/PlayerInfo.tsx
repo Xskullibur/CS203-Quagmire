@@ -1,6 +1,8 @@
 import Image from "next/image";
 import { PlayerProfile } from "@/types/player-profile";
 
+const PROFILE_IMAGE_API = process.env.NEXT_PUBLIC_PROFILEPICTURE_API_URL;
+
 interface PlayerInfoProps {
   playerProfile: PlayerProfile;
 }
@@ -8,7 +10,7 @@ interface PlayerInfoProps {
 export const PlayerInfo = ({ playerProfile }: PlayerInfoProps) => (
   <div className="flex flex-col items-center">
     <Image
-      src={playerProfile.profilePicturePath}
+      src={playerProfile.profilePicturePath ?? `${PROFILE_IMAGE_API}${playerProfile.username}`}
       alt={`${playerProfile.firstName} ${playerProfile.lastName}`}
       width={100}
       height={100}

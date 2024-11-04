@@ -42,7 +42,7 @@ public class PlayerProfileDTO {
 
     public PlayerProfileDTO(PlayerProfile playerProfile) {
         this.profileId = playerProfile.getProfileId();
-        this.username = playerProfile.getName();
+        this.username = playerProfile.getUser().getUsername();
         this.firstName = playerProfile.getFirstName();
         this.lastName = playerProfile.getLastName();
         this.dateOfBirth = playerProfile.getDateOfBirth();
