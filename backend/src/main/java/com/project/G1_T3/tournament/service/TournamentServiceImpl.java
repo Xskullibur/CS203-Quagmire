@@ -135,12 +135,7 @@ public class TournamentServiceImpl implements TournamentService {
             }
         }
 
-        Set<UUID> refereeIds = tournamentDTO.getRefereeIds();
-        Set<PlayerProfile> referees = new HashSet<>();
-        for (UUID refereeId : refereeIds) {
-            referees.add(playerProfileService.findByProfileId(refereeId));
-        }
-        tournament.setReferees(referees);
+
         tournamentRepository.save(tournament);
 
         // Handle stage creation
@@ -246,7 +241,6 @@ public class TournamentServiceImpl implements TournamentService {
 
         Stage curStage = allStages.get(0);
         curStage.setPlayers(new HashSet<>(tournament.getPlayers()));
-        curStage.setReferees(new HashSet<>(tournament.getReferees()));
 
         int numStages = allStages.size();
         tournament.setNumStages(numStages);
@@ -290,7 +284,6 @@ public class TournamentServiceImpl implements TournamentService {
 
             // Get the next stage DTO
             nextStage.setPlayers(progressingPlayers);
-            nextStage.setReferees(tournament.getReferees());
 
             // Increment the current stage index
             tournament.setCurrentStageIndex(nextStageIndex);

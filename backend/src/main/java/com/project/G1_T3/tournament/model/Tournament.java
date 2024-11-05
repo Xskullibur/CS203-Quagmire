@@ -72,15 +72,6 @@ public class Tournament {
     @JsonIgnore
     private Set<PlayerProfile> players;
 
-    @ManyToMany
-    @JoinTable(
-        name = "tournament_referees",  // Create a join table for referees in each stage
-        joinColumns = @JoinColumn(name = "tournament_id"),
-        inverseJoinColumns = @JoinColumn(name = "profile_id")
-    )
-    @JsonIgnore
-    private Set<PlayerProfile> referees;
-
     @OneToMany(mappedBy = "tournament", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
     private List<Stage> stages = new ArrayList<>();  // Add a list to hold the stage

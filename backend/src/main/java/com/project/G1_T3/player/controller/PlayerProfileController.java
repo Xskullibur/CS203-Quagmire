@@ -48,17 +48,6 @@ public class PlayerProfileController {
         return ResponseEntity.ok(playerProfile);
     }
 
-    @GetMapping("/player/{username}")
-    public ResponseEntity<PlayerProfile> getUserByUsername(@PathVariable String username) {
-        PlayerProfile playerProfile = playerProfileService.findUserByUsername(username);
-
-        if (playerProfile == null) {
-            return ResponseEntity.notFound().build();
-        }
-
-        return ResponseEntity.ok(playerProfile);
-    }
-
     @GetMapping("/rank/{userId}")
     public ResponseEntity<Integer> getPlayerRankByUserId(@PathVariable String userId) {
         PlayerProfile playerProfile = playerProfileService.findByUserId(userId);

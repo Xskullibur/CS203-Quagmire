@@ -1,9 +1,6 @@
 package com.project.G1_T3.player.service;
 
 import com.project.G1_T3.player.repository.PlayerProfileRepository;
-import com.project.G1_T3.user.service.UserService;
-import com.project.G1_T3.user.model.User;
-
 import jakarta.persistence.EntityNotFoundException;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,8 +19,6 @@ public class PlayerProfileService {
     @Autowired
     private PlayerProfileRepository playerProfileRepository;
 
-    @Autowired
-    private UserService userService;
 
     public List<PlayerProfile> findAll() {
         try {
@@ -62,24 +57,6 @@ public class PlayerProfileService {
         }
     }
 
-    public PlayerProfile findUserByUsername(String username) {
-        try {
-            Optional<User> user = userService.findByUsername(username);
-
-            if (!user.isPresent()) {
-                throw new EntityNotFoundException("Username: " + username + " does not exist.");
-            }
-            User actualUser = user.get();
-
-            PlayerProfile profile = playerProfileRepository.findByUserId(actualUser.getUserId());
-            if (profile == null) {
-                throw new EntityNotFoundException("Player profile not found for profileId: " + username);
-            }
-            return profile;
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Invalid username format for profileId: " + username, e);
-        }
-    }
 
     public PlayerProfile findByProfileId(String id) {
         try {

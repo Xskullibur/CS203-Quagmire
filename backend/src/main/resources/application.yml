@@ -70,7 +70,7 @@ app:
 
 firebase:
     credentials:
-        path: '.firebase\'  # Insert path to private key here
+        path: '.firebase\quagmire-smu-firebase-adminsdk-7qc2z-e4839f85c5.json\'  # Insert path to private key here
     storage:
         url: 'https://firebasestorage.googleapis.com/v0/b/'
         bucket: 'quagmire-smu.appspot.com'

@@ -6,18 +6,17 @@ import AutoAdvanceMatch from "@/components/tournaments/AutoAdvanceMatch";
 import { Button } from "@/components/ui/button";
 import { MatchTracker } from "@/types/matchTracker";
 import { Input } from "@/components/ui/input";
-import { getCurrentStageFromTournament, getMatchesForRound, getRoundsForTournamentAndStageId, getRefereeIds, getProfileFromUsername } from "@/hooks/tournamentDataManager";
+import { getCurrentStageFromTournament, getMatchesForRound, getRoundsForTournamentAndStageId } from "@/hooks/tournamentDataManager";
 import { useAuth } from "@/hooks/useAuth";
-
-
-
+import { UserRole } from "@/models/user-role";
+import withAuth from "@/hooks/withAuth";
 
 const BracketsPage = () => {
-  const {user, isAuthenticated} = useAuth();
+  const { user, isAuthenticated } = useAuth();
+  const isAdmin = user?.role === UserRole.ADMIN;
+
   const id = (Array.isArray(useParams().id) ? useParams().id[0] : useParams().id).toString();
 
-
-  const [referees, setReferees] = useState<Set<String>>(new Set);
   const [currentStageIndex, setCurrentStageIndex] = useState(0);
   const [roundIds, setRoundIds] = useState<string[]>([]); // Array to keep track of round IDs
   const [searchQuery, setSearchQuery] = useState("");
@@ -25,19 +24,14 @@ const BracketsPage = () => {
   const [matches, setMatches] = useState<MatchTracker[]>([]);
   const [filteredMatches, setFilteredMatches] = useState(matches);
 
-
   useEffect(() => {
     const initialiseTournament = async () => {
       try {
         const currentStage = await getCurrentStageFromTournament(id);
-        const refereeIds = await getRefereeIds(id);
-        setReferees(refereeIds);
-
         const rounds = await getRoundsForTournamentAndStageId(id, currentStage.id);
         if (rounds.length > 0) {
-          const roundIdsArray = rounds.map((round: any) => round.id); // Populate round IDs
-          setRoundIds(roundIdsArray); // Set the round IDs in state
-
+          const roundIdsArray = rounds.map((round: any) => round.id);
+          setRoundIds(roundIdsArray);
           const matches = await getMatchesForRound(rounds[rounds.length - 1].id);
           if (matches && Array.isArray(matches)) {
             setMatches(matches);
@@ -51,8 +45,8 @@ const BracketsPage = () => {
     initialiseTournament();
   }, [id]);
 
-
   const handleNextRound = async () => {
+    if (!isAdmin) return; // Only allow admin to proceed to next round
     if (currentStageIndex < roundIds.length - 1) {
       try {
         const nextRoundId = roundIds[currentStageIndex + 1];
@@ -84,8 +78,12 @@ const BracketsPage = () => {
     }
   };
 
-
   const handleMatchComplete = (index: number, winner: { userId: string; id: string }) => {
+    if (!isAdmin) {
+      alert("Only administrators can update match results.");
+      return;
+    }
+
     const updatedMatches = matches.map((match, i) =>
       i === index ? { ...match, completed: true, winner: winner } : match
     );
@@ -109,7 +107,6 @@ const BracketsPage = () => {
     setFilteredMatches(filtered);
   }, [searchQuery, matches]);
 
-
   return (
     <div className="container w-10/12 mx-auto mt-12 px-4 py-8">
       <h1 className="text-3xl font-semibold mb-6 text-center">Round {currentStageIndex + 1}</h1>
@@ -131,7 +128,7 @@ const BracketsPage = () => {
               key={index}
               player1={match.player1}
               player2={match.player2}
-              onMatchComplete={(winner) => handleMatchComplete(index, winner)}
+              onMatchComplete={isAdmin ? (winner) => handleMatchComplete(index, winner) : undefined} // Only allow admin to update match results
             />
           ) : (
             <AutoAdvanceMatch
@@ -152,7 +149,7 @@ const BracketsPage = () => {
         </Button>
         <Button
           onClick={handleNextRound}
-          disabled={!nextRoundEnabled || currentStageIndex === roundIds.length - 1}
+          disabled={!nextRoundEnabled || currentStageIndex === roundIds.length - 1 || !isAdmin} // Only allow admin to proceed to next stage
           className={`mt-4 ${nextRoundEnabled ? "bg-green-500" : "bg-gray-300"}`}
         >
           Next Stage
@@ -162,4 +159,4 @@ const BracketsPage = () => {
   );
 };
 
-export default BracketsPage;
+export default withAuth(BracketsPage, UserRole.ADMIN);
