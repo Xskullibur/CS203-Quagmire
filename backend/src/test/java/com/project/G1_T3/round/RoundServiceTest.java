@@ -202,91 +202,91 @@ class RoundServiceTest {
         assertEquals("Stage not found", exception.getMessage());
     }
     
-    // @Test
-    // void endRound_nullRoundId_throwsException() {
-    //     // Act & Assert
-    //     IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-    //         roundService.endRound(null);
-    //     });
-    //     assertEquals("Round ID must not be null", exception.getMessage());
-    // }
+    @Test
+    void endRound_nullRoundId_throwsException() {
+        // Act & Assert
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            roundService.endRound(null);
+        });
+        assertEquals("Round ID must not be null", exception.getMessage());
+    }
 
-    // @Test
-    // void endRound_roundNotFound_throwsException() {
-    //     // Arrange
-    //     when(roundRepository.findById(roundId)).thenReturn(Optional.empty());
+    @Test
+    void endRound_roundNotFound_throwsException() {
+        // Arrange
+        when(roundRepository.findById(roundId)).thenReturn(Optional.empty());
 
-    //     // Act & Assert
-    //     RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-    //         roundService.endRound(roundId);
-    //     });
-    //     assertEquals("Round not found", exception.getMessage());
-    // }
+        // Act & Assert
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            roundService.endRound(roundId);
+        });
+        assertEquals("Round not found", exception.getMessage());
+    }
 
-    // @Test
-    // void endRound_noMatchesFound_throwsException() {
-    //     // Arrange
-    //     round.setMatches(new ArrayList<>());
-    //     when(roundRepository.findById(roundId)).thenReturn(Optional.of(round));
+    @Test
+    void endRound_noMatchesFound_throwsException() {
+        // Arrange
+        round.setMatches(new ArrayList<>());
+        when(roundRepository.findById(roundId)).thenReturn(Optional.of(round));
 
-    //     // Act & Assert
-    //     IllegalStateException exception = assertThrows(IllegalStateException.class, () -> {
-    //         roundService.endRound(roundId);
-    //     });
-    //     assertEquals("No matches found for this round", exception.getMessage());
-    // }
+        // Act & Assert
+        IllegalStateException exception = assertThrows(IllegalStateException.class, () -> {
+            roundService.endRound(roundId);
+        });
+        assertEquals("No matches found for this round", exception.getMessage());
+    }
 
-    // @Test
-    // void endRound_noWinnerFound_throwsException() {
-    //     // Arrange
-    //     when(roundRepository.findById(roundId)).thenReturn(Optional.of(round));
-    //     when(playerProfileRepository.findByProfileId(any(UUID.class))).thenReturn(null);  // No winner found
+    @Test
+    void endRound_noWinnerFound_throwsException() {
+        // Arrange
+        when(roundRepository.findById(roundId)).thenReturn(Optional.of(round));
+        when(playerProfileRepository.findByProfileId(any(UUID.class))).thenReturn(null);  // No winner found
 
-    //     // Act & Assert
-    //     IllegalStateException exception = assertThrows(IllegalStateException.class, () -> {
-    //         roundService.endRound(roundId);
-    //     });
-    //     assertEquals("Winner not found for match with ID: " + matches.get(0).getMatchId(), exception.getMessage());
-    // }
+        // Act & Assert
+        IllegalStateException exception = assertThrows(IllegalStateException.class, () -> {
+            roundService.endRound(roundId);
+        });
+        assertEquals("Winner not found for match with ID: " + matches.get(0).getMatchId(), exception.getMessage());
+    }
 
-    // @Test
-    // void endRound_multiplePlayersAdvance_createNextRound() {
-    //     // Arrange
-    //     when(roundRepository.findById(roundId)).thenReturn(Optional.of(round));
-    //     when(playerProfileRepository.findByProfileId(player1.getProfileId())).thenReturn(player1);
-    //     when(playerProfileRepository.findByProfileId(player2.getProfileId())).thenReturn(player2);
+    @Test
+    void endRound_multiplePlayersAdvance_createNextRound() {
+        // Arrange
+        when(roundRepository.findById(roundId)).thenReturn(Optional.of(round));
+        when(playerProfileRepository.findByProfileId(player1.getProfileId())).thenReturn(player1);
+        when(playerProfileRepository.findByProfileId(player2.getProfileId())).thenReturn(player2);
 
-    //     // Act
-    //     roundService.endRound(roundId);
+        // Act
+        roundService.endRound(roundId);
 
-    //     // Assert
-    //     verify(roundRepository, times(1)).findById(roundId);
-    //     verify(playerProfileRepository, times(1)).findByProfileId(player1.getProfileId());
-    //     verify(playerProfileRepository, times(1)).findByProfileId(player2.getProfileId());
+        // Assert
+        verify(roundRepository, times(1)).findById(roundId);
+        verify(playerProfileRepository, times(1)).findByProfileId(player1.getProfileId());
+        verify(playerProfileRepository, times(1)).findByProfileId(player2.getProfileId());
 
-    //     // Ensure `createNextRound` is indirectly called by checking if `roundRepository.save` is called
-    //     verify(roundRepository, times(1)).save(any(Round.class));
-    // }
+        // Ensure `createNextRound` is indirectly called by checking if `roundRepository.save` is called
+        verify(roundRepository, times(1)).save(any(Round.class));
+    }
 
-    // @Test
-    // void endRound_onePlayerAdvances_endsStage() {
-    //     // Arrange
-    //     Match match = new Match();
-    //     match.setWinnerId(player1.getProfileId());  // Only one winner in this round
-    //     round.setMatches(Collections.singletonList(match));
+    @Test
+    void endRound_onePlayerAdvances_endsStage() {
+        // Arrange
+        Match match = new Match();
+        match.setWinnerId(player1.getProfileId());  // Only one winner in this round
+        round.setMatches(Collections.singletonList(match));
 
-    //     stage.setProgressingPlayers(new HashSet<>());
-    //     stage.getProgressingPlayers().add(player1);
+        stage.setProgressingPlayers(new HashSet<>());
+        stage.getProgressingPlayers().add(player1);
 
-    //     when(roundRepository.findById(roundId)).thenReturn(Optional.of(round));
-    //     when(playerProfileRepository.findByProfileId(player1.getProfileId())).thenReturn(player1);
+        when(roundRepository.findById(roundId)).thenReturn(Optional.of(round));
+        when(playerProfileRepository.findByProfileId(player1.getProfileId())).thenReturn(player1);
 
-    //     // Act
-    //     roundService.endRound(roundId);
+        // Act
+        roundService.endRound(roundId);
 
-    //     // Assert
-    //     verify(stageRepository, times(1)).save(stage);
-    //     assertEquals(player1.getProfileId(), stage.getWinnerId());  // Ensure the winner is set
-    //     assertEquals(Status.COMPLETED, stage.getStatus());
-    // }
+        // Assert
+        verify(stageRepository, times(1)).save(stage);
+        assertEquals(player1.getProfileId(), stage.getWinnerId());  // Ensure the winner is set
+        assertEquals(Status.COMPLETED, stage.getStatus());
+    }
 }

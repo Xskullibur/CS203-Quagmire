@@ -52,7 +52,7 @@ public class PlayerProfileDTO {
         this.dateOfBirth = playerProfile.getDateOfBirth();
         this.country = playerProfile.getCountry();
         this.bio = playerProfile.getBio();
-        this.currentRating = playerProfile.getGlickoRating();
+        this.currentRating = playerProfile.getCurrentRating();
     }
 
     // Constructor, getters, and setters
@@ -113,7 +113,7 @@ public class PlayerProfileDTO {
         this.bio = bio;
     }
 
-    public Float getGlickoRating() {
+    public Float getCurrentRating() {
         return currentRating;
     }
 

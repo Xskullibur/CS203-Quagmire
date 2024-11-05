@@ -212,7 +212,7 @@ public class MatchmakingServiceImpl implements MatchmakingService {
                 player.getPlayer().getUserId(),
                 player.getPlayer().getProfileId(),
                 player.getPriority(),
-                player.getPlayer().getGlickoRating()));
+                player.getPlayer().getCurrentRating()));
         log.debug("--------------------");
     }
 }
