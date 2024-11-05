@@ -1,4 +1,4 @@
-import { MatchTracker } from "@/types/matchtracker";
+import { MatchTracker } from "@/types/matchTracker";
 import { playerIdentifier } from "@/types/playerIdentifier";
 import axios from "axios";
 
@@ -14,43 +14,54 @@ const getPlayerProfileById = async (id: string): Promise<playerIdentifier> => {
     }
 };
 
+const getRefereeIds = async (id: string): Promise<Set<string>> => {
+    try {
+        const response = await axios.get(`/tournament/DTO/${id}`);
+        const refereeIds = response.data.refereeIds;
+        return refereeIds;
+    } catch (error) {
+        console.error("Error fetching refereeIds");
+        throw error;
+    }
+}
+
 const convertMatchToMatchTracker = async (match: any): Promise<MatchTracker> => {
     try {
-      // Fetch player profiles for player1 and player2
-      const player1Profile = await getPlayerProfileById(match.player1Id);
-      const player2Profile = match.player2Id ? await getPlayerProfileById(match.player2Id) : null;
+        // Fetch player profiles for player1 and player2
+        const player1Profile = await getPlayerProfileById(match.player1Id);
+        const player2Profile = match.player2Id ? await getPlayerProfileById(match.player2Id) : null;
 
-  
-      // Create the MatchTracker object
-      const matchTracker: MatchTracker = {
-        player1: {
-          userId: player1Profile.userId,
-          id: match.player1Id,
-          score: 0,
-        },
-        player2: player2Profile
-          ? {
-              userId: player2Profile.userId,
-              id: match.player2Id,
-              score: 0,
-            }
-          : null,
-        winner: match.winnerId
-          ? {
-              userId: match.winnerId,
-              id: match.winnerId,
-            }
-          : undefined,
-        completed: match.status === 'COMPLETED',
-      };
-  
-      return matchTracker;
+
+        // Create the MatchTracker object
+        const matchTracker: MatchTracker = {
+            player1: {
+                userId: player1Profile.userId,
+                id: match.player1Id,
+                score: 0,
+            },
+            player2: player2Profile
+                ? {
+                    userId: player2Profile.userId,
+                    id: match.player2Id,
+                    score: 0,
+                }
+                : null,
+            winner: match.winnerId
+                ? {
+                    userId: match.winnerId,
+                    id: match.winnerId,
+                }
+                : undefined,
+            completed: match.status === 'COMPLETED',
+        };
+
+        return matchTracker;
     } catch (error) {
-      console.error('Error converting match to MatchTracker:', error);
-      throw error;
+        console.error('Error converting match to MatchTracker:', error);
+        throw error;
     }
-  };
-  
+};
+
 
 
 const getCurrentStageFromTournament = async (tournamentId: string) => {
@@ -94,8 +105,21 @@ const getMatchesForRound = async (roundId: string) => {
 
     } catch (error) {
         console.error("Failed to fetch matches", error);
+        throw error;
     }
 
 }
 
-export { getCurrentStageFromTournament, getMatchesForRound, getRoundsForTournamentAndStageId }
+const getProfileFromUsername = async (username: string) => {
+    try {
+        const response = await axios.get(`/profile/player/${username}`);
+        const profileId = response.data.profileId;
+        return profileId;
+    }
+    catch (error) {
+        console.error("Failed to fetch profileId", error);
+        throw error;
+    }
+}
+
+export { getCurrentStageFromTournament, getMatchesForRound, getRoundsForTournamentAndStageId, getRefereeIds, getProfileFromUsername }

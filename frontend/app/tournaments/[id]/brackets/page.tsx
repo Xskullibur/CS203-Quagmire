@@ -4,15 +4,20 @@ import { useParams } from "next/navigation";
 import BracketMatch from "@/components/tournaments/BracketMatch";
 import AutoAdvanceMatch from "@/components/tournaments/AutoAdvanceMatch";
 import { Button } from "@/components/ui/button";
-import { MatchTracker } from "@/types/matchtracker";
+import { MatchTracker } from "@/types/matchTracker";
 import { Input } from "@/components/ui/input";
-import { getCurrentStageFromTournament, getMatchesForRound, getRoundsForTournamentAndStageId } from "@/hooks/tournamentDataManager";
+import { getCurrentStageFromTournament, getMatchesForRound, getRoundsForTournamentAndStageId, getRefereeIds, getProfileFromUsername } from "@/hooks/tournamentDataManager";
+import { useAuth } from "@/hooks/useAuth";
+
 
 
 
 const BracketsPage = () => {
+  const {user, isAuthenticated} = useAuth();
   const id = (Array.isArray(useParams().id) ? useParams().id[0] : useParams().id).toString();
 
+
+  const [referees, setReferees] = useState<Set<String>>(new Set);
   const [currentStageIndex, setCurrentStageIndex] = useState(0);
   const [roundIds, setRoundIds] = useState<string[]>([]); // Array to keep track of round IDs
   const [searchQuery, setSearchQuery] = useState("");
@@ -20,10 +25,13 @@ const BracketsPage = () => {
   const [matches, setMatches] = useState<MatchTracker[]>([]);
   const [filteredMatches, setFilteredMatches] = useState(matches);
 
+
   useEffect(() => {
-    const fetchStageAndMatches = async () => {
+    const initialiseTournament = async () => {
       try {
         const currentStage = await getCurrentStageFromTournament(id);
+        const refereeIds = await getRefereeIds(id);
+        setReferees(refereeIds);
 
         const rounds = await getRoundsForTournamentAndStageId(id, currentStage.id);
         if (rounds.length > 0) {
@@ -40,7 +48,7 @@ const BracketsPage = () => {
         console.error('Error fetching stage and matches:', error);
       }
     };
-    fetchStageAndMatches();
+    initialiseTournament();
   }, [id]);
 
 
