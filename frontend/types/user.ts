@@ -1,4 +1,4 @@
-// frontend/models/User.ts
+// frontend/types/user.ts
 
 import { UserRole } from "./user-role";
 
@@ -10,4 +10,5 @@ export interface User {
   createdAt: string;
   updatedAt: string;
   emailVerified: boolean;
+  isLocked: boolean;
 }

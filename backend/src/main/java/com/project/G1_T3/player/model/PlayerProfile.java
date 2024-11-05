@@ -1,13 +1,30 @@
 package com.project.G1_T3.player.model;
 
-import java.time.LocalDate;
-import java.util.*;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.project.G1_T3.common.glicko.Glicko2Rating;
+import com.project.G1_T3.common.glicko.Glicko2Result;
 import com.project.G1_T3.tournament.model.Tournament;
-import com.project.G1_T3.common.glicko.*;
+import com.project.G1_T3.user.model.User;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.PostLoad;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
+import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
-import jakarta.persistence.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -28,8 +45,10 @@ public class PlayerProfile {
     @GeneratedValue()
     private UUID profileId;
 
-    @Column(name = "user_id", nullable = false)
-    private UUID userId;
+    @OneToOne
+    @JoinColumn(name = "user_id", referencedColumnName = "user_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private User user;
 
     @Column(name = "first_name", nullable = true)
     private String firstName;
@@ -62,33 +81,27 @@ public class PlayerProfile {
     @Column(name = "current_rating")
     private float currentRating = 0f;
 
+    @Column()
     @Transient
     private Glicko2Rating glicko2Rating;
 
+    @Column(name = "profile_picture_path")
+    private String profilePicturePath;
+
+    @ManyToMany(mappedBy = "players", cascade = CascadeType.ALL)
+    private Set<Tournament> tournaments = new HashSet<>();
 
     // Override equals() method for proper comparison in matchmaking
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (!(obj instanceof PlayerProfile))
+        }
+        if (!(obj instanceof PlayerProfile)) {
             return false;
+        }
         PlayerProfile other = (PlayerProfile) obj;
-        return this.glickoRating == other.glickoRating &&
-                this.community.equals(other.community);
-    }
-
-    // Path that profile picture is stored in
-    @Column(name = "profile_picture_path")
-    private String profilePicturePath;
-
-    // Getters, setters, and other methods...
-    public UUID getProfileId() {
-        return profileId;
-    }
-
-    public void setCurrentRating(){
-        currentRating = glickoRating + DEVIATION_SCALE / ratingDeviation + VOLATILITY_SCALE / volatility;
+        return this.glickoRating == other.glickoRating && this.community.equals(other.community);
     }
 
     @PostLoad
@@ -98,11 +111,12 @@ public class PlayerProfile {
 
     private void syncGlicko2Rating() {
         if (this.glicko2Rating == null) {
+            this.glicko2Rating = new Glicko2Rating(this.glickoRating, this.ratingDeviation,
+                this.volatility);
             this.glicko2Rating = new Glicko2Rating(
                 this.glickoRating,
                 this.ratingDeviation,
-                this.volatility
-            );
+                this.volatility);
         } else {
             this.glicko2Rating.setRating((float) this.glickoRating);
             this.glicko2Rating.setRatingDeviation(this.ratingDeviation);
@@ -138,16 +152,13 @@ public class PlayerProfile {
         setCurrentRating();
     }
 
-
-    @ManyToMany(mappedBy = "players", cascade = CascadeType.ALL)
-    private Set<Tournament> tournaments = new HashSet<>();
-
-    public String getUsername() {
-        return firstName + " " + lastName;
+    public void setCurrentRating() {
+        currentRating =
+            glickoRating + DEVIATION_SCALE / ratingDeviation + VOLATILITY_SCALE / volatility;
     }
 
-    public LocalDate getDateOfBirth() {
-        return dateOfBirth;
+    public String getName() {
+        return firstName + " " + lastName;
     }
 
     public Float getCurrentRating() {
@@ -156,6 +167,10 @@ public class PlayerProfile {
 
     public PlayerProfileDTO getProfile() {
         return new PlayerProfileDTO(this);
+    }
+
+    public double getCurrentRD() {
+        return ratingDeviation;
     }
 
 }

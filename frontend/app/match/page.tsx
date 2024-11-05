@@ -9,10 +9,11 @@ import withAuth from '@/hooks/withAuth';
 import dynamic from 'next/dynamic';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import ProfilePlayerCard from '@/components/matches/ProfilePlayerCard';
-import { PlayerProfile } from '@/types/player';
+import { PlayerProfile } from '@/types/player-profile';
 import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { useGeolocation } from '@/hooks/useGeolocation'; // Import the useGeolocation hook
+import { useGlobalErrorHandler } from '../context/ErrorMessageProvider';
 
 const MatchMap = dynamic(() => import('@/components/matches/MatchMap'), { ssr: false });
 
@@ -20,25 +21,25 @@ const API_URL = `${process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL}`;
 
 /**
  * Match component that handles the display and management of a player's active match.
- * It utilizes various hooks to fetch and display player and opponent profiles, 
+ * It utilizes various hooks to fetch and display player and opponent profiles,
  * as well as the meeting point for the match.
- * 
+ *
  * @component
  * @returns {JSX.Element} The rendered component.
- * 
- * 
+ *
+ *
  * @remarks
  * This component requires the `useAuth` and `useGeolocation` hooks to function properly.
  * It also makes API calls to fetch player and opponent profiles, as well as the current active match.
- * 
+ *
  * @hook
  * @function useAuth
  * @returns {object} The authenticated user object.
- * 
+ *
  * @hook
  * @function useGeolocation
  * @returns {object} The geolocation data including location, error, and loading state.
- * 
+ *
  * @state {string | null} playerId - The ID of the current player.
  * @state {boolean} matchFound - Indicates if a match has been found.
  * @state {string} opponentName - The name of the opponent.
@@ -46,33 +47,34 @@ const API_URL = `${process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL}`;
  * @state {PlayerProfile | null} opponentProfile - The profile of the opponent.
  * @state {any | null} activeMatch - The current active match data.
  * @state {PlayerProfile | null} playerProfile - The profile of the current player.
- * 
+ *
  * @function checkForActiveMatch
  * @async
  * @param {string} userId - The ID of the user to check for an active match.
  * @description Checks if there is an active match for the given user ID and updates the state accordingly.
- * 
+ *
  * @function fetchPlayerProfile
  * @async
  * @param {string} userId - The ID of the user to fetch the profile for.
  * @description Fetches the profile of the given user ID and updates the state.
- * 
+ *
  * @function fetchOpponentProfile
  * @async
  * @param {string} opponentId - The ID of the opponent to fetch the profile for.
  * @description Fetches the profile of the given opponent ID and updates the state.
- * 
+ *
  * @function handleMatchFound
  * @param {boolean} matchFound - Indicates if a match has been found.
  * @param {string} opponent - The name of the opponent.
  * @param {[number, number]} meeting - The coordinates of the meeting point.
  * @param {PlayerProfile} profile - The profile of the opponent.
  * @description Handles the event when a match is found and updates the state accordingly.
- * 
+ *
  * @returns {JSX.Element} The rendered component.
  */
 const Match: React.FC = () => {
     const { user } = useAuth();
+    const { handleError } = useGlobalErrorHandler();
     const [playerId, setPlayerId] = useState<string | null>(null);
     const [matchFound, setMatchFound] = useState(false);
     const [opponentName, setOpponentName] = useState('');
@@ -84,15 +86,7 @@ const Match: React.FC = () => {
     // Use the useGeolocation hook
     const { location, error: locationError, loading: locationLoading } = useGeolocation();
 
-    useEffect(() => {
-        if (user?.userId) {
-            setPlayerId(user.userId);
-            checkForActiveMatch(user.userId);
-            fetchPlayerProfile(user.userId);
-        }
-    }, [user]);
-
-    const checkForActiveMatch = async (userId: string) => {
+    const checkForActiveMatch = useCallback(async (userId: string) => {
         try {
             console.log("Checking for active match for user:", userId);
             const response = await axios.get(`${API_URL}/matches/current/${userId}`);
@@ -115,11 +109,24 @@ const Match: React.FC = () => {
             }
         } catch (error) {
             console.error("Error checking for active match:", error);
+
+            if (axios.isAxiosError(error)) {
+                handleError(error)
+            }
+
             setActiveMatch(null);
             setMatchFound(false);
             setOpponentProfile(null);
         }
-    };
+    }, [opponentName]);
+
+    useEffect(() => {
+        if (user?.userId) {
+            setPlayerId(user.userId);
+            checkForActiveMatch(user.userId);
+            fetchPlayerProfile(user.userId);
+        }
+    }, [user, checkForActiveMatch]);
 
     const fetchPlayerProfile = async (userId: string) => {
         try {
@@ -127,6 +134,10 @@ const Match: React.FC = () => {
             setPlayerProfile(response.data);
         } catch (error) {
             console.error("Error fetching player profile:", error);
+
+            if (axios.isAxiosError(error)) {
+                handleError(error)
+            }
         }
     };
 
@@ -140,6 +151,10 @@ const Match: React.FC = () => {
         } catch (error) {
             console.error("Error fetching opponent profile:", error);
             setOpponentProfile(null);
+
+            if (axios.isAxiosError(error)) {
+                handleError(error)
+            }
         }
     };
 

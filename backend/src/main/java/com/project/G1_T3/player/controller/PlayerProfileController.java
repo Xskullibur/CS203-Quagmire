@@ -1,17 +1,24 @@
 package com.project.G1_T3.player.controller;
 
 import com.project.G1_T3.player.model.PlayerProfile;
+import com.project.G1_T3.player.model.PlayerProfileDTO;
 import com.project.G1_T3.player.service.PlayerProfileService;
-import com.project.G1_T3.user.model.CustomUserDetails;
-
+import java.io.IOException;
 import java.util.UUID;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
-// import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/profile")
@@ -27,14 +34,14 @@ public class PlayerProfileController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<PlayerProfile> getUserById(@PathVariable String id) {
+    public ResponseEntity<PlayerProfileDTO> getUserById(@PathVariable String id) {
         PlayerProfile playerProfile = playerProfileService.findByUserId(id);
 
         if (playerProfile == null) {
             return ResponseEntity.notFound().build();
         }
 
-        return ResponseEntity.ok(playerProfile);
+        return ResponseEntity.ok(new PlayerProfileDTO(playerProfile));
     }
 
     @GetMapping("/player/{id}")
@@ -51,67 +58,28 @@ public class PlayerProfileController {
     @GetMapping("/rank/{userId}")
     public ResponseEntity<Integer> getPlayerRankByUserId(@PathVariable String userId) {
         PlayerProfile playerProfile = playerProfileService.findByUserId(userId);
-        
+
         if (playerProfile == null) {
             return ResponseEntity.notFound().build();
         }
-        
+
         // Get the rank (position) of the player by their profileId
         int rank = playerProfileService.getPlayerRank(playerProfile.getProfileId().toString());
-        
+
         return ResponseEntity.ok(rank);
     }
 
     // For editing profile
-    @PutMapping("/{id}/edit")
-    public ResponseEntity<PlayerProfile> updateProfile (
-        @PathVariable String id,
-        @RequestBody PlayerProfile profileUpdates,
-        @AuthenticationPrincipal CustomUserDetails userDetails) {
+    @PutMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<PlayerProfile> updateProfile(
+        @RequestPart("id") String id,
+        @RequestPart("profileUpdates") PlayerProfileDTO profileUpdates,
+        @RequestPart(value = "profileImage", required = false) MultipartFile profileImage)
+        throws IOException {
 
-        /* To be commented out for testing */
-
-        // Checks if user is authenticated and authorized
-        UUID loggedInUserId = userDetails.getUser().getId(); 
-        
-        // Return 403 if logged in ID != profile ID
-        if (!loggedInUserId.toString().equals(id)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null); 
-        }
-
-        PlayerProfile updatedProfile = playerProfileService.updateProfile(UUID.fromString(id), profileUpdates);
+        PlayerProfile updatedProfile = playerProfileService.updateProfile(UUID.fromString(id),
+            profileUpdates, profileImage);
         return ResponseEntity.ok(updatedProfile);
     }
 
-    // Commented out for unit testing
-    // // For uploading profile photo
-    // @PostMapping("/{id}/upload")
-    // public ResponseEntity<String> uploadProfilePicture(@PathVariable Long id, String filePath) {
-    //     // Define the directory and file path
-    //     String directoryPath = "backend/images/profiles/" + id;
-    //     // String fileName = file.getOriginalFilename();  
-    //     // String filePath = directoryPath + "/" + fileName;
-
-    //     try {
-    //         // Ensure the directory exists
-    //         File directory = new File(directoryPath);
-    //         if (!directory.exists()) {
-    //             directory.mkdirs();  // Create directory if not exists
-    //         }
-
-    //         // Create the destination file
-    //         File originalFile = new File(filePath);
-    //         originalFile.transferTo(directory);  // Save the file locally
-
-    //         // Update PlayerProfile in the database with the file path
-    //         PlayerProfile playerProfile = playerProfileService.findByUserId(id);
-    //         playerProfile.setProfilePicturePath(filePath);
-    //         playerProfileService.save(playerProfile); 
-
-    //         return ResponseEntity.ok("Profile picture uploaded successfully!");
-
-    //     } catch (IOException e) {
-    //         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload profile picture.");
-    //     }
-    // }
 }

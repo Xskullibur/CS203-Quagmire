@@ -1,5 +1,7 @@
 package com.project.G1_T3.admin.service;
 
+import java.util.UUID;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +19,10 @@ import com.project.G1_T3.user.model.UserRole;
 import com.project.G1_T3.user.repository.UserRepository;
 import com.project.G1_T3.user.service.UserService;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Service
+@Slf4j
 @PreAuthorize("hasRole('ADMIN')")
 public class AdminService {
 
@@ -46,6 +51,18 @@ public class AdminService {
         return userDTO;
     }
 
+    public void resetAdminPassword(UUID id) {
+        User admin = userRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Admin not found"));
+
+        // Create new temporary password
+        String password = passwordGeneratorService.generatePassword();
+        userService.updatePassword(admin, password);
+        
+        // Send email with new password
+        emailService.sendTempPasswordEmail(UserDTO.fromUser(admin), password);
+    }
+
     public Page<UserDTO> getPaginatedUsers(int page, int size, String field, String order) {
 
         Sort sort = order.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(field).ascending()
@@ -55,5 +72,13 @@ public class AdminService {
         Page<User> userPage = userRepository.findAll(pageable);
 
         return userPage.map(UserDTO::fromUser);
+    }
+
+    public void updateUserLockedStatus(UUID id, boolean isLocked) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        user.setIsLocked(isLocked); 
+        userRepository.save(user);
     }
 }

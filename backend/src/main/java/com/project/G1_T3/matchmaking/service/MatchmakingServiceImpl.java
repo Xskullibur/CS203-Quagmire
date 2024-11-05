@@ -1,6 +1,5 @@
 package com.project.G1_T3.matchmaking.service;
 
-import com.project.G1_T3.common.model.Status;
 import com.project.G1_T3.match.model.Match;
 import com.project.G1_T3.match.model.MatchDTO;
 import com.project.G1_T3.match.service.MatchService;
@@ -13,79 +12,52 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.List;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Date;
-
 /**
  * Service implementation for matchmaking functionality.
  */
 @Slf4j
 @Service
 public class MatchmakingServiceImpl implements MatchmakingService {
-    private final ConcurrentMap<UUID, QueuedPlayer> playerQueue = new ConcurrentHashMap<>();
-    private final MatchmakingAlgorithm matchmakingAlgorithm;
     private final MeetingPointService meetingPointService;
     private final MatchService matchService;
     private final SimpMessagingTemplate messagingTemplate;
     private final PlayerProfileService playerProfileService;
 
-    /**
-     * Constructor for MatchmakingServiceImpl.
-     *
-     * @param matchmakingAlgorithm the matchmaking algorithm to use
-     * @param meetingPointService   the service to find meeting points
-     * @param matchService                 the service to handle match creation
-     * @param messagingTemplate       the messaging template for notifications
-     * @param playerProfileService the service to handle player profiles
-     */
-    public MatchmakingServiceImpl(MatchmakingAlgorithm matchmakingAlgorithm,
+    private final PlayerQueue playerQueue;
+
+    public MatchmakingServiceImpl(
             MeetingPointService meetingPointService,
             MatchService matchService,
-            SimpMessagingTemplate messagingTemplate, PlayerProfileService playerProfileService) {
-        this.matchmakingAlgorithm = matchmakingAlgorithm;
+            SimpMessagingTemplate messagingTemplate,
+            PlayerProfileService playerProfileService,
+            PlayerQueue playerQueue) {
         this.meetingPointService = meetingPointService;
         this.matchService = matchService;
         this.messagingTemplate = messagingTemplate;
         this.playerProfileService = playerProfileService;
+        this.playerQueue = playerQueue;
     }
 
-    /**
-     * Adds a player to the matchmaking queue.
-     *
-     * @param player       the player profile
-     * @param latitude   the latitude of the player's location
-     * @param longitude the longitude of the player's location
-     */
     @Override
     public void addPlayerToQueue(PlayerProfile player, double latitude, double longitude) {
-
-        if (playerQueue.containsKey(player.getUserId())) {
-            throw new PlayerAlreadyInQueueException("Player with ID " + player.getUserId() + " is already in queue");
+        if (playerQueue.containsPlayer(player.getUser().getId())) {
+            throw new PlayerAlreadyInQueueException("Player with ID " + player.getUser().getId() + " is already in queue");
         }
 
-        log.info("Adding player to queue: {} (ID: {})", player.getUserId(), player.getProfileId());
-        QueuedPlayer queuedPlayer = new QueuedPlayer(player, latitude, longitude);
-        playerQueue.put(player.getUserId(), queuedPlayer);
+        log.info("Adding player to queue: {} (ID: {})", player.getUser().getId(), player.getProfileId());
+        playerQueue.addPlayer(player, latitude, longitude);
         log.info("Player added. Current queue size: {}", playerQueue.size());
     }
 
-    /**
-     * Removes a player from the matchmaking queue.
-     *
-     * @param playerId the UUID of the player to remove
-     */
     @Override
     public void removePlayerFromQueue(UUID playerId) {
         log.info("Removing player from queue: {}", playerId);
-        if (!playerQueue.containsKey(playerId)) {
+        if (!playerQueue.containsPlayer(playerId)) {
             throw new PlayerNotFoundException("Player with ID " + playerId + " not found in queue");
         }
-        playerQueue.remove(playerId);
+        playerQueue.removePlayer(playerId);
         log.info("Player removed. Current queue size: {}", playerQueue.size());
     }
 
@@ -96,44 +68,53 @@ public class MatchmakingServiceImpl implements MatchmakingService {
      */
     @Override
     public Match findMatch() {
-        log.info("Attempting to find a match. Current queue size: {}", playerQueue.size());
+        log.info("Attempting to find matches. Current queue size: {}", playerQueue.size());
         if (playerQueue.size() < 2) {
             return null;
         }
-        List<QueuedPlayer> players = new ArrayList<>(playerQueue.values());
-        players.sort(Comparator.comparingDouble(QueuedPlayer::getPriority).reversed());
-        for (int i = 0; i < players.size() - 1; i++) {
-            QueuedPlayer player1 = players.get(i);
-            QueuedPlayer player2 = players.get(i + 1);
-            log.debug("Checking match between {} and {}", player1.getPlayer().getUserId(),
-                    player2.getPlayer().getUserId());
-            if (matchmakingAlgorithm.isGoodMatch(player1, player2)) {
-                playerQueue.remove(player1.getPlayer().getUserId());
-                playerQueue.remove(player2.getPlayer().getUserId());
+
+        List<QueuedPlayer> allPlayers = playerQueue.getAllPlayers();
+
+        for (QueuedPlayer player : allPlayers) {
+            // Attempt to find a match for the player
+            QueuedPlayer matchCandidate = playerQueue.findMatch(player);
+
+            if (matchCandidate != null) {
+                // Remove both players from the queue
+                playerQueue.removePlayer(player.getPlayer().getUser().getId());
+                playerQueue.removePlayer(matchCandidate.getPlayer().getUser().getId());
+
                 double[] meetingPoint;
                 try {
-                    meetingPoint = meetingPointService.findMeetingPoint(player1, player2);
+                    meetingPoint = meetingPointService.findMeetingPoint(player, matchCandidate);
                 } catch (MeetingPointNotFoundException e) {
-                    log.error("Failed to find meeting point for players {} and {}", player1.getPlayer().getUserId(),
-                            player2.getPlayer().getUserId());
-                    continue; // Skip this match and try the next pair
+                    log.error("Failed to find meeting point for players {} and {}", player.getPlayer().getUser().getId(),
+                            matchCandidate.getPlayer().getUser().getId());
+                    continue; // Skip this match and try the next
                 }
 
-                MatchDTO matchDTO = new MatchDTO();
-                matchDTO.setPlayer1Id(player1.getPlayer().getProfileId());
-                matchDTO.setPlayer2Id(player2.getPlayer().getProfileId());
-                matchDTO.setMeetingLatitude(meetingPoint[0]);
-                matchDTO.setMeetingLongitude(meetingPoint[1]);
-                matchDTO.setScheduledTime(LocalDateTime.now().plusMinutes(5));
+                MatchDTO matchDTO = getMatchDTO(player, matchCandidate, meetingPoint);
 
                 Match match = matchService.createMatch(matchDTO);
-                log.info("Match found: {} vs {}", player1.getPlayer().getUserId(), player2.getPlayer().getUserId());
+                log.info("Match found: {} vs {}", player.getPlayer().getUser().getId(),
+                        matchCandidate.getPlayer().getUser().getId());
                 notifyPlayersAboutMatch(match);
                 return match;
             }
         }
-        log.warn("No suitable match found in this iteration");
-        throw new MatchmakingException("No suitable match found in this iteration");
+
+        log.warn("No suitable matches found in this iteration");
+        throw new MatchmakingException("No suitable matches found in this iteration");
+    }
+
+    private MatchDTO getMatchDTO(QueuedPlayer player, QueuedPlayer matchCandidate, double[] meetingPoint) {
+        MatchDTO matchDTO = new MatchDTO();
+        matchDTO.setPlayer1Id(player.getPlayer().getProfileId());
+        matchDTO.setPlayer2Id(matchCandidate.getPlayer().getProfileId());
+        matchDTO.setMeetingLatitude(meetingPoint[0]);
+        matchDTO.setMeetingLongitude(meetingPoint[1]);
+        matchDTO.setScheduledTime(LocalDateTime.now().plusMinutes(5));
+        return matchDTO;
     }
 
     /**
@@ -159,7 +140,7 @@ public class MatchmakingServiceImpl implements MatchmakingService {
      * Creates a match notification for a player.
      *
      * @param match the match
-     * @param uuid   the UUID of the player to notify
+     * @param uuid  the UUID of the player to notify
      * @return the match notification
      */
     @Override
@@ -170,7 +151,7 @@ public class MatchmakingServiceImpl implements MatchmakingService {
 
         return new MatchNotification(
                 match,
-                opponentProfile.getUsername(),
+                opponentProfile.getName(),
                 opponentProfile);
     }
 
@@ -199,7 +180,7 @@ public class MatchmakingServiceImpl implements MatchmakingService {
      */
     @Override
     public boolean isPlayerInQueue(UUID playerId) {
-        return playerQueue.containsKey(playerId);
+        return playerQueue.containsPlayer(playerId);
     }
 
     /**
@@ -208,8 +189,8 @@ public class MatchmakingServiceImpl implements MatchmakingService {
     @Override
     public void printQueueStatus() {
         log.debug("Current players in queue: {}", playerQueue.size());
-        playerQueue.values().forEach(player -> log.debug("Player: {} (ID: {}), Priority: {}, Current Rating: {}",
-                player.getPlayer().getUserId(),
+        playerQueue.getAllPlayers().forEach(player -> log.debug("Player: {} (ID: {}), Priority: {}, Current Rating: {}",
+                player.getPlayer().getUser().getId(),
                 player.getPlayer().getProfileId(),
                 player.getPriority(),
                 player.getPlayer().getCurrentRating()));

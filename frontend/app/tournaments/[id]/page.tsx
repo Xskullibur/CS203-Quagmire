@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Button } from "@/components/ui/button";
 import axiosInstance from '@/lib/axios';
+import { useGlobalErrorHandler } from '@/app/context/ErrorMessageProvider';
 
 interface Tournament {
     name: string;
@@ -21,6 +22,7 @@ const TournamentDetails: React.FC<{ params: { id: string } }> = ({ params }) => 
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [registrationClosed, setRegistrationClosed] = useState<boolean>(false);
+    const { handleError } = useGlobalErrorHandler();
 
     // Base URL for accessing photos in Firebase
     const firebaseBaseURL = "https://firebasestorage.googleapis.com/v0/b/quagmire-smu.appspot.com/o/";
@@ -50,6 +52,10 @@ const TournamentDetails: React.FC<{ params: { id: string } }> = ({ params }) => 
             } catch (error) {
                 console.error('Error fetching tournament details:', error);
                 setError('Failed to load tournament details. Please try again.');
+
+                if (axios.isAxiosError(error)) {
+                    handleError(error)
+                }
             } finally {
                 setLoading(false);
             }

@@ -8,12 +8,11 @@ import {
   useRef,
 } from "react";
 import { useRouter } from "next/navigation";
-import axios, { AxiosResponse } from "axios";
+import { AxiosError, AxiosResponse } from "axios";
 import Cookies from "js-cookie";
-import { User } from "@/models/user";
+import { User } from "@/types/user";
 import axiosInstance from "@/lib/axios";
-import { useErrorHandler } from "@/app/context/ErrorMessageProvider";
-import { ErrorCodes } from "@/types/error-codes";
+import { useGlobalErrorHandler } from "@/app/context/ErrorMessageProvider";
 
 interface AuthContextType {
   user: User | null;
@@ -38,59 +37,39 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const router = useRouter();
   const tokenValidationAttempted = useRef(false);
-  const { showErrorToast } = useErrorHandler();
+  const { handleError } = useGlobalErrorHandler();
 
-  useEffect(() => {
-    const validateToken = async (token: string) => {
+  const validateToken = useCallback(
+    async (token: string) => {
       if (tokenValidationAttempted.current) return;
+
       tokenValidationAttempted.current = true;
 
-      try {
-        const response = await axiosInstance.post(
-          `${API_URL}/authentication/validate-token`,
-          { token }
-        );
-        setUser(response.data);
-        setIsAuthenticated(true);
-      } catch (error) {
-        
-        if (axios.isAxiosError(error)) {
+      axiosInstance
+        .post(`${API_URL}/authentication/validate-token`, { token })
+        .then((response) => {
+          setUser(response.data);
+          setIsAuthenticated(true);
+        })
+        .catch((error: AxiosError) => {
+          handleError(error);
+          Cookies.remove(AUTH_TOKEN);
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    },
+    [handleError]
+  );
 
-          if (error.status === 401) {
-
-            switch (error.response?.data.errorCode) {
-              case ErrorCodes.TOKEN_EXPIRED:
-                showErrorToast(
-                  "Error",
-                  "Your session has expired, please login to continue."
-                );
-                break;
-
-              default:
-                showErrorToast("Error", "Please login to continue");
-                break;
-            }
-
-          }
-          else if (error.status === 403) {
-            showErrorToast("Error", "You are not authorized to view this page. If you believe this is a message please contact an administrator.")
-          }
-        }
-
-        console.error("Token validation failed:", error);
-        Cookies.remove(AUTH_TOKEN);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
+  useEffect(() => {
     const token = Cookies.get(AUTH_TOKEN);
     if (token) {
       validateToken(token);
     } else {
       setIsLoading(false);
     }
-  }, [showErrorToast]);
+  }, [validateToken]);
 
   const login = async (username: string, password: string) => {
     try {

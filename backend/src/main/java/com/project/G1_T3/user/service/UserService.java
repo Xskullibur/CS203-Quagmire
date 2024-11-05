@@ -1,11 +1,14 @@
 package com.project.G1_T3.user.service;
 
+import com.project.G1_T3.player.repository.PlayerProfileRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -14,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import com.project.G1_T3.authentication.service.JwtService;
 import com.project.G1_T3.common.exception.EmailAlreadyInUseException;
+import com.project.G1_T3.common.exception.RegistrationException;
 import com.project.G1_T3.common.exception.UsernameAlreadyTakenException;
 import com.project.G1_T3.email.service.EmailService;
 import com.project.G1_T3.player.model.PlayerProfile;
@@ -22,26 +26,23 @@ import com.project.G1_T3.user.model.User;
 import com.project.G1_T3.user.model.UserDTO;
 import com.project.G1_T3.user.model.UserRole;
 import com.project.G1_T3.user.repository.UserRepository;
-
 import jakarta.transaction.Transactional;
 
 @Service
 public class UserService {
 
-    @Autowired
-    private JwtService jwtService;
-
-    @Autowired
-    private EmailService emailService;
+    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
     @Autowired
     private UserRepository userRepository;
-
+    @Autowired
+    private PlayerProfileRepository playerProfileRepository;
+    @Autowired
+    private JwtService jwtService;
+    @Autowired
+    private EmailService emailService;
     @Autowired
     private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private PlayerProfileService playerProfileService;
 
     @Value("${app.backend.url}")
     private String backendUrl;
@@ -49,17 +50,51 @@ public class UserService {
     @Transactional
     public UserDTO registerUser(String username, String email, String password, UserRole role) {
 
-        username = username.toLowerCase();
-        email = email.toLowerCase();
+        try {
 
-        if (existsByUsername(username)) {
-            throw new UsernameAlreadyTakenException("Username is already taken");
-        }
-        if (existsByEmail(email)) {
-            throw new EmailAlreadyInUseException("Email is already in use");
-        }
+            username = username.toLowerCase();
+            email = email.toLowerCase();
 
-        // Create new user
+            if (existsByUsername(username)) {
+                throw new UsernameAlreadyTakenException("Username is already taken");
+            }
+            if (existsByEmail(email)) {
+                throw new EmailAlreadyInUseException("Email is already in use");
+            }
+
+            // Create new user
+            User newUser = createUser(username, email, password, role);
+            User savedUser = userRepository.save(newUser);
+
+            // Send verification email
+            if (newUser.getRole() == UserRole.PLAYER) {
+
+                try {
+                    sendVerificationEmail(newUser);
+                    createPlayerProfile(savedUser);
+                } catch (Exception e) {
+                    logger.error("Error in post-registration process", e);
+                }
+
+            }
+
+            return UserDTO.fromUser(savedUser);
+
+        } catch (UsernameAlreadyTakenException | EmailAlreadyInUseException e) {
+            throw e;
+        } catch (Exception e) {
+            logger.error("Registration failed", e);
+            throw new RegistrationException("Failed to complete registration");
+        }
+    }
+
+    private void createPlayerProfile(User user) {
+        PlayerProfile newProfile = new PlayerProfile();
+        newProfile.setUser(user);
+        playerProfileRepository.save(newProfile);
+    }
+
+    private User createUser(String username, String email, String password, UserRole role) {
         User newUser = new User();
         newUser.setUsername(username);
         newUser.setEmail(email);
@@ -67,27 +102,9 @@ public class UserService {
         newUser.setRole(role);
         newUser.setCreatedAt(LocalDateTime.now());
         newUser.setUpdatedAt(LocalDateTime.now());
-
-        // Send verification email
-        User savedUser = userRepository.save(newUser);
-
-        if (newUser.getRole() == UserRole.PLAYER) {
-            sendVerificationEmail(newUser);
-        }
-
-        // Create and save a new PlayerProfile
-        PlayerProfile newProfile = new PlayerProfile();
-        newProfile.setUserId(savedUser.getId());
-        // Set other default values for PlayerProfile if needed
-        playerProfileService.save(newProfile);
-
-        return UserDTO.fromUser(savedUser);
+        return newUser;
     }
 
-    public List<User> findUsersByUsernameContaining(String username) {
-        return userRepository.findByUsernameContainingIgnoreCase(username);
-    }
-    
     public boolean existsByUsername(String username) {
         username = username.toLowerCase();
         return userRepository.existsByUsername(username);
@@ -98,34 +115,42 @@ public class UserService {
         return userRepository.existsByEmail(email);
     }
 
+    private void sendVerificationEmail(User user) {
+        String token = jwtService.generateEmailVerificationToken(user);
+        String verificationLink = backendUrl + "/authentication/verify-email?token=" + token;
+        emailService.sendVerificationEmail(user.getEmail(), user.getUsername(), verificationLink);
+    }
+
+    public List<User> findUsersByUsernameContaining(String username) {
+        return userRepository.findByUsernameContainingIgnoreCase(username);
+    }
+
     public Optional<User> findByUsername(String username) {
         username = username.toLowerCase();
         return userRepository.findByUsername(username);
     }
-    
+
     public Optional<User> findByUserId(String userId) {
         return userRepository.findById(UUID.fromString(userId));
     }
 
     public List<UserDTO> getAllUsers() {
-        return userRepository.findAllUsersWithoutPassword()
-                .stream()
-                .map(UserDTO::fromUser)
+        return userRepository.findAllUsersWithoutPassword().stream().map(UserDTO::fromUser)
                 .collect(Collectors.toList());
     }
 
     public UserDTO getUserDTOByUsername(String username) {
 
         final String finalUsername = username.toLowerCase();
-        return userRepository.findByUsername(finalUsername)
-                .map(UserDTO::fromUser)
+        return userRepository.findByUsername(finalUsername).map(UserDTO::fromUser)
                 .orElseThrow(() -> new UsernameNotFoundException(finalUsername));
     }
 
-    private void sendVerificationEmail(User user) {
-        String token = jwtService.generateEmailVerificationToken(user);
-        String verificationLink = backendUrl + "/authentication/verify-email?token=" + token;
-        emailService.sendVerificationEmail(user.getEmail(), user.getUsername(), verificationLink);
+    public void setUserVerified(User user, boolean isEmailVerified) {
+
+        user.setEmailVerified(isEmailVerified);
+        user.setUpdatedAt(LocalDateTime.now());
+        userRepository.save(user);
     }
 
     public void sendVerificationEmailByUserId(String uuid) {
@@ -140,4 +165,8 @@ public class UserService {
         sendVerificationEmail(user);
     }
 
+    public void updatePassword(User user, String password) {
+        user.setPasswordHash(passwordEncoder.encode(password));
+        userRepository.save(user);
+    }
 }
