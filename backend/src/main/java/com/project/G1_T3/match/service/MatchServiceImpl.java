@@ -71,7 +71,7 @@ public class MatchServiceImpl implements MatchService {
     }
 
     public List<Match> getCompletedMatchesByRoundId(UUID roundId) {
-        return matchRepository.findByRoundIdAndStatusOrderByCreatedAt(roundId, Status.COMPLETED);
+        return matchRepository.findByRound_RoundIdAndStatusOrderByCreatedAtAsc(roundId, Status.COMPLETED);
     }
 
     @Transactional

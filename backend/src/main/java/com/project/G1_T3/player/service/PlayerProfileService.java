@@ -1,7 +1,7 @@
 package com.project.G1_T3.player.service;
 
 import com.project.G1_T3.player.repository.PlayerProfileRepository;
-import com.project.G1_T3.user.service.UserService;
+import com.project.G1_T3.user.repository.UserRepository;
 import com.project.G1_T3.user.model.User;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -23,7 +23,7 @@ public class PlayerProfileService {
     private PlayerProfileRepository playerProfileRepository;
 
     @Autowired
-    private UserService userService;
+    private UserRepository userRepository;
 
     public List<PlayerProfile> findAll() {
         try {
@@ -64,7 +64,8 @@ public class PlayerProfileService {
 
     public PlayerProfile findUserByUsername(String username) {
         try {
-            Optional<User> user = userService.findByUsername(username);
+            username = username.toLowerCase();
+            Optional<User> user = userRepository.findByUsername(username);;
 
             if (!user.isPresent()) {
                 throw new EntityNotFoundException("Username: " + username + " does not exist.");

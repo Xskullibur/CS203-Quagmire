@@ -15,5 +15,5 @@ public interface MatchRepository extends JpaRepository<Match, UUID> {
 
     // Find matches by roundId and order them by createdAt
     List<Match> findByRound_RoundIdOrderByCreatedAt(UUID roundId);
-    List<Match> findByRoundIdAndStatusOrderByCreatedAt(UUID roundId, Status status);
+    List<Match> findByRound_RoundIdAndStatusOrderByCreatedAtAsc(UUID roundId, Status status);
 }
