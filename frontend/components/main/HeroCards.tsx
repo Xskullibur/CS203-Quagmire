@@ -10,7 +10,7 @@ interface CardProps {
 
 const Card: React.FC<CardProps> = ({ icon, title, description }) => {
     return (
-        <div className="card bg-opacity-10 bg-white rounded-lg cursor-pointer flex flex-col relative w-[300px] h-[260px] overflow-hidden group">
+        <div className="card bg-opacity-10 bg-white rounded-lg flex flex-col relative w-[300px] h-[260px] overflow-hidden group">
             <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-[radial-gradient(800px_circle_at_var(--mouse-x)_var(--mouse-y),rgba(255,255,255,0.06),transparent_40%)] z-10"></div>
             <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-[radial-gradient(600px_circle_at_var(--mouse-x)_var(--mouse-y),rgba(255,255,255,0.4),transparent_40%)] z-[1]"></div>
             <div className="card-content bg-[#171717] rounded-lg flex flex-col flex-grow m-[1px] p-[10px] z-[2]">
@@ -33,18 +33,18 @@ const Card: React.FC<CardProps> = ({ icon, title, description }) => {
 
 /**
  * HeroCards component renders a collection of Card components with interactive mouse movement effects.
- * 
+ *
  * This component uses a `useRef` hook to reference the container div and a `useEffect` hook to add
- * and clean up a mousemove event listener. The event listener updates custom CSS properties 
+ * and clean up a mousemove event listener. The event listener updates custom CSS properties
  * (`--mouse-x` and `--mouse-y`) on each card to create a dynamic visual effect based on the mouse position.
- * 
+ *
  * @component
  * @returns {JSX.Element} The rendered HeroCards component.
- * 
+ *
  * @example
  * // Example usage of HeroCards component
  * import HeroCards from './HeroCards';
- * 
+ *
  * function App() {
  *   return (
  *     <div>
@@ -52,12 +52,12 @@ const Card: React.FC<CardProps> = ({ icon, title, description }) => {
  *     </div>
  *   );
  * }
- * 
+ *
  * @remarks
  * - The component assumes that each Card component has a class name of "card".
  * - The CSS properties `--mouse-x` and `--mouse-y` should be used within the Card component's styles to achieve the desired effect.
  * - Ensure that the FontAwesome icons (faBuilding, faWarehouse, etc.) are imported and available in the scope.
- * 
+ *
  * @see {@link https://reactjs.org/docs/hooks-reference.html#useref | useRef}
  * @see {@link https://reactjs.org/docs/hooks-reference.html#useeffect | useEffect}
  */
@@ -89,38 +89,31 @@ const HeroCards: React.FC = () => {
     return (
         <div
             ref={cardsRef}
-            className="flex flex-wrap gap-2 mx-auto justify-center py-8"
+            className=""
         >
-            <Card
-                icon={faBuilding}
-                title="Apartments"
-                description="Places to be apart. Wait, what?"
-            />
-            <Card
-                icon={faWarehouse}
-                title="Warehouses"
-                description="Store your stuff here. Or not."
-            />
-            <Card
-                icon={faStore}
-                title="Stores"
-                description="Buy stuff you don't need."
-            />
-            <Card
-                icon={faBuilding}
-                title="Buildings"
-                description="Where you go to do stuff."
-            />
-            <Card
-                icon={faLandmark}
-                title="Landmarks"
-                description="Places you can't miss."
-            />
-            <Card
-                icon={faMapMarked}
-                title="Maps"
-                description="Find your way around."
-            />
+            <p className="text-sm text-center mb-4 font-mono text-zinc-400">Places to compete!</p>
+            <div className="flex flex-wrap gap-2 mx-auto justify-center py-8">
+                <Card
+                    icon={faBuilding}
+                    title="Apartments"
+                    description="Where you live."
+                />
+                <Card
+                    icon={faStore}
+                    title="Stores"
+                    description="Where you shop."
+                />
+                <Card
+                    icon={faBuilding}
+                    title="Voiddecks"
+                    description="Where you go to do stuff."
+                />
+                <Card
+                    icon={faLandmark}
+                    title="Landmarks"
+                    description="Places you can't miss."
+                />
+            </div>
             {/* Add more Card components here */}
             <div className="circular-gradient bg-gradient-to-b from-black to-white"></div>
         </div>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useWebSocket } from '@/hooks/useWebSocket';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -7,7 +7,12 @@ import { useGeolocation } from '@/hooks/useGeolocation';
 
 interface QueueManagementProps {
     playerId: string;
-    onMatchFound: (matchFound: boolean, opponentName: string, meetingPoint: [number, number], opponentProfile: PlayerProfile) => void;
+    onMatchFound: (
+        matchFound: boolean,
+        opponentName: string,
+        meetingPoint: [number, number],
+        opponentProfile: PlayerProfile
+    ) => void;
 }
 
 interface MatchNotification {
@@ -86,24 +91,28 @@ const QueueManagement: React.FC<QueueManagementProps> = ({ playerId, onMatchFoun
         return () => clearInterval(interval);
     }, [inQueue]);
 
-    const leaveQueue = React.useCallback(() => {
+    const leaveQueue = useCallback(() => {
         if (client && connected) {
-            client.publish({ destination: '/app/solo/dequeue', body: playerId });
-            setInQueue(false);
+            client.publish({
+                destination: '/app/solo/dequeue',
+                body: JSON.stringify({ playerId })
+            });
         }
+        setInQueue(false);
     }, [client, connected, playerId]);
 
     useEffect(() => {
-        // This effect will run when the component mounts
-        // and clean up (dequeue) when the component unmounts
+        // This effect will run when the component unmounts
+        const inQueueRef = { current: inQueue };
+        inQueueRef.current = inQueue;
         return () => {
-            if (inQueue) {
+            if (inQueueRef.current) {
                 leaveQueue();
             }
         };
-    }, [inQueue, leaveQueue]);
+    }, [leaveQueue]);
 
-    const joinQueue = () => {
+    const joinQueue = useCallback(() => {
         if (client && connected && location) {
             console.log('Sending join queue request for player:', playerId);
             client.publish({
@@ -122,10 +131,16 @@ const QueueManagement: React.FC<QueueManagementProps> = ({ playerId, onMatchFoun
             // Show an error message to the user
             alert('Unable to join queue. Please ensure location services are enabled and try again.');
         }
-    };
+    }, [client, connected, location, playerId]);
+
     return (
         <div className="p-4 mx-auto max-w-md text-center">
-            {error && <Alert variant="destructive"><AlertTitle>Location Error</AlertTitle><AlertDescription>{error}</AlertDescription></Alert>}
+            {error && (
+                <Alert variant="destructive">
+                    <AlertTitle>Location Error</AlertTitle>
+                    <AlertDescription>{error}</AlertDescription>
+                </Alert>
+            )}
             {matchFound ? (
                 <Alert>
                     <AlertTitle>Match Found!</AlertTitle>
@@ -135,15 +150,20 @@ const QueueManagement: React.FC<QueueManagementProps> = ({ playerId, onMatchFoun
                 </Alert>
             ) : inQueue ? (
                 <div>
-                    <p>In Queue: {Math.floor(queueTime / 60)}:{queueTime % 60 < 10 ? '0' : ''}{queueTime % 60}</p>
+                    <p>
+                        In Queue: {Math.floor(queueTime / 60)}:
+                        {queueTime % 60 < 10 ? '0' : ''}
+                        {queueTime % 60}
+                    </p>
                     <Button onClick={leaveQueue}>Leave Queue</Button>
                 </div>
             ) : (
                 <Button
                     variant="outline"
                     onClick={joinQueue}
-                    className='hover:text-muted'
-                    disabled={!connected || !location}>
+                    className="hover:text-muted"
+                    disabled={!connected || !location}
+                >
                     Join Queue
                 </Button>
             )}

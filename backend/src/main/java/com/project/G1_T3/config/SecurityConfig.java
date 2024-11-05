@@ -95,7 +95,7 @@ public class SecurityConfig {
                         .requestMatchers("/leaderboard/user/**").permitAll()
                         .requestMatchers("/ws/**").permitAll()
                         .requestMatchers("file/**").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/matches/current/**").authenticated()
+                        .requestMatchers("/matches/**").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(e -> e.accessDeniedHandler(accessDeniedHandler()))
                 .logout(logout -> logout
