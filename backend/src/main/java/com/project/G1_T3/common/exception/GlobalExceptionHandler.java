@@ -174,6 +174,17 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDetail);
     }
 
+    @ExceptionHandler(EmailNotVerifiedException.class)
+    public ResponseEntity<ProblemDetail> handleEmailNotVerifiedException(EmailNotVerifiedException ex) {
+        ProblemDetail errorDetail = ProblemDetail.forStatusAndDetail(
+            HttpStatus.FORBIDDEN, 
+            ex.getMessage()
+        );
+        errorDetail.setProperty("description", "Email verification required to access this resource");
+        errorDetail.setProperty("code", "EMAIL_NOT_VERIFIED");
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorDetail);
+    }
+
     @ExceptionHandler({
             AccountStatusException.class,
             AccessDeniedException.class,
