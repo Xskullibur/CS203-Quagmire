@@ -220,7 +220,6 @@ const CreateTournament = () => {
         searchResults={searchResults}
         handleRefereeSearch={handleRefereeSearch}
         handleAddReferee={handleAddReferee}
-        handlePhotoChange={handlePhotoChange}
       />
 
       )}

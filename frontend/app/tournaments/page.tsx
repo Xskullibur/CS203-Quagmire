@@ -6,7 +6,6 @@ import NewCard from "@/components/tournaments/NewCard"; // Update the import to 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Tournament } from "@/types/tournament";
 import axiosInstance from '@/lib/axios';
-import { ErrorHandler } from '@/utils/errorHandler';
 import { useGlobalErrorHandler } from '../context/ErrorMessageProvider';
 
 const API_URL = `${process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL}/tournament`;
@@ -71,6 +70,7 @@ const TournamentPage: React.FC = () => {
     const [tournaments, setTournaments] = useState<Tournament[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
+    const { handleError } = useGlobalErrorHandler();
     const [currentTab, setCurrentTab] = useState<'upcoming' | 'past' | 'current'>('upcoming');
 
     useEffect(() => {
