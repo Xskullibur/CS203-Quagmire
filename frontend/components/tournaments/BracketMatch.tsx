@@ -1,110 +1,127 @@
 // BracketMatch.tsx
 'use client'
 import React, { useState, useEffect } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPencilAlt } from "@fortawesome/free-solid-svg-icons";
+import axios from "axios";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { MatchTracker } from "@/types/matchTracker";
+import { convertToMatchDTO } from "@/hooks/tournamentDataManager";
 
-type Player = {
-  userId: string;
-  id: string;
-  score: number | null;
-};
+const API_URL = process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL;
 
 type MatchProps = {
-  player1: Player;
-  player2: Player;
+  match: MatchTracker;
   onMatchComplete?: (winner: { userId: string; id: string }) => void;
+  isAdmin: boolean;
 };
 
-const BracketMatch: React.FC<MatchProps> = ({ player1, player2, onMatchComplete }) => {
-  const [p1Score, setP1Score] = useState(0);
-  const [p2Score, setP2Score] = useState(0);
-  const [winner, setWinner] = useState<{ userId: string; id: string } | null>(null);
-  const [isEditing, setIsEditing] = useState(false);
+const BracketMatch: React.FC<MatchProps> = ({ match, onMatchComplete, isAdmin }) => {
+  const { player1, player2 } = match;
+  const [p1Score, setP1Score] = useState(player1.score ?? 0);
+  const [p2Score, setP2Score] = useState(player2?.score ?? 0);
+  const [winner, setWinner] = useState<{ userId: string; id: string } | null>(match.winner ?? null);
 
-  // Handle winner determination based on score updates
-  const handleRoundWin = (player: "player1" | "player2") => {
-    if (player === "player1") {
-      setP1Score((prev) => {
-        const newScore = prev + 1;
-        if (newScore === 2) setWinner({ userId: player1.userId, id: player1.id });
-        return newScore;
-      });
-    } else {
-      setP2Score((prev) => {
-        const newScore = prev + 1;
-        if (newScore === 2) setWinner({ userId: player2.userId, id: player2.id });
-        return newScore;
-      });
+  const incrementScore = (setScore: React.Dispatch<React.SetStateAction<number>>) => setScore((prev) => prev + 1);
+  const decrementScore = (setScore: React.Dispatch<React.SetStateAction<number>>) => setScore((prev) => (prev > 0 ? prev - 1 : 0));
+
+  // Send a PUT request to complete the match on the backend
+  const completeMatchRequest = async (winnerId: string, score: string) => {
+    // Convert match to MatchDTO format
+    const matchDTO = convertToMatchDTO({
+      ...match,
+      winner: { id: winnerId, userId: winnerId },
+      player1: { ...player1, score: p1Score },
+      player2: player2 ? { ...player2, score: p2Score } : null,
+    });
+
+    try {
+      await axios.put(`${API_URL}/match/${match.matchId}/complete`, matchDTO);
+      alert("Match completed successfully!");
+    } catch (error) {
+      console.error("Error completing the match:", error);
+      alert("Failed to complete the match.");
     }
   };
 
-  // Allow only valid score inputs
-  const handleScoreChange = (e: React.ChangeEvent<HTMLInputElement>, setScore: React.Dispatch<React.SetStateAction<number>>) => {
-    const value = Number(e.target.value);
-    if (value >= 0 && value <= 2) setScore(value);
+  // Confirm and complete match
+  const completeMatch = () => {
+    if (confirm("Are you sure you want to complete this match?")) {
+      if (p1Score > p2Score) {
+        setWinner({ userId: player1.userId, id: player1.id });
+        completeMatchRequest(player1.id, `${p1Score}-${p2Score}`);
+      } else if (p2Score > p1Score && player2) {
+        setWinner({ userId: player2.userId, id: player2.id });
+        completeMatchRequest(player2.id, `${p1Score}-${p2Score}`);
+      } else {
+        alert("The match cannot end in a tie. Adjust the scores to determine a winner.");
+      }
+    }
   };
 
-  // Toggle edit mode
-  const toggleEdit = () => {
-    if (isEditing && p1Score === 2 && p2Score === 2) {
-      alert("Both players cannot have a score of 2 at the same time.");
-      return;
+  // Confirm and handle forfeit
+  const handleForfeit = (player: "player1" | "player2") => {
+    if (confirm(`Are you sure you want to forfeit ${player === "player1" ? player1.userId : player2?.userId}?`)) {
+      const forfeitingPlayer = player === "player1" ? player2 : player1;
+      if (forfeitingPlayer) {
+        setWinner({ userId: forfeitingPlayer.userId, id: forfeitingPlayer.id });
+        completeMatchRequest(forfeitingPlayer.id, player === "player1" ? `0-${p2Score}` : `${p1Score}-0`);
+      }
     }
-    setWinner(p1Score === 2 ? { userId: player1.userId, id: player1.id } : p2Score === 2 ? { userId: player2.userId, id: player2.id } : null);
-    setIsEditing(!isEditing);
   };
 
   useEffect(() => {
     if (winner && onMatchComplete) onMatchComplete(winner);
-  }, [winner]);
+  }, [winner, onMatchComplete]);
 
   return (
     <Card className="mx-auto">
-      <CardHeader className="flex flex-row justify-between items-center gap-4">
+      <CardHeader className="flex justify-center items-center">
         <CardTitle>Tournament Match</CardTitle>
-        <button onClick={toggleEdit} className={`${isEditing ? "text-blue-500" : "text-gray-600"} hover:text-gray-300 transition-colors duration-200`}>
-          <FontAwesomeIcon icon={faPencilAlt} className="w-5 h-5" />
-        </button>
       </CardHeader>
 
       <CardContent>
         <div className="flex justify-between items-center mb-4">
-          <div>
+          {/* Player 1 Section */}
+          <div className="text-center">
             <h4 className="text-lg font-semibold">{player1.userId}</h4>
-            {isEditing ? (
-              <input
-                type="number"
-                value={p1Score}
-                onChange={(e) => handleScoreChange(e, setP1Score)}
-                className="border rounded p-1 w-16 text-center text-black"
-                min="0"
-                max="2"
-              />
-            ) : (
-              <p>Score: {p1Score}</p>
+            <div className="flex items-center gap-2 mt-2">
+              {isAdmin && (
+                <>
+                  <Button onClick={() => decrementScore(setP1Score)} disabled={p1Score === 0}>-</Button>
+                  <span className="text-lg">{p1Score}</span>
+                  <Button onClick={() => incrementScore(setP1Score)}>+</Button>
+                </>
+              )}
+            </div>
+            {isAdmin && (
+              <Button onClick={() => handleForfeit("player1")} variant="destructive" className="mt-2">
+                Forfeit
+              </Button>
             )}
           </div>
 
           <span className="font-bold text-xl">VS</span>
 
-          <div>
-            <h4 className="text-lg font-semibold">{player2.userId}</h4>
-            {isEditing ? (
-              <input
-                type="number"
-                value={p2Score}
-                onChange={(e) => handleScoreChange(e, setP2Score)}
-                className="border rounded p-1 w-16 text-center text-black"
-                min="0"
-                max="2"
-              />
-            ) : (
-              <p>Score: {p2Score}</p>
-            )}
-          </div>
+          {/* Player 2 Section */}
+          {player2 && (
+            <div className="text-center">
+              <h4 className="text-lg font-semibold">{player2.userId}</h4>
+              <div className="flex items-center gap-2 mt-2">
+                {isAdmin && (
+                  <>
+                    <Button onClick={() => decrementScore(setP2Score)} disabled={p2Score === 0}>-</Button>
+                    <span className="text-lg">{p2Score}</span>
+                    <Button onClick={() => incrementScore(setP2Score)}>+</Button>
+                  </>
+                )}
+              </div>
+              {isAdmin && (
+                <Button onClick={() => handleForfeit("player2")} variant="destructive" className="mt-2">
+                  Forfeit
+                </Button>
+              )}
+            </div>
+          )}
         </div>
 
         {winner && (
@@ -114,14 +131,13 @@ const BracketMatch: React.FC<MatchProps> = ({ player1, player2, onMatchComplete 
         )}
       </CardContent>
 
-      <CardFooter className="space-x-4 flex justify-center">
-        <Button onClick={() => handleRoundWin("player1")} disabled={p1Score === 2 || !!winner || isEditing}>
-          {player1.userId} Wins Round
-        </Button>
-        <Button onClick={() => handleRoundWin("player2")} disabled={p2Score === 2 || !!winner || isEditing}>
-          {player2.userId} Wins Round
-        </Button>
-      </CardFooter>
+      {isAdmin && (
+        <CardFooter className="flex justify-center">
+          <Button onClick={completeMatch} disabled={!!winner}>
+            Complete Match
+          </Button>
+        </CardFooter>
+      )}
     </Card>
   );
 };

@@ -1,5 +1,6 @@
 import { MatchTracker } from "@/types/matchTracker";
 import { playerIdentifier } from "@/types/playerIdentifier";
+import { MatchDTO } from "@/types/matchDTO";
 import axios from "axios";
 
 
@@ -34,16 +35,17 @@ const convertMatchToMatchTracker = async (match: any): Promise<MatchTracker> => 
 
         // Create the MatchTracker object
         const matchTracker: MatchTracker = {
+            matchId: match.id,
             player1: {
                 userId: player1Profile.userId,
                 id: match.player1Id,
-                score: 0,
+                score: match.score.split("-")[0],
             },
             player2: player2Profile
                 ? {
                     userId: player2Profile.userId,
                     id: match.player2Id,
-                    score: 0,
+                    score: match.score.split("-")[1],
                 }
                 : null,
             winner: match.winnerId
@@ -61,6 +63,20 @@ const convertMatchToMatchTracker = async (match: any): Promise<MatchTracker> => 
         throw error;
     }
 };
+
+//Convert MatchTracker to MatchDTO
+const convertToMatchDTO = (match: MatchTracker): MatchDTO => {
+    const score = match.player2? `${match.player1.score}-${match.player2.score}` : "0";
+    return {
+      player1Id: match.player1.id,
+      player2Id: match.player2? match.player2.id : null,
+      scheduledTime: null,
+      winnerId: match.winner ? match.winner.id : null,
+      score,
+      meetingLatitude: null,
+      meetingLongitude: null,
+    };
+  };
 
 
 
@@ -122,4 +138,4 @@ const getProfileFromUsername = async (username: string) => {
     }
 }
 
-export { getCurrentStageFromTournament, getMatchesForRound, getRoundsForTournamentAndStageId, getRefereeIds, getProfileFromUsername }
+export { getCurrentStageFromTournament, getMatchesForRound, getRoundsForTournamentAndStageId, getRefereeIds, getProfileFromUsername, convertToMatchDTO }
