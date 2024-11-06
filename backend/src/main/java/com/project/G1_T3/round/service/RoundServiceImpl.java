@@ -5,7 +5,6 @@ import com.project.G1_T3.player.service.PlayerProfileService;
 import com.project.G1_T3.round.model.Round;
 import com.project.G1_T3.round.repository.RoundRepository;
 import com.project.G1_T3.stage.model.Stage;
-import com.project.G1_T3.stage.service.StageService;
 import com.project.G1_T3.stage.repository.StageRepository;
 import com.project.G1_T3.match.model.Match;
 import com.project.G1_T3.match.model.MatchDTO;
@@ -71,7 +70,7 @@ public class RoundServiceImpl implements RoundService {
                 .orElseThrow(() -> new RuntimeException("Stage not found"));
     
         List<Match> matches = createMatches(sortedPlayers, stage);
-        createRound(stage, 0, matches, sortedPlayers, stage.getReferees());
+        createRound(stage, 0, matches, sortedPlayers);
 
     }
 
@@ -159,7 +158,7 @@ public class RoundServiceImpl implements RoundService {
     
         // Create new matches for the next round by pairing winners from the current round
         List<Match> matches = createMatches(advancingPlayers, curStage);
-        createRound(curStage, curRound.getRoundNumber(), matches, advancingPlayers, curStage.getReferees());
+        createRound(curStage, curRound.getRoundNumber(), matches, advancingPlayers);
     }
 
     private List<Match> createMatches(List<PlayerProfile> playerList, Stage stage) {
@@ -171,14 +170,9 @@ public class RoundServiceImpl implements RoundService {
             throw new IllegalArgumentException("Stage must not be null");
         }
     
-        Set<PlayerProfile> referees = stage.getReferees();
-        if (referees == null || referees.isEmpty()) {
-            throw new IllegalStateException("No referees available for this stage");
-        }
     
         // Ensure we maintain the original bracket structure by preserving match order
         List<Match> matches = new ArrayList<>();
-        List<PlayerProfile> refereeList = new ArrayList<>(referees);
     
         int totalPlayers = playerList.size();
         int lowestGreaterPowerOfTwo = Integer.highestOneBit(totalPlayers) << 1;
@@ -195,14 +189,6 @@ public class RoundServiceImpl implements RoundService {
             matchDTO.setPlayer1Id(player1.getProfileId());
             matchDTO.setPlayer2Id(null);
     
-            // Pick a random referee if there are multiple, otherwise pick the only referee
-            PlayerProfile selectedReferee;
-            if (refereeList.size() == 1) {
-                selectedReferee = refereeList.get(0);  // Pick the only referee
-            } else {
-                int randomRefereeIndex = new Random().nextInt(refereeList.size());
-                selectedReferee = refereeList.get(randomRefereeIndex);  // Pick a random referee
-            }
             matchDTO.setScheduledTime(LocalDateTime.now().plusDays(1));
     
             matchDTOs.add(matchDTO);
@@ -235,7 +221,7 @@ public class RoundServiceImpl implements RoundService {
         return matches;
     }    
 
-    private void createRound(Stage stage, Integer roundNumber, List<Match> matches, List<PlayerProfile> players, Set<PlayerProfile> referees) {
+    private void createRound(Stage stage, Integer roundNumber, List<Match> matches, List<PlayerProfile> players) {
         if (stage == null) {
             throw new IllegalArgumentException("Stage must not be null");
         }
@@ -254,9 +240,6 @@ public class RoundServiceImpl implements RoundService {
             throw new IllegalArgumentException("Players list must not be null or empty");
         }
     
-        if (referees == null || referees.isEmpty()) {
-            throw new IllegalStateException("No referees available for this round");
-        }
     
         Round round = new Round();
         round.setStage(stage);
@@ -266,7 +249,6 @@ public class RoundServiceImpl implements RoundService {
         round.setStatus(Status.IN_PROGRESS);
         round.setMatches(matches);
         round.setPlayers(new HashSet<>(players));
-        round.setReferees(new HashSet<>(referees));
     
         roundRepository.save(round);
     }

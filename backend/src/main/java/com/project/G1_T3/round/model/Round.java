@@ -13,7 +13,6 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
@@ -77,14 +76,6 @@ public class Round {
         inverseJoinColumns = @JoinColumn(name = "player_id")
     )
     private Set<PlayerProfile> players;  // Players participating in this round
-
-    @ManyToMany
-    @JoinTable(
-        name = "round_referees",  // Create a join table for referees in each stage
-        joinColumns = @JoinColumn(name = "round_id"),
-        inverseJoinColumns = @JoinColumn(name = "referee_id")
-    )
-    private Set<PlayerProfile> referees;
 
     public void startRound() {
         if (this.status == Status.SCHEDULED) {

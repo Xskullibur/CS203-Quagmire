@@ -76,13 +76,7 @@ public class Stage {
     )
     private Set<PlayerProfile> players;
 
-    @ManyToMany
-    @JoinTable(
-        name = "stage_referees",  // Create a join table for referees in each stage
-        joinColumns = @JoinColumn(name = "stage_id"),
-        inverseJoinColumns = @JoinColumn(name = "profile_id")
-    )
-    private Set<PlayerProfile> referees;
+ 
 
     @ManyToMany
     @JoinTable(

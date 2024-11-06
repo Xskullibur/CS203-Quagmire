@@ -92,10 +92,6 @@ class RoundServiceTest {
         stage.setStageId(stageId);
         stage.setStatus(Status.IN_PROGRESS);
     
-        // Add a referee to the stage
-        Set<PlayerProfile> referees = new HashSet<>();
-        referees.add(referee);  // Adding the referee to the set
-        stage.setReferees(referees);
     
         // Initialize a list of sorted players for createFirstRound
         sortedPlayers = new ArrayList<>();
