@@ -203,7 +203,6 @@ public class RoundServiceImpl implements RoundService {
                 int randomRefereeIndex = new Random().nextInt(refereeList.size());
                 selectedReferee = refereeList.get(randomRefereeIndex);  // Pick a random referee
             }
-            matchDTO.setRefereeId(selectedReferee.getProfileId());
             matchDTO.setScheduledTime(LocalDateTime.now().plusDays(1));
     
             matchDTOs.add(matchDTO);
@@ -218,14 +217,7 @@ public class RoundServiceImpl implements RoundService {
             matchDTO.setPlayer2Id(player2.getProfileId());
     
             // Pick a random referee if there are multiple, otherwise pick the only referee
-            PlayerProfile selectedReferee;
-            if (refereeList.size() == 1) {
-                selectedReferee = refereeList.get(0);  // Pick the only referee
-            } else {
-                int randomRefereeIndex = new Random().nextInt(refereeList.size());
-                selectedReferee = refereeList.get(randomRefereeIndex);  // Pick a random referee
-            }
-            matchDTO.setRefereeId(selectedReferee.getProfileId());
+            
             matchDTO.setScheduledTime(LocalDateTime.now().plusDays(1));
     
             matchDTOs.add(matchDTO);

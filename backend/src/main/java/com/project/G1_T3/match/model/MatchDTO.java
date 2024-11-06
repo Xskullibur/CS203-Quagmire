@@ -11,10 +11,9 @@ import java.util.UUID;
 public class MatchDTO {
     private UUID player1Id;
     private UUID player2Id;
-    private UUID refereeId;
     private LocalDateTime scheduledTime;
     private UUID winnerId;
     private String score;
-    private double meetingLatitude;
-    private double meetingLongitude;
+    private Double meetingLatitude;
+    private Double meetingLongitude;
 }

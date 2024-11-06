@@ -50,7 +50,6 @@ class MatchServiceTest {
         matchDTO = new MatchDTO();
         matchDTO.setPlayer1Id(UUID.randomUUID());
         matchDTO.setPlayer2Id(UUID.randomUUID());
-        matchDTO.setRefereeId(UUID.randomUUID());
         matchDTO.setScheduledTime(LocalDateTime.now().plusDays(1));
         matchDTO.setScore("0-0");
 
@@ -58,7 +57,6 @@ class MatchServiceTest {
         validMatchId = UUID.randomUUID();
         match = new Match();
         match.setMatchId(validMatchId);
-        match.setRefereeId(matchDTO.getRefereeId());
         match.setStatus(Status.SCHEDULED);
     }
 
@@ -77,7 +75,6 @@ class MatchServiceTest {
         Match expectedMatch = new Match();
         expectedMatch.setPlayer1Id(matchDTO.getPlayer1Id());
         expectedMatch.setPlayer2Id(matchDTO.getPlayer2Id());
-        expectedMatch.setRefereeId(matchDTO.getRefereeId());
         expectedMatch.setScheduledTime(matchDTO.getScheduledTime());
         expectedMatch.setStatus(Status.SCHEDULED);
 
@@ -199,19 +196,7 @@ class MatchServiceTest {
         assertEquals("Match is not scheduled", exception.getMessage());
     }
 
-    @Test
-    void startMatch_unauthorizedReferee_throwsException() {
-        // Arrange
-        matchDTO.setRefereeId(UUID.randomUUID()); // Set different referee ID
-        when(matchRepository.findById(validMatchId)).thenReturn(Optional.of(match));
-
-        // Act & Assert
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            matchServiceImpl.startMatch(validMatchId, matchDTO);
-        });
-        assertEquals("Unauthorized referee", exception.getMessage());
-    }
-
+ 
     @Test
     void startMatch_successfulStart_savesMatch() {
         // Arrange
@@ -278,20 +263,7 @@ class MatchServiceTest {
         assertEquals("Match is already completed", exception.getMessage());
     }
 
-    @Test
-    void completeMatch_unauthorizedReferee_throwsException() {
-        setUpForCompleteMatch();
-
-        // Arrange
-        matchDTO.setRefereeId(UUID.randomUUID()); // Set an invalid referee ID
-        when(matchRepository.findById(validMatchId)).thenReturn(Optional.of(match));
-
-        // Act & Assert
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            matchServiceImpl.completeMatch(validMatchId, matchDTO);
-        });
-        assertEquals("Unauthorized referee", exception.getMessage());
-    }
+  
 
     @Test
     void completeMatch_winnerIdNull_throwsException() {

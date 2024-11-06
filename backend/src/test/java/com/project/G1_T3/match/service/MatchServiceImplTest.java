@@ -42,12 +42,10 @@ class MatchServiceImplTest {
         // Setup dummy match data
         UUID player1Id = UUID.randomUUID();
         UUID player2Id = UUID.randomUUID();
-        UUID refereeId = UUID.randomUUID();
 
         matchDTO = new MatchDTO();
         matchDTO.setPlayer1Id(player1Id);
         matchDTO.setPlayer2Id(player2Id);
-        matchDTO.setRefereeId(refereeId);
         matchDTO.setScheduledTime(LocalDateTime.now().plusMinutes(5));
         matchDTO.setWinnerId(player1Id);  // Player 1 is the winner
         matchDTO.setScore("0");
@@ -55,14 +53,13 @@ class MatchServiceImplTest {
         match = new Match();
         match.setPlayer1Id(player1Id);
         match.setPlayer2Id(player2Id);
-        match.setRefereeId(refereeId);
         match.setWinnerId(player1Id);
         match.setScheduledTime(LocalDateTime.now().plusMinutes(5));
         match.setStatus(Status.SCHEDULED);
     }
 
     @Test
-    void startMatch_ShouldStartMatchIfValidReferee() {
+    void startMatch_ShouldStartMatch() {
         UUID matchId = UUID.randomUUID();
 
         // Mock repository call to return the match
@@ -74,21 +71,6 @@ class MatchServiceImplTest {
         // Verify match is updated and saved
         assertEquals(Status.IN_PROGRESS, match.getStatus(), "Match status should be IN_PROGRESS");
         verify(matchRepository, times(1)).save(match);
-    }
-
-    @Test
-    void startMatch_ShouldThrowExceptionIfInvalidReferee() {
-        UUID matchId = UUID.randomUUID();
-        matchDTO.setRefereeId(UUID.randomUUID());  // Invalid referee ID
-
-        when(matchRepository.findById(matchId)).thenReturn(Optional.of(match));
-
-        // Expect an exception due to unauthorized referee
-        Exception exception = assertThrows(RuntimeException.class, () -> {
-            matchService.startMatch(matchId, matchDTO);
-        });
-
-        assertEquals("Unauthorized referee", exception.getMessage());
     }
 
     @Test
@@ -120,21 +102,6 @@ class MatchServiceImplTest {
         // Verify player ratings are updated and saved
         verify(playerProfileService, times(1)).updatePlayerRating(player1);
         verify(playerProfileService, times(1)).updatePlayerRating(player2);
-    }
-
-    @Test
-    void completeMatch_ShouldThrowExceptionIfInvalidReferee() {
-        UUID matchId = UUID.randomUUID();
-        matchDTO.setRefereeId(UUID.randomUUID());  // Invalid referee ID
-
-        when(matchRepository.findById(matchId)).thenReturn(Optional.of(match));
-
-        // Expect an exception due to unauthorized referee
-        Exception exception = assertThrows(RuntimeException.class, () -> {
-            matchService.completeMatch(matchId, matchDTO);
-        });
-
-        assertEquals("Unauthorized referee", exception.getMessage());
     }
 
     @Test

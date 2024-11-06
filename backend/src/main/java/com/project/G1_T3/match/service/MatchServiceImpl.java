@@ -97,7 +97,6 @@ public class MatchServiceImpl implements MatchService {
         match.setGameType(Match.GameType.SOLO);
         match.setPlayer1Id(matchDTO.getPlayer1Id());
         match.setPlayer2Id(matchDTO.getPlayer2Id());
-        match.setRefereeId(matchDTO.getRefereeId());
         match.setStatus(Status.SCHEDULED);
         match.setMeetingLatitude(matchDTO.getMeetingLatitude());
         match.setMeetingLongitude(matchDTO.getMeetingLongitude());
@@ -130,11 +129,7 @@ public class MatchServiceImpl implements MatchService {
         if (match.getStatus() != Status.SCHEDULED) {
             throw new IllegalStateException("Match is not scheduled");
         }
-        
-        // Verify the referee is the correct one
-        if (match.getRefereeId() == null || !match.getRefereeId().equals(matchDTO.getRefereeId())) {
-            throw new RuntimeException("Unauthorized referee");
-        }
+       
 
         // Start the match
         match.startMatch();
@@ -156,11 +151,6 @@ public class MatchServiceImpl implements MatchService {
         // Ensure the match hasn't already been completed
         if (match.getStatus() == Status.COMPLETED) {
             throw new IllegalStateException("Match is already completed");
-        }
-    
-        // Verify the referee is authorized
-        if (match.getRefereeId() == null || !match.getRefereeId().equals(matchDTO.getRefereeId())) {
-            throw new RuntimeException("Unauthorized referee");
         }
     
         // Verify that the winner is one of the players in the match
