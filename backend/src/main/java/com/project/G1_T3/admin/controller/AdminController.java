@@ -65,13 +65,6 @@ public class AdminController {
         return ResponseEntity.ok("User lock status updated successfully");
     }
 
-    // Set isLocked to true for deleted user
-    @DeleteMapping("/delete-user")
-    public ResponseEntity<String> lockUser(@RequestBody String id) {
-        adminService.updateUserLockedStatus(UUID.fromString(id), true);  
-        return ResponseEntity.ok("User locked successfully");
-    }
-
     // Reset admin email and password
     @PostMapping("/reset-admin-password")
     public ResponseEntity<String> resetAdminPassword(@RequestBody String adminId) {
