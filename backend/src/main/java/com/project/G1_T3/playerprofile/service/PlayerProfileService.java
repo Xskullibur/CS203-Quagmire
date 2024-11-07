@@ -163,8 +163,17 @@ public class PlayerProfileService {
     public PlayerProfile findByUsername(String username) {
         
         Optional<User> optionalUser = userService.findByUsername(username);
-        return optionalUser.map(user -> playerProfileRepository.findByUser(user))
-                .orElseThrow(() -> new EntityNotFoundException("Player profile not found for username: " + username));
 
+        if (optionalUser.isEmpty()) {
+            throw new UsernameNotFoundException(username);
+        }
+
+        Optional<PlayerProfile> optionalPlayerProfile = optionalUser.map(user -> playerProfileRepository.findByUser(user));
+
+        if (optionalPlayerProfile.isEmpty()) {
+            throw new EntityNotFoundException("Player profile not found for username: " + username);
+        }
+
+        return optionalPlayerProfile.get();
     }
 }

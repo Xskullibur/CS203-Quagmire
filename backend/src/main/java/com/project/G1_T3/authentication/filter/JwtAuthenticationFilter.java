@@ -1,6 +1,8 @@
 package com.project.G1_T3.authentication.filter;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -68,13 +70,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(@NonNull HttpServletRequest request) throws ServletException {
         String path = request.getRequestURI();
+        String method = request.getMethod();
     
-        return !(path.startsWith("/profile/edit")) && (
-                path.startsWith("/authentication") ||
-                path.startsWith("/ws") ||
-                path.startsWith("/profile") ||
-                path.startsWith("/leaderboard/user")
+        // Paths that should not be filtered
+        List<String> excludedPaths = List.of("/authentication", "/ws", "/leaderboard/user");
+        Map<String, List<String>> methodSpecificExclusions = Map.of(
+            "/profile", List.of("GET")
         );
+    
+        boolean isExcludedPath = excludedPaths.stream().anyMatch(path::startsWith);
+    
+        boolean isMethodSpecificExcluded = methodSpecificExclusions.entrySet().stream()
+            .anyMatch(entry -> path.startsWith(entry.getKey()) && entry.getValue().contains(method));
+    
+        return isExcludedPath || isMethodSpecificExcluded;
     }
 
 }

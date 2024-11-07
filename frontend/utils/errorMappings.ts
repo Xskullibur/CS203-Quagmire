@@ -85,6 +85,10 @@ export const errorCodeMappings: Record<ErrorCode, ErrorMapping> = {
         title: 'User Deletion Failed',
         message: 'Failed to delete user.'
     },
+    [ErrorCode.ENTITY_NOT_FOUND]: {
+        title: 'Entity Data Error',
+        message: 'Failed to retrieve entity.'
+    },
 
     // Form & Validation
     [ErrorCode.VALIDATION_ERROR]: {

@@ -27,6 +27,7 @@ import com.google.firebase.ErrorCode;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.MalformedJwtException;
+import jakarta.persistence.EntityNotFoundException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -118,6 +119,13 @@ public class GlobalExceptionHandler {
         Map<String, Object> body = createErrorResponseBody(ex, HttpStatus.INTERNAL_SERVER_ERROR, request);
         body.put(ERROR_CODE, "API_ERROR");
         return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<Object> handleEntityNotFoundException(EntityNotFoundException ex, WebRequest request) {
+        Map<String, Object> body = createErrorResponseBody(ex, HttpStatus.NOT_FOUND, request);
+        body.put(ERROR_CODE, "ENTITY_NOT_FOUND");
+        return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
     }
 
     private Map<String, Object> createErrorResponseBody(Exception ex, HttpStatus status, WebRequest request) {
