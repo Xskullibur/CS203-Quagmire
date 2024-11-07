@@ -8,9 +8,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.project.G1_T3.authentication.model.ResetPasswordDTO;
 import com.project.G1_T3.authentication.service.JwtService;
 import com.project.G1_T3.common.exception.EmailAlreadyInUseException;
 import com.project.G1_T3.common.exception.UsernameAlreadyTakenException;
@@ -18,6 +20,8 @@ import com.project.G1_T3.email.service.EmailService;
 import com.project.G1_T3.player.model.PlayerProfile;
 import com.project.G1_T3.player.repository.PlayerProfileRepository;
 import com.project.G1_T3.player.service.PlayerProfileService;
+import com.project.G1_T3.user.model.UpdateEmailDTO;
+import com.project.G1_T3.user.model.UpdatePasswordDTO;
 import com.project.G1_T3.user.model.User;
 import com.project.G1_T3.user.model.UserDTO;
 import com.project.G1_T3.user.model.UserRole;
@@ -241,5 +245,146 @@ class UserServiceTest {
 
         assertThrows(UsernameNotFoundException.class,
             () -> userService.getUserDTOByUsername("nonexistentUser"));
+    }
+
+    @Test
+    void resetPassword_Success() {
+        // Arrange
+        ResetPasswordDTO resetPasswordDTO = new ResetPasswordDTO();
+        resetPasswordDTO.setUsername("testuser");
+        resetPasswordDTO.setCurrentPassword("currentPassword");
+        resetPasswordDTO.setNewPassword("newPassword");
+
+        when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
+        when(passwordEncoder.matches("currentPassword", "hashedpassword")).thenReturn(true);
+        when(passwordEncoder.encode("newPassword")).thenReturn("newHashedPassword");
+
+        // Act
+        userService.resetPassword(resetPasswordDTO);
+
+        // Assert
+        assertTrue(testUser.getPasswordHash().equals("newHashedPassword"));
+    }
+
+    @Test
+    void resetPassword_IncorrectCurrentPassword() {
+        // Arrange
+        ResetPasswordDTO resetPasswordDTO = new ResetPasswordDTO();
+        resetPasswordDTO.setUsername("testuser");
+        resetPasswordDTO.setCurrentPassword("wrongPassword");
+        resetPasswordDTO.setNewPassword("newPassword");
+
+        when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
+        when(passwordEncoder.matches("wrongPassword", "hashedpassword")).thenReturn(false);
+
+        // Act & Assert
+        assertThrows(IllegalArgumentException.class, () -> userService.resetPassword(resetPasswordDTO));
+    }
+
+    @Test
+    void resetPassword_UserNotFound() {
+        // Arrange
+        ResetPasswordDTO resetPasswordDTO = new ResetPasswordDTO();
+        resetPasswordDTO.setUsername("nonexistentuser");
+        resetPasswordDTO.setCurrentPassword("currentPassword");
+        resetPasswordDTO.setNewPassword("newPassword");
+
+        when(userRepository.findByUsername("nonexistentuser")).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(UsernameNotFoundException.class, () -> userService.resetPassword(resetPasswordDTO));
+    }
+
+    @Test
+    void updatePassword_Success() {
+        // Arrange
+        UpdatePasswordDTO updatePasswordDTO = new UpdatePasswordDTO();
+        updatePasswordDTO.setCurrentPassword("currentPassword");
+        updatePasswordDTO.setNewPassword("newPassword");
+
+        when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
+        when(passwordEncoder.matches("currentPassword", "hashedpassword")).thenReturn(true);
+        when(passwordEncoder.encode("newPassword")).thenReturn("newHashedPassword");
+
+        // Act
+        userService.updatePassword("testuser", updatePasswordDTO);
+
+        // Assert
+        assertTrue(testUser.getPasswordHash().equals("newHashedPassword"));
+    }
+
+    @Test
+    void updatePassword_IncorrectCurrentPassword() {
+        // Arrange
+        UpdatePasswordDTO updatePasswordDTO = new UpdatePasswordDTO();
+        updatePasswordDTO.setCurrentPassword("wrongPassword");
+        updatePasswordDTO.setNewPassword("newPassword");
+
+        when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
+        when(passwordEncoder.matches("wrongPassword", "hashedpassword")).thenReturn(false);
+
+        // Act & Assert
+        assertThrows(IllegalArgumentException.class, () -> userService.updatePassword("testuser", updatePasswordDTO));
+    }
+
+    @Test
+    void updatePassword_UserNotFound() {
+        // Arrange
+        UpdatePasswordDTO updatePasswordDTO = new UpdatePasswordDTO();
+        updatePasswordDTO.setCurrentPassword("currentPassword");
+        updatePasswordDTO.setNewPassword("newPassword");
+
+        when(userRepository.findByUsername("nonexistentuser")).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(UsernameNotFoundException.class, () -> userService.updatePassword("nonexistentuser", updatePasswordDTO));
+    }
+
+    @Test
+    void updateEmail_Success() {
+        // Arrange
+        UpdateEmailDTO updateEmailDTO = new UpdateEmailDTO();
+        updateEmailDTO.setNewEmail("new@example.com");
+        updateEmailDTO.setPassword("currentPassword");
+
+        when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
+        when(passwordEncoder.matches("currentPassword", "hashedpassword")).thenReturn(true);
+
+        // Act
+        boolean result = userService.updateEmail("testuser", updateEmailDTO);
+
+        // Assert
+        assertTrue(result);
+        assertTrue(testUser.getEmail().equals("new@example.com"));
+    }
+
+    @Test
+    void updateEmail_IncorrectPassword() {
+        // Arrange
+        UpdateEmailDTO updateEmailDTO = new UpdateEmailDTO();
+        updateEmailDTO.setNewEmail("new@example.com");
+        updateEmailDTO.setPassword("wrongPassword");
+
+        when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
+        when(passwordEncoder.matches("wrongPassword", "hashedpassword")).thenReturn(false);
+
+        // Act
+        boolean result = userService.updateEmail("testuser", updateEmailDTO);
+
+        // Assert
+        assertTrue(!result);  // Ensure that the email was not updated
+    }
+
+    @Test
+    void updateEmail_UserNotFound() {
+        // Arrange
+        UpdateEmailDTO updateEmailDTO = new UpdateEmailDTO();
+        updateEmailDTO.setNewEmail("new@example.com");
+        updateEmailDTO.setPassword("currentPassword");
+
+        when(userRepository.findByUsername("nonexistentuser")).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(UsernameNotFoundException.class, () -> userService.updateEmail("nonexistentuser", updateEmailDTO));
     }
 }
