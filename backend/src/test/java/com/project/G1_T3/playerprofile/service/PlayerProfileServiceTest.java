@@ -6,6 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.project.G1_T3.security.service.AuthorizationService;
@@ -137,6 +138,16 @@ class PlayerProfileServiceTest {
     @Test
     void findByUsername_WithInvalidUserId_ThrowsException() {
         when(userService.findByUsername(user.getUsername())).thenReturn(Optional.empty());
+
+        Supplier<PlayerProfile> findByUserIdCall = () -> playerProfileService.findByUsername(user.getUsername());
+
+        assertThrows(UsernameNotFoundException.class, findByUserIdCall::get);
+    }
+
+    @Test
+    void findByUsername_NoPlayerProfile_ThrowsException() {
+        when(userService.findByUsername(user.getUsername())).thenReturn(Optional.of(user));
+        when(playerProfileRepository.findByUser(user)).thenReturn(null);
 
         Supplier<PlayerProfile> findByUserIdCall = () -> playerProfileService.findByUsername(user.getUsername());
 

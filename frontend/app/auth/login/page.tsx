@@ -179,6 +179,13 @@ const LoginForm = () => {
                     </span>
                 </Link>
             </div>
+            <div className="mt-2 text-center">
+                <Link href="/auth/reset-password">
+                    <span className="text-primary hover:text-zinc-400 transition duration-300 font-semibold text-sm">
+                        Forgot your password?
+                    </span>
+                </Link>
+            </div>
         </form>
     );
 };

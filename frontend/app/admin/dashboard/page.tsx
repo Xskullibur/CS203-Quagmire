@@ -55,6 +55,7 @@ const AdminDashboard: React.FC = () => {
       .then((response) => {
         setUsers(response.data.content);
         setTotalPages(response.data.totalPages);
+        console.log(response.data.content);
       })
       .catch((error: AxiosError) => {
         handleError(error);
@@ -89,6 +90,7 @@ const AdminDashboard: React.FC = () => {
         if (response.status === 201) {
           setSuccess("Successfully Registered: " + response.data.username);
         }
+        setHasFetched(false)
       })
       .catch((error: AxiosError) => {
         const { message } = ErrorHandler.handleError(error);
@@ -110,41 +112,15 @@ const AdminDashboard: React.FC = () => {
               title: "Success",
               description: `User ${user.username} lock status has been updated to ${newLockStatus ? "locked" : "unlocked"}.`,
             });
-            // Refresh the user list
-            fetchUsers();
+            
+            setHasFetched(false)
           }
         })
         .catch((error: AxiosError) => {
           handleError(error);
         });
     },
-    [fetchUsers, handleError]
-  );
-
-  const handleDeleteUser = useCallback(
-    async (user: User) => {
-      axiosInstance
-        .delete(new URL(`/admin/delete-user`, API_URL).toString(), {
-          data: {
-            id: user.userId,
-          },
-        })
-        .then((response) => {
-          if (response.status === 200) {
-            toast({
-              variant: "success",
-              title: "Success",
-              description: `User ${user.username} has been deleted.`,
-            });
-            // Refresh the user list
-            fetchUsers();
-          }
-        })
-        .catch((error: AxiosError) => {
-          handleError(error);
-        });
-    },
-    [fetchUsers, handleError]
+    [handleError]
   );
 
   const handlePageChange = (currentPage: number) => {
@@ -172,7 +148,6 @@ const AdminDashboard: React.FC = () => {
         <UserTable
           users={users}
           onLock={handleLockUser}
-          onDelete={handleDeleteUser}
           currentPage={currentPage}
           totalPages={totalPages}
           pageSize={pageSize}
