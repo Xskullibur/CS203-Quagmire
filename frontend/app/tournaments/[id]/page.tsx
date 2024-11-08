@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import axios from "axios";
 import { User } from "@/types/user";
-import { PlayerProfile } from "@/types/player-profile";
 import withAuth from "@/hooks/withAuth";
 
 interface Tournament {
@@ -51,31 +50,29 @@ const TournamentDetails: React.FC<{ params: { id: string } }> = ({
         setRegistrationClosed(currentDate > deadlineDate);
 
         if (isAuthenticated) {
+          // Check if player is already registered
+          const registeredResponse = await axiosInstance.get(
+            `${process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL}/tournament/${id}/players`
+          );
 
-            // Check if player is already registered
-            const registeredResponse = await axiosInstance.get(
-              `${process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL}/tournament/${id}/players`
-            );
-    
-            const isRegistered = registeredResponse.data.some(
-              (player: { user: User }) => {
-                console.log(player.user.userId);
-                console.log(userId);
-    
-                return player.user.userId === userId;
-              }
-            );
+          const isRegistered = registeredResponse.data.some(
+            (player: { user: User }) => {
+              console.log(player.user.userId);
+              console.log(userId);
 
-            setRegistered(isRegistered);
+              return player.user.userId === userId;
+            }
+          );
+
+          setRegistered(isRegistered);
         }
-
       } catch (error) {
-        console.error("Error fetching tournament details:", error);
-        setError("Failed to load tournament details. Please try again.");
-
         if (axios.isAxiosError(error)) {
           handleError(error);
         }
+
+        console.error("Error fetching tournament details:", error);
+        setError("Failed to load tournament details. Please try again.");
       } finally {
         setLoading(false);
       }
@@ -99,7 +96,9 @@ const TournamentDetails: React.FC<{ params: { id: string } }> = ({
       }
       setRegistered(!registered);
     } catch (error) {
-      console.error("Error toggling registration:", error);
+      if (axios.isAxiosError(error)) {
+        handleError(error);
+      }
     }
   };
 

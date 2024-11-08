@@ -1,20 +1,24 @@
-'use client';
+"use client";
 
 import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import axiosInstance from "@/lib/axios";
-import { useRouter } from 'next/navigation';
+import { useRouter } from "next/navigation";
+import axios from "axios";
+import { useGlobalErrorHandler } from "@/app/context/ErrorMessageProvider";
+import { toast } from "@/hooks/use-toast";
 
 const UpdateEmailPage: React.FC = () => {
   const router = useRouter();
   const [formData, setFormData] = useState({
     newEmail: "",
-    password: ""
+    password: "",
   });
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const { handleError } = useGlobalErrorHandler();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -26,18 +30,30 @@ const UpdateEmailPage: React.FC = () => {
     setSuccess(null);
 
     try {
-      const response = await axiosInstance.put(`${process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL}/users/update-email`, {
-        newEmail: formData.newEmail,
-        password: formData.password
-      });
+      const response = await axiosInstance.put(
+        `${process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL}/users/update-email`,
+        {
+          newEmail: formData.newEmail,
+          password: formData.password,
+        }
+      );
 
       if (response.status === 200) {
-        setSuccess("Email updated successfully.");
-        setTimeout(() => router.push("/users"), 2000); // Redirect to /users after 2 seconds
+        toast({
+          variant: "success",
+          title: "Success",
+          description: "Email updated successfully.",
+        });
+        router.push("/users");
       }
     } catch (error: any) {
       console.error("Failed to update email:", error);
-      setError("Failed to update email. Please check your password and try again.");
+      if (axios.isAxiosError(error)) {
+        handleError(error);
+      }
+      setError(
+        "Failed to update email. Please check your password and try again."
+      );
     }
   };
 
@@ -76,7 +92,10 @@ const UpdateEmailPage: React.FC = () => {
               required
             />
           </div>
-          <Button type="submit" className="w-full bg-primary hover:bg-accent text-black hover:text-white transition duration-300">
+          <Button
+            type="submit"
+            className="w-full bg-primary hover:bg-accent text-black hover:text-white transition duration-300"
+          >
             Update Email
           </Button>
         </form>
