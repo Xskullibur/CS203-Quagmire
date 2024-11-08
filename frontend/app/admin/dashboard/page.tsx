@@ -81,16 +81,16 @@ const AdminDashboard: React.FC = () => {
   const handleAddUser = async (e: React.FormEvent) => {
     setError(null);
     setSuccess(null);
-  
+
     e.preventDefault();
-  
+
     axiosInstance
       .post(new URL("/admin/register-admin", API_URL).toString(), formData)
       .then((response) => {
         if (response.status === 201) {
           setSuccess("Successfully Registered: " + response.data.username);
         }
-        setHasFetched(false)
+        setHasFetched(false);
       })
       .catch((error: AxiosError) => {
         const { message } = ErrorHandler.handleError(error);
@@ -112,8 +112,8 @@ const AdminDashboard: React.FC = () => {
               title: "Success",
               description: `User ${user.username} lock status has been updated to ${newLockStatus ? "locked" : "unlocked"}.`,
             });
-            
-            setHasFetched(false)
+
+            setHasFetched(false);
           }
         })
         .catch((error: AxiosError) => {
@@ -233,4 +233,7 @@ const AdminDashboard: React.FC = () => {
   );
 };
 
-export default withAuth(AdminDashboard, UserRole.ADMIN);
+export default withAuth(AdminDashboard, {
+  requireAuth: true,
+  role: UserRole.ADMIN,
+});

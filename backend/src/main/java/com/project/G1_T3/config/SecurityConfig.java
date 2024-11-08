@@ -90,7 +90,7 @@ public class SecurityConfig {
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/users").authenticated()
                         .requestMatchers("/users/**").authenticated()
-                        .requestMatchers("/tournament/**").authenticated()
+                        .requestMatchers("/tournament/**").permitAll()
                         .requestMatchers("/leaderboard/user/**").permitAll()
                         .requestMatchers("/ws/**").permitAll()
                         .requestMatchers("file/**").authenticated()
