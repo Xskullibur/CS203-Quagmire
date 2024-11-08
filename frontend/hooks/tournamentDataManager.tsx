@@ -1,12 +1,11 @@
 import { MatchTracker } from "@/types/matchTracker";
-import { playerIdentifier } from "@/types/playerIdentifier";
 import { MatchDTO } from "@/types/matchDTO";
 import axios from "axios";
 
 const API_URL = process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL;
 
 // Function to get player profile by ID
-const getPlayerProfileById = async (id: string): Promise<playerIdentifier> => {
+const getPlayerProfileById = async (id: string): Promise<any> => {
     try {
         const response = await axios.get(`${API_URL}/profile/player/${id}`);
         return response.data;
@@ -27,13 +26,13 @@ const convertMatchToMatchTracker = async (match: any): Promise<MatchTracker> => 
         const matchTracker: MatchTracker = {
             matchId: match.id,
             player1: {
-                userId: player1Profile.userId,
+                userId: player1Profile.user.username,
                 id: match.player1Id,
                 score: match.score.split("-")[0],
             },
             player2: player2Profile
                 ? {
-                    userId: player2Profile.userId,
+                    userId: player2Profile.user.username,
                     id: match.player2Id,
                     score: match.score.split("-")[1],
                 }
@@ -56,8 +55,8 @@ const convertMatchToMatchTracker = async (match: any): Promise<MatchTracker> => 
 
 // Convert MatchTracker to MatchDTO
 const convertToMatchDTO = (match: MatchTracker): MatchDTO => {
-    const score = match.player2 ? `${match.player1.score}-${match.player2.score}` : "0";
-    return {
+    const score = match.player2 ? `${match.player1.score}-${match.player2.score}` : "0-0";
+    const matchDTO: MatchDTO =  {
         player1Id: match.player1.id,
         player2Id: match.player2 ? match.player2.id : null,
         scheduledTime: null,
@@ -66,6 +65,7 @@ const convertToMatchDTO = (match: MatchTracker): MatchDTO => {
         meetingLatitude: null,
         meetingLongitude: null,
     };
+    return matchDTO;
 };
 
 const getCurrentStageFromTournament = async (tournamentId: string) => {

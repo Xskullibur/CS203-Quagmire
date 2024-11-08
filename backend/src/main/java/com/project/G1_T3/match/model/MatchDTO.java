@@ -2,12 +2,14 @@ package com.project.G1_T3.match.model;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Getter
 @Setter
+@ToString
 public class MatchDTO {
     private UUID player1Id;
     private UUID player2Id;
@@ -16,4 +18,5 @@ public class MatchDTO {
     private String score;
     private Double meetingLatitude;
     private Double meetingLongitude;
+
 }

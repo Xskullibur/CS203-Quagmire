@@ -6,6 +6,7 @@ import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/componen
 import { Button } from "@/components/ui/button";
 import { MatchTracker } from "@/types/matchTracker";
 import { convertToMatchDTO } from "@/hooks/tournamentDataManager";
+import axiosInstance from "@/lib/axios";
 
 const API_URL = process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL;
 
@@ -21,11 +22,16 @@ const BracketMatch: React.FC<MatchProps> = ({ match, onMatchComplete, isAdmin })
   const [p2Score, setP2Score] = useState(player2?.score ?? 0);
   const [winner, setWinner] = useState<{ userId: string; id: string } | null>(match.winner ?? null);
 
-  const incrementScore = (setScore: React.Dispatch<React.SetStateAction<number>>) => setScore((prev) => prev + 1);
+  const incrementScore = (setScore: React.Dispatch<React.SetStateAction<number>>) => setScore((prev) => Number(prev) + 1);
   const decrementScore = (setScore: React.Dispatch<React.SetStateAction<number>>) => setScore((prev) => (prev > 0 ? prev - 1 : 0));
 
   // Send a PUT request to complete the match on the backend
-  const completeMatchRequest = async (winnerId: string, score: string) => {
+  const completeMatchRequest = async (winnerId: string) => {
+    if (!winnerId) {
+      console.error("Error: winnerId is null");
+      return;
+    }
+
     const matchDTO = convertToMatchDTO({
       ...match,
       winner: { id: winnerId, userId: winnerId },
@@ -33,8 +39,10 @@ const BracketMatch: React.FC<MatchProps> = ({ match, onMatchComplete, isAdmin })
       player2: player2 ? { ...player2, score: p2Score } : null,
     });
 
+    console.table(matchDTO);
+
     try {
-      await axios.put(`${API_URL}/match/${match.matchId}/complete`, matchDTO);
+      await axiosInstance.put(`${API_URL}/match/${match.matchId}/complete`, matchDTO);
       alert("Match completed successfully!");
     } catch (error) {
       console.error("Error completing the match:", error);
@@ -47,10 +55,10 @@ const BracketMatch: React.FC<MatchProps> = ({ match, onMatchComplete, isAdmin })
     if (confirm("Are you sure you want to complete this match?")) {
       if (p1Score > p2Score) {
         setWinner({ userId: player1.userId, id: player1.id });
-        completeMatchRequest(player1.id, `${p1Score}-${p2Score}`);
+        completeMatchRequest(player1.id);
       } else if (p2Score > p1Score && player2) {
         setWinner({ userId: player2.userId, id: player2.id });
-        completeMatchRequest(player2.id, `${p1Score}-${p2Score}`);
+        completeMatchRequest(player2.id);
       } else {
         alert("The match cannot end in a tie. Adjust the scores to determine a winner.");
       }
@@ -60,17 +68,23 @@ const BracketMatch: React.FC<MatchProps> = ({ match, onMatchComplete, isAdmin })
   // Confirm and handle forfeit
   const handleForfeit = (player: "player1" | "player2") => {
     if (confirm(`Are you sure you want to forfeit ${player === "player1" ? player1.userId : player2?.userId}?`)) {
-      const forfeitingPlayer = player === "player1" ? player2 : player1;
-      if (forfeitingPlayer) {
-        setWinner({ userId: forfeitingPlayer.userId, id: forfeitingPlayer.id });
-        completeMatchRequest(forfeitingPlayer.id, player === "player1" ? `0-${p2Score}` : `${p1Score}-0`);
+      const forfeitWinner = player === "player1" ? player2 : player1;
+      if (forfeitWinner) {
+        setWinner({ userId: forfeitWinner.userId, id: forfeitWinner.id });
+        if(forfeitWinner.userId === player1.userId && player2){
+          player2.score = 0;
+        } else {
+          player1.score = 0;
+        }
+
+        completeMatchRequest(forfeitWinner.id);
       }
     }
   };
 
   useEffect(() => {
     if (winner && onMatchComplete) onMatchComplete(winner);
-  }, [winner, onMatchComplete]);
+  }, [winner]);
 
   return (
     <Card className="mx-auto">
@@ -79,11 +93,11 @@ const BracketMatch: React.FC<MatchProps> = ({ match, onMatchComplete, isAdmin })
       </CardHeader>
 
       <CardContent>
-        <div className="flex justify-between items-center mb-4">
+        <div className="flex justify-between items-center mb-4 gap-4">
           {/* Player 1 Section */}
           <div className="text-center">
             <h4 className="text-lg font-semibold">{player1.userId}</h4>
-            <div className="flex items-center gap-2 mt-2">
+            <div className="flex items-center gap-4 mt-2">
               {isAdmin && (
                 <>
                   <Button onClick={() => decrementScore(setP1Score)} disabled={p1Score === 0}>-</Button>

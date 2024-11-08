@@ -62,6 +62,7 @@ public class MatchController {
     @PutMapping("/{matchId}/complete")
     public ResponseEntity<?> completeMatch(@PathVariable UUID matchId, @RequestBody MatchDTO matchDTO) {
         matchService.completeMatch(matchId, matchDTO);
+        
         return ResponseEntity.ok("Match completed");
     }
 }

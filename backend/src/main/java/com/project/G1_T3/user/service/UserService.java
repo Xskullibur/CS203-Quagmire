@@ -130,9 +130,6 @@ public class UserService {
         return userRepository.findByUsername(username);
     }
 
-    public String findUsernameByUserId(UUID id){
-        return userRepository.findUsernameByUserId(id);
-    }
     public Optional<User> findByUserId(String userId) {
         return userRepository.findById(UUID.fromString(userId));
     }
