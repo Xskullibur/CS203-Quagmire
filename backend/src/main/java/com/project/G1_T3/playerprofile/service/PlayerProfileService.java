@@ -1,6 +1,7 @@
 package com.project.G1_T3.playerprofile.service;
 
 import com.project.G1_T3.security.service.AuthorizationService;
+import com.project.G1_T3.tournament.model.Tournament;
 import com.project.G1_T3.user.model.User;
 import com.project.G1_T3.user.service.UserService;
 
@@ -8,6 +9,7 @@ import jakarta.persistence.EntityNotFoundException;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -16,6 +18,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.project.G1_T3.achievement.model.Achievement;
+import com.project.G1_T3.achievement.service.AchievementService;
 import com.project.G1_T3.common.exception.ProfileAlreadyExistException;
 import com.project.G1_T3.filestorage.service.FileStorageService;
 import com.project.G1_T3.filestorage.service.ImageValidationService;
@@ -40,6 +44,9 @@ public class PlayerProfileService {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private AchievementService achievementService;
 
     public List<PlayerProfile> findAll() {
         return playerProfileRepository.findAll();
@@ -166,5 +173,28 @@ public class PlayerProfileService {
         return optionalUser.map(user -> playerProfileRepository.findByUser(user))
                 .orElseThrow(() -> new EntityNotFoundException("Player profile not found for username: " + username));
 
+    }
+
+    public Set<Achievement> getPlayerAchievements(String username) {
+        // Fetch the user by username & player by userId
+        Optional<User> user = userService.findByUsername(username);
+        UUID userId = user.get().getUserId();
+        PlayerProfile player = playerProfileRepository.findByUserId(userId);
+
+        // Run the achievement check first
+        achievementService.checkAchievements(player);
+
+        // Return the achievements set from PlayerProfile
+        return player.getAchievements();
+    }
+
+    public Set<Tournament> getPlayerTournaments(String username) {
+        // Fetch the user by username & player by userId
+        Optional<User> user = userService.findByUsername(username);
+        UUID userId = user.get().getUserId();
+        PlayerProfile player = playerProfileRepository.findByUserId(userId);
+
+        // Return the achievements set from PlayerProfile
+        return player.getTournaments();
     }
 }

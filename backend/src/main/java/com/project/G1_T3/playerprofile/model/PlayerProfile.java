@@ -1,6 +1,7 @@
 package com.project.G1_T3.playerprofile.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.project.G1_T3.achievement.model.Achievement;
 import com.project.G1_T3.common.glicko.Glicko2Rating;
 import com.project.G1_T3.common.glicko.Glicko2Result;
 import com.project.G1_T3.tournament.model.Tournament;
@@ -11,6 +12,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.PostLoad;
@@ -90,6 +92,14 @@ public class PlayerProfile {
 
     @ManyToMany(mappedBy = "players", cascade = CascadeType.ALL)
     private Set<Tournament> tournaments = new HashSet<>();
+
+    @ManyToMany
+    @JoinTable(
+        name = "player_achievements",
+        joinColumns = @JoinColumn(name = "profile_id"),
+        inverseJoinColumns = @JoinColumn(name = "achievement_id")
+    )
+    private Set<Achievement> achievements;
 
     public static PlayerProfile fromDTO(PlayerProfileDTO profileDTO) {
         PlayerProfile playerProfile = new PlayerProfile();
