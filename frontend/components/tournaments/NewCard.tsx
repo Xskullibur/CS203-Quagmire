@@ -9,10 +9,9 @@ import { Tournament } from '@/types/tournament';
 
 interface NewCardProps {
     tournament: Tournament;
-    className?: string;
 }
 
-const NewCard: React.FC<NewCardProps> = ({ tournament, className }) => {
+const NewCard: React.FC<NewCardProps> = ({ tournament }) => {
     return (
         <Card className="flex flex-col border-border overflow-hidden bg-primary-foreground hover:shadow-[0_0_15px_rgba(200,200,200,0.1)] transition duration-200 ease-in-out transform hover:bg-zinc-900 min-h-[250px]">
             <CardHeader className="space-y-1 p-4">
