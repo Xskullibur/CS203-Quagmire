@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
@@ -6,6 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import axiosInstance from "@/lib/axios";
 import { useRouter } from "next/navigation";
+import { useGlobalErrorHandler } from "@/app/context/ErrorMessageProvider";
+import axios from "axios";
+import { toast } from "@/hooks/use-toast";
 
 const UpdatePasswordForm: React.FC = () => {
   const router = useRouter();
@@ -17,6 +20,7 @@ const UpdatePasswordForm: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [passwordsMatch, setPasswordsMatch] = useState(true);
+  const { handleError } = useGlobalErrorHandler();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -24,7 +28,9 @@ const UpdatePasswordForm: React.FC = () => {
 
     // Check if newPassword and confirmPassword match whenever they change
     if (name === "newPassword" || name === "confirmPassword") {
-      setPasswordsMatch(formData.newPassword === value || formData.confirmPassword === value);
+      setPasswordsMatch(
+        formData.newPassword === value || formData.confirmPassword === value
+      );
     }
   };
 
@@ -48,16 +54,20 @@ const UpdatePasswordForm: React.FC = () => {
       );
 
       if (response.status === 200) {
-        setSuccess("Password updated successfully.");
-        setFormData({ currentPassword: "", newPassword: "", confirmPassword: "" });
-
-        // Redirect to /users after 2 seconds
-        setTimeout(() => {
-          router.push("/users");
-        }, 2000);
+        toast({
+          variant: "success",
+          title: "Success",
+          description: "Password updated successfully.",
+        });
+        router.push("/users");
       }
     } catch (error: any) {
-      setError("Failed to update password. Please check your credentials and try again.");
+      if (axios.isAxiosError(error)) {
+        handleError(error);
+      }
+      setError(
+        "Failed to update password. Please check your credentials and try again."
+      );
     }
   };
 
@@ -109,7 +119,10 @@ const UpdatePasswordForm: React.FC = () => {
           {!passwordsMatch && (
             <p className="text-red-500 text-sm mb-4">Passwords do not match</p>
           )}
-          <Button type="submit" className="w-full bg-primary hover:bg-accent text-black hover:text-white transition duration-300">
+          <Button
+            type="submit"
+            className="w-full bg-primary hover:bg-accent text-black hover:text-white transition duration-300"
+          >
             Update Password
           </Button>
         </form>
