@@ -1,14 +1,7 @@
 package com.project.G1_T3.stage;
 
-import com.project.G1_T3.match.model.Match;
-import com.project.G1_T3.match.model.MatchDTO;
-import com.project.G1_T3.match.service.MatchService;
 import com.project.G1_T3.player.model.PlayerProfile;
-import com.project.G1_T3.player.repository.PlayerProfileRepository;
-import com.project.G1_T3.round.model.Round;
-import com.project.G1_T3.round.repository.RoundRepository;
 import com.project.G1_T3.round.service.RoundService;
-import com.project.G1_T3.round.service.RoundServiceImpl;
 import com.project.G1_T3.stage.model.Stage;
 import com.project.G1_T3.stage.model.StageDTO;
 import com.project.G1_T3.stage.model.Format;
@@ -22,8 +15,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.context.ActiveProfiles;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
@@ -34,7 +27,6 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -42,14 +34,13 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 import java.util.Optional;
 import java.util.List;
-import java.util.ArrayList;
 import java.util.Set;
 import java.util.HashSet;
-import java.util.Collections;
 import java.util.Arrays;
 
+@ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
-public class StageServiceTest {
+class StageServiceTest {
 
     @Mock
     private StageRepository stageRepository;

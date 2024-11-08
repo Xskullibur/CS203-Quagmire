@@ -4,7 +4,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.context.annotation.Profile;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.test.context.ActiveProfiles;
 
 import com.project.G1_T3.match.model.Match;
 import com.project.G1_T3.match.repository.MatchRepository;
@@ -19,6 +21,7 @@ import static org.mockito.Mockito.*;
 import java.util.Optional;
 import java.util.UUID;
 
+@ActiveProfiles("test")
 class MatchCheckerTests {
 
     @Mock

@@ -27,7 +27,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.test.context.ActiveProfiles;
 
+@ActiveProfiles("test")
 class MatchmakingServiceImplTests {
 
     @Mock

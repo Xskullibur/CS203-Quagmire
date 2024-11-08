@@ -6,6 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.project.G1_T3.player.model.PlayerProfile;
@@ -13,7 +14,6 @@ import com.project.G1_T3.player.model.PlayerProfileDTO;
 import com.project.G1_T3.player.repository.PlayerProfileRepository;
 import com.project.G1_T3.security.service.AuthorizationService;
 import com.project.G1_T3.security.service.SecurityService;
-import com.project.G1_T3.user.model.CustomUserDetails;
 import com.project.G1_T3.user.model.User;
 import com.project.G1_T3.filestorage.service.FileStorageService;
 
@@ -27,8 +27,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+@ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
-public class PlayerProfileServiceTest {
+class PlayerProfileServiceTest {
 
     @Mock
     private SecurityService securityService;

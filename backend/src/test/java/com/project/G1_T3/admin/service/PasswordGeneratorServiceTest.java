@@ -8,10 +8,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.context.ActiveProfiles;
 
 import com.project.G1_T3.authentication.service.PasswordGeneratorServiceImpl;
 import com.project.G1_T3.config.PasswordPolicyConfig;
 
+@ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
 class PasswordGeneratorServiceTest {
 

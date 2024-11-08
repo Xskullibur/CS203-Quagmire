@@ -7,6 +7,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -22,8 +23,9 @@ import com.project.G1_T3.match.model.Match;
 import com.project.G1_T3.match.service.MatchService;
 import com.project.G1_T3.common.model.Status;
 
+@Tag("Integration")
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-public class MatchesControllerIntegrationTests {
+class MatchesControllerIntegrationTests {
 
     @Autowired
     private WebApplicationContext context;

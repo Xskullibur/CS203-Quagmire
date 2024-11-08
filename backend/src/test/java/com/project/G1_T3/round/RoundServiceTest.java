@@ -19,6 +19,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.context.ActiveProfiles;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -38,6 +39,7 @@ import java.util.HashSet;
 import java.util.Collections;
 import java.util.Arrays;
 
+@ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
 class RoundServiceTest {
 

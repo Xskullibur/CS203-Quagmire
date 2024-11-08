@@ -26,10 +26,12 @@ import org.mockito.InjectMocks;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.project.G1_T3.common.exception.InvalidFileTypeException;
 
+@ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
 class ImageValidationServiceTest {
 

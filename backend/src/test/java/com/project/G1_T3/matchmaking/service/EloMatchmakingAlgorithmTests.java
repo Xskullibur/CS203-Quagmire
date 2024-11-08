@@ -9,7 +9,9 @@ import com.project.G1_T3.user.model.User;
 import java.time.Instant;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.test.context.ActiveProfiles;
 
+@ActiveProfiles("test")
 class EloMatchmakingAlgorithmTests {
 
     private EloMatchmakingAlgorithm algorithm;

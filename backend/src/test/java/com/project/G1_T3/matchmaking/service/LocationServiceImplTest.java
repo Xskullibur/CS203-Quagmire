@@ -2,8 +2,11 @@ package com.project.G1_T3.matchmaking.service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.test.context.ActiveProfiles;
+
 import static org.junit.jupiter.api.Assertions.*;
 
+@ActiveProfiles("test")
 class LocationServiceImplTest {
 
     private LocationService locationService;

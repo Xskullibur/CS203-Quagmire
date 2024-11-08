@@ -5,10 +5,13 @@ import com.project.G1_T3.player.model.PlayerProfile;
 import com.project.G1_T3.user.model.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.test.context.ActiveProfiles;
+
 import java.util.List;
 import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 
+@ActiveProfiles("test")
 class MatchmakingKDTreeTest {
 
     private MatchmakingKDTree kdTree;

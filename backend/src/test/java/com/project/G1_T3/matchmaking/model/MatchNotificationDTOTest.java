@@ -1,13 +1,15 @@
 package com.project.G1_T3.matchmaking.model;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.test.context.ActiveProfiles;
 
 import com.project.G1_T3.player.model.PlayerProfileDTO;
 
 import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class MatchNotificationDTOTest {
+@ActiveProfiles("test")
+class MatchNotificationDTOTest {
 
     @Test
     void testNoArgsConstructor() {
