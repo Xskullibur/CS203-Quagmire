@@ -203,6 +203,9 @@ public class PlayerProfileService {
         UUID userId = user.get().getUserId();
         PlayerProfile player = playerProfileRepository.findByUserId(userId);
 
+        // Refresh achievements for that player
+        achievementService.checkAchievements(player);
+
         // Return the achievements set from PlayerProfile
         return player.getTournaments();
     }

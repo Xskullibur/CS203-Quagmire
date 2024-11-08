@@ -50,7 +50,7 @@ public class AchievementService {
 
         // Check if the player has participated in * tournaments 
         for (Achievement achievement : achievementList) {
-            if (achievement.getCriteriaType().toLowerCase() == "participation" && participationCount == achievement.getCriteriaCount()) {
+            if (achievement.getCriteriaType().toLowerCase().equals("participation") && participationCount >= achievement.getCriteriaCount()) {
                 updateAchievement(player, achievement);
             }
         }
@@ -65,7 +65,7 @@ public class AchievementService {
     
         // Check if the player has reached a Glicko rating of *
         for (Achievement achievement : achievementList) {
-            if (achievement.getCriteriaType().toLowerCase() == "rating" && currentRating >= achievement.getCriteriaCount()) {
+            if (achievement.getCriteriaType().toLowerCase().equals("rating") && currentRating >= achievement.getCriteriaCount()) {
                 updateAchievement(player, achievement);
             }
         }
