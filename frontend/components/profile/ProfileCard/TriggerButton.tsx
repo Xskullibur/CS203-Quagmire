@@ -3,15 +3,18 @@ import { SheetTrigger } from "@/components/ui/sheet";
 
 interface TriggerButtonProps {
   isOpen: boolean;
+  label: String;
+  onClick: () => void;
 }
 
-export const TriggerButton = ({ isOpen }: TriggerButtonProps) => (
+export const TriggerButton = ({ isOpen, label, onClick }: TriggerButtonProps) => (
   <div
-    className={`fixed top-[calc(50vh+2rem)] right-[-4rem] z-50 transition-opacity duration-300 ${
+    className={`transition-opacity duration-300 ${
       isOpen ? "opacity-0 pointer-events-none" : "opacity-100"
     }`}
   >
     <SheetTrigger
+      onClick={onClick}
       className={`
         flex items-center justify-center 
         bg-secondary-blue hover:bg-primary/90 
@@ -22,7 +25,7 @@ export const TriggerButton = ({ isOpen }: TriggerButtonProps) => (
         transition-colors
       `}
     >
-      Open Stats
+      {label}
     </SheetTrigger>
   </div>
 );

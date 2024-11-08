@@ -2,6 +2,7 @@ package com.project.G1_T3.playerprofile.controller;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.Set;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,9 +19,12 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.project.G1_T3.achievement.model.Achievement;
+import com.project.G1_T3.leaderboard.model.LeaderboardPlayerProfile;
 import com.project.G1_T3.playerprofile.model.PlayerProfile;
 import com.project.G1_T3.playerprofile.model.PlayerProfileDTO;
 import com.project.G1_T3.playerprofile.service.PlayerProfileService;
+import com.project.G1_T3.tournament.model.Tournament;
 
 @RestController
 @RequestMapping("/profile")
@@ -101,7 +105,19 @@ public class PlayerProfileController {
             profileUpdates, profileImage);
 
         return ResponseEntity.created(URI.create("/profile/" + newProfile.getProfileId())).build();
-
     }
 
+    @GetMapping("/achievements")
+    public Set<Achievement> getPlayerAchievements(@RequestParam String username) {
+        Set<Achievement> achievements = playerProfileService.getPlayerAchievements(username);
+
+        return achievements;
+    }
+
+    @GetMapping("/tournaments")
+    public Set<Tournament> getPlayerTournaments(@RequestParam String username) {
+        Set<Tournament> tournaments = playerProfileService.getPlayerTournaments(username);
+
+        return tournaments;
+    }
 }
