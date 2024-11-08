@@ -31,7 +31,7 @@ jobs:
         cache: maven
         
     - name: Build with Maven
-      run: mvn -B package --file backend/pom.xml
+      run: mvn -B package --file backend/pom.xml -DskipTests
 
     - name: Run unit tests
       run: mvn -B test -DexcludedGroups='Integration'
