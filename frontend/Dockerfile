@@ -28,6 +28,7 @@ WORKDIR /app
 
 # Set environment variables
 ENV NODE_ENV=production
+
 # Copy built assets from the builder stage
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/node_modules ./node_modules
