@@ -30,7 +30,7 @@ const TournamentDetails: React.FC<{ params: { id: string } }> = ({ params }) => 
             setError(null);
 
             try {
-                const response = await axiosInstance.get(`${process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL}/tournament/${id}`);
+                const response = await axios.get(`${process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL}/tournament/${id}`);
                 const tournamentData = response.data;
                 setTournament(tournamentData);
 

@@ -8,6 +8,8 @@ import { AchievementsPanel } from "./AchievementsPanel";
 import { Achievement } from "@/types/achievement";
 import { Tournament } from "@/types/tournament";
 import { TournamentsPanel } from "./TournamentsPanel";
+import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
 interface ProfileCardProps {
   playerProfile: PlayerProfile;
@@ -21,11 +23,16 @@ const ProfileCard = ({ playerProfile, ranking, achievements, tournaments }: Prof
   const containerRef = useRef<HTMLDivElement>(null);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [activePanel, setActivePanel] = useState<string>(""); // Track which panel to show
+  const router = useRouter()
 
   const handleButtonClick = (panel: string) => {
     setActivePanel(panel);  // Set the active panel based on the button clicked
     setIsSheetOpen(true);  // Open the sheet when any button is clicked
   };
+
+  function handleEditProfile(): void {
+    router.push("/profile/edit")
+  }
 
   return (
     <div className="relative w-full h-full rounded-lg overflow-hidden flex items-center justify-center mt-16">
@@ -51,6 +58,7 @@ const ProfileCard = ({ playerProfile, ranking, achievements, tournaments }: Prof
             className="relative flex flex-col items-center transition-all duration-300 w-full"
           >
             <PlayerInfo playerProfile={playerProfile} />
+            <Button onClick={handleEditProfile}>Edit Profile</Button>
           </div>
 
           <SheetContent
