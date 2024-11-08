@@ -25,6 +25,7 @@ RUN ls -la node_modules | grep framer-motion && npm run build
 # Production image, copy all the files and run next
 FROM node:18.17.0-alpine AS runner
 WORKDIR /app
+
 # Set environment variables
 ENV NODE_ENV=production
 
