@@ -10,10 +10,12 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.*;
 
 @RestController
@@ -40,20 +42,33 @@ public class TournamentController {
         return ResponseEntity.ok(tournaments);
     }
 
-    // Get upcoming tournaments with pagination
     @GetMapping("/upcoming")
-    public ResponseEntity<Page<Tournament>> getUpcomingTournaments(Pageable pageable) {
-        Page<Tournament> tournaments = tournamentService.findUpcomingTournaments(pageable);
+    public ResponseEntity<Page<Tournament>> getUpcomingTournaments(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
+            Pageable pageable) {
+        Page<Tournament> tournaments;
+        if (from != null && to != null) {
+            tournaments = tournamentService.findUpcomingTournamentsWithinDateRange(from, to, pageable);
+        } else {
+            tournaments = tournamentService.findUpcomingTournaments(pageable);
+        }
         return ResponseEntity.ok(tournaments);
     }
 
-    // Get past tournaments with pagination
     @GetMapping("/past")
-    public ResponseEntity<Page<Tournament>> getPastTournaments(Pageable pageable) {
-        Page<Tournament> tournaments = tournamentService.findPastTournaments(pageable);
+    public ResponseEntity<Page<Tournament>> getPastTournaments(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
+            Pageable pageable) {
+        Page<Tournament> tournaments;
+        if (from != null && to != null) {
+            tournaments = tournamentService.findPastTournamentsWithinDateRange(from, to, pageable);
+        } else {
+            tournaments = tournamentService.findPastTournaments(pageable);
+        }
         return ResponseEntity.ok(tournaments);
     }
-    
 
     // Get tournament DTO by ID
     @GetMapping("/DTO/{id}")
@@ -77,12 +92,14 @@ public class TournamentController {
 
     // Create a new tournament
     // @PostMapping("/create")
-    // public ResponseEntity<Tournament> createTournament(@RequestBody TournamentDTO tournamentDTO) {
+    // public ResponseEntity<Tournament> createTournament(@RequestBody TournamentDTO
+    // tournamentDTO) {
 
-    //     System.out.println("test2");
+    // System.out.println("test2");
 
-    //     Tournament createdTournament = tournamentService.createTournament(tournamentDTO);
-    //     return ResponseEntity.ok(createdTournament);
+    // Tournament createdTournament =
+    // tournamentService.createTournament(tournamentDTO);
+    // return ResponseEntity.ok(createdTournament);
     // }
     @PostMapping("/create")
     public ResponseEntity<?> createTournament(@RequestBody TournamentDTO tournamentDTO) {
@@ -92,7 +109,7 @@ public class TournamentController {
 
             // Call the service to create the tournament
             Tournament createdTournament = tournamentService.createTournament(tournamentDTO);
-            
+
             // Log successful creation
             System.out.println("Tournament created successfully: " + createdTournament.getName());
 
@@ -102,7 +119,7 @@ public class TournamentController {
             // Log any error that occurs
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                 .body("Error creating tournament: " + e.getMessage());
+                    .body("Error creating tournament: " + e.getMessage());
         }
     }
 
@@ -121,17 +138,26 @@ public class TournamentController {
         Tournament updatedTournament = tournamentService.addPlayerToTournament(tournamentId, playerId);
         return ResponseEntity.ok(updatedTournament);
     }
+
+    @DeleteMapping("/{tournamentId}/players/{playerId}")
+    public ResponseEntity<Tournament> deletePlayerFromTournament(
+            @PathVariable UUID tournamentId, @PathVariable UUID playerId) {
+        Tournament updatedTournament = tournamentService.deletePlayerFromTournament(tournamentId, playerId);
+        return ResponseEntity.ok(updatedTournament);
+    }
+
     // @PutMapping("/{tournamentId}/players/{playerId}")
     // public ResponseEntity<Tournament> addPlayerToTournament(
-    //         @PathVariable UUID tournamentId, @PathVariable String playerId) {
-    //     try {
-    //         UUID playerUUID = UUID.fromString(playerId);  // Convert manually
-    //         System.out.println("Player UUID: " + playerUUID);
-    //         Tournament updatedTournament = tournamentService.addPlayerToTournament(tournamentId, playerUUID);
-    //         return ResponseEntity.ok(updatedTournament);
-    //     } catch (IllegalArgumentException e) {
-    //         return ResponseEntity.badRequest().body(null);  // Invalid UUID format
-    //     }
+    // @PathVariable UUID tournamentId, @PathVariable String playerId) {
+    // try {
+    // UUID playerUUID = UUID.fromString(playerId); // Convert manually
+    // System.out.println("Player UUID: " + playerUUID);
+    // Tournament updatedTournament =
+    // tournamentService.addPlayerToTournament(tournamentId, playerUUID);
+    // return ResponseEntity.ok(updatedTournament);
+    // } catch (IllegalArgumentException e) {
+    // return ResponseEntity.badRequest().body(null); // Invalid UUID format
+    // }
     // }
 
     // Get all players in a tournament
@@ -143,7 +169,8 @@ public class TournamentController {
 
     // Start tournament
     @PutMapping("/{tournamentId}/start")
-    public ResponseEntity<String> startTournament(@PathVariable UUID tournamentId, @RequestBody TournamentDTO tournamentDTO) {
+    public ResponseEntity<String> startTournament(@PathVariable UUID tournamentId,
+            @RequestBody TournamentDTO tournamentDTO) {
         try {
             System.out.println("test0");
             // Call the service method to start the tournament
@@ -152,7 +179,8 @@ public class TournamentController {
         } catch (IllegalArgumentException | EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while starting the tournament.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An error occurred while starting the tournament.");
         }
     }
 
@@ -166,7 +194,8 @@ public class TournamentController {
         } catch (IllegalStateException | EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while progressing to the next stage.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An error occurred while progressing to the next stage.");
         }
     }
 

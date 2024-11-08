@@ -18,7 +18,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.*;
 
 @Service
@@ -44,10 +46,10 @@ public class TournamentServiceImpl implements TournamentService {
                 .orElseThrow(() -> new NoSuchElementException("Tournament not found with id: " + id));
     }
 
-    public TournamentDTO findTournamentDTO(UUID id){
+    public TournamentDTO findTournamentDTO(UUID id) {
         Tournament t = findTournamentById(id);
         TournamentDTO result = new TournamentDTO(t);
-        
+
         return result;
     }
 
@@ -67,8 +69,10 @@ public class TournamentServiceImpl implements TournamentService {
     }
 
     @Override
-    public Page<Tournament> findTournamentsByAvailability(Pageable pageable, LocalDateTime availableStartDate, LocalDateTime availableEndDate) {
-        return tournamentRepository.findByStartAndEndDateWithinAvailability(availableStartDate, availableEndDate, pageable);
+    public Page<Tournament> findTournamentsByAvailability(Pageable pageable, LocalDateTime availableStartDate,
+            LocalDateTime availableEndDate) {
+        return tournamentRepository.findByStartAndEndDateWithinAvailability(availableStartDate, availableEndDate,
+                pageable);
     }
 
     @Override
@@ -88,7 +92,7 @@ public class TournamentServiceImpl implements TournamentService {
 
     // @Override
     // public Tournament createTournament(Tournament tournament) {
-    //     return tournamentRepository.save(tournament);
+    // return tournamentRepository.save(tournament);
     // }
 
     @Override
@@ -119,18 +123,19 @@ public class TournamentServiceImpl implements TournamentService {
                 stage.setEndDate(stageDTO.getEndDate());
                 stage.setFormat(stageDTO.getFormat());
                 stage.setStatus(stageDTO.getStatus() != null ? stageDTO.getStatus() : Status.SCHEDULED);
-                stage.setTournament(tournament);  // Link the stage with the tournament
-                tournament.getStages().add(stage);  // Add the stage to the tournament
+                stage.setTournament(tournament); // Link the stage with the tournament
+                tournament.getStages().add(stage); // Add the stage to the tournament
             }
         } else {
-            // Automatically create a default single elimination stage if no stages are provided
+            // Automatically create a default single elimination stage if no stages are
+            // provided
             Stage defaultStage = new Stage();
             defaultStage.setStageName("Single Elimination");
             defaultStage.setStartDate(tournamentDTO.getStartDate());
             defaultStage.setEndDate(tournamentDTO.getEndDate());
-            defaultStage.setFormat(Format.SINGLE_ELIMINATION);  // Assuming this is an enum
+            defaultStage.setFormat(Format.SINGLE_ELIMINATION); // Assuming this is an enum
             defaultStage.setStatus(Status.SCHEDULED);
-            defaultStage.setTournament(tournament);  // Link to tournament
+            defaultStage.setTournament(tournament); // Link to tournament
             tournament.getStages().add(defaultStage);
         }
 
@@ -156,7 +161,7 @@ public class TournamentServiceImpl implements TournamentService {
             System.out.println("Tournament ID: " + tournament.getId());
         }
 
-        PlayerProfile player = playerProfileRepository.findByProfileId(userId);
+        PlayerProfile player = playerProfileRepository.findByUserId(userId);
 
         if (player == null) {
             System.out.println("Invalid player id");
@@ -171,21 +176,87 @@ public class TournamentServiceImpl implements TournamentService {
         } else {
             System.out.println("Player is already in tournament.");
         }
-        
+
+        return tournamentRepository.save(tournament);
+    }
+
+    public Tournament deletePlayerFromTournament(UUID tournamentId, UUID userId) {
+        System.out.println("Removing player: " + userId);
+
+        // Fetch the tournament by ID
+        Tournament tournament = tournamentRepository.findById(tournamentId).orElse(null);
+        if (tournament == null) {
+            System.out.println("Invalid tournament ID");
+            return null;
+        } else {
+            System.out.println("Tournament ID: " + tournament.getId());
+        }
+
+        // Fetch the player by ID
+        PlayerProfile player = playerProfileRepository.findByUserId(userId);
+        if (player == null) {
+            System.out.println("Invalid player ID");
+            return null;
+        } else {
+            System.out.println("Player Name: " + player.getFirstName());
+        }
+
+        // Check if the player is in the tournament and remove if present
+        if (tournament.getPlayers().contains(player)) {
+            tournament.getPlayers().remove(player);
+            System.out.println("Player removed from tournament.");
+        } else {
+            System.out.println("Player is not in tournament.");
+        }
+
+        // Save and return the updated tournament
         return tournamentRepository.save(tournament);
     }
 
     public Tournament updateTournament(UUID id, Tournament updatedTournament) {
-       updatedTournament.setId(id);
-       return tournamentRepository.save(updatedTournament);
+        updatedTournament.setId(id);
+        return tournamentRepository.save(updatedTournament);
     }
-    
+
     // Add this method
     public Tournament getTournamentById(UUID id) {
         return tournamentRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Tournament not found with id: " + id));
     }
 
+    public Page<Tournament> findUpcomingTournamentsWithinDateRange(
+            LocalDate fromDate,
+            LocalDate toDate,
+            Pageable pageable) {
+        // Convert LocalDate to LocalDateTime at the start and end of the day
+        LocalDateTime fromDateTime = fromDate.atStartOfDay();
+        LocalDateTime toDateTime = toDate.atTime(LocalTime.MAX);
+        LocalDateTime now = LocalDateTime.now();
+
+        return tournamentRepository.findByStartDateBetweenAndStartDateGreaterThanEqual(
+            fromDateTime,
+            toDateTime,
+            now,
+            pageable
+        );
+    }
+
+    public Page<Tournament> findPastTournamentsWithinDateRange(
+            LocalDate fromDate,
+            LocalDate toDate,
+            Pageable pageable) {
+        // Convert LocalDate to LocalDateTime at the start and end of the day
+        LocalDateTime fromDateTime = fromDate.atStartOfDay();
+        LocalDateTime toDateTime = toDate.atTime(LocalTime.MAX);
+        LocalDateTime now = LocalDateTime.now();
+
+        return tournamentRepository.findByStartDateBetweenAndStartDateLessThan(
+            fromDateTime,
+            toDateTime,
+            now,
+            pageable
+        );
+    }
 
     public void startTournament(UUID tournamentId, TournamentDTO tournamentDTO) {
         // Retrieve the tournament
@@ -215,14 +286,14 @@ public class TournamentServiceImpl implements TournamentService {
         }
 
         tournament.setNumStages(numStages);
-    
+
         // Set the tournament as started (IN_PROGRESS)
         tournament.setStatus(Status.IN_PROGRESS);
         tournamentRepository.save(tournament);
     }
 
     public void progressToNextStage(UUID tournamentId) {
-        
+
         Tournament tournament = tournamentRepository.findById(tournamentId)
                 .orElseThrow(() -> new EntityNotFoundException("Tournament with ID " + tournamentId + " not found"));
 
