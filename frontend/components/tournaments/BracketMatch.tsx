@@ -26,7 +26,6 @@ const BracketMatch: React.FC<MatchProps> = ({ match, onMatchComplete, isAdmin })
 
   // Send a PUT request to complete the match on the backend
   const completeMatchRequest = async (winnerId: string, score: string) => {
-    // Convert match to MatchDTO format
     const matchDTO = convertToMatchDTO({
       ...match,
       winner: { id: winnerId, userId: winnerId },

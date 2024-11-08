@@ -30,12 +30,15 @@ const BracketsPage = () => {
   useEffect(() => {
     const initialiseTournament = async () => {
       try {
-        const currentStage = await getCurrentStageFromTournament(id);
-        const rounds = await getRoundsForTournamentAndStageId(id, currentStage.id);
+        const stageId = await getCurrentStageFromTournament(id);
+        console.log(stageId);
+        const rounds = await getRoundsForTournamentAndStageId(id, stageId);
+        console.table(rounds);
         if (rounds.length > 0) {
-          const roundIdsArray = rounds.map((round: any) => round.id);
+          const roundIdsArray = rounds.map((round: any) => round.roundId);
           setRoundIds(roundIdsArray);
-          const matches = await getMatchesForRound(rounds[rounds.length - 1].id);
+          const matches = await getMatchesForRound(rounds[rounds.length - 1].roundId);
+          console.log(matches);
           if (matches && Array.isArray(matches)) {
             setMatches(matches);
             filterMatches(matches);

@@ -4,6 +4,8 @@ import axios from 'axios';
 import { Button } from "@/components/ui/button";
 import axiosInstance from '@/lib/axios';
 import { useGlobalErrorHandler } from '@/app/context/ErrorMessageProvider';
+import { useAuth } from "@/hooks/useAuth"; // Import the auth hook
+import { useRouter } from "next/navigation"; // Import useRouter for navigation
 
 interface Tournament {
     name: string;
@@ -12,19 +14,23 @@ interface Tournament {
     description: string;
     deadline: string;
     location: string;
-    // photoFilename?: string;
     photoUrl?: string;
 }
 
+const API_URL = process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL;
+
+
 const TournamentDetails: React.FC<{ params: { id: string } }> = ({ params }) => {
     const { id } = params;
+    const { user } = useAuth(); // Get user information from useAuth
+    const isAdmin = user?.role === "ADMIN"; // Check if the user is an admin
+    const router = useRouter();
     const [tournament, setTournament] = useState<Tournament | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [registrationClosed, setRegistrationClosed] = useState<boolean>(false);
     const { handleError } = useGlobalErrorHandler();
 
-    // Base URL for accessing photos in Firebase
     const firebaseBaseURL = "https://firebasestorage.googleapis.com/v0/b/quagmire-smu.appspot.com/o/";
 
     useEffect(() => {
@@ -35,10 +41,9 @@ const TournamentDetails: React.FC<{ params: { id: string } }> = ({ params }) => 
             setError(null);
 
             try {
-                const response = await axiosInstance.get(`${process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL}/tournament/${id}`);
+                const response = await axiosInstance.get(`${API_URL}/tournament/${id}`);
                 const tournamentData = response.data;
 
-                // Add full photo URL if only the filename/path is provided
                 if (tournamentData.photoUrl) {
                     tournamentData.photoUrl = `${firebaseBaseURL}${encodeURIComponent(tournamentData.photoUrl)}?alt=media`;
                 }
@@ -54,7 +59,7 @@ const TournamentDetails: React.FC<{ params: { id: string } }> = ({ params }) => 
                 setError('Failed to load tournament details. Please try again.');
 
                 if (axios.isAxiosError(error)) {
-                    handleError(error)
+                    handleError(error);
                 }
             } finally {
                 setLoading(false);
@@ -68,13 +73,32 @@ const TournamentDetails: React.FC<{ params: { id: string } }> = ({ params }) => 
     if (error) return <p className="text-lg text-red-500">Error: {error}</p>;
     if (!tournament) return <p className="text-lg text-gray-500">Tournament not found.</p>;
 
+    const startTournament = async (tournamentId: string) => {
+        try {
+            
+        } catch (error) {
+            throw(error);
+        }
+    };
+    // Function to handle "Start Tournament" button click
+    const handleStartTournament = async() => {
+        try {
+            const response = await axiosInstance.put(`${API_URL}/tournament/${id}/start`);
+            alert(response.data); // Should display "Tournament started successfully."
+            router.push(`/tournaments/${id}/brackets`);
+        } catch (error){
+            console.error("Error starting tournament:", error);
+            alert("An error occurred while starting the tournament.");
+        }
+
+    };
+
     return (
         <div className="flex flex-col items-center min-h-screen pt-20">
             <header className="bg-background/10 w-full py-4 text-center text-white">
                 <h1 className="text-3xl font-bold text-center">{tournament.name}</h1>
             </header>
 
-            {/* Display the tournament image if available */}
             {tournament.photoUrl && (
                 <img
                     src={tournament.photoUrl}
@@ -93,9 +117,9 @@ const TournamentDetails: React.FC<{ params: { id: string } }> = ({ params }) => 
                 <h2 className="mt-4 text-lg font-semibold">Registration Deadline:</h2>
                 <p className="text-base">{new Date(tournament.deadline).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}</p>
                 <div className="flex justify-center w-full">
-                    <Button 
-                        variant={registrationClosed ? "outline" : "default"} 
-                        disabled={registrationClosed} 
+                    <Button
+                        variant={registrationClosed ? "outline" : "default"}
+                        disabled={registrationClosed}
                         className="mt-4 flex justify-center w-auto"
                     >
                         {registrationClosed ? "Registration Closed" : "Register Now"}
@@ -103,15 +127,21 @@ const TournamentDetails: React.FC<{ params: { id: string } }> = ({ params }) => 
                 </div>
             </div>
 
-            {/* Register Button */}
             <div className="mt-4">
-                {/* Horizontal line */}
                 <hr className="w-full my-4 border-t border-gray-300" />
 
-                {/* Tournament Draw Heading */}
                 <h2 className="text-2xl font-semibold my-8 text-center">Tournament Draw</h2>
 
                 <p className="text-center text-gray-500">Draw has yet to be released</p>
+
+                {/* Start Tournament Button for Admins Only */}
+                {isAdmin && (
+                    <div className="flex justify-center mt-6">
+                        <Button onClick={handleStartTournament}>
+                            Start Tournament
+                        </Button>
+                    </div>
+                )}
             </div>
         </div>
     );

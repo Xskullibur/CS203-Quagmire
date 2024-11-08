@@ -44,7 +44,7 @@ public class Match {
     private UUID winnerId;
 
     @Column(length = 50)
-    private String score;
+    private String score = "0-0";
 
     @Column(name = "created_at", columnDefinition = "TIMESTAMP")
     private LocalDateTime createdAt;
@@ -56,10 +56,10 @@ public class Match {
     private GameType gameType;
 
     @Column(name = "meeting_latitude", nullable = true)
-    private double meetingLatitude;
+    private Double meetingLatitude;
 
     @Column(name = "meeting_longitude", nullable = true)
-    private double meetingLongitude;
+    private Double meetingLongitude;
 
     public enum GameType {
         SOLO, TOURNAMENT
@@ -133,11 +133,11 @@ public class Match {
         return status;
     }
 
-    public void setMeetingLatitude(double meetingLatitude) {
+    public void setMeetingLatitude(Double meetingLatitude) {
         this.meetingLatitude = meetingLatitude;
     }
 
-    public void setMeetingLongitude(double meetingLongitude) {
+    public void setMeetingLongitude(Double meetingLongitude) {
         this.meetingLongitude = meetingLongitude;
     }
 }

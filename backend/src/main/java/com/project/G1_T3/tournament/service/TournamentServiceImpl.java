@@ -249,6 +249,13 @@ public class TournamentServiceImpl implements TournamentService {
         tournament.setStatus(Status.IN_PROGRESS);
 
         // tournamentRepository.save(tournament);
+        try{
+            stageService.startStage(curStage.getStageId());
+
+        } catch (Exception e){
+            e.printStackTrace();
+            throw e;
+        }
 
         try {
             tournamentRepository.save(tournament);

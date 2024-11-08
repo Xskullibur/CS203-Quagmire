@@ -9,15 +9,17 @@ import { Tournament } from "@/types/tournament";
 import axiosInstance from "@/lib/axios";
 import axios from "axios";
 import { useGlobalErrorHandler } from "@/app/context/ErrorMessageProvider";
+import { tournamentDTO } from "@/types/tournamentDTO";
+
 
 const API_URL = process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL;
 const WEB_URL = process.env.NEXT_PUBLIC_API_URL;
 
 const CreateTournament = () => {
-    const router = useRouter();
+  const router = useRouter();
 
-    // State to control the form step (1 for Basic Info, 2 for Additional Details)
-    const [step, setStep] = useState(1);
+  // State to control the form step (1 for Basic Info, 2 for Additional Details)
+  const [step, setStep] = useState(1);
 
   // Tournament state
   const [tournament, setTournament] = useState<Tournament>({
@@ -106,77 +108,46 @@ const CreateTournament = () => {
     setStep(2);
   };
 
-    // Handle going back to the previous step
-    const handleBack = (e: React.FormEvent) => {
-        e.preventDefault();
-        setStep(1);
-    };
+  // Handle going back to the previous step
+  const handleBack = (e: React.FormEvent) => {
+    e.preventDefault();
+    setStep(1);
+  };
 
-  // const handleSubmit = async (e: React.FormEvent) => {
-  //   e.preventDefault();
 
-  //   // Validate maxParticipants before sending the request
-  //   if (tournament.maxParticipants <= 0) {
-  //     alert("Max participants must be a positive number");
-  //     return;
-  //   }
-
-  //   const startdatetime = `${tournament.startDate}T${tournament.startTime}:00`;
-  //   const enddatetime = `${tournament.endDate}T${tournament.endTime}:00`;
-  //   const deadline = `${tournament.deadlineDate}T${tournament.deadlineTime}:00`;
-
-  //   const { startDate, startTime, endDate, endTime, deadlineDate, deadlineTime, ...tournamentDetails } = tournament;
-
-  //   const data = {
-  //     ...tournamentDetails,
-  //     startDate: startdatetime,
-  //     endDate: enddatetime,
-  //     deadline: deadline
-  //   };
-
-  //   try {
-
-  //     const res = await axiosInstance.post(
-  //       new URL("/tournament/create", API_URL).toString(),
-  //       data
-      
-  //     );
-
-  //     router.push(WEB_URL + '/tournaments'); // Redirect after successful creation
-  //     // if (res.status) {
-  //     // } else {
-  //     //   alert('Error creating tournament');
-  //     // }
-  //   } catch (error) {
-  //     console.error('Error creating tournament:', error);
-  //   }
-  // };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-  
+
     if (tournament.maxParticipants <= 0) {
       alert("Max participants must be a positive number");
       return;
     }
-  
+
     const startdatetime = `${tournament.startDate}T${tournament.startTime}:00`;
     const enddatetime = `${tournament.endDate}T${tournament.endTime}:00`;
     const deadline = `${tournament.deadlineDate}T${tournament.deadlineTime}:00`;
-  
-    const tournamentData = {
-      ...tournament,
+
+
+    const tournamentData: tournamentDTO = {
+      id: tournament.id,
+      name: tournament.name,
+      location: tournament.location,
+      status: tournament.status,
+      maxParticipants: tournament.maxParticipants,
+      description: tournament.description,
       startDate: startdatetime,
       endDate: enddatetime,
       deadline: deadline,
+      stageDTOs: null
     };
-  
+
     const formData = new FormData();
     formData.append("tournament", JSON.stringify(tournamentData)); // Convert the entire object to a JSON string
     if (photo) {
       formData.append("photo", photo);
     }
-  
+
     try {
       const res = await axiosInstance.post(
         new URL("/tournament/create", API_URL).toString(),
@@ -187,7 +158,7 @@ const CreateTournament = () => {
           },
         }
       );
-  
+
       if (res.status === 200 || res.status === 201) {
         router.push(WEB_URL + '/tournaments');
       } else {
@@ -199,28 +170,28 @@ const CreateTournament = () => {
     }
   };
 
-    return (
-        <div className="mt-20 flex flex-col items-center justify-center mx-auto min-h-screen bg-primary-foreground">
-            {step === 1 && (
-                <TournamentForm
-                    tournament={tournament}
-                    handleChange={handleChange}
-                    handleSubmit={handleNext}
-                    buttonLabel="Next"
-                />
-            )}
+  return (
+    <div className="mt-20 flex flex-col items-center justify-center mx-auto min-h-screen bg-primary-foreground">
+      {step === 1 && (
+        <TournamentForm
+          tournament={tournament}
+          handleChange={handleChange}
+          handleSubmit={handleNext}
+          buttonLabel="Next"
+        />
+      )}
 
       {step === 2 && (
         <AdditionalDetailsForm
-        tournament={tournament}
-        handleChange={handleChange}
-        handleBack={handleBack}
-        handleSubmit={handleSubmit}
-        refereeSearchQuery={refereeSearchQuery}
-        searchResults={searchResults}
-        handleRefereeSearch={handleRefereeSearch}
-        handleAddReferee={handleAddReferee}
-      />
+          tournament={tournament}
+          handleChange={handleChange}
+          handleBack={handleBack}
+          handleSubmit={handleSubmit}
+          refereeSearchQuery={refereeSearchQuery}
+          searchResults={searchResults}
+          handleRefereeSearch={handleRefereeSearch}
+          handleAddReferee={handleAddReferee}
+        />
 
       )}
     </div>

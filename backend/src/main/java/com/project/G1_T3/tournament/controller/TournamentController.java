@@ -161,11 +161,11 @@ public class TournamentController {
     @PutMapping("/{tournamentId}/start")
     public ResponseEntity<String> startTournament(@PathVariable UUID tournamentId) {
         try {
-            System.out.println("test0");
             // Call the service method to start the tournament
             tournamentService.startTournament(tournamentId);
             return ResponseEntity.ok("Tournament started successfully.");
         } catch (IllegalArgumentException | EntityNotFoundException e) {
+            System.out.println(e);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while starting the tournament.");

@@ -21,6 +21,7 @@ import java.util.UUID;
 @NoArgsConstructor
 public class TournamentDTO {
 
+    private String id;
     private String name;
     private String location;
     private LocalDateTime startDate;
@@ -32,6 +33,7 @@ public class TournamentDTO {
     private List<StageDTO> stageDTOs;
 
     public TournamentDTO(Tournament t) {
+        id = t.getId().toString();
         name = t.getName();
         location = t.getLocation();
         startDate = t.getStartDate();
