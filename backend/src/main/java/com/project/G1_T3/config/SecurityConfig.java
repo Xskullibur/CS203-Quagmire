@@ -19,6 +19,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -29,6 +31,8 @@ import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Configuration
 @EnableWebSecurity
@@ -44,13 +48,65 @@ public class SecurityConfig {
     }
 
     @Autowired
-    private JwtAuthenticationFilter jwtAuthenticationFilter;
-
-    @Autowired
     private CustomUserDetailsService customUserDetailsService;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    private static final class SecurityPermissions {
+
+        // Paths that are completely public (no JWT needed)
+        private static final List<RequestMapping> PUBLIC_PATHS = Arrays.asList(
+                new RequestMapping("/authentication/**"),
+                new RequestMapping("/leaderboard/**"),
+                new RequestMapping("/profile/**", "GET"),
+                new RequestMapping("/tournament/**", "GET"),
+                new RequestMapping("/ws/**"),
+                new RequestMapping("/matches/**"));
+
+        // Paths that require specific roles
+        private static final List<RequestMapping> ADMIN_PATHS = Arrays.asList(
+                new RequestMapping("/admin/**"),
+                new RequestMapping("/tournament/create"));
+
+        // Paths that require authentication (JWT needed)
+        private static final List<RequestMapping> AUTHENTICATED_PATHS = Arrays.asList(
+                new RequestMapping("/authentication/update-password"),
+                new RequestMapping("/profile/edit"),
+                new RequestMapping("/users/**"),
+                new RequestMapping("file/**"));
+    }
+
+    @Bean
+    public JwtAuthenticationFilter jwtAuthenticationFilter() {
+        JwtAuthenticationFilter filter = new JwtAuthenticationFilter();
+        filter.setSkipPaths(SecurityPermissions.PUBLIC_PATHS.stream()
+                .map(RequestMapping::toRequestMatcher)
+                .collect(Collectors.toList()));
+        return filter;
+    }
+
+    // Helper class to store path and method information
+    private static class RequestMapping {
+        private final String path;
+        private final String method;
+
+        public RequestMapping(String path) {
+            this.path = path;
+            this.method = null;
+        }
+
+        public RequestMapping(String path, String method) {
+            this.path = path;
+            this.method = method;
+        }
+
+        public RequestMatcher toRequestMatcher() {
+            return method != null
+                    ? new AntPathRequestMatcher(path, method)
+                    : new AntPathRequestMatcher(path);
+        }
+    }
 
     @Bean
     RestTemplate restTemplate() {
@@ -81,30 +137,33 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         logger.info("Configuring SecurityFilterChain");
+
         http.csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/authentication/update-password").authenticated()
-                        .requestMatchers("/authentication/**").permitAll()
-                        .requestMatchers("/leaderboard/**").permitAll()
-                        .requestMatchers("/profile/edit").authenticated()
-                        .requestMatchers("/profile/**").permitAll()
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/users").authenticated()
-                        .requestMatchers("/users/**").authenticated()
-                        .requestMatchers("/tournament/**").authenticated()
-                        .requestMatchers("/leaderboard/user/**").permitAll()
-                        .requestMatchers("/ws/**").permitAll()
-                        .requestMatchers("file/**").authenticated()
-                        .requestMatchers("/matches/**").permitAll()
-                        .anyRequest().authenticated())
+                .authorizeHttpRequests(auth -> {
+                    // Configure public paths
+                    SecurityPermissions.PUBLIC_PATHS
+                            .forEach(mapping -> auth.requestMatchers(mapping.toRequestMatcher()).permitAll());
+
+                    // Configure admin paths
+                    SecurityPermissions.ADMIN_PATHS
+                            .forEach(mapping -> auth.requestMatchers(mapping.toRequestMatcher()).hasRole("ADMIN"));
+
+                    // Configure authenticated paths
+                    SecurityPermissions.AUTHENTICATED_PATHS
+                            .forEach(mapping -> auth.requestMatchers(mapping.toRequestMatcher()).authenticated());
+
+                    // Any remaining paths require authentication
+                    auth.anyRequest().authenticated();
+                })
                 .exceptionHandling(e -> e.accessDeniedHandler(accessDeniedHandler()))
                 .logout(logout -> logout
                         .permitAll()
                         .logoutSuccessHandler((req, res, auth) -> res.setStatus(HttpServletResponse.SC_NO_CONTENT)))
                 .httpBasic(Customizer.withDefaults())
-                .addFilterAfter(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterAfter(jwtAuthenticationFilter(),
+                        UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
