@@ -20,7 +20,7 @@ public class PlayerProfileController {
     @Autowired
     private PlayerProfileService playerProfileService;
 
-    @PostMapping("/create") // Map to URL for creating player profile
+    @PostMapping() // Map to URL for creating player profile
     @ResponseStatus(HttpStatus.CREATED)
     public PlayerProfile create(@RequestBody PlayerProfile playerProfile) {
         return playerProfileService.createPlayer(playerProfile);
@@ -37,7 +37,7 @@ public class PlayerProfileController {
         return ResponseEntity.ok(playerProfile);
     }
 
-    @GetMapping("/player/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<PlayerProfile> getUserByPlayerId(@PathVariable String id) {
         PlayerProfile playerProfile = playerProfileService.findByProfileId(id);
 
