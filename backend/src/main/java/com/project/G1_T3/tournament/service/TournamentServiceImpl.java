@@ -162,7 +162,7 @@ public class TournamentServiceImpl implements TournamentService {
             defaultStage.setTournament(tournament);  // Link to tournament
             tournament.getStages().add(defaultStage);
         }
-
+        tournament.setNumStages(tournament.getStages().size());
         // Save the tournament along with its stages
         return tournamentRepository.save(tournament);
     }
@@ -173,42 +173,42 @@ public class TournamentServiceImpl implements TournamentService {
         return tournament.getPlayers();
     }
 
-    public Tournament addPlayerToTournament(UUID tournamentId, UUID profileId) {
+        public Tournament addPlayerToTournament(UUID tournamentId, UUID profileId) {
 
-        System.out.println("Adding player: " + profileId);
+            System.out.println("Adding player: " + profileId);
 
-        Tournament tournament = tournamentRepository.findById(tournamentId).get();
+            Tournament tournament = tournamentRepository.findById(tournamentId).get();
 
-        if (tournament == null) {
-            System.out.println("Invalid tournament id");
-            return null;
-        } else {
-            System.out.println("Tournament ID: " + tournament.getId());
+            if (tournament == null) {
+                System.out.println("Invalid tournament id");
+                return null;
+            } else {
+                System.out.println("Tournament ID: " + tournament.getId());
+            }
+
+            if (tournament.getStatus() != Status.SCHEDULED) {
+                System.out.println("Tournament signups are over");
+                return null;
+            }
+
+            PlayerProfile player = playerProfileService.findByProfileId(profileId);
+
+            if (player == null) {
+                System.out.println("Invalid player id");
+                return null;
+            } else {
+                System.out.println("Player Name: " + player.getFirstName());
+            }
+
+            if (!tournament.getPlayers().contains(player)) {
+                tournament.getPlayers().add(player);
+                System.out.println("Player added!");
+            } else {
+                System.out.println("Player is already in tournament.");
+            }
+
+            return tournamentRepository.save(tournament);
         }
-
-        if (tournament.getStatus() != Status.SCHEDULED) {
-            System.out.println("Tournament signups are over");
-            return null;
-        }
-
-        PlayerProfile player = playerProfileService.findByProfileId(profileId);
-
-        if (player == null) {
-            System.out.println("Invalid player id");
-            return null;
-        } else {
-            System.out.println("Player Name: " + player.getFirstName());
-        }
-
-        if (!tournament.getPlayers().contains(player)) {
-            tournament.getPlayers().add(player);
-            System.out.println("Player added!");
-        } else {
-            System.out.println("Player is already in tournament.");
-        }
-
-        return tournamentRepository.save(tournament);
-    }
 
     public Tournament updateTournament(UUID id, Tournament updatedTournament) {
         updatedTournament.setId(id);

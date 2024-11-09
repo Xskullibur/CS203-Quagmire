@@ -60,7 +60,6 @@ class RoundServiceTest {
     private Stage stage = new Stage();
     List<Match> matches = new ArrayList<>();
     private List<PlayerProfile> sortedPlayers;
-    private PlayerProfile referee = testCreatePlayerProfile(2500f);
     private PlayerProfile player1 = testCreatePlayerProfile(1200f);
     private PlayerProfile player2 = testCreatePlayerProfile(1800f);
     private UUID roundId;
