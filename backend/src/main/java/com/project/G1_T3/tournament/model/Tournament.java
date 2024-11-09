@@ -70,7 +70,7 @@ public class Tournament {
         inverseJoinColumns = @JoinColumn(name = "profile_id")
     )
     @JsonIgnore
-    private Set<PlayerProfile> players;
+    private Set<PlayerProfile> players = new HashSet<>();
 
     @OneToMany(mappedBy = "tournament", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore

@@ -207,6 +207,8 @@ public class TournamentServiceImpl implements TournamentService {
                 System.out.println("Player is already in tournament.");
             }
 
+            System.out.println("ENDING SERVICE");
+
             return tournamentRepository.save(tournament);
         }
 
