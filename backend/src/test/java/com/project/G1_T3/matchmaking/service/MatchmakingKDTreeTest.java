@@ -1,7 +1,7 @@
 package com.project.G1_T3.matchmaking.service;
 
 import com.project.G1_T3.matchmaking.model.QueuedPlayer;
-import com.project.G1_T3.player.model.PlayerProfile;
+import com.project.G1_T3.playerprofile.model.PlayerProfile;
 import com.project.G1_T3.user.model.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

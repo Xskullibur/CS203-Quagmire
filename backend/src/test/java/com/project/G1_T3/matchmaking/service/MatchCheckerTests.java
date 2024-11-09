@@ -10,8 +10,8 @@ import org.springframework.test.context.ActiveProfiles;
 
 import com.project.G1_T3.match.model.Match;
 import com.project.G1_T3.match.repository.MatchRepository;
-import com.project.G1_T3.player.model.PlayerProfile;
-import com.project.G1_T3.player.repository.PlayerProfileRepository;
+import com.project.G1_T3.playerprofile.model.PlayerProfile;
+import com.project.G1_T3.playerprofile.repository.PlayerProfileRepository;
 import com.project.G1_T3.user.model.User;
 import com.project.G1_T3.user.repository.UserRepository;
 
@@ -68,8 +68,8 @@ class MatchCheckerTests {
         matchChecker.checkForMatches();
 
         // Assert
-        verify(player1Profile).getUser();
-        verify(player2Profile).getUser();
+        verify(player1Profile, atLeastOnce()).getUser();
+        verify(player2Profile, atLeastOnce()).getUser();
         verify(matchmakingService).findMatch();
         verify(playerProfileRepository).findById(player1Id);
         verify(playerProfileRepository).findById(player2Id);

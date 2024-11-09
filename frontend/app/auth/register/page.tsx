@@ -11,123 +11,111 @@ import { toast } from "@/hooks/use-toast";
 import { AxiosError } from "axios";
 import { RegisterUser } from "@/types/register-user";
 import { ErrorHandler } from "@/utils/errorHandler";
+import { useAuth } from "@/hooks/useAuth";
 
 const API_URL = `${process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL}`;
 
-/**
- * Register component for user registration.
- *
- * This component renders a registration form that allows users to create a new account.
- * It includes fields for username, email, password, and password confirmation.
- * The form performs client-side validation to ensure that the passwords match.
- *
- * @returns {JSX.Element} The rendered registration form component.
- *
- * @remarks
- * - Uses React hooks for state management.
- * - Uses Tailwind CSS for styling.
- * - Uses axios for making HTTP requests.
- * - Redirects to the login page upon successful registration.
- *
- * @function
- * @name Register
- *
- * @typedef {Object} FormData
- * @property {string} username - The username entered by the user.
- * @property {string} email - The email entered by the user.
- * @property {string} password - The password entered by the user.
- * @property {string} confirmPassword - The password confirmation entered by the user.
- *
- * @typedef {Object} Error
- * @property {string | null} error - The error message to be displayed if any.
- *
- * @typedef {Object} Router
- * @property {Function} push - Function to navigate to a different route.
- *
- * @typedef {Object} Event
- * @property {Function} preventDefault - Function to prevent the default form submission behavior.
- *
- * @typedef {Object} AxiosResponse
- * @property {number} status - The HTTP status code of the response.
- *
- * @typedef {Object} AxiosError
- * @property {Object} response - The response object containing error details.
- * @property {Object} data - The data object containing error description.
- *
- * @typedef {Object} InputProps
- * @property {string} type - The type of the input field.
- * @property {string} name - The name of the input field.
- * @property {string} placeholder - The placeholder text for the input field.
- * @property {string} value - The current value of the input field.
- * @property {Function} onChange - The function to handle input changes.
- * @property {string} className - The CSS class for styling the input field.
- *
- * @typedef {Object} ButtonProps
- * @property {string} type - The type of the button.
- * @property {string} className - The CSS class for styling the button.
- *
- * @typedef {Object} LinkProps
- * @property {string} href - The URL to navigate to when the link is clicked.
- *
- * @typedef {Object} AlertProps
- * @property {string} variant - The variant of the alert (e.g., "destructive").
- * @property {string} className - The CSS class for styling the alert.
- *
- * @typedef {Object} AlertDescriptionProps
- * @property {string} children - The content of the alert description.
- *
- * @typedef {Object} DivProps
- * @property {string} className - The CSS class for styling the div.
- */
+interface FormState {
+  formData: RegisterUser;
+  error: string | null;
+}
+
 const Register: React.FC = () => {
-  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
-  const [formData, setFormData] = useState<RegisterUser>({
-    username: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
+  const { login } = useAuth();
+
+  const [formState, setFormState] = useState<FormState>({
+    formData: {
+      username: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+    },
+    error: null,
   });
 
+  // Form handlers
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormState((prev) => ({
+      ...prev,
+      formData: { ...prev.formData, [name]: value },
+    }));
   };
 
   const handleConfirmPassword = (e: React.ChangeEvent<HTMLInputElement>) => {
     const confirmPassword = e.target.value;
-    setFormData({ ...formData, confirmPassword });
-    if (formData.password !== confirmPassword) {
-      setError("Passwords do not match");
-    } else {
-      setError(null);
-    }
+    setFormState((prev) => ({
+      formData: { ...prev.formData, confirmPassword },
+      error:
+        prev.formData.password !== confirmPassword
+          ? "Passwords do not match"
+          : null,
+    }));
   };
 
+  // Registration handler
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match");
+    if (formState.formData.password !== formState.formData.confirmPassword) {
+      setFormState((prev) => ({ ...prev, error: "Passwords do not match" }));
       return;
     }
 
-    axiosInstance
-      .post(new URL("/authentication/register", API_URL).toString(), formData)
-      .then((response) => {
-        if (response.status === 201) {
+    try {
+      const registerResponse = await axiosInstance.post(
+        new URL("/authentication/register", API_URL).toString(),
+        formState.formData
+      );
+
+      if (registerResponse.status === 201) {
+        const loginResponse = await axiosInstance.post(
+          new URL("/authentication/login", API_URL).toString(),
+          {
+            username: formState.formData.username,
+            password: formState.formData.password,
+          }
+        );
+
+        if (loginResponse.status === 200) {
+          await login(formState.formData.username, formState.formData.password);
+
           toast({
             variant: "success",
             title: "Success",
-            description: "Account registered, please login to continue.",
+            description: "Account registered successfully.",
           });
-          router.push("/auth/login");
+
+          router.push("/profile/edit?new=true");
         }
-      })
-      .catch((error: AxiosError) => {
+      }
+    } catch (error) {
+      if (error instanceof AxiosError) {
         const { message } = ErrorHandler.handleError(error);
-        setError(message);
-      });
+        setFormState((prev) => ({ ...prev, error: message }));
+      }
+    }
   };
+
+  // Render form fields
+  const renderFormField = (
+    name: keyof RegisterUser,
+    type: string,
+    placeholder: string,
+    handler = handleChange
+  ) => (
+    <div className="mb-4">
+      <Input
+        type={type}
+        name={name}
+        placeholder={placeholder}
+        value={formState.formData[name]}
+        onChange={handler}
+        className="bg-transparent border-b border-zinc-600 text-white placeholder-zinc-500 transition duration-300"
+      />
+    </div>
+  );
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-primary-foreground">
@@ -138,58 +126,31 @@ const Register: React.FC = () => {
       >
         <div className="absolute inset-0 bg-gradient-radial from-zinc-700/30 to-transparent opacity-50 pointer-events-none" />
         <h2 className="text-2xl font-bold mb-6 text-white">Register</h2>
-        {error && (
+
+        {formState.error && (
           <Alert variant="destructive" className="mb-4">
-            <AlertDescription>{error}</AlertDescription>
+            <AlertDescription>{formState.error}</AlertDescription>
           </Alert>
         )}
+
         <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <Input
-              type="text"
-              name="username"
-              placeholder="Username"
-              value={formData.username}
-              onChange={handleChange}
-              className="bg-transparent border-b border-zinc-600 text-white placeholder-zinc-500 transition duration-300"
-            />
-          </div>
-          <div className="mb-4">
-            <Input
-              type="email"
-              name="email"
-              placeholder="Email"
-              value={formData.email}
-              onChange={handleChange}
-              className="bg-transparent border-b border-zinc-600 text-white placeholder-zinc-500 transition duration-300"
-            />
-          </div>
-          <div className="mb-4">
-            <Input
-              type="password"
-              name="password"
-              placeholder="Password"
-              value={formData.password}
-              onChange={handleChange}
-              className="bg-transparent border-b border-zinc-600 text-white placeholder-zinc-500 transition duration-300"
-            />
-          </div>
-          <div className="mb-6">
-            <Input
-              type="password"
-              name="confirmPassword"
-              placeholder="Confirm Password"
-              value={formData.confirmPassword}
-              onChange={handleConfirmPassword}
-              className="bg-transparent border-b border-zinc-600 text-white placeholder-zinc-500 transition duration-300"
-            />
-          </div>
+          {renderFormField("username", "text", "Username")}
+          {renderFormField("email", "email", "Email")}
+          {renderFormField("password", "password", "Password")}
+          {renderFormField(
+            "confirmPassword",
+            "password",
+            "Confirm Password",
+            handleConfirmPassword
+          )}
+
           <Button
             type="submit"
             className="w-full bg-primary hover:bg-accent text-black hover:text-white transition duration-300"
           >
             Register
           </Button>
+
           <div className="mt-4 text-center">
             <Link href="/auth/login">
               <span className="text-primary hover:text-zinc-400 transition duration-300 font-semibold text-sm">

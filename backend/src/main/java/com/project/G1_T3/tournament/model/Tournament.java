@@ -3,11 +3,9 @@ package com.project.G1_T3.tournament.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.project.G1_T3.common.model.Status;
-import com.project.G1_T3.player.model.PlayerProfile;
+import com.project.G1_T3.playerprofile.model.PlayerProfile;
 import com.project.G1_T3.stage.model.Stage;
 
-import jakarta.persistence.*;
-import com.project.G1_T3.player.model.PlayerProfile;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;

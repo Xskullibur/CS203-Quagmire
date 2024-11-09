@@ -5,21 +5,23 @@ import com.project.G1_T3.common.model.Status;
 import com.project.G1_T3.match.model.Match;
 import com.project.G1_T3.match.model.MatchDTO;
 import com.project.G1_T3.match.repository.MatchRepository;
-import com.project.G1_T3.player.model.PlayerProfile;
-import com.project.G1_T3.player.repository.PlayerProfileRepository;
+import com.project.G1_T3.playerprofile.model.PlayerProfile;
+import com.project.G1_T3.playerprofile.repository.PlayerProfileRepository;
+import com.project.G1_T3.playerprofile.service.PlayerProfileService;
 
 import lombok.extern.slf4j.Slf4j;
-import com.project.G1_T3.player.service.PlayerProfileService;
 
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.stereotype.Service;
 import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.UUID;
+import java.util.logging.Logger;
 
 @Slf4j
 @Service
@@ -34,31 +36,37 @@ public class MatchServiceImpl implements MatchService {
     @Autowired
     private PlayerProfileService playerProfileService;
 
-    @Override
-    public Match getCurrentMatchForUser(UUID userId) {
-        PlayerProfile playerProfile = playerProfileRepository.findByUserId(userId);
-        if (playerProfile == null) {
-            return null;
-        }
-
-        return matchRepository.findByPlayer1IdOrPlayer2IdAndStatus(
-                playerProfile.getProfileId(),
-                playerProfile.getProfileId(),
-                Status.IN_PROGRESS);
-    }
+    Logger logger = Logger.getLogger(MatchServiceImpl.class.getName());
 
     @Override
     public Match getCurrentMatchForUserById(UUID userId) {
         try {
             PlayerProfile playerProfile = playerProfileRepository.findByUserId(userId);
+            logger.info("playerProfile: " + playerProfile);
             if (playerProfile == null) {
                 throw new IllegalArgumentException("Invalid user ID");
             }
 
-            return matchRepository.findByPlayer1IdOrPlayer2Id(
+            logger.info("player: " + playerProfile.getProfileId().toString());
+            // Check for matches where the user is either player1 or player2
+            Match match = matchRepository.findByPlayer1IdOrPlayer2IdAndStatus(
                     playerProfile.getProfileId(),
-                    playerProfile.getProfileId());
+                    playerProfile.getProfileId(),
+                    Status.IN_PROGRESS);
+
+            if (match != null) {
+                logger.info("Found match: " + match.getMatchId());
+                // Verify this is actually the user's match
+                if (!match.getPlayer1Id().equals(playerProfile.getProfileId()) &&
+                        !match.getPlayer2Id().equals(playerProfile.getProfileId())) {
+                    return null;
+                }
+            }
+
+            logger.info("Returning match: " + match);
+            return match;
         } catch (IllegalArgumentException e) {
+            logger.warning(e.getMessage());
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
     }
@@ -155,7 +163,8 @@ public class MatchServiceImpl implements MatchService {
             throw new IllegalArgumentException("Winner ID must not be null");
         }
 
-        if (!match.getPlayer1Id().equals(matchDTO.getWinnerId()) && !match.getPlayer2Id().equals(matchDTO.getWinnerId())) {
+        if (!match.getPlayer1Id().equals(matchDTO.getWinnerId())
+                && !match.getPlayer2Id().equals(matchDTO.getWinnerId())) {
             throw new RuntimeException("Winner must be one of the players");
         }
 
@@ -163,7 +172,7 @@ public class MatchServiceImpl implements MatchService {
         match.completeMatch(matchDTO.getWinnerId(), matchDTO.getScore());
         matchRepository.save(match);
 
-        //update the player rankings
+        // update the player rankings
         updatePlayerRatingsAfterMatch(match);
 
     }

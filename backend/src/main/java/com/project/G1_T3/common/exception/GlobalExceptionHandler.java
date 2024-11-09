@@ -27,6 +27,7 @@ import com.google.firebase.ErrorCode;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.MalformedJwtException;
+import jakarta.persistence.EntityNotFoundException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -120,6 +121,13 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<Object> handleEntityNotFoundException(EntityNotFoundException ex, WebRequest request) {
+        Map<String, Object> body = createErrorResponseBody(ex, HttpStatus.NOT_FOUND, request);
+        body.put(ERROR_CODE, "ENTITY_NOT_FOUND");
+        return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
+    }
+
     private Map<String, Object> createErrorResponseBody(Exception ex, HttpStatus status, WebRequest request) {
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("timestamp", LocalDateTime.now());
@@ -172,6 +180,17 @@ public class GlobalExceptionHandler {
         errorDetail.setProperty(DESC, "Please check your input");
         errorDetail.setProperty(ERROR_CODE, "INVALID_INPUT");
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDetail);
+    }
+
+    @ExceptionHandler(EmailNotVerifiedException.class)
+    public ResponseEntity<ProblemDetail> handleEmailNotVerifiedException(EmailNotVerifiedException ex) {
+        ProblemDetail errorDetail = ProblemDetail.forStatusAndDetail(
+            HttpStatus.FORBIDDEN, 
+            ex.getMessage()
+        );
+        errorDetail.setProperty("description", "Email verification required to access this resource");
+        errorDetail.setProperty("code", "EMAIL_NOT_VERIFIED");
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorDetail);
     }
 
     @ExceptionHandler({

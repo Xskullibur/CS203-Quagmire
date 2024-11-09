@@ -11,7 +11,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.context.ActiveProfiles;
 
 import com.project.G1_T3.matchmaking.model.QueuedPlayer;
-import com.project.G1_T3.player.model.PlayerProfile;
+import com.project.G1_T3.playerprofile.model.PlayerProfile;
 
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)

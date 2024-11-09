@@ -1,6 +1,7 @@
 package com.project.G1_T3.tournament.controller;
 
-import com.project.G1_T3.player.model.PlayerProfile;
+import com.project.G1_T3.playerprofile.model.PlayerProfile;
+import com.project.G1_T3.security.validator.RequiresEmailVerification;
 import com.project.G1_T3.tournament.model.Tournament;
 import com.project.G1_T3.tournament.model.TournamentDTO;
 import com.project.G1_T3.tournament.service.TournamentService;
@@ -14,7 +15,6 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-
 import java.time.LocalDate;
 import java.util.*;
 
@@ -56,6 +56,18 @@ public class TournamentController {
         return ResponseEntity.ok(tournaments);
     }
 
+    @GetMapping("/featured")
+    public ResponseEntity<List<Tournament>> getFeaturedTournaments(Pageable pageable) {
+        try {
+            List<Tournament> tournaments = tournamentService.findFeaturedTournaments(pageable);
+            return ResponseEntity.ok(tournaments);
+        } catch (Exception e) {
+            e.printStackTrace(); // Print stack trace for debugging
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+    // Get past tournaments with pagination
     @GetMapping("/past")
     public ResponseEntity<Page<Tournament>> getPastTournaments(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
@@ -94,9 +106,15 @@ public class TournamentController {
     // @PostMapping("/create")
     // public ResponseEntity<Tournament> createTournament(@RequestBody TournamentDTO
     // tournamentDTO) {
+    // public ResponseEntity<Tournament> createTournament(@RequestBody TournamentDTO
+    // tournamentDTO) {
 
     // System.out.println("test2");
+    // System.out.println("test2");
 
+    // Tournament createdTournament =
+    // tournamentService.createTournament(tournamentDTO);
+    // return ResponseEntity.ok(createdTournament);
     // Tournament createdTournament =
     // tournamentService.createTournament(tournamentDTO);
     // return ResponseEntity.ok(createdTournament);
@@ -109,6 +127,7 @@ public class TournamentController {
 
             // Call the service to create the tournament
             Tournament createdTournament = tournamentService.createTournament(tournamentDTO);
+
 
             // Log successful creation
             System.out.println("Tournament created successfully: " + createdTournament.getName());
@@ -132,6 +151,7 @@ public class TournamentController {
     }
 
     // Add a player to a tournament
+    @RequiresEmailVerification
     @PutMapping("/{tournamentId}/players/{playerId}")
     public ResponseEntity<Tournament> addPlayerToTournament(
             @PathVariable UUID tournamentId, @PathVariable UUID playerId) {

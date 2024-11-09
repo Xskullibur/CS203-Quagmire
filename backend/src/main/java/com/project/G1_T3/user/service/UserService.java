@@ -1,6 +1,5 @@
 package com.project.G1_T3.user.service;
 
-import com.project.G1_T3.player.repository.PlayerProfileRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -21,8 +20,6 @@ import com.project.G1_T3.common.exception.EmailAlreadyInUseException;
 import com.project.G1_T3.common.exception.RegistrationException;
 import com.project.G1_T3.common.exception.UsernameAlreadyTakenException;
 import com.project.G1_T3.email.service.EmailService;
-import com.project.G1_T3.player.model.PlayerProfile;
-import com.project.G1_T3.player.service.PlayerProfileService;
 import com.project.G1_T3.user.model.UpdateEmailDTO;
 import com.project.G1_T3.user.model.UpdatePasswordDTO;
 import com.project.G1_T3.user.model.User;
@@ -38,8 +35,6 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepository;
-    @Autowired
-    private PlayerProfileRepository playerProfileRepository;
     @Autowired
     private JwtService jwtService;
     @Autowired
@@ -74,7 +69,6 @@ public class UserService {
 
                 try {
                     sendVerificationEmail(newUser);
-                    createPlayerProfile(savedUser);
                 } catch (Exception e) {
                     logger.error("Error in post-registration process", e);
                 }
@@ -89,12 +83,6 @@ public class UserService {
             logger.error("Registration failed", e);
             throw new RegistrationException("Failed to complete registration");
         }
-    }
-
-    private void createPlayerProfile(User user) {
-        PlayerProfile newProfile = new PlayerProfile();
-        newProfile.setUser(user);
-        playerProfileRepository.save(newProfile);
     }
 
     private User createUser(String username, String email, String password, UserRole role) {

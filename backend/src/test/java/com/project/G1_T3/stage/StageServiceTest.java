@@ -1,6 +1,6 @@
 package com.project.G1_T3.stage;
 
-import com.project.G1_T3.player.model.PlayerProfile;
+import com.project.G1_T3.playerprofile.model.PlayerProfile;
 import com.project.G1_T3.round.service.RoundService;
 import com.project.G1_T3.stage.model.Stage;
 import com.project.G1_T3.stage.model.StageDTO;
@@ -105,10 +105,10 @@ class StageServiceTest {
     void testSaveStage() {
         // Arrange
         when(stageRepository.save(stage)).thenReturn(stage);
-    
+
         // Act
         Stage result = stageService.saveStage(stage);
-    
+
         // Assert
         verify(stageRepository, times(1)).save(stage);
         assertEquals(stage, result);
@@ -117,13 +117,13 @@ class StageServiceTest {
     @Test
     void testFindAllStagesByTournamentIdSortedByCreatedAtAsc() {
         List<Stage> stages = Arrays.asList(stage);
-    
+
         // Arrange
         when(stageRepository.findByTournamentIdOrderByCreatedAtAsc(tournamentId)).thenReturn(stages);
-    
+
         // Act
         List<Stage> result = stageService.findAllStagesByTournamentIdSortedByCreatedAtAsc(tournamentId);
-    
+
         // Assert
         verify(stageRepository, times(1)).findByTournamentIdOrderByCreatedAtAsc(tournamentId);
         assertEquals(stages, result);
@@ -133,25 +133,25 @@ class StageServiceTest {
     void testFindStageByIdAndTournamentId_Success() {
         // Arrange
         when(stageRepository.findByStageIdAndTournamentId(stageId, tournamentId)).thenReturn(Optional.of(stage));
-    
+
         // Act
         Stage result = stageService.findStageByIdAndTournamentId(stageId, tournamentId);
-    
+
         // Assert
         verify(stageRepository, times(1)).findByStageIdAndTournamentId(stageId, tournamentId);
         assertEquals(stage, result);
     }
-    
+
     @Test
     void testFindStageByIdAndTournamentId_StageNotFound() {
         // Arrange
         when(stageRepository.findByStageIdAndTournamentId(stageId, tournamentId)).thenReturn(Optional.empty());
-    
+
         // Act & Assert
         Exception exception = assertThrows(RuntimeException.class, () -> {
             stageService.findStageByIdAndTournamentId(stageId, tournamentId);
         });
-    
+
         assertEquals("Stage not found", exception.getMessage());
         verify(stageRepository, times(1)).findByStageIdAndTournamentId(stageId, tournamentId);
     }
@@ -165,13 +165,13 @@ class StageServiceTest {
         updatedStage.setEndDate(LocalDateTime.now().plusDays(3));
         updatedStage.setStatus(Status.IN_PROGRESS);
         updatedStage.setFormat(Format.DOUBLE_ELIMINATION);
-    
+
         when(stageRepository.findByStageIdAndTournamentId(stageId, tournamentId)).thenReturn(Optional.of(stage));
         when(stageRepository.save(any(Stage.class))).thenReturn(updatedStage);
-    
+
         // Act
         Stage result = stageService.updateStageForTournament(tournamentId, stageId, updatedStage);
-    
+
         // Assert
         assertEquals("Updated Stage", result.getStageName());
         verify(stageRepository, times(1)).save(stage);
@@ -255,21 +255,21 @@ class StageServiceTest {
     void testStartStage_ErrorInCreatingRound_ThrowsException() {
         // Arrange
         when(stageRepository.findById(stageId)).thenReturn(Optional.of(stage));
-    
+
         // Ensure the stage has players to avoid the "no players" exception
         PlayerProfile player1 = mock(PlayerProfile.class);
         PlayerProfile player2 = mock(PlayerProfile.class);
         Set<PlayerProfile> players = new HashSet<>(Set.of(player1, player2));
         stage.setPlayers(players);
-    
+
         // Simulate a failure when creating the first round
         doThrow(new RuntimeException("Round creation failed")).when(roundService).createFirstRound(any(UUID.class), anyList());
-    
+
         // Act & Assert
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
             stageService.startStage(stageId);
         });
-    
+
         // Assert the correct exception message
         assertEquals("Error creating the first round: Round creation failed", exception.getMessage());
     }
@@ -401,5 +401,5 @@ class StageServiceTest {
         });
         assertEquals("Error saving Stage: Database error", exception.getMessage());
     }
-    
+
 }

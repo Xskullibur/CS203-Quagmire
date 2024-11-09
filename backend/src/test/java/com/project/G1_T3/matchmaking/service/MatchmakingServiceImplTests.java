@@ -18,9 +18,10 @@ import com.project.G1_T3.common.exception.PlayerNotFoundException;
 import com.project.G1_T3.match.model.Match;
 import com.project.G1_T3.match.model.MatchDTO;
 import com.project.G1_T3.match.service.MatchService;
-import com.project.G1_T3.player.model.PlayerProfile;
-import com.project.G1_T3.player.service.PlayerProfileService;
+import com.project.G1_T3.playerprofile.model.PlayerProfile;
+import com.project.G1_T3.playerprofile.service.PlayerProfileService;
 import com.project.G1_T3.user.model.User;
+
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -75,7 +76,7 @@ class MatchmakingServiceImplTests {
         when(glickoMatchmaking.isGoodMatch(any(), any())).thenReturn(true);
 
         matchmakingService = new MatchmakingServiceImpl(meetingPointService, matchService,
-            messagingTemplate, playerProfileService, playerQueue);
+                messagingTemplate, playerProfileService, playerQueue);
     }
 
     @Test
@@ -152,7 +153,7 @@ class MatchmakingServiceImplTests {
         // Ensure that glickoMatchmaking.isGoodMatch returns true
         when(glickoMatchmaking.isGoodMatch(any(), any())).thenReturn(true);
 
-        when(meetingPointService.findMeetingPoint(any(), any())).thenReturn(new double[]{0, 0});
+        when(meetingPointService.findMeetingPoint(any(), any())).thenReturn(new double[] { 0, 0 });
 
         Match mockMatch = new Match();
         mockMatch.setMatchId(UUID.randomUUID());
@@ -171,11 +172,11 @@ class MatchmakingServiceImplTests {
         assertNotNull(match);
         assertEquals(Match.GameType.SOLO, match.getGameType());
         assertTrue(
-            (player1.getProfileId().equals(match.getPlayer1Id())
-                && player2.getProfileId().equals(match.getPlayer2Id())) ||
-                (player2.getProfileId().equals(match.getPlayer1Id())
-                    && player1.getProfileId().equals(match.getPlayer2Id())),
-            "The match should contain both players, regardless of order");
+                (player1.getProfileId().equals(match.getPlayer1Id())
+                        && player2.getProfileId().equals(match.getPlayer2Id())) ||
+                        (player2.getProfileId().equals(match.getPlayer1Id())
+                                && player1.getProfileId().equals(match.getPlayer2Id())),
+                "The match should contain both players, regardless of order");
 
         verify(messagingTemplate, times(2)).convertAndSend(any(String.class), any(Object.class));
         verify(playerProfileService, times(2)).findByProfileId(anyString());

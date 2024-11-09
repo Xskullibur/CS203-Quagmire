@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useCallback } from 'react';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { Card, CardHeader, CardDescription, CardContent, CardTitle } from '@/components/ui/card';
 import QueueManagement from '@/components/matches/QueueManagement';
 import { useAuth } from '@/hooks/useAuth';
@@ -86,7 +86,38 @@ const Match: React.FC = () => {
     // Use the useGeolocation hook
     const { location, error: locationError, loading: locationLoading } = useGeolocation();
 
-    const checkForActiveMatch = useCallback(async (userId: string) => {
+    const fetchPlayerProfile = async (userId: string): Promise<PlayerProfile | null> => {
+        try {
+            const response = await axios.get(`${API_URL}/profile/${userId}`);
+            setPlayerProfile(response.data);
+            return response.data;
+        } catch (error) {
+            console.error("Error fetching player profile:", error);
+            if (axios.isAxiosError(error)) {
+                handleError(error);
+            }
+            return null;
+        }
+    };
+
+    const fetchOpponentProfile = async (opponentId: string) => {
+        try {
+            console.log("Fetching profile for opponent ID:", opponentId);
+            const response = await axios.get(`${API_URL}/profile/player/${opponentId}`);
+            console.log("Opponent profile response:", response.data);
+            const opponentData = response.data;
+            setOpponentName(opponentData.firstName);
+            setOpponentProfile(opponentData);
+        } catch (error) {
+            console.error("Error fetching opponent profile:", error);
+            setOpponentProfile(null);
+            if (axios.isAxiosError(error)) {
+                handleError(error);
+            }
+        }
+    };
+
+    const checkForActiveMatch = async (userId: string, profileId: string) => {
         try {
             console.log("Checking for active match for user:", userId);
             const response = await axios.get(`${API_URL}/matches/current/${userId}`);
@@ -96,9 +127,11 @@ const Match: React.FC = () => {
                 const match = response.data;
                 setActiveMatch(match);
                 setMatchFound(true);
-                const isPlayer1 = match.player1Id === userId;
-                const opponentId = isPlayer1 ? match.player2Id : match.player1Id;
-                console.log("Match found. Opponent ID:", opponentId, "Opponent Name:", opponentName);
+
+                // Determine which player in the match is the opponent
+                const opponentId = match.player1Id === profileId ? match.player2Id : match.player1Id;
+                console.log("Match found. Current user:", profileId, "Opponent ID:", opponentId);
+
                 setMeetingPoint([match.meetingLatitude, match.meetingLongitude]);
                 await fetchOpponentProfile(opponentId);
             } else {
@@ -109,54 +142,28 @@ const Match: React.FC = () => {
             }
         } catch (error) {
             console.error("Error checking for active match:", error);
-
             if (axios.isAxiosError(error)) {
-                handleError(error)
+                handleError(error);
             }
-
             setActiveMatch(null);
             setMatchFound(false);
             setOpponentProfile(null);
         }
-    }, [opponentName]);
+    };
 
     useEffect(() => {
         if (user?.userId) {
-            setPlayerId(user.userId);
-            checkForActiveMatch(user.userId);
-            fetchPlayerProfile(user.userId);
+            const initializeData = async () => {
+                const profile = await fetchPlayerProfile(user.userId);
+                if (profile) {
+                    setPlayerId(user.userId);
+                    await checkForActiveMatch(user.userId, profile.profileId);
+                }
+            };
+            initializeData();
         }
-    }, [user, checkForActiveMatch]);
+    }, [user]);
 
-    const fetchPlayerProfile = async (userId: string) => {
-        try {
-            const response = await axios.get(`${API_URL}/profile/${userId}`);
-            setPlayerProfile(response.data);
-        } catch (error) {
-            console.error("Error fetching player profile:", error);
-
-            if (axios.isAxiosError(error)) {
-                handleError(error)
-            }
-        }
-    };
-
-    const fetchOpponentProfile = async (opponentId: string) => {
-        try {
-            console.log("Fetching profile for opponent ID:", opponentId);
-            const response = await axios.get(`${API_URL}/profile/player/${opponentId}`);
-            console.log("Opponent profile response:", response.data);
-            setOpponentName(response.data.firstName);
-            setOpponentProfile(response.data);
-        } catch (error) {
-            console.error("Error fetching opponent profile:", error);
-            setOpponentProfile(null);
-
-            if (axios.isAxiosError(error)) {
-                handleError(error)
-            }
-        }
-    };
 
     const handleMatchFound = useCallback((matchFound: boolean, opponent: string, meeting: [number, number], profile: PlayerProfile) => {
         setMatchFound(matchFound);

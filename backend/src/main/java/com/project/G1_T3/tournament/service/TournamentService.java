@@ -1,6 +1,6 @@
 package com.project.G1_T3.tournament.service;
 
-import com.project.G1_T3.player.model.PlayerProfile;
+import com.project.G1_T3.playerprofile.model.PlayerProfile;
 import com.project.G1_T3.tournament.model.Tournament;
 import com.project.G1_T3.tournament.model.TournamentDTO;
 
@@ -60,4 +60,6 @@ public interface TournamentService {
             LocalDate fromDate,
             LocalDate toDate,
             Pageable pageable);
+
+    List<Tournament> findFeaturedTournaments(Pageable pageable); // Find top 5 upcoming tournaments
 }

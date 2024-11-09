@@ -11,10 +11,10 @@ import org.springframework.transaction.annotation.Transactional;
 import com.project.G1_T3.common.model.Status;
 import com.project.G1_T3.match.model.Match;
 import com.project.G1_T3.matchmaking.model.MatchNotificationDTO;
+import com.project.G1_T3.playerprofile.model.PlayerProfile;
+import com.project.G1_T3.playerprofile.model.PlayerProfileDTO;
+import com.project.G1_T3.playerprofile.repository.PlayerProfileRepository;
 import com.project.G1_T3.match.repository.MatchRepository;
-import com.project.G1_T3.player.model.PlayerProfile;
-import com.project.G1_T3.player.model.PlayerProfileDTO;
-import com.project.G1_T3.player.repository.PlayerProfileRepository;
 import com.project.G1_T3.user.model.User;
 import com.project.G1_T3.user.repository.UserRepository;
 

@@ -1,11 +1,10 @@
 package com.project.G1_T3.match.service;
 
-import com.project.G1_T3.common.glicko.Glicko2Result;
 import com.project.G1_T3.match.model.Match;
 import com.project.G1_T3.match.model.MatchDTO;
 import com.project.G1_T3.match.repository.MatchRepository;
-import com.project.G1_T3.player.model.PlayerProfile;
-import com.project.G1_T3.player.service.PlayerProfileService;
+import com.project.G1_T3.playerprofile.model.PlayerProfile;
+import com.project.G1_T3.playerprofile.service.PlayerProfileService;
 import com.project.G1_T3.common.model.Status;
 
 import org.junit.jupiter.api.BeforeEach;

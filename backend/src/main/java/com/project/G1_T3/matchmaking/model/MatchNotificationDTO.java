@@ -2,8 +2,8 @@ package com.project.G1_T3.matchmaking.model;
 
 import java.util.UUID;
 
-import com.project.G1_T3.player.model.PlayerProfileDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.project.G1_T3.playerprofile.model.PlayerProfileDTO;
 
 public class MatchNotificationDTO {
     @JsonProperty("matchId")

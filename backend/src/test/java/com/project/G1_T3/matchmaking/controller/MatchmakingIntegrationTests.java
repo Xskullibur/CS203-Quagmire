@@ -26,12 +26,12 @@ import com.project.G1_T3.matchmaking.controller.websocket.TestStompSessionHandle
 import com.project.G1_T3.matchmaking.model.MatchLocation;
 import com.project.G1_T3.matchmaking.model.MatchNotification;
 import com.project.G1_T3.matchmaking.model.QueueRequest;
-import com.project.G1_T3.player.model.PlayerProfile;
-import com.project.G1_T3.player.repository.PlayerProfileRepository;
 import com.project.G1_T3.user.model.User;
 import com.project.G1_T3.user.repository.UserRepository;
 import com.project.G1_T3.user.model.UserRole;
 import com.project.G1_T3.matchmaking.service.MatchmakingService;
+import com.project.G1_T3.playerprofile.model.PlayerProfile;
+import com.project.G1_T3.playerprofile.repository.PlayerProfileRepository;
 import com.project.G1_T3.matchmaking.service.GlickoMatchmaking;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;

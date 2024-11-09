@@ -1,7 +1,5 @@
 package com.project.G1_T3.tournament.service;
 
-import com.project.G1_T3.player.model.PlayerProfile;
-import com.project.G1_T3.player.repository.PlayerProfileRepository;
 import com.project.G1_T3.stage.model.StageDTO;
 import com.project.G1_T3.stage.service.StageService;
 import com.project.G1_T3.tournament.model.Tournament;
@@ -10,6 +8,8 @@ import com.project.G1_T3.tournament.repository.TournamentRepository;
 import com.project.G1_T3.stage.model.Format;
 import com.project.G1_T3.stage.model.Stage;
 import com.project.G1_T3.common.model.Status;
+import com.project.G1_T3.playerprofile.model.PlayerProfile;
+import com.project.G1_T3.playerprofile.repository.PlayerProfileRepository;
 
 import jakarta.persistence.EntityNotFoundException;
 
@@ -46,7 +46,7 @@ public class TournamentServiceImpl implements TournamentService {
                 .orElseThrow(() -> new NoSuchElementException("Tournament not found with id: " + id));
     }
 
-    public TournamentDTO findTournamentDTO(UUID id) {
+    public TournamentDTO findTournamentDTO(UUID id)  {
         Tournament t = findTournamentById(id);
         TournamentDTO result = new TournamentDTO(t);
 
@@ -70,8 +70,10 @@ public class TournamentServiceImpl implements TournamentService {
 
     @Override
     public Page<Tournament> findTournamentsByAvailability(Pageable pageable, LocalDateTime availableStartDate,
+
             LocalDateTime availableEndDate) {
         return tournamentRepository.findByStartAndEndDateWithinAvailability(availableStartDate, availableEndDate,
+
                 pageable);
     }
 
@@ -128,6 +130,7 @@ public class TournamentServiceImpl implements TournamentService {
             }
         } else {
             // Automatically create a default single elimination stage if no stages are
+            //
             // provided
             Stage defaultStage = new Stage();
             defaultStage.setStageName("Single Elimination");
@@ -346,4 +349,19 @@ public class TournamentServiceImpl implements TournamentService {
         }
         tournamentRepository.deleteById(tournamentId);
     }
+
+    // returns a list of the closest 5 upcoming tournaments
+    public List<Tournament> findFeaturedTournaments(Pageable pageable) {
+        Page<Tournament> upcomingTournaments = tournamentRepository.findByStartDateAfter(LocalDateTime.now(), pageable);
+
+        // Convert to a modifiable list
+        List<Tournament> sortedTournaments = new ArrayList<>(upcomingTournaments.getContent());
+
+        // Sort the tournaments by start date
+        sortedTournaments.sort(Comparator.comparing(Tournament::getStartDate));
+
+        // Return the top 5 tournaments
+        return sortedTournaments.subList(0, Math.min(5, sortedTournaments.size()));
+    }
+
 }

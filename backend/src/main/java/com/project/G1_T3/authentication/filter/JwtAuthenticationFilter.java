@@ -1,6 +1,7 @@
 package com.project.G1_T3.authentication.filter;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -8,6 +9,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import com.project.G1_T3.authentication.service.JwtService;
@@ -28,54 +30,59 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Autowired
     private ApplicationContext applicationContext;
 
+    private List<RequestMatcher> skipPaths;
+
+    public void setSkipPaths(List<RequestMatcher> skipPaths) {
+        this.skipPaths = skipPaths;
+    }
+
     @Override
     protected void doFilterInternal(
             @NonNull HttpServletRequest request,
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain) throws ServletException, IOException {
 
-        // Retrieve and validate token format
         final String authHeader = request.getHeader("Authorization");
 
         jwtService.validateTokenFormat(authHeader);
 
-        // Extract information from header
-        final String token = authHeader.substring(7);
-        final String username = jwtService.extractUsername(token);
+        // If no auth header, continue to next filter
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+        try {
+            // Extract information from header
+            final String token = authHeader.substring(7);
+            final String username = jwtService.extractUsername(token);
 
-            // Retrieve user details
-            CustomUserDetails userDetails = applicationContext.getBean(CustomUserDetailsService.class)
-                    .loadUserByUsername(username);
+            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                // Retrieve user details
+                CustomUserDetails userDetails = applicationContext.getBean(CustomUserDetailsService.class)
+                        .loadUserByUsername(username);
 
-            // Validate Token
-            if (jwtService.isTokenValid(token, userDetails)) {
+                // Validate Token
+                if (jwtService.isTokenValid(token, userDetails)) {
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                            userDetails,
+                            null,
+                            userDetails.getAuthorities());
 
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        userDetails,
-                        null,
-                        userDetails.getAuthorities());
-
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                }
             }
+        } catch (Exception e) {
+            logger.error("Error processing JWT token", e);
         }
 
         filterChain.doFilter(request, response);
     }
 
     @Override
-    protected boolean shouldNotFilter(@NonNull HttpServletRequest request) throws ServletException {
-        String path = request.getRequestURI();
-    
-        return !(path.startsWith("/profile/edit")) && (
-                path.startsWith("/authentication/") ||
-                path.startsWith("/ws/") ||
-                path.startsWith("/profile/") ||
-                path.startsWith("/leaderboard/user/") ||
-                path.startsWith("/tournament")
-        );
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        return skipPaths != null && skipPaths.stream()
+                .anyMatch(matcher -> matcher.matches(request));
     }
-
 }

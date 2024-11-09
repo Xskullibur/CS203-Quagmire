@@ -1,5 +1,7 @@
 package com.project.G1_T3.authentication.filter;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -11,10 +13,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Profile;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.test.context.ActiveProfiles;
-
 import com.project.G1_T3.authentication.service.JwtService;
 import com.project.G1_T3.common.exception.InvalidTokenException;
 import com.project.G1_T3.user.model.CustomUserDetails;
@@ -25,7 +24,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-@ActiveProfiles("test")
 class JwtAuthenticationFilterTest {
 
     @InjectMocks
@@ -97,7 +95,7 @@ class JwtAuthenticationFilterTest {
 
     @Test
     void doFilterInternal_NoAuthorizationHeaderProvided_ThrowsInvalidTokenException() {
-        
+
         when(request.getHeader("Authorization")).thenReturn(null);
         doThrow(new InvalidTokenException("Invalid token format", null)).when(jwtService).validateTokenFormat(null);
 
@@ -107,22 +105,13 @@ class JwtAuthenticationFilterTest {
 
     @Test
     void doFilterInternal_InvalidTokenFormatProvided_ThrowsInvalidTokenException() {
-        
+
         String token = "InvalidFormat token";
         when(request.getHeader("Authorization")).thenReturn(token);
         doThrow(new InvalidTokenException("Invalid token format", token)).when(jwtService).validateTokenFormat(token);
 
-        assertThrows(InvalidTokenException.class, () -> jwtAuthenticationFilter.doFilterInternal(request, response, filterChain));
-    }
-
-    @Test
-    void shouldNotFilter_AuthenticationPathProvided_ReturnsTrue() throws ServletException {
-
-        when(request.getRequestURI()).thenReturn("/authentication/login");
-
-        boolean result = jwtAuthenticationFilter.shouldNotFilter(request);
-
-        assertTrue(result);
+        assertThrows(InvalidTokenException.class,
+                () -> jwtAuthenticationFilter.doFilterInternal(request, response, filterChain));
     }
 
     @Test
