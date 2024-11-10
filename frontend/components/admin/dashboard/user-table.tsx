@@ -13,6 +13,7 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   LockKeyholeIcon,
+  RotateCcw,
   UnlockKeyholeIcon,
 } from "lucide-react";
 import { formatDistance } from "date-fns";
@@ -117,35 +118,35 @@ const UserTable: React.FC<UserTableProps> = ({
               </TableCell>
               <TableCell className="flex justify-center items-center space-x-2">
                 {user.locked ? (
-                    <Button
+                  <Button
                     variant="success"
                     size="icon"
                     onClick={() => onLock(user, false)}
                     className="w-24 h-10 flex items-center justify-center p-0"
-                    >
-                    <UnlockKeyholeIcon className="h-4 w-4 mr-2" /> Unlock
-                    </Button>
+                  >
+                    <UnlockKeyholeIcon className="h-4 w-4 mr-1" /> Unlock
+                  </Button>
                 ) : (
-                    <Button
+                  <Button
                     variant="destructive"
                     size="icon"
                     onClick={() => onLock(user, true)}
                     className="w-24 h-10 flex items-center justify-center p-0"
-                    >
-                    <LockKeyholeIcon className="h-4 w-4 mr-2" /> Lock
-                    </Button>
+                  >
+                    <LockKeyholeIcon className="h-4 w-4 mr-1" /> Lock
+                  </Button>
                 )}
                 {user.role === "ADMIN" && (
-                    <Button
+                  <Button
                     variant="outline"
                     size="icon"
                     onClick={() => onResetPassword(user.userId)}
-                    className="w-32 h-10 flex items-center justify-center p-0 bg-gray-200 text-gray-800 hover:bg-gray-300 transition-colors"
-                    >
-                    Reset Password
-                    </Button>
+                    className="w-48 h-10 flex items-center justify-center p-0"
+                  >
+                    <RotateCcw className="h-4 w-4 mr-1" /> Reset Password
+                  </Button>
                 )}
-                </TableCell>
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>
