@@ -12,5 +12,4 @@ export interface Tournament {
     deadlineTime: string;
     maxParticipants: number;
     description: string;
-    refereeIds: string[];
   }

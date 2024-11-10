@@ -35,7 +35,6 @@ const CreateTournament = () => {
     deadlineTime: "",
     maxParticipants: 0,
     description: "",
-    refereeIds: [],
   });
 
   const [photo, setPhoto] = useState<File | null>(null);
@@ -74,16 +73,7 @@ const CreateTournament = () => {
     }
   };
 
-  // Add selected referee
-  const handleAddReferee = (refereeId: string) => {
-    if (!selectedReferees.includes(refereeId)) {
-      setSelectedReferees([...selectedReferees, refereeId]);
-      setTournament({
-        ...tournament,
-        refereeIds: [...tournament.refereeIds, refereeId], // Update the list of refereeIds in tournament
-      });
-    }
-  };
+  
 
   // Handle input change
   const handleChange = (
@@ -187,10 +177,6 @@ const CreateTournament = () => {
           handleChange={handleChange}
           handleBack={handleBack}
           handleSubmit={handleSubmit}
-          refereeSearchQuery={refereeSearchQuery}
-          searchResults={searchResults}
-          handleRefereeSearch={handleRefereeSearch}
-          handleAddReferee={handleAddReferee}
         />
 
       )}
