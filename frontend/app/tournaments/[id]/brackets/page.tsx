@@ -10,12 +10,17 @@ import { Input } from "@/components/ui/input";
 import { getCurrentStageFromTournament, getMatchesForRound, getRoundsForTournamentAndStageId } from "@/hooks/tournamentDataManager";
 import { useAuth } from "@/hooks/useAuth";
 import { UserRole } from "@/types/user-role";
+import axiosInstance from "@/lib/axios";
+
+
+const API_URL = process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL;
+
 
 const BracketsPage = () => {
   const { user, isAuthenticated } = useAuth();
   const isAdmin = user?.role === UserRole.ADMIN;
 
-  const id = (Array.isArray(useParams().id) ? useParams().id[0] : useParams().id).toString();
+  const tournamentId = (Array.isArray(useParams().id) ? useParams().id[0] : useParams().id).toString();
 
   const [currentStageIndex, setCurrentStageIndex] = useState(0);
   const [roundIds, setRoundIds] = useState<string[]>([]);
@@ -26,19 +31,18 @@ const BracketsPage = () => {
   const [autoAdvanceMatches, setAutoAdvanceMatches] = useState<MatchTracker[]>([]);
   const [filteredActualMatches, setFilteredActualMatches] = useState<MatchTracker[]>([]);
   const [filteredAutoAdvanceMatches, setFilteredAutoAdvanceMatches] = useState<MatchTracker[]>([]);
+  const [stageId, setStageId] = useState<string>("");
 
   useEffect(() => {
     const initialiseTournament = async () => {
       try {
-        const stageId = await getCurrentStageFromTournament(id);
-        console.log(stageId);
-        const rounds = await getRoundsForTournamentAndStageId(id, stageId);
-        console.table(rounds);
+        const stageId = await getCurrentStageFromTournament(tournamentId);
+        setStageId(stageId)
+        const rounds = await getRoundsForTournamentAndStageId(tournamentId, stageId);
         if (rounds.length > 0) {
           const roundIdsArray = rounds.map((round: any) => round.roundId);
           setRoundIds(roundIdsArray);
           const matches = await getMatchesForRound(rounds[rounds.length - 1].roundId);
-          console.log(matches);
           if (matches && Array.isArray(matches)) {
             setMatches(matches);
             filterMatches(matches);
@@ -49,7 +53,7 @@ const BracketsPage = () => {
       }
     };
     initialiseTournament();
-  }, [id]);
+  }, [tournamentId]);
 
   const filterMatches = (matches: MatchTracker[]) => {
     const actual = matches.filter((match) => match.player2);
@@ -62,19 +66,27 @@ const BracketsPage = () => {
 
   const handleNextRound = async () => {
     if (!isAdmin) return;
-    if (currentStageIndex < roundIds.length - 1) {
-      try {
-        const nextRoundId = roundIds[currentStageIndex + 1];
-        const matches = await getMatchesForRound(nextRoundId);
-        if (matches && Array.isArray(matches)) {
-          setMatches(matches);
-          filterMatches(matches);
-          setCurrentStageIndex(currentStageIndex + 1);
-        }
-      } catch (error) {
-        console.error('Error fetching next round matches:', error);
+    console.log(currentStageIndex);
+    try {
+
+      const res = await axiosInstance.put(new URL(`/tournament/${tournamentId}/stage/${stageId}/round/${roundIds[currentStageIndex]}/end`, API_URL).toString());
+      const rounds = await getRoundsForTournamentAndStageId(tournamentId, stageId);
+      console.log(rounds);
+      const roundIdArr = rounds.map((round) => round.roundId());
+      setRoundIds(roundIdArr);
+      const nextRoundId = roundIds[currentStageIndex + 1];
+      const matches = await getMatchesForRound(nextRoundId);
+      if (matches && Array.isArray(matches)) {
+        setMatches(matches);
+        filterMatches(matches);
+        setCurrentStageIndex(currentStageIndex + 1);
       }
+      console.log(currentStageIndex);
+
+    } catch (error) {
+      console.error('Error fetching next round matches:', error);
     }
+
   };
 
   const handlePreviousRound = async () => {
@@ -110,7 +122,7 @@ const BracketsPage = () => {
     const allMatchesCompleted = actualMatches.every((match) => match.completed);
     setNextRoundEnabled(allMatchesCompleted);
   }, [actualMatches]);
-  
+
 
   useEffect(() => {
     const filteredActual = actualMatches.filter(
@@ -177,7 +189,7 @@ const BracketsPage = () => {
           disabled={!nextRoundEnabled || (!isAdmin && currentStageIndex === roundIds.length - 1)}
           className={`mt-4 ${nextRoundEnabled ? "bg-green-500" : "bg-gray-300"}`}
         >
-          {currentStageIndex === roundIds.length - 1? "Start Next Stage" : "View Next Stage"}
+          {currentStageIndex === roundIds.length - 1 ? "Start Next Stage" : "View Next Stage"}
         </Button>
       </div>
     </div>

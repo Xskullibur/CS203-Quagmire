@@ -12,7 +12,7 @@ public interface RoundService {
 
     public void createFirstRound(UUID stageId, List<PlayerProfile> sortedPlayers);
 
-    public void endRound(UUID roundId, Map<UUID, MatchDTO> matchDTOMap);
+    public void endRound(UUID roundId);
 
     public Round getRoundById(UUID roundId);
 

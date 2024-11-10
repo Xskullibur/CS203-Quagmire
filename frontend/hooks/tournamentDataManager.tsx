@@ -8,7 +8,6 @@ const API_URL = process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL;
 const getPlayerProfileById = async (id: string): Promise<any> => {
     try {
         const response = await axios.get(`${API_URL}/profile/player/${id}`);
-        console.table(response.data);
         return response.data;
     } catch (error) {
         console.error(`Error fetching player profile for ID: ${id}`, error);
@@ -18,7 +17,6 @@ const getPlayerProfileById = async (id: string): Promise<any> => {
 
 
 const convertMatchToMatchTracker = async (match: any): Promise<MatchTracker> => {
-    console.table(match)
     try {
         // Fetch player profiles for player1 and player2
         const player1Profile = await getPlayerProfileById(match.player1Id);
@@ -75,7 +73,6 @@ const getCurrentStageFromTournament = async (tournamentId: string) => {
     try {
         const stagesResponse = await axios.get(`${API_URL}/tournament/${tournamentId}/stage/allStages`);
         const stages = stagesResponse.data;
-        console.log( stages);
         if (!stages.length) {
             console.log('No stages found for this tournament.');
             return [];
@@ -88,7 +85,7 @@ const getCurrentStageFromTournament = async (tournamentId: string) => {
     }
 };
 
-const getRoundsForTournamentAndStageId = async (tournamentId: string, stageId: string) => {
+const getRoundsForTournamentAndStageId = async (tournamentId: string, stageId: string): Promise<any[]> => {
     try {
         const roundsResponse = await axios.get(`${API_URL}/tournament/${tournamentId}/stage/${stageId}/round/allRounds`);
         const rounds = roundsResponse.data;

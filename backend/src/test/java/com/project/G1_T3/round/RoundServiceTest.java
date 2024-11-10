@@ -202,7 +202,7 @@ class RoundServiceTest {
     void endRound_nullRoundId_throwsException() {
         // Act & Assert
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            roundService.endRound(null, null);
+            roundService.endRound(null);
         });
         assertEquals("Round ID must not be null", exception.getMessage());
     }
@@ -214,7 +214,7 @@ class RoundServiceTest {
 
         // Act & Assert
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            roundService.endRound(roundId, null);
+            roundService.endRound(roundId);
         });
         assertEquals("Round not found", exception.getMessage());
     }
@@ -227,7 +227,7 @@ class RoundServiceTest {
 
         // Act & Assert
         IllegalStateException exception = assertThrows(IllegalStateException.class, () -> {
-            roundService.endRound(roundId, null);
+            roundService.endRound(roundId);
         });
         assertEquals("No matches found for this round", exception.getMessage());
     }
@@ -240,7 +240,7 @@ class RoundServiceTest {
 
         // Act & Assert
         IllegalStateException exception = assertThrows(IllegalStateException.class, () -> {
-            roundService.endRound(roundId, null);
+            roundService.endRound(roundId);
         });
         assertEquals("Winner not found for match with ID: " + matches.get(0).getMatchId(), exception.getMessage());
     }
@@ -253,7 +253,7 @@ class RoundServiceTest {
         when(playerProfileRepository.findByProfileId(player2.getProfileId())).thenReturn(player2);
 
         // Act
-        roundService.endRound(roundId, null);
+        roundService.endRound(roundId);
 
         // Assert
         verify(roundRepository, times(1)).findById(roundId);
@@ -278,7 +278,7 @@ class RoundServiceTest {
         when(playerProfileRepository.findByProfileId(player1.getProfileId())).thenReturn(player1);
 
         // Act
-        roundService.endRound(roundId, null);
+        roundService.endRound(roundId);
 
         // Assert
         verify(stageRepository, times(1)).save(stage);

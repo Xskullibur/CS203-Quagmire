@@ -75,7 +75,7 @@ public class RoundServiceImpl implements RoundService {
     }
 
     @Transactional
-    public void endRound(UUID roundId, Map<UUID, MatchDTO> matchDTOMap) {
+    public void endRound(UUID roundId) {
         if (roundId == null) {
             throw new IllegalArgumentException("Round ID must not be null");
         }
@@ -88,14 +88,6 @@ public class RoundServiceImpl implements RoundService {
             throw new IllegalStateException("No matches found for this round");
         }
 
-        UUID curId;
-        // complete matches in one shot if they are in the matchDTO map
-        for (Match match : roundMatches) {
-            curId = match.getId();
-            if (matchDTOMap.containsKey(curId) && match.getStatus() != Status.COMPLETED) {
-                matchService.completeMatch(curId, matchDTOMap.get(curId));
-            }
-        }
     
         List<PlayerProfile> advancingPlayers = new ArrayList<>();
     
@@ -122,6 +114,9 @@ public class RoundServiceImpl implements RoundService {
         } else {
             throw new IllegalStateException("No players advanced to the next round");
         }
+
+        round.setStatus(Status.COMPLETED);
+        roundRepository.save(round);
     }
 
     // I put this here as I can't put it in stageService since it'll cause circular dependencies

@@ -34,9 +34,9 @@ public class RoundController {
     }
 
     @PutMapping("/{roundId}/end")
-    public ResponseEntity<String> endRound(@PathVariable UUID roundId, @RequestBody Map<UUID, MatchDTO> matchDTOMap) {
+    public ResponseEntity<String> endRound(@PathVariable UUID roundId) {
         try {
-            roundService.endRound(roundId, matchDTOMap);  // Call the service method to end the round
+            roundService.endRound(roundId);  // Call the service method to end the round
             return ResponseEntity.ok("Round ended successfully");
         } catch (RuntimeException e) {
             // Handle any exceptions (e.g., round not found)
