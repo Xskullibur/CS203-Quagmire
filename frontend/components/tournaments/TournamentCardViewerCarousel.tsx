@@ -19,7 +19,7 @@ const transformTournamentData = (tournament: any): Tournament => {
         endDate: tournament.end_date.split('T')[0],
         endTime: tournament.end_date.split('T')[0]?.slice(0, 5) || '00:00',
         status: tournament.status.toUpperCase() as Tournament['status'],
-        deadlineDate: tournament.registration_deadline.split('T')[0],
+        deadline: tournament.registration_deadline.split('T')[0],
         deadlineTime: tournament.registration_deadline.split('T')[1]?.slice(0, 5) || '00:00',
         maxParticipants: tournament.max_participants,
         description: tournament.description,

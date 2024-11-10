@@ -29,7 +29,7 @@ const CreateTournament = () => {
     endDate: "",
     endTime: "",
     status: "SCHEDULED",
-    deadlineDate: "",
+    deadline: "",
     deadlineTime: "",
     maxParticipants: 0,
     description: "",
@@ -116,14 +116,14 @@ const CreateTournament = () => {
 
         const startdatetime = `${tournament.startDate}T${tournament.startTime}:00`;
         const enddatetime = `${tournament.endDate}T${tournament.endTime}:00`;
-        const deadline = `${tournament.deadlineDate}T${tournament.deadlineTime}:00`;
+        const deadlinedatetime = `${tournament.deadline}T${tournament.deadlineTime}:00`;
 
     const {
       startDate,
       startTime,
       endDate,
       endTime,
-      deadlineDate,
+      deadline,
       deadlineTime,
       ...tournamentDetails
     } = tournament;
@@ -132,7 +132,7 @@ const CreateTournament = () => {
       ...tournamentDetails,
       startDate: startdatetime,
       endDate: enddatetime,
-      deadline: deadline,
+      deadline: deadlinedatetime,
     };
 
     try {

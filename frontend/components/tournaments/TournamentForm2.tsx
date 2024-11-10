@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 
 interface AdditionalDetailsFormProps {
     tournament: {
-        deadlineDate: string;
+        deadline: string;
         deadlineTime: string;
         maxParticipants: number;
         description: string;
@@ -40,13 +40,13 @@ const AdditionalDetailsForm: React.FC<AdditionalDetailsFormProps> = ({
             <form className="flex flex-col gap-6" onSubmit={handleSubmit}>
                 {/* Deadline */}
                 <div className="mb-4">
-                    <label className="text-sm font-medium text-white" htmlFor="deadlineDate">Deadline to Join Tournament</label>
+                    <label className="text-sm font-medium text-white" htmlFor="deadline">Deadline to Join Tournament</label>
                     <div className="flex gap-4">
                         <Input
                             type="date"
-                            id="deadlineDate"
-                            name="deadlineDate"
-                            value={tournament.deadlineDate}
+                            id="deadline"
+                            name="deadline"
+                            value={tournament.deadline}
                             onChange={handleChange}
                             required
                             className="bg-transparent border-b border-zinc-600 text-white placeholder-zinc-500 transition duration-300"
@@ -96,8 +96,9 @@ const AdditionalDetailsForm: React.FC<AdditionalDetailsFormProps> = ({
                 {/* Referee Search */}
                 <div className="mt-6">
                     <div>
-                        <label className="mr-4 text-white">Add Referee (Search by Username) :</label>
+                        <label htmlFor="refereeSearch" className="mr-4 text-white">Add Referee (Search by Username) :</label>
                         <input
+                            id="refereeSearch"
                             type="text"
                             placeholder="Search for referees..."
                             value={refereeSearchQuery}
