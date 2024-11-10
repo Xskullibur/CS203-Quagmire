@@ -6,6 +6,7 @@ import axiosInstance from '@/lib/axios';
 import { useGlobalErrorHandler } from '@/app/context/ErrorMessageProvider';
 import { useAuth } from "@/hooks/useAuth"; // Import the auth hook
 import { useRouter } from "next/navigation"; // Import useRouter for navigation
+import { getPlayerProfileById } from '@/hooks/tournamentDataManager';
 
 interface Tournament {
     name: string;
@@ -16,6 +17,7 @@ interface Tournament {
     location: string;
     photoUrl?: string;
     winnerId: string | null;
+    status: 'SCHEDULED'| 'INPROGRESS' | 'COMPLETED' | 'CANCELLED';
 }
 
 const API_URL = process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL;
@@ -30,6 +32,8 @@ const TournamentDetails: React.FC<{ params: { id: string } }> = ({ params }) => 
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [registrationClosed, setRegistrationClosed] = useState<boolean>(false);
+    const [winnerUsername, setWinnerUsername] = useState<string | null>(null);
+
     const { handleError } = useGlobalErrorHandler();
 
     const firebaseBaseURL = "https://firebasestorage.googleapis.com/v0/b/quagmire-smu.appspot.com/o/";
@@ -50,7 +54,11 @@ const TournamentDetails: React.FC<{ params: { id: string } }> = ({ params }) => 
                 }
 
                 setTournament(tournamentData);
-
+                if(tournamentData.winnerId != null){
+                    const winnerProfile = await getPlayerProfileById(tournamentData.winnerId);
+                    setWinnerUsername(winnerProfile.username);
+                }
+               
                 const currentDate = new Date();
                 const deadlineDate = new Date(tournamentData.deadline);
                 setRegistrationClosed(currentDate > deadlineDate);
@@ -85,6 +93,10 @@ const TournamentDetails: React.FC<{ params: { id: string } }> = ({ params }) => 
             alert("An error occurred while starting the tournament.");
         }
 
+    };
+
+    const goToBrackets = () => {
+        router.push(`/tournaments/${id}/brackets`);
     };
 
     return (
@@ -126,10 +138,27 @@ const TournamentDetails: React.FC<{ params: { id: string } }> = ({ params }) => 
 
                 <h2 className="text-2xl font-semibold my-8 text-center">Tournament Draw</h2>
 
-                <p className="text-center text-gray-500">Draw has yet to be released</p>
+                {/* Conditionally display message or button based on tournament status */}
+                {tournament.status === "INPROGRESS" ? (
+                    <div className="flex flex-col items-center">
+                        <p className="text-center text-green-600 text-xl font-semibold">Tournament is in progress!</p>
+                        <Button onClick={goToBrackets} className="mt-4">
+                            View Brackets
+                        </Button>
+                    </div>
+                ) : (
+                    <p className="text-center text-gray-500">Draw has yet to be released</p>
+                )}
+
+                {/* Display Winner Information */}
+                {tournament.winnerId && winnerUsername && (
+                    <div className="mt-8 text-center text-green-600 text-xl font-semibold">
+                        Winner: {winnerUsername}
+                    </div>
+                )}
 
                 {/* Start Tournament Button for Admins Only */}
-                {isAdmin && (
+                {isAdmin && tournament.status === "SCHEDULED" && (
                     <div className="flex justify-center mt-6">
                         <Button onClick={handleStartTournament}>
                             Start Tournament

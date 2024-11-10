@@ -119,4 +119,4 @@ const getProfileFromUsername = async (username: string) => {
     }
 }
 
-export { getCurrentStageFromTournament, getMatchesForRound, getRoundsForTournamentAndStageId, getProfileFromUsername, convertToMatchDTO }
+export { getCurrentStageFromTournament, getMatchesForRound, getRoundsForTournamentAndStageId, getProfileFromUsername, convertToMatchDTO, getPlayerProfileById }
