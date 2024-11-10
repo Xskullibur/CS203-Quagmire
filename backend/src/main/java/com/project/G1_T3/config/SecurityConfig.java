@@ -32,7 +32,7 @@ import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
-@Profile("!test")
+@Profile({"!test", "test"})
 public class SecurityConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(SecurityConfig.class);

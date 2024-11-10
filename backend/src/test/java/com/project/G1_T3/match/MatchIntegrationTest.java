@@ -42,14 +42,7 @@ public class MatchIntegrationTest {
     private UUID matchId;
 
 
-    private final List<UUID> playerIds = List.of(
-            UUID.fromString("11111111-1111-1111-1111-111111111111"),
-            UUID.fromString("11111111-1111-1111-1111-111111111112"),
-            UUID.fromString("11111111-1111-1111-1111-111111111113"),
-            UUID.fromString("11111111-1111-1111-1111-111111111114"),
-            UUID.fromString("11111111-1111-1111-1111-111111111115"),
-            UUID.fromString("11111111-1111-1111-1111-111111111116"));
-            
+    
     @BeforeEach
     public void setUp() throws Exception {
         // Log tournament creation
@@ -57,13 +50,7 @@ public class MatchIntegrationTest {
         tournamentId = createTournament();
         assertNotNull("Tournament ID should not be null after creation", tournamentId);
 
-        // Add pre-existing players to the tournament
-        System.out.println("Adding players to tournament...");
-        for (UUID playerId : playerIds) {
-            addPlayerToTournament(tournamentId, playerId);
-            System.out.println("Added player with ID: " + playerId);
-        }
-
+        
         // Start the tournament
         System.out.println("Starting tournament...");
         startTournament(tournamentId);

@@ -118,7 +118,7 @@ public class TournamentController {
             // Log any error that occurs
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                .body("Error creating tournament: " + e.getMessage());
+                                .body("Error creating tournament: " + e.getStackTrace() + ", \nmessage: " + e.getMessage());
         }
     }
 
