@@ -1,10 +1,13 @@
 package com.project.G1_T3.common.glicko;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.test.context.ActiveProfiles;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Arrays;
 
+@ActiveProfiles("test")
 class Glicko2RatingTest {
 
     @Test
