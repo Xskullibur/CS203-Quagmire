@@ -25,9 +25,11 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 
+// Add the new prop for resetting passwords
 interface UserTableProps {
   users: User[];
   onLock: (user: User, newLockStatus: boolean) => void;
+  onResetPassword: (userId: string) => void; // New prop for reset password
   currentPage: number;
   totalPages: number;
   pageSize: number;
@@ -41,6 +43,7 @@ interface UserTableProps {
 const UserTable: React.FC<UserTableProps> = ({
   users,
   onLock,
+  onResetPassword, // Destructure the new prop
   currentPage,
   totalPages,
   pageSize,
@@ -94,7 +97,6 @@ const UserTable: React.FC<UserTableProps> = ({
               {sortBy === "updatedAt" &&
                 (sortOrder === "asc" ? "\u2191" : "\u2193")}
             </TableHead>
-            {/* <TableHead className="w-1/12">Actions</TableHead> */}
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -113,27 +115,37 @@ const UserTable: React.FC<UserTableProps> = ({
                   addSuffix: true,
                 })}
               </TableCell>
-              <TableCell className="flex justify-center items-center space-x-6">
+              <TableCell className="flex justify-center items-center space-x-2">
                 {user.locked ? (
-                  <Button
+                    <Button
                     variant="success"
                     size="icon"
                     onClick={() => onLock(user, false)}
                     className="w-24 h-10 flex items-center justify-center p-0"
-                  >
+                    >
                     <UnlockKeyholeIcon className="h-4 w-4 mr-2" /> Unlock
-                  </Button>
+                    </Button>
                 ) : (
-                  <Button
+                    <Button
                     variant="destructive"
                     size="icon"
                     onClick={() => onLock(user, true)}
                     className="w-24 h-10 flex items-center justify-center p-0"
-                  >
+                    >
                     <LockKeyholeIcon className="h-4 w-4 mr-2" /> Lock
-                  </Button>
+                    </Button>
                 )}
-              </TableCell>
+                {user.role === "ADMIN" && (
+                    <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => onResetPassword(user.userId)}
+                    className="w-32 h-10 flex items-center justify-center p-0 bg-gray-200 text-gray-800 hover:bg-gray-300 transition-colors"
+                    >
+                    Reset Password
+                    </Button>
+                )}
+                </TableCell>
             </TableRow>
           ))}
         </TableBody>
