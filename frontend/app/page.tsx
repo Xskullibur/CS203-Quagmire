@@ -59,8 +59,8 @@ export default function Home() {
         <HeroSection />
         <HeroBrands />
         <TournamentCardViewerCarousel />
-        <HeroCards />
         <HeroVideos />
+        <HeroCards />
       </main>
       <PreFooter />
     </div>

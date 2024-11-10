@@ -3,29 +3,29 @@ import HoverVideoGuide from './HoverVideoGuide';
 // Array of objects representing the steps to sign up for a tournament
 const signUpSteps = [
     {
-        title: "Go to SoloQueue",
+        title: "Go to Solo Queue",
         description: "Ensure that you allow Quagmire to access your location in Settings.",
-        videoUrl: "/videos/buffswim.mp4" // URL of the video demonstrating this step
+        videoUrl: "/videos/gotoQueue.mp4" // URL of the video demonstrating this step
     },
     {
         title: "Join the queue",
         description: "Wait for a match! Good things take time, be patient...",
-        videoUrl: "/videos/buffsuit.mp4" // URL of the video demonstrating this step
+        videoUrl: "/videos/joinQ.mp4" // URL of the video demonstrating this step
     },
     {
-        title: "Pop off",
+        title: "Wrestle",
         description: "3, 2, 1, begin!",
-        videoUrl: "/videos/sweatycode.mp4" // URL of the video demonstrating this step
+        videoUrl: "/videos/arm wrestle.mp4" // URL of the video demonstrating this step
     },
     {
         title: "Record your match results",
         description: "Honesty is the best policy.",
-        videoUrl: "/videos/jjk.mp4" // URL of the video demonstrating this step
+        videoUrl: "/videos/iwon.mp4" // URL of the video demonstrating this step
     },
     {
         title: "Forfeit",
         description: "In the event of a no show after 10 minutes, please do not continue waiting.",
-        videoUrl: "/videos/idwin.mp4" // URL of the video demonstrating this step
+        videoUrl: "/videos/forfeit.mp4" // URL of the video demonstrating this step
     }
 ];
 

@@ -109,7 +109,7 @@ const Profile = ({ params }: { params: { username: string } }) => {
   if (!playerProfile || !leaderboardData || !achievements || !tournaments) return <ProfileCardSkeleton />;
 
   return (
-    <div className="bg-[#212121] text-white min-h-screen flex flex-col items-center justify-center">
+    <div className="text-white min-h-screen flex flex-col items-center justify-center">
       <ProfileCard
         playerProfile={playerProfile}
         ranking={leaderboardData.position}

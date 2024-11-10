@@ -58,19 +58,19 @@ const TournamentPage: React.FC = () => {
         const params = new URLSearchParams(searchParams.toString());
 
         if (date?.from || date?.to) {
-            const params = new URLSearchParams(searchParams.toString());
             if (date.from) {
                 params.set("from", date.from.toISOString().split("T")[0]);
             }
             if (date.to) {
                 params.set("to", date.to.toISOString().split("T")[0]);
             }
-            router.push(`${pathname}?${params.toString()}`);
         } else {
             // Remove 'from' and 'to' if date is cleared
             params.delete("from");
             params.delete("to");
         }
+
+        router.push(`${pathname}?${params.toString()}`);
     }, [date, pathname, router]);
 
     useEffect(() => {

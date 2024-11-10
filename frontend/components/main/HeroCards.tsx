@@ -91,7 +91,7 @@ const HeroCards: React.FC = () => {
             ref={cardsRef}
             className=""
         >
-            <p className="text-sm text-center mb-4 font-mono text-zinc-400">Places to SoloQueue!</p>
+            <p className="text-sm text-center mb-4 font-mono text-zinc-400">Places to Solo Queue!</p>
             <div className="flex flex-wrap gap-2 mx-auto justify-center py-8">
                 <Card
                     icon={faBuilding}

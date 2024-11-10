@@ -37,12 +37,6 @@ const ProfileCard = ({ playerProfile, ranking, achievements, tournaments }: Prof
   return (
     <div className="relative w-full h-full rounded-lg overflow-hidden flex items-center justify-center mt-16">
       <div
-        className="absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: `url("/img/arm-wrestling-bg.jpg")` }}
-      />
-      <div className="absolute inset-0 bg-primary-foreground/80" />
-
-      <div
         ref={containerRef}
         className="relative w-full min-h-[calc(100vh-8rem)] z-20 flex flex-col justify-center p-10 text-primary"
       >
