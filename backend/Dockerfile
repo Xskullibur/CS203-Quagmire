@@ -4,6 +4,7 @@ WORKDIR /workspace/app
 
 # Copy pom.xml and source code
 COPY pom.xml .
+
 COPY src src
 
 # Package the application
