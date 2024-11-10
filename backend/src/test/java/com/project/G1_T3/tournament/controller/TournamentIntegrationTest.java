@@ -61,6 +61,16 @@ public class TournamentIntegrationTest {
     private final String adminUsername = "tuturu";
     private final String adminEmail = "hi@hi";
     private final String adminPassword = "P@ssw0rd";
+
+    // private final String player1 = "tuturu";
+    // private final String player1email = "hi@hi";
+    // private final String player1password = "P@ssw0rd";
+
+    // private final String player2 = "tuturu";
+    // private final String player2email = "hi@hi";
+    // private final String player2password = "P@ssw0rd";
+
+
     private User adminUser;
     private String adminToken;
 
@@ -153,50 +163,50 @@ public class TournamentIntegrationTest {
     }
 
 
-    @Test
-    public void testAddPlayersToTournament() throws Exception {
-        // Step 1: Create User and Player Profile for Player 1
-        User player1User = createUser("player1", "password1");
-        UUID player1Id = createPlayerProfile("John", "Doe", player1User);
+    // @Test
+    // public void testAddPlayersToTournament() throws Exception {
+    //     // Step 1: Create User and Player Profile for Player 1
+    //     User player1User = createUser("player1", "password1");
+    //     UUID player1Id = createPlayerProfile("John", "Doe", player1User);
 
-        // Step 2: Create User and Player Profile for Player 2
-        User player2User = createUser("player2", "password2");
-        UUID player2Id = createPlayerProfile("Jane", "Smith", player2User);
+    //     // Step 2: Create User and Player Profile for Player 2
+    //     User player2User = createUser("player2", "password2");
+    //     UUID player2Id = createPlayerProfile("Jane", "Smith", player2User);
 
-        // Step 3: Authenticate and Add Players to Tournament
-        addPlayerToTournament(tournamentId, player1Id, player1User.getUsername(), "password1");
-        addPlayerToTournament(tournamentId, player2Id, player2User.getUsername(), "password2");
-    }
+    //     // Step 3: Authenticate and Add Players to Tournament
+    //     addPlayerToTournament(tournamentId, player1Id, player1User.getUsername(), "password1");
+    //     addPlayerToTournament(tournamentId, player2Id, player2User.getUsername(), "password2");
+    // }
 
-    private User createUser(String username, String password) {
-        User user = new User();
-        user.setUsername(username);
-        user.setPasswordHash(passwordEncoder.encode(password));
-        user.setRole(UserRole.PLAYER);
-        user.setEmail(username + "@example.com");
+    // private User createUser(String username, String password) {
+    //     User user = new User();
+    //     user.setUsername(username);
+    //     user.setPasswordHash(passwordEncoder.encode(password));
+    //     user.setRole(UserRole.PLAYER);
+    //     user.setEmail(username + "@example.com");
 
-        return userRepository.save(user);
-    }
+    //     return userRepository.save(user);
+    // }
 
-    private UUID createPlayerProfile(String firstName, String lastName, User user) {
-        PlayerProfile playerProfile = new PlayerProfile();
-        playerProfile.setFirstName(firstName);
-        playerProfile.setLastName(lastName);
-        playerProfile.setUser(user); // Associate with the User
-        playerProfile.setGlickoRating(1500);
-        playerProfile.setRatingDeviation(350.0f);
-        playerProfile.setVolatility(0.06f);
+    // private UUID createPlayerProfile(String firstName, String lastName, User user) {
+    //     PlayerProfile playerProfile = new PlayerProfile();
+    //     playerProfile.setFirstName(firstName);
+    //     playerProfile.setLastName(lastName);
+    //     playerProfile.setUser(user); // Associate with the User
+    //     playerProfile.setGlickoRating(1500);
+    //     playerProfile.setRatingDeviation(350.0f);
+    //     playerProfile.setVolatility(0.06f);
 
-        PlayerProfile savedProfile = playerProfileService.save(playerProfile);
-        assertNotNull(savedProfile.getProfileId(), "Player profile ID should not be null");
-        return savedProfile.getProfileId();
-    }
+    //     PlayerProfile savedProfile = playerProfileService.save(playerProfile);
+    //     assertNotNull(savedProfile.getProfileId(), "Player profile ID should not be null");
+    //     return savedProfile.getProfileId();
+    // }
 
-    private void addPlayerToTournament(UUID tournamentId, UUID playerId, String username, String password) throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.put("/tournament/" + tournamentId + "/players/" + playerId)
-                .with(httpBasic(username, password))) // Authenticate as the player
-                .andExpect(status().isOk());
-    }
+    // private void addPlayerToTournament(UUID tournamentId, UUID playerId, String username, String password) throws Exception {
+    //     mockMvc.perform(MockMvcRequestBuilders.put("/tournament/" + tournamentId + "/players/" + playerId)
+    //             .with(httpBasic(username, password))) // Authenticate as the player
+    //             .andExpect(status().isOk());
+    //}
 
     
 

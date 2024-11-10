@@ -147,7 +147,7 @@ public class MatchIntegrationTest {
 		System.out.println("Adding players to tournament...");
 		for (int i = 0; i < 4; i++) { // Adding 6 players as per your original list length
 			System.out.println("HELLO: " + i);
-			currentRating += 100;
+			currentRating -= 100;
 			PlayerProfile playerProfile = createAndSavePlayerProfile(currentRating); // Create and save profile
 			assertTrue(playerProfileRepository.existsById(playerProfile.getProfileId())); // Check existence
 			addPlayerToTournament(tournamentId, playerProfile.getProfileId());
