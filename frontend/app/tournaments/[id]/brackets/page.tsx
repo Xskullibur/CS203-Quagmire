@@ -65,15 +65,33 @@ const BracketsPage = () => {
   };
 
   const handleNextRound = async () => {
-    if (!isAdmin) return;
-    console.log(currentStageIndex);
+
+    if (currentStageIndex === roundIds.length - 1 && isAdmin) {
+      try {
+        //complete the current round, and get the roundIds
+        await axiosInstance.put(new URL(`/tournament/${tournamentId}/stage/${stageId}/round/${roundIds[currentStageIndex]}/end`, API_URL).toString());
+        const rounds = await getRoundsForTournamentAndStageId(tournamentId, stageId);
+        console.log(rounds);
+        const roundIdArr = rounds.map((round) => round.roundId);
+        setRoundIds(roundIdArr);
+      } catch (error) {
+        console.log("unable to complete round" + error)
+      }
+
+      if(matches.length === 1){
+        //make a post to complete tournament and redirect to winners page
+        try {
+          await axiosInstance.put(new URL(`/tournament/${tournamentId}/stage/${stageId}/round/${roundIds[currentStageIndex]}/end`, API_URL).toString());
+          
+          await axiosInstance.put(new URL(`/tournament/${tournamentId}/progress`, API_URL).toString());
+        } catch (error) {
+          
+        }
+      }
+
+    }
     try {
 
-      const res = await axiosInstance.put(new URL(`/tournament/${tournamentId}/stage/${stageId}/round/${roundIds[currentStageIndex]}/end`, API_URL).toString());
-      const rounds = await getRoundsForTournamentAndStageId(tournamentId, stageId);
-      console.log(rounds);
-      const roundIdArr = rounds.map((round) => round.roundId());
-      setRoundIds(roundIdArr);
       const nextRoundId = roundIds[currentStageIndex + 1];
       const matches = await getMatchesForRound(nextRoundId);
       if (matches && Array.isArray(matches)) {
@@ -189,7 +207,7 @@ const BracketsPage = () => {
           disabled={!nextRoundEnabled || (!isAdmin && currentStageIndex === roundIds.length - 1)}
           className={`mt-4 ${nextRoundEnabled ? "bg-green-500" : "bg-gray-300"}`}
         >
-          {currentStageIndex === roundIds.length - 1 ? "Start Next Stage" : "View Next Stage"}
+          {actualMatches.length === 1 ? "Complete Tournament" : currentStageIndex === roundIds.length - 1 ? "Start Next Stage" : "View Next Stage"}
         </Button>
       </div>
     </div>

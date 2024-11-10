@@ -15,6 +15,7 @@ interface Tournament {
     deadline: string;
     location: string;
     photoUrl?: string;
+    winnerId: string | null;
 }
 
 const API_URL = process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL;
@@ -73,13 +74,6 @@ const TournamentDetails: React.FC<{ params: { id: string } }> = ({ params }) => 
     if (error) return <p className="text-lg text-red-500">Error: {error}</p>;
     if (!tournament) return <p className="text-lg text-gray-500">Tournament not found.</p>;
 
-    const startTournament = async (tournamentId: string) => {
-        try {
-            
-        } catch (error) {
-            throw(error);
-        }
-    };
     // Function to handle "Start Tournament" button click
     const handleStartTournament = async() => {
         try {
