@@ -29,11 +29,6 @@ public class ImageValidationService {
             throw new InvalidFileTypeException("No image file provided");
         }
 
-        // Check file size
-        if (file.getSize() > MAX_FILE_SIZE) {
-            throw new InvalidFileTypeException("File size exceeds maximum limit of 5MB");
-        }
-
         // Check content type
         String contentType = file.getContentType();
         if (contentType == null || !ALLOWED_CONTENT_TYPES.contains(contentType.toLowerCase())) {
