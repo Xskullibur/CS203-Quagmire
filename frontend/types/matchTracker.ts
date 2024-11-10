@@ -1,9 +1,9 @@
 
 export type MatchTracker = {
     matchId: string;
-    player1: { userId: string; id: string; score: number };
-    player2?: { userId: string; id: string; score: number } | null;
-    winner?: { userId: string; id: string } | null;
+    player1: { username: string; id: string; score: number };
+    player2?: { username: string; id: string; score: number } | null;
+    winner?: { username: string; id: string } | null;
     completed?: boolean;
   };
   

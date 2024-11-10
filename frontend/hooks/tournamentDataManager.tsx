@@ -21,25 +21,26 @@ const convertMatchToMatchTracker = async (match: any): Promise<MatchTracker> => 
         // Fetch player profiles for player1 and player2
         const player1Profile = await getPlayerProfileById(match.player1Id);
         const player2Profile = match.player2Id ? await getPlayerProfileById(match.player2Id) : null;
+        const winnerProfile = match.winner? await getPlayerProfileById(match.winnerId) : null;
 
         // Create the MatchTracker object
         const matchTracker: MatchTracker = {
             matchId: match.id,
             player1: {
-                userId: player1Profile.user.username,
+                username: player1Profile.user.username,
                 id: match.player1Id,
                 score: match.score.split("-")[0],
             },
             player2: player2Profile
                 ? {
-                    userId: player2Profile.user.username,
+                    username: player2Profile.user.username,
                     id: match.player2Id,
                     score: match.score.split("-")[1],
                 }
                 : null,
             winner: match.winnerId
                 ? {
-                    userId: match.winnerId,
+                    username: winnerProfile.user.username,
                     id: match.winnerId,
                 }
                 : undefined,

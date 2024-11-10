@@ -114,11 +114,11 @@ const BracketsPage = () => {
   useEffect(() => {
     const filteredActual = actualMatches.filter(
       (match) =>
-        match.player1.userId.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (match.player2 && match.player2.userId.toLowerCase().includes(searchQuery.toLowerCase()))
+        match.player1.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (match.player2 && match.player2.username.toLowerCase().includes(searchQuery.toLowerCase()))
     );
     const filteredAutoAdvance = autoAdvanceMatches.filter((match) =>
-      match.player1.userId.toLowerCase().includes(searchQuery.toLowerCase())
+      match.player1.username.toLowerCase().includes(searchQuery.toLowerCase())
     );
     setFilteredActualMatches(filteredActual);
     setFilteredAutoAdvanceMatches(filteredAutoAdvance);

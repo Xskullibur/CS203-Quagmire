@@ -84,7 +84,7 @@ public class Match {
     }
 
     public void completeMatch(UUID winnerId, String score) {
-        if (this.status == Status.IN_PROGRESS) {
+        if (this.status != Status.COMPLETED || this.status != Status.CANCELLED) {
             this.winnerId = winnerId;
             this.score = score;
             this.status = Status.COMPLETED;
