@@ -79,7 +79,7 @@ const TournamentDetails: React.FC<{ params: { id: string } }> = ({
     };
 
     fetchTournamentDetails();
-  }, [id]);
+  }, [handleError, id, isAuthenticated, userId]);
 
   const onRegisterToggle = async () => {
     try {

@@ -1,5 +1,3 @@
-import { useState, useEffect } from "react";
-import { PlayerProfile } from "@/types/player-profile";
 import { Achievement } from "@/types/achievement"; // Define Achievement type
 import { SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Card, CardContent } from "@/components/ui/card";
@@ -24,9 +22,9 @@ export const AchievementsPanel = ({
                 <p>You are on the way to getting your first achievement!</p>
             ) : (
                 // Step 2: Display achievements if available
-                <div>
+                <div className="space-y-2">
                     {achievements.map((achievement) => (
-                        <div>
+                        <div key={achievement.id}>
                             <Card>
                                 <CardContent className='flex justify-between items-end py-4 items-center'>
                                     <div className=''>{achievement.name}</div>

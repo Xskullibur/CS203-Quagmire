@@ -41,7 +41,7 @@ export default function Leaderboard() {
       setLoading(true);
       fetchLeaderboard();
     }
-  }, []);
+  }, [fetchLeaderboard, hasFetched]);
 
   console.log(data);
   return (

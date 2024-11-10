@@ -20,25 +20,25 @@ const Profile = ({ params }: { params: { username: string } }) => {
   const { handleError } = useGlobalErrorHandler();
   const router = useRouter();
 
-  const fetchProfile = (username: string) => {
-    axios
-      .get(new URL(`/profile`, API_URL).toString(), {
-        params: {
-          username: username,
-        },
-      })
-      .then((response) => {
-        if (response.status === 200) {
-          setPlayerProfile(response.data);
-        }
-      })
-      .catch((error: AxiosError) => {
-        handleError(error);
-        router.push("/notfound");
-      });
-  };
+  const fetchProfile = React.useCallback((username: string) => {
+      axios
+        .get(new URL(`/profile`, API_URL).toString(), {
+          params: {
+            username: username,
+          },
+        })
+        .then((response) => {
+          if (response.status === 200) {
+            setPlayerProfile(response.data);
+          }
+        })
+        .catch((error: AxiosError) => {
+          handleError(error);
+          router.push("/notfound");
+        });
+    }, [handleError, router]);
 
-  const fetchLeaderboard = (username: string) => {
+  const fetchLeaderboard = React.useCallback((username: string) => {
     axios
       .get(new URL(`/leaderboard/user`, API_URL).toString(), {
         params: {
@@ -54,9 +54,9 @@ const Profile = ({ params }: { params: { username: string } }) => {
         handleError(error);
         router.push("/notfound");
       });
-  };
+  }, [handleError, router]);
 
-  const fetchAchievements = (username: string) => {
+  const fetchAchievements = React.useCallback((username: string) => {
     axios
       .get(new URL(`/profile/achievements`, API_URL).toString(), {
         params: { 
@@ -71,9 +71,9 @@ const Profile = ({ params }: { params: { username: string } }) => {
         handleError(error);
         router.push("/notfound");
       });
-  };
+  }, [handleError, router]);
 
-  const fetchTournaments = (username: string) => {
+  const fetchTournaments = React.useCallback((username: string) => {
     axios
       .get(new URL(`/profile/tournaments`, API_URL).toString(), {
         params: { 
@@ -88,7 +88,7 @@ const Profile = ({ params }: { params: { username: string } }) => {
         handleError(error);
         router.push("/notfound");
       });
-  };
+  }, [handleError, router]);
 
   useEffect(() => {
     // Retrieve `id` from route
@@ -104,7 +104,7 @@ const Profile = ({ params }: { params: { username: string } }) => {
     fetchLeaderboard(username);
     fetchAchievements(username);
     fetchTournaments(username);
-  }, []);
+  }, [fetchAchievements, fetchLeaderboard, fetchProfile, fetchTournaments, params.username]);
 
   if (!playerProfile || !leaderboardData || !achievements || !tournaments) return <ProfileCardSkeleton />;
 

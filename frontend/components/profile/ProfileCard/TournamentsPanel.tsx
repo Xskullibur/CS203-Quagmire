@@ -27,8 +27,8 @@ export const TournamentsPanel = ({
                 // Step 2: Display tournaments if available
                 <div>
                     {tournaments.map((tournament) => (
-                        <div>
-                            <NewCard key={tournament.id} tournament={tournament} className="w-full" />
+                        <div key={tournament.id}>
+                            <NewCard tournament={tournament} />
                         </div>
                     ))}
                 </div>
