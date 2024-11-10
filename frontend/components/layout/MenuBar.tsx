@@ -44,7 +44,7 @@ export default function MenuBar() {
             href="/auth/login"
             className="text-sm text-white hover:text-gray-600 transition"
           >
-            Log in
+            Login
           </Link>
           <Link
             href="/auth/register"
