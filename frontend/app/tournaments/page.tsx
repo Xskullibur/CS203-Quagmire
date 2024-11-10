@@ -71,8 +71,6 @@ const TournamentPage: React.FC = () => {
             params.delete("from");
             params.delete("to");
         }
-
-        router.push(`${pathname}?${params.toString()}`);
     }, [date, pathname, router]);
 
     useEffect(() => {
@@ -84,7 +82,7 @@ const TournamentPage: React.FC = () => {
                 // Get 'from' and 'to' values from searchParams if they exist
                 const from = searchParams.get("from");
                 const to = searchParams.get("to");
-                
+
                 let endpoint =
                     currentTab === "upcoming"
                         ? `${API_URL}/upcoming?page=0&size=10`
@@ -141,13 +139,13 @@ const TournamentPage: React.FC = () => {
                 )}
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
-                    {!loading && !error && 
-                    (tournaments.sort((a, b) => {
-                        const dateA = new Date(a.startDate).getTime(); // Convert the start_date to Date objects
-                        const dateB = new Date(b.startDate).getTime(); // Convert the start_date to Date objects
-                        return dateA - dateB; // Sort in ascending order (earliest first)
-                    })
-                    ).map((tournament) => (
+                    {!loading && !error &&
+                        (tournaments.sort((a, b) => {
+                            const dateA = new Date(a.startDate).getTime(); // Convert the start_date to Date objects
+                            const dateB = new Date(b.startDate).getTime(); // Convert the start_date to Date objects
+                            return dateA - dateB;
+                        })
+                        ).map((tournament) => (
                             <NewCard
                                 key={tournament.id}
                                 tournament={tournament}
