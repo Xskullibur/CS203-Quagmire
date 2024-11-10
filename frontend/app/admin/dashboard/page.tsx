@@ -85,7 +85,7 @@ const AdminDashboard: React.FC = () => {
     e.preventDefault();
 
     axiosInstance
-      .post(new URL("/admin/register-admin", API_URL).toString(), formData)
+      .post(new URL("/admin", API_URL).toString(), formData)
       .then((response) => {
         if (response.status === 201) {
           setSuccess("Successfully Registered: " + response.data.username);
@@ -101,7 +101,7 @@ const AdminDashboard: React.FC = () => {
   const handleLockUser = useCallback(
     async (user: User, newLockStatus: boolean) => {
       axiosInstance
-        .put(new URL(`/admin/edit-isLocked`, API_URL).toString(), {
+        .put(new URL(`/admin/lock`, API_URL).toString(), {
           userId: user.userId,
           isLocked: newLockStatus,
         })

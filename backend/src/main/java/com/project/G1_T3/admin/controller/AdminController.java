@@ -48,7 +48,7 @@ public class AdminController {
         return ResponseEntity.ok(users);
     }
 
-    @PostMapping("/register-admin")
+    @PostMapping()
     public ResponseEntity<UserDTO> registerAdmin(@Valid @RequestBody AdminRegisterRequestDTO registerRequest) {
 
         UserDTO userDTO = adminService.registerAdmin(
@@ -59,7 +59,7 @@ public class AdminController {
     }
 
     // Edit isLocked status
-    @PutMapping("/edit-isLocked")
+    @PutMapping("/lock")
     public ResponseEntity<String> updateUserLockedStatus(@RequestBody LockUserRequest lockUserRequest) {
         adminService.updateUserLockedStatus(UUID.fromString(lockUserRequest.getUserId()), lockUserRequest.isLocked());
         return ResponseEntity.ok("User lock status updated successfully");

@@ -114,7 +114,7 @@ class AdminControllerIntegrationTest {
 
     @Test
     void registerAdmin_Success() throws Exception {
-        URI uri = new URI(baseUrl + port + "/admin/register-admin");
+        URI uri = new URI(baseUrl + port + "/admin");
 
         AdminRegisterRequestDTO requestDTO = new AdminRegisterRequestDTO();
         requestDTO.setUsername("newadmin");

@@ -42,7 +42,7 @@ const ResetPasswordPage: React.FC = () => {
 
         try {
             const response = await axios.put(
-                `${process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL}/authentication/reset-password`,
+                `${process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL}/authentication/password`,
                 {
                     username: formData.username, 
                     currentPassword: formData.currentPassword,

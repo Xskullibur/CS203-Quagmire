@@ -20,7 +20,7 @@ public class ResetPasswordController {
     @Autowired
     private UserService userService;
 
-    @PutMapping("/reset-password")
+    @PutMapping("/password")
     public ResponseEntity<String> resetPassword(@RequestBody @Valid ResetPasswordDTO resetPasswordDTO) {
         userService.resetPassword(resetPasswordDTO);
         return ResponseEntity.ok("Password updated successfully.");
