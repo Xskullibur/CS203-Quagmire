@@ -2,15 +2,11 @@ import React, { useEffect, useRef } from 'react';
 import Image from 'next/image';
 
 const brands = [
-    { name: 'PPP Coffee', logoUrl: '/brands/brand1.png' },
-    { name: 'The Providore', logoUrl: '/brands/brand1.png' },
-    { name: 'Pok Pok', logoUrl: '/brands/brand1.png' },
-    { name: 'Alt Pizza', logoUrl: '/brands/brand1.png' },
-    { name: 'Mui Kee', logoUrl: '/brands/brand1.png' },
-    { name: 'Peperoni', logoUrl: '/brands/brand1.png' },
-    { name: 'Killiney', logoUrl: '/brands/brand1.png' },
-    { name: 'Poke Theory', logoUrl: '/brands/brand1.png' },
-    { name: 'Tart', logoUrl: '/brands/brand1.png' },
+    { name: 'DBS', logoUrl: '/brands/DBS.png' },
+    { name: 'Amazon', logoUrl: '/brands/Amazon.png' },
+    { name: 'RedBull', logoUrl: '/brands/RedBull.svg' },
+    { name: 'Nike', logoUrl: '/brands/Nike.png' },
+    { name: 'SportSG', logoUrl: '/brands/SportSG.png' },
 ];
 
 /**

@@ -105,7 +105,7 @@ const HoverVideoGuide: React.FC<HoverVideoGuideProps> = ({ steps }) => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.2 }}
             >
-                Guide.
+                SoloQueue Guide.
             </motion.p>
 
             <div className="flex flex-col lg:flex-row items-start justify-between gap-8 mt-16">
