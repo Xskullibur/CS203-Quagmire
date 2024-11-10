@@ -89,20 +89,8 @@ export default function HeroSection() {
                         <br />
                         Compete against others in solo queue or tournaments
                         <br />
-                        Rise to the top and claim your title as the arm wrestling champion.
+                        Rise to the top and claim your title as the arm wrestling champion
                     </motion.p>
-                    <motion.div
-                        className="mb-8 flex flex-col sm:flex-row justify-center gap-4"
-                        variants={fadeInUp}
-                        transition={{ delay: 0.8, duration: 0.8 }}
-                    >
-                        <Button size="lg" variant="outline" className="text-primary hover:bg-primary/80 hover:text-primary-foreground transition transform hover:-translate-y-0.5 hover:shadow-lg duration-200">
-                            Solo-Q
-                        </Button>
-                        <Button size="lg" variant="outline" className="text-primary hover:bg-primary/80 hover:text-primary-foreground transition transform hover:-translate-y-0.5 hover:shadow-lg duration-200">
-                            Tournament
-                        </Button>
-                    </motion.div>
                     <motion.div
                         variants={fadeInUp}
                         transition={{ delay: 1, duration: 0.8 }}

@@ -16,7 +16,7 @@ export const TournamentsPanel = ({
         <div className="h-full flex flex-col justify-center">
             <SheetHeader>
                 <SheetTitle className="text-3xl font-bold mb-6">
-                    Tournaments
+                    My Tournaments
                 </SheetTitle>
             </SheetHeader>
 
@@ -27,7 +27,7 @@ export const TournamentsPanel = ({
                 // Step 2: Display tournaments if available
                 <div>
                     {tournaments.map((tournament) => (
-                        <div key={tournament.id}>
+                        <div className="mb-4" key={tournament.id}>
                             <NewCard tournament={tournament} />
                         </div>
                     ))}

@@ -3,29 +3,29 @@ import HoverVideoGuide from './HoverVideoGuide';
 // Array of objects representing the steps to sign up for a tournament
 const signUpSteps = [
     {
-        title: "Find a Tournament",
-        description: "Search for upcoming arm wrestling tournaments in your area or online.",
-        videoUrl: "/videos/buffswim.mp4" // URL of the video demonstrating this step
+        title: "Go to Solo Queue",
+        description: "Ensure that you allow Quagmire to access your location in Settings.",
+        videoUrl: "/videos/gotoQueue.mp4" // URL of the video demonstrating this step
     },
     {
-        title: "Check Eligibility",
-        description: "Review the tournament rules and ensure you meet all requirements.",
-        videoUrl: "/videos/buffsuit.mp4" // URL of the video demonstrating this step
+        title: "Join the queue",
+        description: "Wait for a match! Good things take time, be patient...",
+        videoUrl: "/videos/joinQ.mp4" // URL of the video demonstrating this step
     },
     {
-        title: "Register Online",
-        description: "Complete the online registration form and pay the entry fee.",
-        videoUrl: "/videos/sweatycode.mp4" // URL of the video demonstrating this step
+        title: "Wrestle",
+        description: "3, 2, 1, begin!",
+        videoUrl: "/videos/arm wrestle.mp4" // URL of the video demonstrating this step
     },
     {
-        title: "Prepare for Weigh-In",
-        description: "Get ready for the official weigh-in before the tournament.",
-        videoUrl: "/videos/jjk.mp4" // URL of the video demonstrating this step
+        title: "Record your match results",
+        description: "Honesty is the best policy.",
+        videoUrl: "/videos/iwon.mp4" // URL of the video demonstrating this step
     },
     {
-        title: "Attend the Event",
-        description: "Arrive at the venue on time and participate in the tournament.",
-        videoUrl: "/videos/idwin.mp4" // URL of the video demonstrating this step
+        title: "Forfeit",
+        description: "In the event of a no show after 10 minutes, please do not continue waiting.",
+        videoUrl: "/videos/forfeit.mp4" // URL of the video demonstrating this step
     }
 ];
 

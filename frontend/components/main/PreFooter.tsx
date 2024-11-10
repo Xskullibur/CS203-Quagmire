@@ -37,8 +37,9 @@ export default function PreFooter() {
                         your own tournaments?
                     </h2>
                     <div>
-                        <Button size="lg" variant="secondary" className="rounded-full">
-                            Get started
+                        <Button size="lg" variant="secondary" className="rounded-full"
+                        onClick={() => window.location.href = "mailto:quagmire.smu@gmail.com?subject=Quagmire Administration Application"}>
+                            Contact Us
                         </Button>
                     </div>
                 </div>

@@ -69,12 +69,10 @@ public class TournamentServiceImpl implements TournamentService {
     }
 
     @Override
-    public Page<Tournament> findTournamentsByAvailability(Pageable pageable, LocalDateTime availableStartDate,
-
-            LocalDateTime availableEndDate) {
-        return tournamentRepository.findByStartAndEndDateWithinAvailability(availableStartDate, availableEndDate,
-
-                pageable);
+    public Page<Tournament> findTournamentsByAvailability(Pageable pageable, LocalDate availableStartDate, LocalDate availableEndDate) {
+        LocalDateTime availableStartDateTime = availableStartDate.atStartOfDay();
+        LocalDateTime availableEndDateTime = availableEndDate.atTime(LocalTime.MAX);
+        return tournamentRepository.findByStartAndEndDateWithinAvailability(availableStartDateTime, availableEndDateTime, pageable);
     }
 
     @Override

@@ -49,7 +49,7 @@ public class TournamentController {
             Pageable pageable) {
         Page<Tournament> tournaments;
         if (from != null && to != null) {
-            tournaments = tournamentService.findUpcomingTournamentsWithinDateRange(from, to, pageable);
+            tournaments = tournamentService.findTournamentsByAvailability(pageable, from, to);
         } else {
             tournaments = tournamentService.findUpcomingTournaments(pageable);
         }

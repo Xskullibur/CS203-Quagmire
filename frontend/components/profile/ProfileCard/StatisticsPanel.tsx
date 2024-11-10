@@ -28,7 +28,7 @@ export const StatisticsPanel = ({
   <div className="h-full flex flex-col justify-center">
     <SheetHeader>
       <SheetTitle className="text-3xl font-bold mb-6">
-        Player Statistics
+        My Statistics
       </SheetTitle>
     </SheetHeader>
 

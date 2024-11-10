@@ -62,7 +62,7 @@ export default function MenuBar() {
           href="/match"
           className="text-sm bg-zinc-500 text-white px-4 py-2 rounded-full hover:bg-gray-700 transition"
         >
-          Queue
+          Solo Queue
         </Link>
         <DropdownMenu>
           <DropdownMenuTrigger className="flex items-center space-x-2 hover:text-gray-600 transition outline-none">

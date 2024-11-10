@@ -17,8 +17,8 @@ export const TriggerButton = ({ isOpen, label, onClick }: TriggerButtonProps) =>
       onClick={onClick}
       className={`
         flex items-center justify-center 
-        bg-secondary-blue hover:bg-primary/90 
-        text-primary-foreground 
+        bg-primary hover:bg-primary/90 
+        text-secondary 
         h-12 w-40 
         rounded-lg shadow-lg 
         -rotate-90

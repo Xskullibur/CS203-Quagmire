@@ -45,8 +45,8 @@ const TournamentPage: React.FC = () => {
     const { handleError } = useGlobalErrorHandler();
     const [currentTab, setCurrentTab] = useState<"upcoming" | "past">("upcoming");
     const [date, setDate] = useState<DateRange | undefined>({
-        from: new Date(),
-        to: addDays(new Date(), 30),
+        from: undefined,
+        to: undefined,
     });
 
     const router = useRouter();
@@ -55,17 +55,23 @@ const TournamentPage: React.FC = () => {
 
     // Update URL when date range changes
     useEffect(() => {
+        const params = new URLSearchParams(searchParams.toString());
+
         if (date?.from || date?.to) {
-            const params = new URLSearchParams(searchParams.toString());
             if (date.from) {
                 params.set("from", date.from.toISOString().split("T")[0]);
             }
             if (date.to) {
                 params.set("to", date.to.toISOString().split("T")[0]);
             }
-            router.push(`${pathname}?${params.toString()}`);
+        } else {
+            // Remove 'from' and 'to' if date is cleared
+            params.delete("from");
+            params.delete("to");
         }
-    }, [date, pathname, router, searchParams]);
+
+        router.push(`${pathname}?${params.toString()}`);
+    }, [date, pathname, router]);
 
     useEffect(() => {
         const fetchTournaments = async () => {
@@ -73,10 +79,20 @@ const TournamentPage: React.FC = () => {
             setError(null);
 
             try {
-                const endpoint =
+                // Get 'from' and 'to' values from searchParams if they exist
+                const from = searchParams.get("from");
+                const to = searchParams.get("to");
+
+                let endpoint =
                     currentTab === "upcoming"
                         ? `${API_URL}/upcoming?page=0&size=10`
                         : `${API_URL}/past?page=0&size=10`;
+
+                // Append 'from' and 'to' parameters only if they are present in the URL
+                if (from || to) {
+                    if (from) endpoint += `&from=${from}`;
+                    if (to) endpoint += `&to=${to}`;
+                }
 
                 const response = await axiosInstance.get(endpoint);
                 setTournaments(response.data.content);
@@ -94,12 +110,12 @@ const TournamentPage: React.FC = () => {
         };
 
         fetchTournaments();
-    }, [currentTab, date, handleError]);
+    }, [currentTab, searchParams]);
 
     return (
         <div className="flex flex-col items-center min-h-screen pt-20">
             <TournamentHeader />
-            <div className="relative flex items-center w-full max-w-6xl px-4">
+            <div className="relative flex items-center w-full px-4">
                 <div className="flex justify-center w-full">
                     <TournamentTabs
                         currentTab={currentTab}
@@ -123,9 +139,13 @@ const TournamentPage: React.FC = () => {
                 )}
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
-                    {!loading &&
-                        !error &&
-                        tournaments.map((tournament) => (
+                    {!loading && !error &&
+                        (tournaments.sort((a, b) => {
+                            const dateA = new Date(a.startDate).getTime(); // Convert the start_date to Date objects
+                            const dateB = new Date(b.startDate).getTime(); // Convert the start_date to Date objects
+                            return dateA - dateB;
+                        })
+                        ).map((tournament) => (
                             <NewCard
                                 key={tournament.id}
                                 tournament={tournament}
