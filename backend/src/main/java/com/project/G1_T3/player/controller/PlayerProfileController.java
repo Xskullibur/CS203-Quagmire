@@ -45,14 +45,14 @@ public class PlayerProfileController {
     }
 
     @GetMapping("/player/{id}")
-    public ResponseEntity<PlayerProfile> getUserByPlayerId(@PathVariable String id) {
+    public ResponseEntity<PlayerProfileDTO> getUserByPlayerId(@PathVariable String id) {
         PlayerProfile playerProfile = playerProfileService.findByProfileId(id);
 
         if (playerProfile == null) {
             return ResponseEntity.notFound().build();
         }
 
-        return ResponseEntity.ok(playerProfile);
+        return ResponseEntity.ok(new PlayerProfileDTO(playerProfile));
     }
 
     @GetMapping("/rank/{userId}")

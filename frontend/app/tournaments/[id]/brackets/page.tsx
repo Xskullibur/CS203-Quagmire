@@ -93,7 +93,7 @@ const BracketsPage = () => {
     }
   };
 
-  const handleMatchComplete = (index: number, winner: { userId: string; id: string }) => {
+  const handleMatchComplete = (index: number, winner: { username: string; id: string }) => {
     if (!isAdmin) {
       alert("Only administrators can update match results.");
       return;
@@ -110,6 +110,7 @@ const BracketsPage = () => {
     const allMatchesCompleted = actualMatches.every((match) => match.completed);
     setNextRoundEnabled(allMatchesCompleted);
   }, [actualMatches]);
+  
 
   useEffect(() => {
     const filteredActual = actualMatches.filter(
@@ -173,10 +174,10 @@ const BracketsPage = () => {
         </Button>
         <Button
           onClick={handleNextRound}
-          disabled={!nextRoundEnabled || currentStageIndex === roundIds.length - 1 || !isAdmin}
+          disabled={!nextRoundEnabled || (!isAdmin && currentStageIndex === roundIds.length - 1)}
           className={`mt-4 ${nextRoundEnabled ? "bg-green-500" : "bg-gray-300"}`}
         >
-          Next Stage
+          {currentStageIndex === roundIds.length - 1? "Start Next Stage" : "View Next Stage"}
         </Button>
       </div>
     </div>

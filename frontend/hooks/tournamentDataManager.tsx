@@ -8,6 +8,7 @@ const API_URL = process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL;
 const getPlayerProfileById = async (id: string): Promise<any> => {
     try {
         const response = await axios.get(`${API_URL}/profile/player/${id}`);
+        console.table(response.data);
         return response.data;
     } catch (error) {
         console.error(`Error fetching player profile for ID: ${id}`, error);
@@ -17,30 +18,31 @@ const getPlayerProfileById = async (id: string): Promise<any> => {
 
 
 const convertMatchToMatchTracker = async (match: any): Promise<MatchTracker> => {
+    console.table(match)
     try {
         // Fetch player profiles for player1 and player2
         const player1Profile = await getPlayerProfileById(match.player1Id);
         const player2Profile = match.player2Id ? await getPlayerProfileById(match.player2Id) : null;
-        const winnerProfile = match.winner? await getPlayerProfileById(match.winnerId) : null;
+        const winnerProfile = match.winnerId? await getPlayerProfileById(match.winnerId) : null;
 
         // Create the MatchTracker object
         const matchTracker: MatchTracker = {
             matchId: match.id,
             player1: {
-                username: player1Profile.user.username,
+                username: player1Profile.username,
                 id: match.player1Id,
                 score: match.score.split("-")[0],
             },
             player2: player2Profile
                 ? {
-                    username: player2Profile.user.username,
+                    username: player2Profile.username,
                     id: match.player2Id,
                     score: match.score.split("-")[1],
                 }
                 : null,
             winner: match.winnerId
                 ? {
-                    username: winnerProfile.user.username,
+                    username: winnerProfile.username,
                     id: match.winnerId,
                 }
                 : undefined,

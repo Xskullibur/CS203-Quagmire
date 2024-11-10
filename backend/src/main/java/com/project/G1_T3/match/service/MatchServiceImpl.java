@@ -169,7 +169,13 @@ public class MatchServiceImpl implements MatchService {
         matchRepository.save(match);
 
         //update the player rankings
-        updatePlayerRatingsAfterMatch(match);
+        try {
+            updatePlayerRatingsAfterMatch(match);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw(e);
+        }
+      
 
     }
 
