@@ -11,7 +11,7 @@ import { getCurrentStageFromTournament, getMatchesForRound, getRoundsForTourname
 import { useAuth } from "@/hooks/useAuth";
 import { UserRole } from "@/types/user-role";
 import axiosInstance from "@/lib/axios";
-
+import { useRouter } from "next/router";
 
 const API_URL = process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL;
 
@@ -19,7 +19,7 @@ const API_URL = process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL;
 const BracketsPage = () => {
   const { user, isAuthenticated } = useAuth();
   const isAdmin = user?.role === UserRole.ADMIN;
-
+  const router = useRouter();
   const tournamentId = (Array.isArray(useParams().id) ? useParams().id[0] : useParams().id).toString();
 
   const [currentStageIndex, setCurrentStageIndex] = useState(0);
@@ -78,14 +78,14 @@ const BracketsPage = () => {
         console.log("unable to complete round" + error)
       }
 
-      if(matches.length === 1){
+      if (matches.length === 1) {
         //make a post to complete tournament and redirect to winners page
         try {
           await axiosInstance.put(new URL(`/tournament/${tournamentId}/stage/${stageId}/round/${roundIds[currentStageIndex]}/end`, API_URL).toString());
-          
           await axiosInstance.put(new URL(`/tournament/${tournamentId}/progress`, API_URL).toString());
+          router.push(`/tournaments/${tournamentId}`);
         } catch (error) {
-          
+          console.log("failed to complete tournaemnt" + error);
         }
       }
 

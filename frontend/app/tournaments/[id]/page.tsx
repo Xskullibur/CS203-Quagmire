@@ -17,7 +17,7 @@ interface Tournament {
     location: string;
     photoUrl?: string;
     winnerId: string | null;
-    status: 'SCHEDULED'| 'INPROGRESS' | 'COMPLETED' | 'CANCELLED';
+    status: 'SCHEDULED' | 'INPROGRESS' | 'COMPLETED' | 'CANCELLED';
 }
 
 const API_URL = process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL;
@@ -54,14 +54,14 @@ const TournamentDetails: React.FC<{ params: { id: string } }> = ({ params }) => 
                 }
 
                 setTournament(tournamentData);
-                if(tournamentData.winnerId != null){
+                if (tournamentData.winnerId != null) {
                     const winnerProfile = await getPlayerProfileById(tournamentData.winnerId);
                     setWinnerUsername(winnerProfile.username);
                 }
-               
+
                 const currentDate = new Date();
                 const deadlineDate = new Date(tournamentData.deadline);
-                setRegistrationClosed(currentDate > deadlineDate);
+                setRegistrationClosed(currentDate > deadlineDate || tournamentData.status !== "SCHEDULED");
 
             } catch (error) {
                 console.error('Error fetching tournament details:', error);
@@ -83,12 +83,12 @@ const TournamentDetails: React.FC<{ params: { id: string } }> = ({ params }) => 
     if (!tournament) return <p className="text-lg text-gray-500">Tournament not found.</p>;
 
     // Function to handle "Start Tournament" button click
-    const handleStartTournament = async() => {
+    const handleStartTournament = async () => {
         try {
             const response = await axiosInstance.put(`${API_URL}/tournament/${id}/start`);
             alert(response.data); // Should display "Tournament started successfully."
             router.push(`/tournaments/${id}/brackets`);
-        } catch (error){
+        } catch (error) {
             console.error("Error starting tournament:", error);
             alert("An error occurred while starting the tournament.");
         }
@@ -114,7 +114,12 @@ const TournamentDetails: React.FC<{ params: { id: string } }> = ({ params }) => 
             )}
 
             <p className="text-xl text-center">{`${new Date(tournament.startDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })} - ${new Date(tournament.endDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}`}</p>
-
+            {/* Display Winner Information */}
+            {tournament.winnerId && winnerUsername && (
+                <div className="mt-8 text-center text-green-600 text-xl font-semibold">
+                    Winner: {winnerUsername}
+                </div>
+            )}
             <div className="mt-8 max-w-xl w-full">
                 <h2 className="text-lg font-semibold">Location:</h2>
                 <p className="text-base">{tournament.location}</p>
@@ -133,7 +138,7 @@ const TournamentDetails: React.FC<{ params: { id: string } }> = ({ params }) => 
                 </div>
             </div>
 
-            <div className="mt-4">
+            <div className="m-4">
                 <hr className="w-full my-4 border-t border-gray-300" />
 
                 <h2 className="text-2xl font-semibold my-8 text-center">Tournament Draw</h2>
@@ -146,16 +151,14 @@ const TournamentDetails: React.FC<{ params: { id: string } }> = ({ params }) => 
                             View Brackets
                         </Button>
                     </div>
-                ) : (
+                ) : tournament.status === "SCHEDULED" ?(
                     <p className="text-center text-gray-500">Draw has yet to be released</p>
+                ):(
+                    <p className="text-center text-gray-500">Draw is not available for this tournament</p>
+
                 )}
 
-                {/* Display Winner Information */}
-                {tournament.winnerId && winnerUsername && (
-                    <div className="mt-8 text-center text-green-600 text-xl font-semibold">
-                        Winner: {winnerUsername}
-                    </div>
-                )}
+
 
                 {/* Start Tournament Button for Admins Only */}
                 {isAdmin && tournament.status === "SCHEDULED" && (
