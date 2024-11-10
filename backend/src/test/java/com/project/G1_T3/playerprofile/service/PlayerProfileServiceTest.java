@@ -7,6 +7,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.project.G1_T3.security.service.AuthorizationService;
@@ -17,7 +18,6 @@ import com.project.G1_T3.filestorage.service.ImageValidationService;
 import com.project.G1_T3.playerprofile.model.PlayerProfile;
 import com.project.G1_T3.playerprofile.model.PlayerProfileDTO;
 import com.project.G1_T3.playerprofile.repository.PlayerProfileRepository;
-import com.project.G1_T3.playerprofile.service.PlayerProfileService;
 import com.project.G1_T3.common.exception.ProfileAlreadyExistException;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -32,9 +32,11 @@ import java.util.function.Supplier;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
+@ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
 class PlayerProfileServiceTest {
 
@@ -55,6 +57,9 @@ class PlayerProfileServiceTest {
 
     @Mock
     private ImageValidationService imageValidationService;
+
+    @Mock
+    private PlayerRatingService playerRatingService;
 
     @InjectMocks
     private PlayerProfileService playerProfileService;
@@ -179,14 +184,23 @@ class PlayerProfileServiceTest {
     void getPlayerRank_WithValidProfile_ReturnsCorrectRank() {
         UUID profileId = UUID.randomUUID();
         existingProfile.setProfileId(profileId);
-        List<PlayerProfile> sortedProfiles = Arrays.asList(existingProfile);
 
-        when(playerProfileRepository.findAllByOrderByCurrentRatingDesc())
-                .thenReturn(sortedProfiles);
+        // Mock findByProfileId to return the profile
+        when(playerProfileRepository.findByProfileId(profileId))
+                .thenReturn(existingProfile);
 
-        int rank = playerProfileService.getPlayerRank(profileId.toString());
+        // Mock the rating service methods
+        when(playerRatingService.getNumberOfPlayersAhead(anyInt())).thenReturn(0);
+        when(playerRatingService.getTotalPlayers()).thenReturn(1);
 
-        assertEquals(1, rank);
+        double rank = playerProfileService.getPlayerRank(profileId.toString());
+
+        assertEquals(100.0, rank); // Should return 100% since it's the only player
+
+        // Verify the mocks were called
+        verify(playerProfileRepository).findByProfileId(profileId);
+        verify(playerRatingService).getNumberOfPlayersAhead(anyInt());
+        verify(playerRatingService).getTotalPlayers();
     }
 
     @Test

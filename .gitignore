@@ -28,4 +28,6 @@ Thumbs.db
 
 screenshots/
 application.properties
+
 .firebase/
+backend/.firebase/*

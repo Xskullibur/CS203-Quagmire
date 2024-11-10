@@ -16,4 +16,8 @@ public interface MatchService {
     public void completeMatch(@PathVariable UUID matchId, @RequestBody MatchDTO matchDTO);
 
     public Match getCurrentMatchForUserById(UUID userId);
+
+    public Match forfeitMatch(UUID matchId, UUID forfeitedById);
+
+    public Match completeMatch(UUID matchId, UUID winnerId, String score);
 }

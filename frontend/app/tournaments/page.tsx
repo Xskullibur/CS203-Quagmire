@@ -65,7 +65,7 @@ const TournamentPage: React.FC = () => {
             }
             router.push(`${pathname}?${params.toString()}`);
         }
-    }, [date, pathname, router]);
+    }, [date, pathname, router, searchParams]);
 
     useEffect(() => {
         const fetchTournaments = async () => {
@@ -94,7 +94,7 @@ const TournamentPage: React.FC = () => {
         };
 
         fetchTournaments();
-    }, [currentTab, date]);
+    }, [currentTab, date, handleError]);
 
     return (
         <div className="flex flex-col items-center min-h-screen pt-20">

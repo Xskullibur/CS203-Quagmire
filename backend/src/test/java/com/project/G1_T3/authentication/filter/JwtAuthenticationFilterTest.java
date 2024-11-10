@@ -14,6 +14,8 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.test.context.ActiveProfiles;
+
 import com.project.G1_T3.authentication.service.JwtService;
 import com.project.G1_T3.common.exception.InvalidTokenException;
 import com.project.G1_T3.user.model.CustomUserDetails;
@@ -24,6 +26,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+@ActiveProfiles("test")
 class JwtAuthenticationFilterTest {
 
     @InjectMocks

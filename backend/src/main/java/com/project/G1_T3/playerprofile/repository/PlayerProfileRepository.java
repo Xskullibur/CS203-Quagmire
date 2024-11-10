@@ -14,7 +14,7 @@ import java.util.UUID;
 @Repository
 public interface PlayerProfileRepository extends JpaRepository<PlayerProfile, UUID> {
 
-    List<PlayerProfile> findTop10ByOrderByCurrentRatingDesc();
+    List<PlayerProfile> findTop10ByOrderByGlickoRatingDesc();
 
     List<PlayerProfile> findAllByOrderByCurrentRatingDesc();
 
@@ -22,6 +22,9 @@ public interface PlayerProfileRepository extends JpaRepository<PlayerProfile, UU
 
     // Fetch PlayerProfile by user ID
     PlayerProfile findByUserId(UUID id);
+
+    @Query("SELECT p.glickoRating, COUNT(p) FROM PlayerProfile p GROUP BY p.glickoRating")
+    List<Object[]> getRatingCounts();
 
     PlayerProfile findByProfileId(UUID profileId);
 

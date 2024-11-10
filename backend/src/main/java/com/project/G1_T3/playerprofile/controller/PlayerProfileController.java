@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.project.G1_T3.achievement.model.Achievement;
-import com.project.G1_T3.leaderboard.model.LeaderboardPlayerProfile;
 import com.project.G1_T3.playerprofile.model.PlayerProfile;
 import com.project.G1_T3.playerprofile.model.PlayerProfileDTO;
 import com.project.G1_T3.playerprofile.service.PlayerProfileService;
@@ -67,7 +66,7 @@ public class PlayerProfileController {
     }
 
     @GetMapping("/rank/{userId}")
-    public ResponseEntity<Integer> getPlayerRankByUserId(@PathVariable String userId) {
+    public ResponseEntity<Double> getPlayerRankByUserId(@PathVariable String userId) {
         PlayerProfile playerProfile = playerProfileService.findByUserId(userId);
 
         if (playerProfile == null) {
@@ -75,7 +74,7 @@ public class PlayerProfileController {
         }
 
         // Get the rank (position) of the player by their profileId
-        int rank = playerProfileService.getPlayerRank(playerProfile.getProfileId().toString());
+        double rank = playerProfileService.getPlayerRank(playerProfile.getProfileId().toString());
 
         return ResponseEntity.ok(rank);
     }

@@ -18,21 +18,21 @@ public class LeaderboardPlayerProfile {
     UUID profileId;
     String firstName;
     String lastName;
-    float ELO;
+    int glickoRating;
     Long position;
 
-    public LeaderboardPlayerProfile(UUID profileId, String firstName, String lastName, Float eLO) {
+    public LeaderboardPlayerProfile(UUID profileId, String firstName, String lastName, int glickoRating) {
         this.profileId = profileId;
         this.firstName = firstName;
         this.lastName = lastName;
-        ELO = eLO;
+        this.glickoRating = glickoRating;
     }
 
     public LeaderboardPlayerProfile(PlayerProfile player, Long p) {
         profileId = player.getProfileId();
         firstName = player.getFirstName();
         lastName = player.getLastName();
-        ELO = player.getCurrentRating();
+        glickoRating = player.getGlickoRating();
         position = p;
     }
 

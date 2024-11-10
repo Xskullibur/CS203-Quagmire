@@ -14,6 +14,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescript
 import { Button } from '@/components/ui/button';
 import { useGeolocation } from '@/hooks/useGeolocation'; // Import the useGeolocation hook
 import { useGlobalErrorHandler } from '../context/ErrorMessageProvider';
+import MatchActionDialogs from '@/components/matches/MatchActionDialogs';
 
 const MatchMap = dynamic(() => import('@/components/matches/MatchMap'), { ssr: false });
 
@@ -164,13 +165,22 @@ const Match: React.FC = () => {
         }
     }, [user]);
 
-
-    const handleMatchFound = useCallback((matchFound: boolean, opponent: string, meeting: [number, number], profile: PlayerProfile) => {
+    const handleMatchFound = async (
+        matchFound: boolean,
+        opponent: string,
+        meeting: [number, number],
+        profile: PlayerProfile
+    ) => {
         setMatchFound(matchFound);
         setOpponentName(opponent);
         setMeetingPoint(meeting);
         setOpponentProfile(profile);
-    }, []);
+
+        // Fetch and set the active match
+        if (user?.userId && playerProfile?.profileId) {
+            await checkForActiveMatch(user.userId, playerProfile.profileId);
+        }
+    };
 
     if (locationLoading || !playerId) {
         return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
@@ -292,16 +302,17 @@ const Match: React.FC = () => {
                                 <QueueManagement playerId={playerId} onMatchFound={handleMatchFound} />
                             )}
                             {(activeMatch || matchFound) && (
-                                <Alert className='text-center mt-4'>
-                                    <AlertTitle>Forfeit</AlertTitle>
-                                    <AlertDescription>
-                                        Your opponent is a no-show? Click the button below to forfeit the match.
-                                        <br />
-                                        <Button variant='destructive' className='mt-4' onClick={() => console.log('Forfeit match')}>
-                                            Forfeit Match
-                                        </Button>
-                                    </AlertDescription>
-                                </Alert>
+                                <MatchActionDialogs
+                                    activeMatch={activeMatch}
+                                    currentPlayerId={playerProfile?.profileId || undefined}
+                                    opponentProfile={opponentProfile}
+                                    onMatchComplete={() => {
+                                        // Refresh the match status
+                                        if (user?.userId && playerProfile?.profileId) {
+                                            checkForActiveMatch(user.userId, playerProfile.profileId);
+                                        }
+                                    }}
+                                />
                             )}
                         </CardContent>
                     </Card>

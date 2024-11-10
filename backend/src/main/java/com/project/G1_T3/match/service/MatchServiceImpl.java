@@ -1,5 +1,6 @@
 package com.project.G1_T3.match.service;
 
+import com.amazonaws.services.secretsmanager.model.ResourceNotFoundException;
 import com.project.G1_T3.common.glicko.Glicko2Result;
 import com.project.G1_T3.common.model.Status;
 import com.project.G1_T3.match.model.Match;
@@ -48,21 +49,25 @@ public class MatchServiceImpl implements MatchService {
             }
 
             logger.info("player: " + playerProfile.getProfileId().toString());
-            // Check for matches where the user is either player1 or player2
-            Match match = matchRepository.findByPlayer1IdOrPlayer2IdAndStatus(
-                    playerProfile.getProfileId(),
+            // Get all in-progress matches for the player
+            List<Match> matches = matchRepository.findMatchesByPlayerIdAndStatus(
                     playerProfile.getProfileId(),
                     Status.IN_PROGRESS);
 
-            if (match != null) {
-                logger.info("Found match: " + match.getMatchId());
-                // Verify this is actually the user's match
-                if (!match.getPlayer1Id().equals(playerProfile.getProfileId()) &&
-                        !match.getPlayer2Id().equals(playerProfile.getProfileId())) {
-                    return null;
-                }
+            // There should only be one in-progress match per player
+            if (matches.isEmpty()) {
+                return null;
+            }
+            if (matches.size() > 1) {
+                logger.warning("Multiple in-progress matches found for player " + playerProfile.getProfileId());
+                // You might want to handle this case differently depending on your business logic
+                // For now, return the most recently updated match
+                return matches.stream()
+                        .max((m1, m2) -> m1.getUpdatedAt().compareTo(m2.getUpdatedAt()))
+                        .orElse(null);
             }
 
+            Match match = matches.get(0);
             logger.info("Returning match: " + match);
             return match;
         } catch (IllegalArgumentException e) {
@@ -224,6 +229,48 @@ public class MatchServiceImpl implements MatchService {
         // Save updated profiles (also evicts cache entries)
         playerProfileService.updatePlayerRating(player1);
         playerProfileService.updatePlayerRating(player2);
+    }
+
+    @Override
+    public Match forfeitMatch(UUID matchId, UUID forfeitedById) {
+        Match match = matchRepository.findById(matchId)
+                .orElseThrow(() -> new ResourceNotFoundException("Match not found"));
+
+        if (match.getStatus() != Status.IN_PROGRESS && match.getStatus() != Status.SCHEDULED) {
+            throw new IllegalStateException("Match cannot be forfeited in current state");
+        }
+
+        // Set winner as the player who didn't forfeit
+        UUID winnerId = match.getPlayer1Id().equals(forfeitedById) ? match.getPlayer2Id() : match.getPlayer1Id();
+
+        match.setWinnerId(winnerId);
+        match.setStatus(Status.COMPLETED);
+        match.setScore("Forfeit");
+        match.setUpdatedAt(LocalDateTime.now());
+
+        return matchRepository.save(match);
+    }
+
+    @Override
+    public Match completeMatch(UUID matchId, UUID winnerId, String score) {
+        Match match = matchRepository.findById(matchId)
+                .orElseThrow(() -> new ResourceNotFoundException("Match not found"));
+
+        if (match.getStatus() != Status.IN_PROGRESS) {
+            throw new IllegalStateException("Match must be in progress to be completed");
+        }
+
+        // Verify winner is one of the players
+        if (!match.getPlayer1Id().equals(winnerId) && !match.getPlayer2Id().equals(winnerId)) {
+            throw new IllegalArgumentException("Winner must be one of the match participants");
+        }
+
+        match.setWinnerId(winnerId);
+        match.setStatus(Status.COMPLETED);
+        match.setScore(score);
+        match.setUpdatedAt(LocalDateTime.now());
+
+        return matchRepository.save(match);
     }
 
 }
