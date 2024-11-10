@@ -14,16 +14,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.monitoring.v3.Service.Custom;
 import com.project.G1_T3.authentication.service.JwtService;
 import com.project.G1_T3.playerprofile.model.PlayerProfile;
-import com.project.G1_T3.playerprofile.model.PlayerProfileDTO;
 import com.project.G1_T3.playerprofile.service.PlayerProfileService;
 import com.project.G1_T3.security.service.SecurityService;
 import com.project.G1_T3.user.model.CustomUserDetails;
@@ -36,9 +30,6 @@ class PlayerProfileControllerIntegrationTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
-    private ObjectMapper objectMapper;
-
     @MockBean
     private PlayerProfileService playerProfileService;
 
@@ -49,12 +40,10 @@ class PlayerProfileControllerIntegrationTest {
     private SecurityService securityService;
 
     private PlayerProfile testProfile;
-    private PlayerProfileDTO testProfileDTO;
+
     private User testUser;
     private final String TEST_USER_ID = UUID.randomUUID().toString();
     private final String TEST_PROFILE_ID = UUID.randomUUID().toString();
-    private final String VALID_TOKEN = "valid.test.token";
-    private final String INVALID_TOKEN = "invalid.test.token";
 
     @BeforeEach
     void setUp() {
@@ -71,8 +60,6 @@ class PlayerProfileControllerIntegrationTest {
         testProfile.setCountry("Test Country");
         testProfile.setDateOfBirth(LocalDate.of(1990, 1, 1));
         testProfile.setCurrentRating(1500);
-
-        testProfileDTO = new PlayerProfileDTO(testProfile);
 
         // Mock JWT service behavior
         doNothing().when(jwtService).validateToken(anyString(), any(CustomUserDetails.class));
@@ -135,10 +122,10 @@ class PlayerProfileControllerIntegrationTest {
     @Test
     void getPlayerRankByUserId_ValidId_ReturnsRank() throws Exception {
         when(playerProfileService.findByUserId(TEST_USER_ID)).thenReturn(testProfile);
-        when(playerProfileService.getPlayerRank(TEST_PROFILE_ID)).thenReturn(1);
+        when(playerProfileService.getPlayerRank(TEST_PROFILE_ID)).thenReturn(1.0);
 
         mockMvc.perform(get("/profile/rank/{userId}", TEST_USER_ID))
                 .andExpect(status().isOk())
-                .andExpect(content().string("1"));
+                .andExpect(content().string("1.0"));
     }
 }

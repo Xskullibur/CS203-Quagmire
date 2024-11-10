@@ -49,12 +49,12 @@ export default function Leaderboard() {
       <h2 className="text-2xl font-bold mb-4">Leaderboard</h2>
       <div className="w-4/5 h-auto bg-card">
         <ul>
-          {data.map(({ firstName, lastName, elo, profileId }, idx) => (
+          {data.map(({ firstName, lastName, glickoRating, profileId }, idx) => (
             <li key={profileId}>
               <LeaderboardPosition
                 name={firstName + " " + lastName}
                 position={++idx}
-                rating={elo}
+                rating={glickoRating}
                 profileId={profileId}
               ></LeaderboardPosition>
             </li>

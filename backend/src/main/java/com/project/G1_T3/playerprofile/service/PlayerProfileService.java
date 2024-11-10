@@ -8,6 +8,7 @@ import com.project.G1_T3.user.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import java.io.IOException;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -21,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.project.G1_T3.achievement.model.Achievement;
 import com.project.G1_T3.achievement.service.AchievementService;
 import com.project.G1_T3.common.exception.ProfileAlreadyExistException;
+import com.project.G1_T3.common.glicko.Glicko2Result;
 import com.project.G1_T3.filestorage.service.FileStorageService;
 import com.project.G1_T3.filestorage.service.ImageValidationService;
 import com.project.G1_T3.playerprofile.model.PlayerProfile;
@@ -48,6 +50,9 @@ public class PlayerProfileService {
     @Autowired
     private AchievementService achievementService;
 
+    @Autowired
+    private PlayerRatingService playerRatingService;
+
     public List<PlayerProfile> findAll() {
         return playerProfileRepository.findAll();
     }
@@ -62,16 +67,22 @@ public class PlayerProfileService {
                 () -> new EntityNotFoundException("Player profile not found for ID: " + id));
     }
 
-    public int getPlayerRank(String profileId) {
-        List<PlayerProfile> sortedPlayers = getSortedPlayerProfiles();
 
-        // Find the player's rank in the sorted list
-        for (int i = 0; i < sortedPlayers.size(); i++) {
-            if (sortedPlayers.get(i).getProfileId().toString().equals(profileId)) {
-                return i + 1; // Rank is 1-based index
-            }
+    public double getPlayerRank(String profileId) {
+        // Get the player's profile
+        PlayerProfile playerProfile = playerProfileRepository.findByProfileId(UUID.fromString(profileId));
+        if (playerProfile == null) {
+            // Handle player not found
+            throw new NoSuchElementException("Player with ID " + profileId + " not found.");
         }
-        return -1; // Return -1 if the player is not found
+
+        int playerRating = playerProfile.getGlickoRating();
+        int numberOfPlayersAhead = playerRatingService.getNumberOfPlayersAhead(playerRating);
+        int totalPlayers = playerRatingService.getTotalPlayers();
+
+        double rankPercentage = ((double) (totalPlayers - numberOfPlayersAhead)) / totalPlayers * 100;
+
+        return rankPercentage;
     }
 
     @Cacheable(value = "playerRankings", key = "'rankings'")
@@ -168,14 +179,15 @@ public class PlayerProfileService {
     }
 
     public PlayerProfile findByUsername(String username) {
-        
+
         Optional<User> optionalUser = userService.findByUsername(username);
 
         if (optionalUser.isEmpty()) {
             throw new UsernameNotFoundException(username);
         }
 
-        Optional<PlayerProfile> optionalPlayerProfile = optionalUser.map(user -> playerProfileRepository.findByUser(user));
+        Optional<PlayerProfile> optionalPlayerProfile = optionalUser
+                .map(user -> playerProfileRepository.findByUser(user));
 
         if (optionalPlayerProfile.isEmpty()) {
             throw new EntityNotFoundException("Player profile not found for username: " + username);
@@ -209,4 +221,23 @@ public class PlayerProfileService {
         // Return the achievements set from PlayerProfile
         return player.getTournaments();
     }
+
+    public void updatePlayerRating(UUID playerId, List<Glicko2Result> results) {
+        Optional<PlayerProfile> playerOpt = playerProfileRepository.findById(playerId);
+        if (playerOpt.isPresent()) {
+            PlayerProfile playerProfile = playerOpt.get();
+            int oldRating = playerProfile.getGlickoRating();
+
+            playerProfile.updateRating(results);
+
+            int newRating = playerProfile.getGlickoRating();
+            playerProfileRepository.save(playerProfile);
+
+            // Update the rating counts
+            playerRatingService.updateRating(oldRating, newRating);
+        } else {
+            throw new NoSuchElementException("Player with ID " + playerId + " not found.");
+        }
+    }
+
 }
