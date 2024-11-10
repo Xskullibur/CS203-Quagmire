@@ -127,10 +127,9 @@ public class MatchServiceImpl implements MatchService {
 
         // Ensure the match hasn't already started
         if (match.getStatus() != Status.SCHEDULED) {
-            throw new IllegalStateException("Match is not scheduled");
+            throw new IllegalStateException("Match is not scheduled. Match is " + match.getStatus());
         }
        
-
         // Start the match
         match.startMatch();
         matchRepository.save(match);
@@ -161,7 +160,8 @@ public class MatchServiceImpl implements MatchService {
         }
     
         if (!match.getPlayer1Id().equals(matchDTO.getWinnerId()) && !match.getPlayer2Id().equals(matchDTO.getWinnerId())) {
-            throw new RuntimeException("Winner must be one of the players");
+            throw new RuntimeException("Winner must be one of the players. The two players are " + match.getPlayer1Id() + 
+            " and " + match.getPlayer2Id() + ", you gave me " + matchDTO.getWinnerId());
         }
     
         // Complete the match
@@ -169,7 +169,7 @@ public class MatchServiceImpl implements MatchService {
         matchRepository.save(match);
 
         //update the player rankings
-        updatePlayerRatingsAfterMatch(match);
+        // updatePlayerRatingsAfterMatch(match);
 
     }
 
