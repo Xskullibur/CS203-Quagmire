@@ -108,3 +108,25 @@ VALUES
     ('20000000-0000-0000-0000-000000000017', CURRENT_TIMESTAMP, '2024-08-01', '2024-08-10', 'SINGLE_ELIMINATION', 'Round of 64', 'SCHEDULED', NULL, '10000000-0000-0000-0000-000000000005'),
     ('20000000-0000-0000-0000-000000000018', CURRENT_TIMESTAMP, '2024-08-11', '2024-08-20', 'SINGLE_ELIMINATION', 'Quarterfinals', 'SCHEDULED', NULL, '10000000-0000-0000-0000-000000000005'),
     ('20000000-0000-0000-0000-000000000019', CURRENT_TIMESTAMP, '2024-08-21', '2024-08-30', 'SINGLE_ELIMINATION', 'Finals', 'SCHEDULED', NULL, '10000000-0000-0000-0000-000000000005');
+
+
+-- Changing the player base to the tournaemnt
+
+DO $$
+DECLARE
+    highest_uuid UUID;
+BEGIN
+    -- Retrieve and store the highest UUID in the variable
+    SELECT id INTO highest_uuid
+    FROM tournaments
+    ORDER BY id DESC
+    LIMIT 1;
+
+     INSERT INTO tournament_players (profile_id, tournament_id) VALUES
+        ('11111111-1111-1111-1111-111111111111', highest_uuid), -- John Doe
+        ('11111111-1111-1111-1111-111111111112', highest_uuid), -- Jane Smith
+        ('11111111-1111-1111-1111-111111111113', highest_uuid), -- Emily Johnson
+        ('11111111-1111-1111-1111-111111111114', highest_uuid), -- Michael Brown
+        ('11111111-1111-1111-1111-111111111115', highest_uuid), -- Sarah Davis
+        ('11111111-1111-1111-1111-111111111116', highest_uuid); -- James Miller
+END $$;
