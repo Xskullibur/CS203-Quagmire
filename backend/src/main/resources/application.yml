@@ -13,7 +13,7 @@ spring:
             hibernate:
                 format-sql: true
         hibernate:
-            ddl-auto: create-drop
+            ddl-auto: update
         # show-sql: true
         database: postgresql
 
@@ -72,6 +72,5 @@ firebase:
     storage:
         url: 'https://firebasestorage.googleapis.com/v0/b/'
         bucket: 'quagmire-smu.appspot.com'
-    credentials: 
-        json: |-
-            # Paste json content here
+    credentials:
+        json:
