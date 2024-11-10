@@ -139,6 +139,32 @@ const AdminDashboard: React.FC = () => {
     setHasFetched(false);
   };
 
+  const handleResetPassword = async (userId: string) => {
+    try {
+        const response = await axiosInstance.post(
+            `${process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL}/admin/reset-admin-password`,
+            userId,
+        {
+          headers: {
+            "Content-Type": "text/plain", 
+          },
+        }
+      );
+  
+      if (response.status === 200) {
+        toast({
+          variant: "success",
+          title: "Success",
+          description: "Temporary password has been sent to the admin.",
+        });
+      }
+    } catch (error) {
+      handleError(error as AxiosError);
+    }
+  };
+  
+  
+
   return (
     <div className="flex flex-col items-center min-h-screen mt-24">
       <h2 className="text-2xl font-bold my-4">Admin Dashboard</h2>
@@ -148,6 +174,7 @@ const AdminDashboard: React.FC = () => {
         <UserTable
           users={users}
           onLock={handleLockUser}
+          onResetPassword={handleResetPassword} 
           currentPage={currentPage}
           totalPages={totalPages}
           pageSize={pageSize}
