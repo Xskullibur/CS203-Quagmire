@@ -4,7 +4,7 @@ export type tournamentDTO = {
     location: string,
     startDate: string,
     endDate: string,
-    status: "SCHEDULED" | "INPROGRESS" | "COMPLETED" | "CANCELLED",
+    status: "SCHEDULED" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED",
     deadline: string,
     maxParticipants: number,
     description: string,
