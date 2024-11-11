@@ -39,8 +39,6 @@ const BracketMatch: React.FC<MatchProps> = ({ match, onMatchComplete, isAdmin })
       player2: player2 ? { ...player2, score: p2Score } : null,
     });
 
-    console.table(matchDTO);
-
     try {
       await axiosInstance.put(`${API_URL}/match/${match.matchId}/complete`, matchDTO);
       alert("Match completed successfully!");

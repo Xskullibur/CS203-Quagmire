@@ -44,9 +44,16 @@ const BracketsPage = () => {
           const roundIdsArray = rounds.map((round: any) => round.roundId);
           setRoundIds(roundIdsArray);
           const matches = await getMatchesForRound(rounds[rounds.length - 1].roundId);
-          setCurrentStageIndex(rounds.length- 1);
+          setCurrentStageIndex(rounds.length - 1);
           if (matches && Array.isArray(matches)) {
-            setMatches(matches);
+            if (matches && Array.isArray(matches)) {
+              const matchesWithCompletion = matches.map((match) => ({
+                ...match, completed: match.status === "COMPLETED"
+              }));
+              setMatches(matchesWithCompletion);
+              filterMatches(matchesWithCompletion);
+            }
+
             filterMatches(matches);
           }
         }
@@ -103,7 +110,7 @@ const BracketsPage = () => {
 
       try {
 
-        const nextRoundId = tempNextRoundId !== null? tempNextRoundId : roundIds[currentStageIndex + 1];
+        const nextRoundId = tempNextRoundId !== null ? tempNextRoundId : roundIds[currentStageIndex + 1];
         const matches = await getMatchesForRound(nextRoundId);
 
         if (matches && Array.isArray(matches)) {
@@ -135,23 +142,27 @@ const BracketsPage = () => {
     }
   };
 
-  const handleMatchComplete = (index: number, winner: { username: string; id: string }) => {
+  const handleMatchComplete = (matchId: string, winner: { username: string; id: string }) => {
     if (!isAdmin) {
       alert("Only administrators can update match results.");
       return;
     }
 
-    const updatedMatches = matches.map((match, i) =>
-      i === index ? { ...match, completed: true, winner: winner } : match
-    );
+    const updatedMatches = matches.map((match) =>
+      match.matchId === matchId ? { ...match, completed: true, winner: winner } : match);
     setMatches(updatedMatches);
     filterMatches(updatedMatches);
   };
 
   useEffect(() => {
-    const allMatchesCompleted = actualMatches.every((match) => match.completed);
+    const allMatchesCompleted = actualMatches.every((match) => {
+      console.log(match.matchId, match.completed)
+      return match.completed
+
+    });
+    console.log(allMatchesCompleted);
     setNextRoundEnabled(allMatchesCompleted);
-  }, [actualMatches]);
+  }, [matches]);
 
 
   useEffect(() => {
@@ -185,11 +196,11 @@ const BracketsPage = () => {
       <div>
         <h2 className="text-2xl font-semibold mb-4">Matches</h2>
         <div className="flex flex-wrap gap-4">
-          {filteredActualMatches.map((match, index) => (
+          {filteredActualMatches.map((match) => (
             <BracketMatch
               key={match.matchId}
               match={match}
-              onMatchComplete={isAdmin ? (winner) => handleMatchComplete(index, winner) : undefined}
+              onMatchComplete={isAdmin ? (winner) => handleMatchComplete(match.matchId, winner) : undefined}
               isAdmin={isAdmin}
             />
           ))}
