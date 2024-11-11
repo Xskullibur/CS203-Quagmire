@@ -10,7 +10,7 @@ import axiosInstance from "@/lib/axios";
 import axios from "axios";
 import { useGlobalErrorHandler } from "@/app/context/ErrorMessageProvider";
 import { tournamentDTO } from "@/types/tournamentDTO";
-import withAuth from "@/hooks/withAuth";
+import withAuth from "@/HOC/withAuth";
 import { UserRole } from "@/types/user-role";
 
 const API_URL = process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL;

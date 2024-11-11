@@ -3,7 +3,6 @@
 import React from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
-import withAuth from "@/hooks/withAuth";
 import ProfilePicture from "@/components/profile/ProfilePicture";
 import FormFields from "@/components/profile/FormFields";
 import {
@@ -16,6 +15,7 @@ import {
 import { Button } from "@/components/ui/button";
 import EditProfileSkeleton from "@/components/profile/edit/EditProfileSkeletion";
 import { useProfileManagement } from "@/hooks/profile/useProfileManagement";
+import withAuth from "@/HOC/withAuth";
 
 const EditProfile = () => {
   const router = useRouter();
@@ -34,7 +34,15 @@ const EditProfile = () => {
     userId: user?.userId,
     username: user?.username,
     isNewProfile,
-    onSuccess: () => router.push(`/profile/${user?.username}`),
+    onSuccess: () => {
+      const returnPath = sessionStorage.getItem('returnPath');
+      if (returnPath) {
+        sessionStorage.removeItem('returnPath');
+        router.push(returnPath);
+      } else {
+        router.push(`/profile/${user?.username}`);
+      }
+    },
   });
 
   if (isLoading || authLoading) return <EditProfileSkeleton />;

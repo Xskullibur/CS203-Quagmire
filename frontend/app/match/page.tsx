@@ -5,7 +5,7 @@ import axios, { AxiosError } from 'axios';
 import { Card, CardHeader, CardDescription, CardContent, CardTitle } from '@/components/ui/card';
 import QueueManagement from '@/components/matches/QueueManagement';
 import { useAuth } from '@/hooks/useAuth';
-import withAuth from '@/hooks/withAuth';
+import withAuth from '@/HOC/withAuth';
 import dynamic from 'next/dynamic';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import ProfilePlayerCard from '@/components/matches/ProfilePlayerCard';
@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button';
 import { useGeolocation } from '@/hooks/useGeolocation'; // Import the useGeolocation hook
 import { useGlobalErrorHandler } from '../context/ErrorMessageProvider';
 import MatchActionDialogs from '@/components/matches/MatchActionDialogs';
+import { withProfileCheck } from '@/HOC/withProfileCheck';
 
 const MatchMap = dynamic(() => import('@/components/matches/MatchMap'), { ssr: false });
 
@@ -320,4 +321,4 @@ const Match: React.FC = () => {
     );
 };
 
-export default withAuth(Match);
+export default withAuth(withProfileCheck(Match));

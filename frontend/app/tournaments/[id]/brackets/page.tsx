@@ -17,7 +17,7 @@ import { UserRole } from "@/types/user-role";
 import axiosInstance from "@/lib/axios";
 import axios from "axios";
 import { useGlobalErrorHandler } from "@/app/context/ErrorMessageProvider";
-import withAuth from "@/hooks/withAuth";
+import withAuth from "@/HOC/withAuth";
 
 const API_URL = process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL;
 

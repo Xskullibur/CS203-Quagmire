@@ -16,23 +16,34 @@ interface ProfileCardProps {
   ranking: number;
   achievements: Achievement[];
   tournaments: Tournament[];
+  isOwnProfile?: boolean;
 }
 
-const ProfileCard = ({ playerProfile, ranking, achievements, tournaments }: ProfileCardProps) => {
+const ProfileCard = ({ 
+  playerProfile, 
+  ranking, 
+  achievements, 
+  tournaments, 
+  isOwnProfile = false 
+}: ProfileCardProps) => {
   const contentRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
-  const [activePanel, setActivePanel] = useState<string>(""); // Track which panel to show
-  const router = useRouter()
+  const [activePanel, setActivePanel] = useState<string>("");
+  const router = useRouter();
 
   const handleButtonClick = (panel: string) => {
-    setActivePanel(panel);  // Set the active panel based on the button clicked
-    setIsSheetOpen(true);  // Open the sheet when any button is clicked
+    setActivePanel(panel);
+    setIsSheetOpen(true);
   };
 
   function handleEditProfile(): void {
-    router.push("/profile/edit")
+    router.push("/profile/edit");
   }
+
+  const getButtonLabel = (base: string) => {
+    return isOwnProfile ? base : `${playerProfile.username}'s ${base.slice(3)}`;
+  };
 
   return (
     <div className="relative w-full h-full rounded-lg overflow-hidden flex items-center justify-center mt-16">
@@ -42,9 +53,21 @@ const ProfileCard = ({ playerProfile, ranking, achievements, tournaments }: Prof
       >
         <Sheet onOpenChange={setIsSheetOpen}>
           <div className="fixed right-[-4rem] z-50 flex flex-col items-center gap-32">
-            <TriggerButton isOpen={isSheetOpen} label="My Statistics" onClick={() => handleButtonClick("stats")}/>
-            <TriggerButton isOpen={isSheetOpen} label="My Achievements" onClick={() => handleButtonClick("achievements")}/>
-            <TriggerButton isOpen={isSheetOpen} label="My Tournaments" onClick={() => handleButtonClick("tournaments")}/>
+            <TriggerButton 
+              isOpen={isSheetOpen} 
+              label={getButtonLabel("My Statistics")} 
+              onClick={() => handleButtonClick("stats")}
+            />
+            <TriggerButton 
+              isOpen={isSheetOpen} 
+              label={getButtonLabel("My Achievements")} 
+              onClick={() => handleButtonClick("achievements")}
+            />
+            <TriggerButton 
+              isOpen={isSheetOpen} 
+              label={getButtonLabel("My Tournaments")} 
+              onClick={() => handleButtonClick("tournaments")}
+            />
           </div>
 
           <div
@@ -52,7 +75,14 @@ const ProfileCard = ({ playerProfile, ranking, achievements, tournaments }: Prof
             className="relative flex flex-col items-center transition-all duration-300 w-full"
           >
             <PlayerInfo playerProfile={playerProfile} />
-            <Button onClick={handleEditProfile}>Edit Profile</Button>
+            {isOwnProfile && (
+              <Button 
+                onClick={handleEditProfile}
+                className="mt-4"
+              >
+                Edit Profile
+              </Button>
+            )}
           </div>
 
           <SheetContent
@@ -60,18 +90,24 @@ const ProfileCard = ({ playerProfile, ranking, achievements, tournaments }: Prof
             className="min-h-[calc(100vh-8rem)] p-8 overflow-y-auto bg-primary-foreground/60"
           >
             {activePanel === "stats" && (
-              <StatisticsPanel playerProfile={playerProfile} ranking={ranking} />
+              <StatisticsPanel 
+                playerProfile={playerProfile} 
+                ranking={ranking}
+              />
             )}
 
             {activePanel === "achievements" && (
-              <AchievementsPanel achievements={achievements} />
+              <AchievementsPanel 
+                achievements={achievements}
+              />
             )}
 
             {activePanel === "tournaments" && (
-              <TournamentsPanel tournaments={tournaments} />
+              <TournamentsPanel 
+                tournaments={tournaments}
+              />
             )}
           </SheetContent>
-
         </Sheet>
       </div>
     </div>

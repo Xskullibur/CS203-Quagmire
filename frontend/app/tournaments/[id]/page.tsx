@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import axiosInstance from "@/lib/axios";
 import { useGlobalErrorHandler } from "@/app/context/ErrorMessageProvider";
 import { useAuth } from "@/hooks/useAuth";
-import withAuth from "@/hooks/withAuth";
+import withAuth from "@/HOC/withAuth";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Tournament } from "@/types/tournament";
