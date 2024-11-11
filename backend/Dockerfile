@@ -4,6 +4,7 @@ WORKDIR /workspace/app
 
 # Copy pom.xml and source code
 COPY pom.xml .
+
 COPY src src
 
 # Package the application
@@ -11,7 +12,6 @@ RUN mvn package -DskipTests
 
 # Use OpenJDK for the runtime image
 FROM openjdk:17-jdk-slim
-
 VOLUME /tmp
 
 COPY --from=build /workspace/app/target/*.jar app.jar

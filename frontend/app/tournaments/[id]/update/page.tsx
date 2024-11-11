@@ -31,7 +31,7 @@ const UpdateTournament = () => {
     endDate: '',
     endTime: '',
     status: 'SCHEDULED',
-    deadlineDate: '',
+    deadline: '',
     deadlineTime: '',
     maxParticipants: 0,
     description: '',
@@ -105,7 +105,7 @@ const UpdateTournament = () => {
           startTime: startDate.split('T')[1]?.slice(0, 5),
           endDate: endDate.split('T')[0],
           endTime: endDate.split('T')[1]?.slice(0, 5),
-          deadlineDate: deadline.split('T')[0],
+          deadline: deadline.split('T')[0],
           deadlineTime: deadline.split('T')[1]?.slice(0, 5),
         });
       } catch (error) {
@@ -137,9 +137,9 @@ const UpdateTournament = () => {
 
     const startdatetime = `${tournament.startDate}T${tournament.startTime}:00`;
     const enddatetime = `${tournament.endDate}T${tournament.endTime}:00`;
-    const deadline = `${tournament.deadlineDate}T${tournament.deadlineTime}:00`;
+    const deadline = `${tournament.deadline}T${tournament.deadlineTime}:00`;
 
-    const { startDate, startTime, endDate, endTime, deadlineDate, deadlineTime, ...tournamentDetails } = tournament;
+    const { startDate, startTime, endDate, endTime, deadlineTime, ...tournamentDetails } = tournament;
 
     const data = {
       ...tournamentDetails,

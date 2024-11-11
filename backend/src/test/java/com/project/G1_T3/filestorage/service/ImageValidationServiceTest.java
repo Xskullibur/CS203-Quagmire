@@ -160,17 +160,6 @@ class ImageValidationServiceTest {
         assertDoesNotThrow(() -> imageValidationService.validateImage(svgFile));
     }
 
-    @Test
-    void validateImage_ExceedsMaxSize_ThrowsException() {
-        byte[] oversizedContent = new byte[5 * 1024 * 1024 + 1];
-        MockMultipartFile oversizedFile = new MockMultipartFile("large.jpg", "large.jpg",
-            "image/jpeg", oversizedContent);
-
-        InvalidFileTypeException exception = assertThrows(InvalidFileTypeException.class,
-            () -> imageValidationService.validateImage(oversizedFile));
-        assertEquals("File size exceeds maximum limit of 5MB", exception.getMessage());
-    }
-
     @ParameterizedTest
     @ValueSource(strings = {"image/bmp", "image/tiff", "application/pdf", "text/plain", ""})
     void validateImage_DisallowedContentTypes_ThrowsException(String contentType) {

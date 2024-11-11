@@ -29,6 +29,7 @@ import com.project.G1_T3.authentication.filter.JwtAuthenticationFilter;
 import com.project.G1_T3.user.service.CustomUserDetailsService;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.Arrays;
 import java.util.List;
@@ -108,6 +109,9 @@ public class SecurityConfig {
         }
     }
 
+    @Value("${app.frontend.url}")
+    private String frontendUrl;
+
     @Bean
     RestTemplate restTemplate() {
         return new RestTemplate();
@@ -171,7 +175,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
+        configuration.setAllowedOrigins(Arrays.asList(frontendUrl, "http://www.quagmire.site", "http://quagmire.site", "http://localhost:3000", "https://quagmire-frontend-alb-1718208115.us-east-1.elb.amazonaws.com", "https://quagmire.site", "https://www.quagmire.site", "https://api.quagmire.site", "http://api.quagmire.site"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);

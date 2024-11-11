@@ -24,7 +24,7 @@ const TournamentCard = ({ tournament }: { tournament: Tournament }) => {
                         <p><span className="font-medium">Start:</span> {formatDate(tournament.startDate)}</p>
                         <p><span className="font-medium">End:</span> {formatDate(tournament.endDate)}</p>
                     </div>
-                    <p><span className="font-medium">Registration:</span> {formatDate(tournament.deadlineDate)}</p>
+                    <p><span className="font-medium">Registration:</span> {formatDate(tournament.deadline)}</p>
                     <p><span className="font-medium">Max Participants:</span> {tournament.maxParticipants}</p>
                     <p><span className="font-medium">Status:</span> {tournament.status}</p>
                 </CardContent>
