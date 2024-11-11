@@ -17,6 +17,7 @@ import { UserRole } from "@/types/user-role";
 import axiosInstance from "@/lib/axios";
 import axios from "axios";
 import { useGlobalErrorHandler } from "@/app/context/ErrorMessageProvider";
+import withAuth from "@/hooks/withAuth";
 
 const API_URL = process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL;
 
@@ -316,4 +317,4 @@ const BracketsPage = () => {
   );
 };
 
-export default BracketsPage;
+export default withAuth(BracketsPage, UserRole.ADMIN);
