@@ -1,31 +1,23 @@
 "use client";
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import React, { useEffect, useState } from "react";
+import axiosInstance from "@/lib/axios";
+import { useGlobalErrorHandler } from "@/app/context/ErrorMessageProvider";
+import { useAuth } from "@/hooks/useAuth";
+import withAuth from "@/hooks/withAuth";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import axiosInstance from '@/lib/axios';
-import { useGlobalErrorHandler } from '@/app/context/ErrorMessageProvider';
-import { useAuth } from "@/hooks/useAuth"; // Import the auth hook
-import { useRouter } from "next/navigation"; // Import useRouter for navigation
+import { Tournament } from "@/types/tournament";
+import axios from "axios";
+import { User } from "@/types/user";
+const API_URL = process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL;
 import { getPlayerProfileById } from '@/hooks/tournamentDataManager';
 
-interface Tournament {
-    name: string;
-    startDate: string;
-    endDate: string;
-    description: string;
-    deadline: string;
-    location: string;
-    photoUrl?: string;
-    winnerId: string | null;
-    status: 'SCHEDULED' | 'INPROGRESS' | 'COMPLETED' | 'CANCELLED';
-}
-
-const API_URL = process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL;
-
-
-const TournamentDetails: React.FC<{ params: { id: string } }> = ({ params }) => {
+const TournamentDetails: React.FC<{ params: { id: string } }> = ({
+    params,
+}) => {
     const { id } = params;
-    const { user } = useAuth(); // Get user information from useAuth
+    const { user, isAuthenticated } = useAuth(); // Accessing user context via useAuth hook
+    const userId = user?.userId; // Retrieve userId from user object
     const isAdmin = user?.role === "ADMIN"; // Check if the user is an admin
     const router = useRouter();
     const [tournament, setTournament] = useState<Tournament | null>(null);
@@ -35,6 +27,7 @@ const TournamentDetails: React.FC<{ params: { id: string } }> = ({ params }) => 
     const [winnerUsername, setWinnerUsername] = useState<string | null>(null);
 
     const { handleError } = useGlobalErrorHandler();
+    const [registered, setRegistered] = useState<boolean>(false);
 
     const firebaseBaseURL = "https://firebasestorage.googleapis.com/v0/b/quagmire-smu.appspot.com/o/";
 
@@ -46,9 +39,8 @@ const TournamentDetails: React.FC<{ params: { id: string } }> = ({ params }) => 
             setError(null);
 
             try {
-                const response = await axiosInstance.get(`${API_URL}/tournament/${id}`);
+                const response = await axiosInstance.get(`${process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL}/tournament/${id}`);
                 const tournamentData = response.data;
-
                 if (tournamentData.photoUrl) {
                     tournamentData.photoUrl = `${firebaseBaseURL}${encodeURIComponent(tournamentData.photoUrl)}?alt=media`;
                 }
@@ -63,24 +55,63 @@ const TournamentDetails: React.FC<{ params: { id: string } }> = ({ params }) => 
                 const deadlineDate = new Date(tournamentData.deadline);
                 setRegistrationClosed(currentDate > deadlineDate || tournamentData.status !== "SCHEDULED");
 
-            } catch (error) {
-                console.error('Error fetching tournament details:', error);
-                setError('Failed to load tournament details. Please try again.');
+                if (isAuthenticated) {
+                    // Check if player is already registered
+                    const registeredResponse = await axiosInstance.get(
+                        `${process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL}/tournament/${id}/players`
+                    );
 
+                    const isRegistered = registeredResponse.data.some(
+                        (player: { user: User }) => {
+                            console.log(player.user.userId);
+                            console.log(userId);
+
+                            return player.user.userId === userId;
+                        }
+                    );
+
+                    setRegistered(isRegistered);
+                }
+            } catch (error) {
                 if (axios.isAxiosError(error)) {
                     handleError(error);
                 }
+
+                console.error("Error fetching tournament details:", error);
+                setError("Failed to load tournament details. Please try again.");
             } finally {
                 setLoading(false);
             }
         };
 
         fetchTournamentDetails();
-    }, [id]);
+    }, [handleError, id, isAuthenticated, userId]);
+
+    const onRegisterToggle = async () => {
+        try {
+            if (!userId) return; // Ensure userId exists
+
+            if (!registered) {
+                await axiosInstance.put(
+                    `${process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL}/tournament/${id}/players/${userId}`
+                );
+            } else {
+                await axiosInstance.delete(
+                    `${process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL}/tournament/${id}/players/${userId}`
+                );
+            }
+            setRegistered(!registered);
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                handleError(error);
+            }
+        }
+    };
 
     if (loading) return <p className="text-lg text-gray-500">Loading...</p>;
     if (error) return <p className="text-lg text-red-500">Error: {error}</p>;
-    if (!tournament) return <p className="text-lg text-gray-500">Tournament not found.</p>;
+    if (!tournament)
+        return <p className="text-lg text-gray-500">Tournament not found.</p>;
 
     // Function to handle "Start Tournament" button click
     const handleStartTournament = async () => {
@@ -114,12 +145,7 @@ const TournamentDetails: React.FC<{ params: { id: string } }> = ({ params }) => 
             )}
 
             <p className="text-xl text-center">{`${new Date(tournament.startDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })} - ${new Date(tournament.endDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}`}</p>
-            {/* Display Winner Information */}
-            {tournament.winnerId && winnerUsername && (
-                <div className="mt-8 text-center text-green-600 text-xl font-semibold">
-                    Winner: {winnerUsername}
-                </div>
-            )}
+
             <div className="mt-8 max-w-xl w-full">
                 <h2 className="text-lg font-semibold">Location:</h2>
                 <p className="text-base">{tournament.location}</p>
@@ -151,9 +177,9 @@ const TournamentDetails: React.FC<{ params: { id: string } }> = ({ params }) => 
                             View Brackets
                         </Button>
                     </div>
-                ) : tournament.status === "SCHEDULED" ?(
+                ) : tournament.status === "SCHEDULED" ? (
                     <p className="text-center text-gray-500">Draw has yet to be released</p>
-                ):(
+                ) : (
                     <p className="text-center text-gray-500">Draw is not available for this tournament</p>
 
                 )}
@@ -173,4 +199,6 @@ const TournamentDetails: React.FC<{ params: { id: string } }> = ({ params }) => 
     );
 };
 
-export default TournamentDetails;
+export default withAuth(TournamentDetails, {
+    requireAuth: false,
+});

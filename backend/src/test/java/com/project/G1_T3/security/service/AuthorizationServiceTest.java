@@ -8,12 +8,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+@ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
 class AuthorizationServiceTest {
 
@@ -30,11 +32,11 @@ class AuthorizationServiceTest {
     void setUp() {
         // Create a fixed UUID for testing
         userId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
-        
+
         // Initialize User with the UUID
         User user = new User();
-        user.setId(userId.toString());
-        
+        user.setId(userId);
+
         // Create CustomUserDetails with the User
         userDetails = new CustomUserDetails(user);
     }
@@ -50,7 +52,7 @@ class AuthorizationServiceTest {
 
         // Act & Assert
         assertDoesNotThrow(() -> authorizationService.authorizeUserById(requestedUserId));
-        
+
         // Verify that getAuthenticatedUser was called
         verify(securityService).getAuthenticatedUser();
     }
@@ -59,7 +61,7 @@ class AuthorizationServiceTest {
     void authorizeUserById_WhenUserNotAuthorized_ShouldThrowSecurityException() {
         // Arrange
         when(securityService.getAuthenticatedUser()).thenReturn(userDetails);
-        
+
         // Use a different UUID
         UUID differentUserId = UUID.fromString("123e4567-e89b-12d3-a456-426614174999");
 
@@ -67,7 +69,7 @@ class AuthorizationServiceTest {
         SecurityException exception = assertThrows(SecurityException.class,
             () -> authorizationService.authorizeUserById(differentUserId));
         assertEquals("User not authorized to update this profile", exception.getMessage());
-        
+
         // Verify that getAuthenticatedUser was called
         verify(securityService).getAuthenticatedUser();
     }
@@ -81,7 +83,7 @@ class AuthorizationServiceTest {
         SecurityException exception = assertThrows(SecurityException.class,
             () -> authorizationService.authorizeUserById(userId));
         assertEquals("User not authorized to update this profile", exception.getMessage());
-        
+
         // Verify that getAuthenticatedUser was called
         verify(securityService).getAuthenticatedUser();
     }

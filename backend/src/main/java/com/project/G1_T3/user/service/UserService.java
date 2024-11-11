@@ -1,6 +1,5 @@
 package com.project.G1_T3.user.service;
 
-import com.project.G1_T3.player.repository.PlayerProfileRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -15,13 +14,14 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.project.G1_T3.authentication.model.ResetPasswordDTO;
 import com.project.G1_T3.authentication.service.JwtService;
 import com.project.G1_T3.common.exception.EmailAlreadyInUseException;
 import com.project.G1_T3.common.exception.RegistrationException;
 import com.project.G1_T3.common.exception.UsernameAlreadyTakenException;
 import com.project.G1_T3.email.service.EmailService;
-import com.project.G1_T3.player.model.PlayerProfile;
-import com.project.G1_T3.player.service.PlayerProfileService;
+import com.project.G1_T3.user.model.UpdateEmailDTO;
+import com.project.G1_T3.user.model.UpdatePasswordDTO;
 import com.project.G1_T3.user.model.User;
 import com.project.G1_T3.user.model.UserDTO;
 import com.project.G1_T3.user.model.UserRole;
@@ -35,8 +35,6 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepository;
-    @Autowired
-    private PlayerProfileRepository playerProfileRepository;
     @Autowired
     private JwtService jwtService;
     @Autowired
@@ -71,7 +69,6 @@ public class UserService {
 
                 try {
                     sendVerificationEmail(newUser);
-                    createPlayerProfile(savedUser);
                 } catch (Exception e) {
                     logger.error("Error in post-registration process", e);
                 }
@@ -86,12 +83,6 @@ public class UserService {
             logger.error("Registration failed", e);
             throw new RegistrationException("Failed to complete registration");
         }
-    }
-
-    private void createPlayerProfile(User user) {
-        PlayerProfile newProfile = new PlayerProfile();
-        newProfile.setUser(user);
-        playerProfileRepository.save(newProfile);
     }
 
     private User createUser(String username, String email, String password, UserRole role) {
@@ -115,7 +106,7 @@ public class UserService {
         return userRepository.existsByEmail(email);
     }
 
-    private void sendVerificationEmail(User user) {
+    public void sendVerificationEmail(User user) {
         String token = jwtService.generateEmailVerificationToken(user);
         String verificationLink = backendUrl + "/authentication/verify-email?token=" + token;
         emailService.sendVerificationEmail(user.getEmail(), user.getUsername(), verificationLink);
@@ -169,4 +160,54 @@ public class UserService {
         user.setPasswordHash(passwordEncoder.encode(password));
         userRepository.save(user);
     }
+
+    public void resetPassword(ResetPasswordDTO resetPasswordDTO) {
+        User user = userRepository.findByUsername(resetPasswordDTO.getUsername())
+                .orElseThrow(() -> new UsernameNotFoundException(resetPasswordDTO.getUsername()));
+
+        String currentPassword = resetPasswordDTO.getCurrentPassword();
+        if (!passwordEncoder.matches(currentPassword, user.getPasswordHash())) {
+            throw new IllegalArgumentException("Current password is incorrect");
+        }
+
+        user.setPasswordHash(passwordEncoder.encode(resetPasswordDTO.getNewPassword()));
+        userRepository.save(user);
+    }
+
+    public void updatePassword(String username, UpdatePasswordDTO updatePasswordDTO) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        if (!passwordEncoder.matches(updatePasswordDTO.getCurrentPassword(), user.getPasswordHash())) {
+            throw new IllegalArgumentException("Current password is incorrect");
+        }
+
+        user.setPasswordHash(passwordEncoder.encode(updatePasswordDTO.getNewPassword()));
+        userRepository.save(user); 
+    }
+
+    public boolean updateEmail(String username, UpdateEmailDTO updateEmailDTO) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        // Verify the password
+        if (!passwordEncoder.matches(updateEmailDTO.getPassword(), user.getPasswordHash())) {
+            return false; // Password is incorrect
+        }
+
+        // Update the email
+        user.setEmail(updateEmailDTO.getNewEmail());
+        userRepository.save(user);
+        return true; // Email update successful
+    }
+
+    public UserDTO getUserInfo(String username) {
+        // Find the user by username in the repository
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+        
+        // Convert the User entity to a UserDTO
+        return UserDTO.fromUser(user);
+    }
+    
 }

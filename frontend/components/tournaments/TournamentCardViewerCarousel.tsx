@@ -1,38 +1,33 @@
 import { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import TournamentCard from './TournamentCard';
-import tournaments from './tournaments.json';
 import { Button } from "@/components/ui/button";
 import { motion } from 'framer-motion';
 import { Tournament } from '@/types/tournament';
+import NewCard from './NewCard';
+import axiosInstance from '@/lib/axios';
+import axios from 'axios';
 
-const transformTournamentData = (tournament: any): Tournament => {
-    return {
-        id: String(tournament.id),
-        name: tournament.name,
-        location: tournament.location,
-        startDate: tournament.start_date.split('T')[0],
-        startTime: tournament.start_date.split('T')[1]?.slice(0, 5) || '00:00',
-        endDate: tournament.end_date.split('T')[0],
-        endTime: tournament.end_date.split('T')[0]?.slice(0, 5) || '00:00',
-        status: tournament.status.toUpperCase() as Tournament['status'],
-        deadlineDate: tournament.registration_deadline.split('T')[0],
-        deadlineTime: tournament.registration_deadline.split('T')[1]?.slice(0, 5) || '00:00',
-        maxParticipants: tournament.max_participants,
-        description: tournament.description,
-        refereeIds: tournament.refereeIds || []
-    };
-};
+const API_URL = `${process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL}/tournament`;
 
 const TournamentCardViewerCarousel = () => {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [cardsToShow, setCardsToShow] = useState(3);
-    const [transformedTournaments, setTransformedTournaments] = useState<Tournament[]>([]);
+    const [tournaments, setTournaments] = useState<Tournament[]>([]);
 
     useEffect(() => {
-        // Transform the imported tournaments data to match the Tournament interface
-        const transformed = tournaments.map(transformTournamentData);
-        setTransformedTournaments(transformed);
+        const fetchTournaments = async () => {
+            try {
+                const response = await axios.get(
+                    `${API_URL}/featured`
+                )
+                setTournaments(response.data);
+            } catch (error) {
+                console.error('Error fetching tournaments:', error);
+                setTournaments([]);
+            }
+        }
+
+        fetchTournaments();
     }, []);
 
     useEffect(() => {
@@ -51,7 +46,7 @@ const TournamentCardViewerCarousel = () => {
         if (direction === 'left') {
             setCurrentIndex(prev => Math.max(prev - 1, 0));
         } else {
-            setCurrentIndex(prev => Math.min(prev + 1, transformedTournaments.length - cardsToShow));
+            setCurrentIndex(prev => Math.min(prev + 1, tournaments.length - cardsToShow));
         }
     };
 
@@ -64,15 +59,19 @@ const TournamentCardViewerCarousel = () => {
                     animate={{ x: `-${currentIndex * (100 / cardsToShow)}%` }}
                     transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 >
-                    {transformedTournaments.map((tournament) => (
-                        <div
-                            key={tournament.id}
-                            className={`w-full flex-shrink-0 flex-grow-0`}
-                            style={{ flexBasis: `${100 / cardsToShow}%` }}
-                        >
-                            <TournamentCard tournament={tournament} />
-                        </div>
-                    ))}
+                    {tournaments.length === 0 ? (
+                        <p className="text-red-500">No tournaments available</p>
+                    ) : (
+                        tournaments.map((tournament) => (
+                            <div
+                                key={tournament.id}
+                                className={`w-full flex-shrink-0 flex-grow-0`}
+                                style={{ flexBasis: `${100 / cardsToShow}%` }}
+                            >
+                                <NewCard tournament={tournament} />
+                            </div>
+                        ))
+                    )}
                 </motion.div>
             </div>
             <div className="flex justify-center mt-4 space-x-4">
@@ -89,7 +88,7 @@ const TournamentCardViewerCarousel = () => {
                     variant="outline"
                     size="icon"
                     onClick={() => scroll('right')}
-                    disabled={currentIndex === transformedTournaments.length - cardsToShow}
+                    disabled={currentIndex === tournaments.length - cardsToShow}
                     className="p-2"
                 >
                     <ChevronRight className="h-6 w-6" />

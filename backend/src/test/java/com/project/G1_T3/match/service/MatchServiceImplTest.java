@@ -1,11 +1,10 @@
 package com.project.G1_T3.match.service;
 
-import com.project.G1_T3.common.glicko.Glicko2Result;
 import com.project.G1_T3.match.model.Match;
 import com.project.G1_T3.match.model.MatchDTO;
 import com.project.G1_T3.match.repository.MatchRepository;
-import com.project.G1_T3.player.model.PlayerProfile;
-import com.project.G1_T3.player.service.PlayerProfileService;
+import com.project.G1_T3.playerprofile.model.PlayerProfile;
+import com.project.G1_T3.playerprofile.service.PlayerProfileService;
 import com.project.G1_T3.common.model.Status;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -13,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -21,6 +21,7 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+@ActiveProfiles("test")
 class MatchServiceImplTest {
 
     @Mock
@@ -87,8 +88,8 @@ class MatchServiceImplTest {
         player2.setVolatility(0.07f);
 
         when(matchRepository.findById(matchId)).thenReturn(Optional.of(match));
-        when(playerProfileService.findByProfileId(match.getPlayer1Id().toString())).thenReturn(player1);
-        when(playerProfileService.findByProfileId(match.getPlayer2Id().toString())).thenReturn(player2);
+        when(playerProfileService.findByProfileId(match.getPlayer1Id())).thenReturn(player1);
+        when(playerProfileService.findByProfileId(match.getPlayer2Id())).thenReturn(player2);
 
         // Call the method to test
         matchService.startMatch(matchId, matchDTO);

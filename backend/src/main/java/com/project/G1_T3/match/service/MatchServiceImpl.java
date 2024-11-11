@@ -1,24 +1,28 @@
 package com.project.G1_T3.match.service;
 
+import com.amazonaws.services.secretsmanager.model.ResourceNotFoundException;
 import com.project.G1_T3.common.glicko.Glicko2Result;
 import com.project.G1_T3.common.model.Status;
 import com.project.G1_T3.match.model.Match;
 import com.project.G1_T3.match.model.MatchDTO;
 import com.project.G1_T3.match.repository.MatchRepository;
-import com.project.G1_T3.player.model.PlayerProfile;
+import com.project.G1_T3.playerprofile.model.PlayerProfile;
+import com.project.G1_T3.playerprofile.repository.PlayerProfileRepository;
+import com.project.G1_T3.playerprofile.service.PlayerProfileService;
 
 import lombok.extern.slf4j.Slf4j;
-import com.project.G1_T3.player.service.PlayerProfileService;
 
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.stereotype.Service;
 import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.UUID;
+import java.util.logging.Logger;
 
 @Slf4j
 @Service
@@ -30,31 +34,42 @@ public class MatchServiceImpl implements MatchService {
     @Autowired
     private PlayerProfileService playerProfileService;
 
-    @Override
-    public Match getCurrentMatchForUser(UUID userId) {
-        PlayerProfile playerProfile = playerProfileService.findByUserId(userId);
-        if (playerProfile == null) {
-            return null;
-        }
-
-        return matchRepository.findByPlayer1IdOrPlayer2IdAndStatus(
-                playerProfile.getProfileId(),
-                playerProfile.getProfileId(),
-                Status.IN_PROGRESS);
-    }
+    Logger logger = Logger.getLogger(MatchServiceImpl.class.getName());
 
     @Override
     public Match getCurrentMatchForUserById(UUID userId) {
         try {
             PlayerProfile playerProfile = playerProfileService.findByUserId(userId);
+            logger.info("playerProfile: " + playerProfile);
             if (playerProfile == null) {
                 throw new IllegalArgumentException("Invalid user ID");
             }
 
-            return matchRepository.findByPlayer1IdOrPlayer2Id(
+            logger.info("player: " + playerProfile.getProfileId().toString());
+            // Get all in-progress matches for the player
+            List<Match> matches = matchRepository.findMatchesByPlayerIdAndStatus(
                     playerProfile.getProfileId(),
-                    playerProfile.getProfileId());
+                    Status.IN_PROGRESS);
+
+            // There should only be one in-progress match per player
+            if (matches.isEmpty()) {
+                return null;
+            }
+            if (matches.size() > 1) {
+                logger.warning("Multiple in-progress matches found for player " + playerProfile.getProfileId());
+                // You might want to handle this case differently depending on your business
+                // logic
+                // For now, return the most recently updated match
+                return matches.stream()
+                        .max((m1, m2) -> m1.getUpdatedAt().compareTo(m2.getUpdatedAt()))
+                        .orElse(null);
+            }
+
+            Match match = matches.get(0);
+            logger.info("Returning match: " + match);
+            return match;
         } catch (IllegalArgumentException e) {
+            logger.warning(e.getMessage());
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
     }
@@ -80,15 +95,15 @@ public class MatchServiceImpl implements MatchService {
         if (matchDTO.getPlayer1Id() == null) {
             throw new IllegalArgumentException("Player 1 ID must not be null");
         }
-    
+
         if (matchDTO.getPlayer1Id().equals(matchDTO.getPlayer2Id())) {
             throw new IllegalArgumentException("Player 1 and Player 2 cannot be the same");
         }
-    
+
         if (matchDTO.getScheduledTime() == null) {
             throw new IllegalArgumentException("Scheduled time must not be null");
         }
-    
+
         if (matchDTO.getScheduledTime().isBefore(LocalDateTime.now())) {
             throw new IllegalArgumentException("Scheduled time must be in the future");
         }
@@ -122,14 +137,13 @@ public class MatchServiceImpl implements MatchService {
         }
 
         // Fetch the match, or throw an exception if not found
-        UUID matchUUID = UUID.fromString(matchId.toString());
-        Match match = matchRepository.findById(matchUUID).orElseThrow(() -> new RuntimeException("Match not found"));
+        Match match = matchRepository.findById(matchId).orElseThrow(() -> new RuntimeException("Match not found"));
 
         // Ensure the match hasn't already started
         if (match.getStatus() != Status.SCHEDULED) {
-            throw new IllegalStateException("Match is not scheduled. Match is " + match.getStatus());
+            throw new IllegalStateException("Match is not scheduled");
         }
-       
+
         // Start the match
         match.startMatch();
         matchRepository.save(match);
@@ -137,46 +151,41 @@ public class MatchServiceImpl implements MatchService {
 
     // Method for referee to complete the match and select the winner
     public void completeMatch(UUID matchId, MatchDTO matchDTO) {
-        System.out.println(matchDTO.getPlayer1Id());
-
         // Null checks for matchId and matchDTO
         if (matchId == null || matchDTO == null) {
             throw new IllegalArgumentException("Match ID and match details must not be null");
         }
-        
+
         // Fetch the match, or throw an exception if not found
-        UUID matchUUID = UUID.fromString(matchId.toString());
-        Match match = matchRepository.findById(matchUUID)
+        Match match = matchRepository.findById(matchId)
                 .orElseThrow(() -> new RuntimeException("Match not found"));
-    
+
         // Ensure the match hasn't already been completed
         if (match.getStatus() == Status.COMPLETED) {
             throw new IllegalStateException("Match is already completed");
         }
-    
+
         // Verify that the winner is one of the players in the match
         if (matchDTO.getWinnerId() == null) {
             throw new IllegalArgumentException("Winner ID must not be null");
         }
-    
-        if (!match.getPlayer1Id().equals(matchDTO.getWinnerId()) && !match.getPlayer2Id().equals(matchDTO.getWinnerId())) {
-            throw new RuntimeException("Winner must be one of the players. The two players are " + match.getPlayer1Id() + 
-            " and " + match.getPlayer2Id() + ", you gave me " + matchDTO.getWinnerId());
+
+        if (!match.getPlayer1Id().equals(matchDTO.getWinnerId())
+                && !match.getPlayer2Id().equals(matchDTO.getWinnerId())) {
+            throw new RuntimeException("Winner must be one of the players");
         }
-    
+
         // Complete the match
         match.completeMatch(matchDTO.getWinnerId(), matchDTO.getScore());
         matchRepository.save(match);
 
-        //update the player rankings
+        // update the player rankings
         try {
             updatePlayerRatingsAfterMatch(match);
         } catch (Exception e) {
             e.printStackTrace();
-            throw(e);
+            throw (e);
         }
-      
-
     }
 
     private void updatePlayerRatingsAfterMatch(Match match) {
@@ -185,8 +194,8 @@ public class MatchServiceImpl implements MatchService {
         UUID winnerId = match.getWinnerId();
 
         // Retrieve player profiles (from cache or database)
-        PlayerProfile player1 = playerProfileService.findByProfileId(player1Id.toString());
-        PlayerProfile player2 = playerProfileService.findByProfileId(player2Id.toString());
+        PlayerProfile player1 = playerProfileService.findByProfileId(player1Id);
+        PlayerProfile player2 = playerProfileService.findByProfileId(player2Id);
 
         // Determine match outcome
         double scorePlayer1;
@@ -226,6 +235,48 @@ public class MatchServiceImpl implements MatchService {
         // Save updated profiles (also evicts cache entries)
         playerProfileService.updatePlayerRating(player1);
         playerProfileService.updatePlayerRating(player2);
+    }
+
+    @Override
+    public Match forfeitMatch(UUID matchId, UUID forfeitedById) {
+        Match match = matchRepository.findById(matchId)
+                .orElseThrow(() -> new ResourceNotFoundException("Match not found"));
+
+        if (match.getStatus() != Status.IN_PROGRESS && match.getStatus() != Status.SCHEDULED) {
+            throw new IllegalStateException("Match cannot be forfeited in current state");
+        }
+
+        // Set winner as the player who didn't forfeit
+        UUID winnerId = match.getPlayer1Id().equals(forfeitedById) ? match.getPlayer2Id() : match.getPlayer1Id();
+
+        match.setWinnerId(winnerId);
+        match.setStatus(Status.COMPLETED);
+        match.setScore("Forfeit");
+        match.setUpdatedAt(LocalDateTime.now());
+
+        return matchRepository.save(match);
+    }
+
+    @Override
+    public Match completeMatch(UUID matchId, UUID winnerId, String score) {
+        Match match = matchRepository.findById(matchId)
+                .orElseThrow(() -> new ResourceNotFoundException("Match not found"));
+
+        if (match.getStatus() != Status.IN_PROGRESS) {
+            throw new IllegalStateException("Match must be in progress to be completed");
+        }
+
+        // Verify winner is one of the players
+        if (!match.getPlayer1Id().equals(winnerId) && !match.getPlayer2Id().equals(winnerId)) {
+            throw new IllegalArgumentException("Winner must be one of the match participants");
+        }
+
+        match.setWinnerId(winnerId);
+        match.setStatus(Status.COMPLETED);
+        match.setScore(score);
+        match.setUpdatedAt(LocalDateTime.now());
+
+        return matchRepository.save(match);
     }
 
 }

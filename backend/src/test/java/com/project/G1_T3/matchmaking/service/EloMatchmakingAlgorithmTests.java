@@ -4,12 +4,15 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.project.G1_T3.matchmaking.model.QueuedPlayer;
-import com.project.G1_T3.player.model.PlayerProfile;
+import com.project.G1_T3.playerprofile.model.PlayerProfile;
 import com.project.G1_T3.user.model.User;
+
 import java.time.Instant;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.test.context.ActiveProfiles;
 
+@ActiveProfiles("test")
 class EloMatchmakingAlgorithmTests {
 
     private EloMatchmakingAlgorithm algorithm;

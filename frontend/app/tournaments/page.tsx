@@ -1,12 +1,16 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import NewCard from "@/components/tournaments/NewCard"; // Update the import to your new card component
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import React, { useState, useEffect } from "react";
+import axiosInstance from "@/lib/axios";
+import { useGlobalErrorHandler } from "../context/ErrorMessageProvider";
+import NewCard from "@/components/tournaments/NewCard";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { DatePickerWithRange } from "@/components/ui/DatePickerWithRange";
 import { Tournament } from "@/types/tournament";
-import axiosInstance from '@/lib/axios';
-import { useGlobalErrorHandler } from '../context/ErrorMessageProvider';
+import { DateRange } from "react-day-picker";
+import { addDays } from "date-fns";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
+import axios from "axios";
 
 const API_URL = `${process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL}/tournament`;
 
@@ -20,10 +24,10 @@ const TournamentTabs: React.FC<{ currentTab: 'upcoming' | 'past' | 'current'; se
     <div>
         <Tabs defaultValue={currentTab} className="w-full max-w-md">
             <TabsList className="flex justify-center w-full">
-                <TabsTrigger value="upcoming" onClick={() => setCurrentTab('upcoming')}>
+                <TabsTrigger value="upcoming" onClick={() => setCurrentTab("upcoming")}>
                     Upcoming
                 </TabsTrigger>
-                <TabsTrigger value="past" onClick={() => setCurrentTab('past')}>
+                <TabsTrigger value="past" onClick={() => setCurrentTab("past")}>
                     Past
                 </TabsTrigger>
                 <TabsTrigger value="current" onClick={() => setCurrentTab('current')}>
@@ -71,7 +75,35 @@ const TournamentPage: React.FC = () => {
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const { handleError } = useGlobalErrorHandler();
-    const [currentTab, setCurrentTab] = useState<'upcoming' | 'past' | 'current'>('upcoming');
+    const [currentTab, setCurrentTab] = useState<"upcoming" | "past" | "current">("upcoming");
+    const [date, setDate] = useState<DateRange | undefined>({
+        from: undefined,
+        to: undefined,
+    });
+
+    const router = useRouter();
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
+
+    // Update URL when date range changes
+    useEffect(() => {
+        const params = new URLSearchParams(searchParams.toString());
+
+        if (date?.from || date?.to) {
+            if (date.from) {
+                params.set("from", date.from.toISOString().split("T")[0]);
+            }
+            if (date.to) {
+                params.set("to", date.to.toISOString().split("T")[0]);
+            }
+        } else {
+            // Remove 'from' and 'to' if date is cleared
+            params.delete("from");
+            params.delete("to");
+        }
+
+        router.push(`${pathname}?${params.toString()}`);
+    }, [date, pathname, router]);
 
     useEffect(() => {
         const fetchTournaments = async () => {
@@ -79,7 +111,11 @@ const TournamentPage: React.FC = () => {
             setError(null);
 
             try {
-                let endpoint = '';
+                // Get 'from' and 'to' values from searchParams if they exist
+                const from = searchParams.get("from");
+                const to = searchParams.get("to");
+
+                let endpoint = "";
 
                 if (currentTab === 'upcoming') {
                     endpoint = `${API_URL}/upcoming?page=0&size=10`;
@@ -89,16 +125,21 @@ const TournamentPage: React.FC = () => {
                     endpoint = `${API_URL}/current?page=0&size=10`;
                 }
 
+                // Append 'from' and 'to' parameters only if they are present in the URL
+                if (from || to) {
+                    if (from) endpoint += `&from=${from}`;
+                    if (to) endpoint += `&to=${to}`;
+                }
+
                 const response = await axiosInstance.get(endpoint);
                 setTournaments(response.data.content);
             } catch (error) {
-
                 if (axios.isAxiosError(error)) {
-                    handleError(error)
+                    handleError(error);
                 }
 
-                console.error('Error fetching tournaments:', error);
-                setError('Failed to load tournaments. Please try again.');
+                console.error("Error fetching tournaments:", error);
+                setError("Failed to load tournaments. Please try again.");
                 setTournaments([]);
             } finally {
                 setLoading(false);
@@ -106,13 +147,22 @@ const TournamentPage: React.FC = () => {
         };
 
         fetchTournaments();
-    }, [currentTab]);
+    }, [currentTab, searchParams]);
 
     return (
         <div className="flex flex-col items-center min-h-screen pt-20">
             <TournamentHeader />
-            {/* Tabs for Upcoming, In Progress, and Past tournaments */}
-            <TournamentTabs currentTab={currentTab} setCurrentTab={setCurrentTab} />
+            <div className="relative flex items-center w-full px-4">
+                <div className="flex justify-center w-full">
+                    <TournamentTabs
+                        currentTab={currentTab}
+                        setCurrentTab={setCurrentTab}
+                    />
+                </div>
+                <div className="absolute right-4">
+                    <DatePickerWithRange date={date} setDate={setDate} />
+                </div>
+            </div>
 
             <div className="flex flex-col items-center w-full p-4">
                 {loading && <p className="text-lg text-gray-500">Loading...</p>}
@@ -122,10 +172,20 @@ const TournamentPage: React.FC = () => {
                         {currentTab === 'upcoming' ? 'No upcoming tournaments available.' : currentTab === 'past' ? 'No past tournaments available.' : 'No current tournaments available.'}
                     </p>
                 )}
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
-                    {!loading && !error && tournaments && tournaments.map(tournament => (
-                        <NewCard key={tournament.id} tournament={tournament} className="w-full" />
-                    ))}
+                    {!loading && !error && tournaments &&
+                        (tournaments.sort((a, b) => {
+                            const dateA = new Date(a.startDate).getTime(); // Convert the start_date to Date objects
+                            const dateB = new Date(b.startDate).getTime(); // Convert the start_date to Date objects
+                            return dateA - dateB;
+                        })
+                        ).map((tournament) => (
+                            <NewCard
+                                key={tournament.id}
+                                tournament={tournament}
+                            />
+                        ))}
                 </div>
             </div>
         </div>

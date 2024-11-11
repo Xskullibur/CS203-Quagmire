@@ -1,5 +1,6 @@
 package com.project.G1_T3.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
@@ -12,12 +13,14 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import org.springframework.messaging.converter.MappingJackson2MessageConverter;
 import org.springframework.messaging.converter.MessageConverter;
-
 import java.util.List;
 
 @Configuration
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
+
+    @Value("${app.frontend.url}")
+    private String frontendUrl;
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
@@ -29,10 +32,9 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws")
-                .setAllowedOrigins("http://localhost:3000") // Replace with your frontend URL
+                .setAllowedOrigins(frontendUrl, "http://localhost:3000")
                 .withSockJS();
     }
-
     @Override
     public boolean configureMessageConverters(List<MessageConverter> messageConverters) {
         messageConverters.add(messageConverter());

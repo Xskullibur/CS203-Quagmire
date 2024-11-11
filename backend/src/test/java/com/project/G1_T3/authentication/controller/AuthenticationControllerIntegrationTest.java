@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.net.URI;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -23,6 +24,7 @@ import com.project.G1_T3.user.repository.UserRepository;
 import com.project.G1_T3.authentication.model.LoginResponseDTO;
 import com.project.G1_T3.authentication.service.AuthService;
 
+@Tag("Integration")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class AuthenticationControllerIntegrationTest {
 

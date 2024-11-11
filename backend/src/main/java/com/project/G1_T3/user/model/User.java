@@ -80,8 +80,8 @@ public class User implements Serializable {
         return userId;
     }
 
-    public void setId(String userId) {
-        this.userId = UUID.fromString(userId);
+    public void setId(UUID userId) {
+        this.userId = userId;
     }
 
     public boolean isEmailVerified() {
@@ -98,5 +98,10 @@ public class User implements Serializable {
 
     public void setIsLocked(boolean isLocked) {
         this.isLocked = isLocked;
+    }
+
+    //setPassword
+    public void setPassword(String password) {
+        this.passwordHash = password;
     }
 }

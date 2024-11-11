@@ -1,7 +1,8 @@
 package com.project.G1_T3.matchmaking.model;
 
-import com.project.G1_T3.player.model.PlayerProfile;
 import java.time.Instant;
+
+import com.project.G1_T3.playerprofile.model.PlayerProfile;
 
 public class QueuedPlayer {
     private final PlayerProfile player;
