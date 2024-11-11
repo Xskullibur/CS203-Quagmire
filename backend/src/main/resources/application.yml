@@ -13,7 +13,7 @@ spring:
             hibernate:
                 format-sql: true
         hibernate:
-            ddl-auto: create-drop
+            ddl-auto: update
         # show-sql: true
         database: postgresql
 
