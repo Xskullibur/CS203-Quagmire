@@ -1,7 +1,7 @@
 // BracketsPage.tsx
 'use client'
 import React, { useState, useEffect } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import BracketMatch from "@/components/tournaments/BracketMatch";
 import AutoAdvanceMatch from "@/components/tournaments/AutoAdvanceMatch";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,6 @@ import { getCurrentStageFromTournament, getMatchesForRound, getRoundsForTourname
 import { useAuth } from "@/hooks/useAuth";
 import { UserRole } from "@/types/user-role";
 import axiosInstance from "@/lib/axios";
-import { useRouter } from "next/router";
 
 const API_URL = process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL;
 

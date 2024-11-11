@@ -7,6 +7,7 @@ import { useGlobalErrorHandler } from '@/app/context/ErrorMessageProvider';
 import { useAuth } from "@/hooks/useAuth"; // Import the auth hook
 import { useRouter } from "next/navigation"; // Import useRouter for navigation
 import { getPlayerProfileById } from '@/hooks/tournamentDataManager';
+import TournamentBracket from '@/components/tournaments/TournamentBracket';
 
 interface Tournament {
     name: string;
@@ -17,7 +18,7 @@ interface Tournament {
     location: string;
     photoUrl?: string;
     winnerId: string | null;
-    status: 'SCHEDULED' | 'INPROGRESS' | 'COMPLETED' | 'CANCELLED';
+    status: 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
 }
 
 const API_URL = process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL;
@@ -95,10 +96,6 @@ const TournamentDetails: React.FC<{ params: { id: string } }> = ({ params }) => 
 
     };
 
-    const goToBrackets = () => {
-        router.push(`/tournaments/${id}/brackets`);
-    };
-
     return (
         <div className="flex flex-col items-center min-h-screen pt-20">
             <header className="bg-background/10 w-full py-4 text-center text-white">
@@ -141,24 +138,20 @@ const TournamentDetails: React.FC<{ params: { id: string } }> = ({ params }) => 
             <div className="m-4">
                 <hr className="w-full my-4 border-t border-gray-300" />
 
-                <h2 className="text-2xl font-semibold my-8 text-center">Tournament Draw</h2>
-
                 {/* Conditionally display message or button based on tournament status */}
-                {tournament.status === "INPROGRESS" ? (
-                    <div className="flex flex-col items-center">
-                        <p className="text-center text-green-600 text-xl font-semibold">Tournament is in progress!</p>
-                        <Button onClick={goToBrackets} className="mt-4">
-                            View Brackets
-                        </Button>
-                    </div>
-                ) : tournament.status === "SCHEDULED" ?(
-                    <p className="text-center text-gray-500">Draw has yet to be released</p>
-                ):(
-                    <p className="text-center text-gray-500">Draw is not available for this tournament</p>
-
-                )}
-
-
+                {(() => {
+                    if (tournament.status === "IN_PROGRESS" || tournament.status === "COMPLETED") {
+                        return (
+                            <div className="flex flex-col items-center">
+                                <TournamentBracket tournamentId={id}/>
+                            </div>
+                        );
+                    } else if (tournament.status === "SCHEDULED") {
+                        return <p className="text-center text-gray-500">Draw has yet to be released</p>;
+                    } else {
+                        return <p className="text-center text-gray-500">Draw is not available for this tournament</p>;
+                    }
+                })()}
 
                 {/* Start Tournament Button for Admins Only */}
                 {isAdmin && tournament.status === "SCHEDULED" && (
