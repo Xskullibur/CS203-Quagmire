@@ -1,6 +1,8 @@
 spring:
     application:
         name: 'G1-T3'
+    mvc:
+        dispatch-options-request: true
 
     datasource:
         url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
@@ -66,6 +68,11 @@ app:
         url: ${FRONTEND_URL}
     backend:
         url: ${BACKEND_URL}
+
+server:
+  tomcat:
+    relaxed-query-chars: ['|','{','}','[',']']
+  forward-headers-strategy: native
 
 firebase:
     storage:

@@ -188,11 +188,7 @@ public class SecurityConfig {
                 "https://api.quagmire.site",
                 "http://api.quagmire.site"));
 
-        // Expand allowed methods
-        configuration.setAllowedMethods(Arrays.asList(
-                "GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"));
-
-        // Be more specific with allowed headers
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList(
                 "Authorization",
                 "Content-Type",
