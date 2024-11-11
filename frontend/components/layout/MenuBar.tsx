@@ -58,7 +58,7 @@ export default function MenuBar() {
 
     return (
       <>
-        {user?.role === "USER" && (<Link
+        {user?.role === "PLAYER" && (<Link
           href="/match"
           className="text-sm bg-zinc-500 text-white px-4 py-2 rounded-full hover:bg-gray-700 transition"
         >
@@ -71,7 +71,7 @@ export default function MenuBar() {
             <span>Profile</span>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
-            {user?.role === "USER" && (<DropdownMenuItem
+            {user?.role === "PLAYER" && (<DropdownMenuItem
               className="cursor-pointer hover:bg-zinc-800 focus:bg-zinc-800"
               onClick={handleNavigateToProfile}
             >
