@@ -198,7 +198,7 @@ public class SecurityConfig {
                 "Authorization"));
 
         configuration.setAllowCredentials(true);
-        configuration.setMaxAge(3600L); // Cache preflight requests for 1 hour
+        configuration.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
