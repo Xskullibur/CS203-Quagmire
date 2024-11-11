@@ -35,7 +35,7 @@ const UpdateTournament = () => {
     deadlineTime: '',
     maxParticipants: 0,
     description: '',
-    refereeIds: []
+    photoUrl: ''
   });
 
   const [refereeSearchQuery, setRefereeSearchQuery] = useState<string>('');
@@ -70,17 +70,6 @@ const UpdateTournament = () => {
       }
     } else {
       setSearchResults([]);
-    }
-  };
-
-
-  const handleAddReferee = (refereeId: string) => {
-    if (!selectedReferees.includes(refereeId)) {
-      setSelectedReferees([...selectedReferees, refereeId]);
-      setTournament({
-        ...tournament,
-        refereeIds: [...tournament.refereeIds, refereeId]  // Update the list of refereeIds in tournament
-      });
     }
   };
 
@@ -195,10 +184,6 @@ const UpdateTournament = () => {
         handleChange={handleChange}
         handleBack={handleBack}
         handleSubmit={handleSubmit}
-        refereeSearchQuery={refereeSearchQuery}
-        searchResults={searchResults}
-        handleRefereeSearch={handleRefereeSearch}
-        handleAddReferee={handleAddReferee}
       />
         
       )}

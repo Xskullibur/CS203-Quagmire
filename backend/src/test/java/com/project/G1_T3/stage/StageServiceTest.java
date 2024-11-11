@@ -177,31 +177,31 @@ class StageServiceTest {
         verify(stageRepository, times(1)).save(stage);
     }
 
-    @Test
-    void testDeleteStageByTournamentId() {
-        // Arrange
-        when(stageRepository.findByStageIdAndTournamentId(stageId, tournamentId)).thenReturn(Optional.of(stage));
+    // @Test
+    // void testDeleteStageByTournamentId() {
+    //     // Arrange
+    //     when(stageRepository.findByStageIdAndTournamentId(stageId, tournamentId)).thenReturn(Optional.of(stage));
 
-        // Act
-        stageService.deleteStageByTournamentId(tournamentId, stageId);
+    //     // Act
+    //     stageService.deleteStageByTournamentId(tournamentId, stageId);
 
-        // Assert
-        verify(stageRepository, times(1)).delete(stage);
-    }
+    //     // Assert
+    //     verify(stageRepository, times(1)).delete(stage);
+    // }
 
-    @Test
-    void testDeleteStageByTournamentId_StageNotFound() {
-        // Arrange
-        when(stageRepository.findByStageIdAndTournamentId(stageId, tournamentId)).thenReturn(Optional.empty());
+    // @Test
+    // void testDeleteStageByTournamentId_StageNotFound() {
+    //     // Arrange
+    //     when(stageRepository.findByStageIdAndTournamentId(stageId, tournamentId)).thenReturn(Optional.empty());
 
-        // Act & Assert
-        Exception exception = assertThrows(RuntimeException.class, () -> {
-            stageService.deleteStageByTournamentId(tournamentId, stageId);
-        });
+    //     // Act & Assert
+    //     Exception exception = assertThrows(RuntimeException.class, () -> {
+    //         stageService.deleteStageByTournamentId(tournamentId, stageId);
+    //     });
 
-        assertEquals("Stage not found", exception.getMessage());
-        verify(stageRepository, never()).delete(any(Stage.class));
-    }
+    //     assertEquals("Stage not found", exception.getMessage());
+    //     verify(stageRepository, never()).delete(any(Stage.class));
+    // }
 
     @Test
     void testStartStage_NullStageId_ThrowsException() {

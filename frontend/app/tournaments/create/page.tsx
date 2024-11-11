@@ -9,9 +9,9 @@ import { Tournament } from "@/types/tournament";
 import axiosInstance from "@/lib/axios";
 import axios from "axios";
 import { useGlobalErrorHandler } from "@/app/context/ErrorMessageProvider";
+import { tournamentDTO } from "@/types/tournamentDTO";
 
 const API_URL = process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL;
-const WEB_URL = process.env.NEXT_PUBLIC_API_URL;
 
 const CreateTournament = () => {
   const router = useRouter();
@@ -33,9 +33,10 @@ const CreateTournament = () => {
     deadlineTime: "",
     maxParticipants: 0,
     description: "",
-    refereeIds: [],
+    photoUrl: "",
   });
 
+  const [photo, setPhoto] = useState<File | null>(null);
   const [refereeSearchQuery, setRefereeSearchQuery] = useState<string>("");
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [selectedReferees, setSelectedReferees] = useState<string[]>([]);
@@ -71,17 +72,6 @@ const CreateTournament = () => {
     }
   };
 
-  // Add selected referee
-  const handleAddReferee = (refereeId: string) => {
-    if (!selectedReferees.includes(refereeId)) {
-      setSelectedReferees([...selectedReferees, refereeId]);
-      setTournament({
-        ...tournament,
-        refereeIds: [...tournament.refereeIds, refereeId], // Update the list of refereeIds in tournament
-      });
-    }
-  };
-
   // Handle input change
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -91,6 +81,12 @@ const CreateTournament = () => {
       ...tournament,
       [name]: value,
     });
+  };
+
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setPhoto(e.target.files[0]);
+    }
   };
 
   // Handle next step
@@ -114,34 +110,45 @@ const CreateTournament = () => {
       return;
     }
 
-        const startdatetime = `${tournament.startDate}T${tournament.startTime}:00`;
-        const enddatetime = `${tournament.endDate}T${tournament.endTime}:00`;
-        const deadlinedatetime = `${tournament.deadline}T${tournament.deadlineTime}:00`;
+    const startdatetime = `${tournament.startDate}T${tournament.startTime}:00`;
+    const enddatetime = `${tournament.endDate}T${tournament.endTime}:00`;
+    const deadline = `${tournament.deadline}T${tournament.deadlineTime}:00`;
 
-    const {
-      startDate,
-      startTime,
-      endDate,
-      endTime,
-      deadline,
-      deadlineTime,
-      ...tournamentDetails
-    } = tournament;
-
-    const data = {
-      ...tournamentDetails,
+    const tournamentData: tournamentDTO = {
+      id: tournament.id,
+      name: tournament.name,
+      location: tournament.location,
+      status: tournament.status,
+      maxParticipants: tournament.maxParticipants,
+      description: tournament.description,
       startDate: startdatetime,
       endDate: enddatetime,
-      deadline: deadlinedatetime,
+      deadline: deadline,
+      stageDTOs: null,
     };
+
+    const formData = new FormData();
+    formData.append("tournament", JSON.stringify(tournamentData));
+    if (photo) {
+      formData.append("photo", photo);
+    }
 
     try {
       const res = await axiosInstance.post(
         new URL("/tournament/create", API_URL).toString(),
-        data
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
       );
 
-      router.push(WEB_URL + "/admin/dashboard"); // Redirect after successful creation
+      if (res.status === 200) {
+        router.push(res.data.id);
+      } else {
+        alert("Error creating tournament");
+      }
     } catch (error) {
       if (axios.isAxiosError(error)) {
         handleError(error);
@@ -168,10 +175,6 @@ const CreateTournament = () => {
           handleChange={handleChange}
           handleBack={handleBack}
           handleSubmit={handleSubmit}
-          refereeSearchQuery={refereeSearchQuery}
-          searchResults={searchResults}
-          handleRefereeSearch={handleRefereeSearch}
-          handleAddReferee={handleAddReferee}
         />
       )}
     </div>

@@ -21,6 +21,7 @@ import java.util.UUID;
 @NoArgsConstructor
 public class TournamentDTO {
 
+    private String id;
     private String name;
     private String location;
     private LocalDateTime startDate;
@@ -29,10 +30,10 @@ public class TournamentDTO {
     private String description;
     private Status status;
     private Integer maxParticipants;
-    private Set<UUID> refereeIds;
     private List<StageDTO> stageDTOs;
 
     public TournamentDTO(Tournament t) {
+        id = t.getId().toString();
         name = t.getName();
         location = t.getLocation();
         startDate = t.getStartDate();
@@ -41,8 +42,6 @@ public class TournamentDTO {
         description = t.getDescription();
         status = t.getStatus();
         maxParticipants = t.getMaxParticipants();
-        // Use the correct method reference for UUID mapping
-        refereeIds = t.getReferees().stream().map(PlayerProfile::getProfileId).collect(Collectors.toSet());
 
         // Assuming that `getStages()` returns a list of Stage objects, and you need to
         // map them to StageDTO

@@ -6,7 +6,7 @@ import com.project.G1_T3.tournament.model.TournamentDTO;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-
+import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -30,6 +30,11 @@ public interface TournamentService {
     Page<Tournament> findTournamentsByAvailability(Pageable pageable, LocalDate availableStartDate,
             LocalDate availableEndDate); // Search tournaments that start and end within the user's available dates
 
+    Page<Tournament> findCurrentTournaments(Pageable pageable);
+
+    // Page<Tournament> findTournamentsByDeadline(Pageable pageable, LocalDateTime
+    // deadline); // Fetch tournaments with a deadline before a specific date
+
     Page<Tournament> findRegistrableTournaments(Pageable pageable); // Fetch tournaments with a deadline before now
 
     Page<Tournament> findTournamentsByLocation(String location, Pageable pageable); // Filter tournaments by location
@@ -38,13 +43,15 @@ public interface TournamentService {
     Page<Tournament> findByKeywordInDescription(String keyword, Pageable pageable); // Search tournaments by keyword in
                                                                                     // description with pagination
 
-    public Tournament createTournament(TournamentDTO tournament);
+    public Tournament createTournament(TournamentDTO tournament, MultipartFile photo);
 
-    public void startTournament(UUID tournamentId, TournamentDTO tournamentDTO);
+    Tournament getTournamentById(UUID id); // Get tournament by ID
+
+    Tournament updateTournament(UUID tournamentId, Tournament updatedTournament);
+
+    public Tournament startTournament(UUID tournamentId);
 
     public void progressToNextStage(UUID tournamentId);
-
-    Tournament updateTournament(UUID tournamentId, Tournament updatedTournament); // Update an existing tournament
 
     void deleteTournament(UUID tournamentId);
 
@@ -52,17 +59,13 @@ public interface TournamentService {
 
     Tournament addPlayerToTournament(UUID tournamentId, UUID userId); // Add a player to a specific tournament
 
-    Tournament deletePlayerFromTournament(UUID tournamentId, UUID userId); // Add a player to a specific tournament
-
-    public Page<Tournament> findUpcomingTournamentsWithinDateRange(
-            LocalDate fromDate,
-            LocalDate toDate,
-            Pageable pageable);
-
     public Page<Tournament> findPastTournamentsWithinDateRange(
             LocalDate fromDate,
             LocalDate toDate,
             Pageable pageable);
 
-    List<Tournament> findFeaturedTournaments(Pageable pageable); // Find top 5 upcoming tournaments
+    public Tournament deletePlayerFromTournament(UUID tournamentId, UUID userId);
+
+    public List<Tournament> findFeaturedTournaments(Pageable pageable);
+
 }

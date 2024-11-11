@@ -6,8 +6,15 @@ import com.project.G1_T3.match.model.MatchDTO;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import java.util.UUID;
+import java.util.List;
 
 public interface MatchService {
+
+    public Match getMatchById(UUID matchId);
+
+    public List<Match> getMatchesByRoundId(UUID roundId);
+
+    public List<Match> getCompletedMatchesByRoundId(UUID roundId);
 
     public Match createMatch(MatchDTO matchDTO);
 

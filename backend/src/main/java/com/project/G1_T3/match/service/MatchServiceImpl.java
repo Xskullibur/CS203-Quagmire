@@ -32,9 +32,6 @@ public class MatchServiceImpl implements MatchService {
     private MatchRepository matchRepository;
 
     @Autowired
-    private PlayerProfileRepository playerProfileRepository;
-
-    @Autowired
     private PlayerProfileService playerProfileService;
 
     Logger logger = Logger.getLogger(MatchServiceImpl.class.getName());
@@ -42,7 +39,7 @@ public class MatchServiceImpl implements MatchService {
     @Override
     public Match getCurrentMatchForUserById(UUID userId) {
         try {
-            PlayerProfile playerProfile = playerProfileRepository.findByUserId(userId);
+            PlayerProfile playerProfile = playerProfileService.findByUserId(userId);
             logger.info("playerProfile: " + playerProfile);
             if (playerProfile == null) {
                 throw new IllegalArgumentException("Invalid user ID");
@@ -60,7 +57,8 @@ public class MatchServiceImpl implements MatchService {
             }
             if (matches.size() > 1) {
                 logger.warning("Multiple in-progress matches found for player " + playerProfile.getProfileId());
-                // You might want to handle this case differently depending on your business logic
+                // You might want to handle this case differently depending on your business
+                // logic
                 // For now, return the most recently updated match
                 return matches.stream()
                         .max((m1, m2) -> m1.getUpdatedAt().compareTo(m2.getUpdatedAt()))
@@ -76,15 +74,26 @@ public class MatchServiceImpl implements MatchService {
         }
     }
 
+    // Get a match by matchId
+    public Match getMatchById(UUID matchId) {
+        return matchRepository.findById(matchId)
+                .orElseThrow(() -> new IllegalArgumentException("Match not found with id: " + matchId));
+    }
+
+    // Get a list of matches by roundId, sorted by createdAt
+    public List<Match> getMatchesByRoundId(UUID roundId) {
+        return matchRepository.findByRound_RoundIdOrderByCreatedAt(roundId);
+    }
+
+    public List<Match> getCompletedMatchesByRoundId(UUID roundId) {
+        return matchRepository.findByRoundIdAndStatusOrderByCreatedAt(roundId, Status.COMPLETED);
+    }
+
     @Transactional
     public Match createMatch(MatchDTO matchDTO) {
 
         if (matchDTO.getPlayer1Id() == null) {
             throw new IllegalArgumentException("Player 1 ID must not be null");
-        }
-
-        if (matchDTO.getPlayer2Id() == null) {
-            throw new IllegalArgumentException("Player 2 ID must not be null");
         }
 
         if (matchDTO.getPlayer1Id().equals(matchDTO.getPlayer2Id())) {
@@ -103,12 +112,17 @@ public class MatchServiceImpl implements MatchService {
         match.setGameType(Match.GameType.SOLO);
         match.setPlayer1Id(matchDTO.getPlayer1Id());
         match.setPlayer2Id(matchDTO.getPlayer2Id());
-        match.setRefereeId(matchDTO.getRefereeId());
         match.setStatus(Status.SCHEDULED);
         match.setMeetingLatitude(matchDTO.getMeetingLatitude());
         match.setMeetingLongitude(matchDTO.getMeetingLongitude());
         match.setCreatedAt(LocalDateTime.now());
         match.setUpdatedAt(LocalDateTime.now());
+
+        if (matchDTO.getPlayer2Id() == null) {
+            match.setWinnerId(matchDTO.getPlayer1Id());
+            match.setScore("auto-progress");
+            match.setStatus(Status.COMPLETED);
+        }
 
         match = matchRepository.save(match);
 
@@ -123,17 +137,11 @@ public class MatchServiceImpl implements MatchService {
         }
 
         // Fetch the match, or throw an exception if not found
-        UUID matchUUID = UUID.fromString(matchId.toString());
-        Match match = matchRepository.findById(matchUUID).orElseThrow(() -> new RuntimeException("Match not found"));
+        Match match = matchRepository.findById(matchId).orElseThrow(() -> new RuntimeException("Match not found"));
 
         // Ensure the match hasn't already started
         if (match.getStatus() != Status.SCHEDULED) {
             throw new IllegalStateException("Match is not scheduled");
-        }
-
-        // Verify the referee is the correct one
-        if (match.getRefereeId() == null || !match.getRefereeId().equals(matchDTO.getRefereeId())) {
-            throw new RuntimeException("Unauthorized referee");
         }
 
         // Start the match
@@ -149,18 +157,12 @@ public class MatchServiceImpl implements MatchService {
         }
 
         // Fetch the match, or throw an exception if not found
-        UUID matchUUID = UUID.fromString(matchId.toString());
-        Match match = matchRepository.findById(matchUUID)
+        Match match = matchRepository.findById(matchId)
                 .orElseThrow(() -> new RuntimeException("Match not found"));
 
         // Ensure the match hasn't already been completed
         if (match.getStatus() == Status.COMPLETED) {
             throw new IllegalStateException("Match is already completed");
-        }
-
-        // Verify the referee is authorized
-        if (match.getRefereeId() == null || !match.getRefereeId().equals(matchDTO.getRefereeId())) {
-            throw new RuntimeException("Unauthorized referee");
         }
 
         // Verify that the winner is one of the players in the match
@@ -178,8 +180,12 @@ public class MatchServiceImpl implements MatchService {
         matchRepository.save(match);
 
         // update the player rankings
-        updatePlayerRatingsAfterMatch(match);
-
+        try {
+            updatePlayerRatingsAfterMatch(match);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw (e);
+        }
     }
 
     private void updatePlayerRatingsAfterMatch(Match match) {
@@ -188,8 +194,8 @@ public class MatchServiceImpl implements MatchService {
         UUID winnerId = match.getWinnerId();
 
         // Retrieve player profiles (from cache or database)
-        PlayerProfile player1 = playerProfileService.findByProfileId(player1Id.toString());
-        PlayerProfile player2 = playerProfileService.findByProfileId(player2Id.toString());
+        PlayerProfile player1 = playerProfileService.findByProfileId(player1Id);
+        PlayerProfile player2 = playerProfileService.findByProfileId(player2Id);
 
         // Determine match outcome
         double scorePlayer1;

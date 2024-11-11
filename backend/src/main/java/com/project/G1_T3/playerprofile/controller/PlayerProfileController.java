@@ -44,7 +44,7 @@ public class PlayerProfileController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<PlayerProfileDTO> getUserById(@PathVariable String id) {
+    public ResponseEntity<PlayerProfileDTO> getUserById(@PathVariable UUID id) {
         PlayerProfile playerProfile = playerProfileService.findByUserId(id);
 
         if (playerProfile == null) {
@@ -55,18 +55,18 @@ public class PlayerProfileController {
     }
 
     @GetMapping("/player/{id}")
-    public ResponseEntity<PlayerProfile> getUserByPlayerId(@PathVariable String id) {
+    public ResponseEntity<PlayerProfileDTO> getUserByPlayerId(@PathVariable UUID id) {
         PlayerProfile playerProfile = playerProfileService.findByProfileId(id);
 
         if (playerProfile == null) {
             return ResponseEntity.notFound().build();
         }
 
-        return ResponseEntity.ok(playerProfile);
+        return ResponseEntity.ok(new PlayerProfileDTO(playerProfile));
     }
 
     @GetMapping("/rank/{userId}")
-    public ResponseEntity<Double> getPlayerRankByUserId(@PathVariable String userId) {
+    public ResponseEntity<Double> getPlayerRankByUserId(@PathVariable UUID userId) {
         PlayerProfile playerProfile = playerProfileService.findByUserId(userId);
 
         if (playerProfile == null) {
@@ -74,7 +74,7 @@ public class PlayerProfileController {
         }
 
         // Get the rank (position) of the player by their profileId
-        double rank = playerProfileService.getPlayerRank(playerProfile.getProfileId().toString());
+        double rank = playerProfileService.getPlayerRank(playerProfile.getProfileId());
 
         return ResponseEntity.ok(rank);
     }
@@ -101,7 +101,7 @@ public class PlayerProfileController {
             throws IOException {
 
         PlayerProfile newProfile = playerProfileService.createProfile(UUID.fromString(id),
-            profileUpdates, profileImage);
+                profileUpdates, profileImage);
 
         return ResponseEntity.created(URI.create("/profile/" + newProfile.getProfileId())).build();
     }

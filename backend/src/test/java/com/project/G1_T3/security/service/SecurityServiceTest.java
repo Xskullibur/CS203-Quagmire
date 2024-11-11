@@ -18,6 +18,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
+import java.util.UUID;
 
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
@@ -39,7 +40,7 @@ class SecurityServiceTest {
     void setUp() {
         // Create user with a fixed UUID
         user = new User();
-        user.setId("123e4567-e89b-12d3-a456-426614174000");
+        user.setId(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"));
         userDetails = new CustomUserDetails(user);
 
         // Set up SecurityContextHolder

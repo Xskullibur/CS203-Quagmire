@@ -77,14 +77,6 @@ public class Round {
     )
     private Set<PlayerProfile> players;  // Players participating in this round
 
-    @ManyToMany
-    @JoinTable(
-        name = "round_referees",  // Create a join table for referees in each stage
-        joinColumns = @JoinColumn(name = "round_id"),
-        inverseJoinColumns = @JoinColumn(name = "referee_id")
-    )
-    private Set<PlayerProfile> referees;
-
     public void startRound() {
         if (this.status == Status.SCHEDULED) {
             this.status = Status.IN_PROGRESS;

@@ -143,9 +143,6 @@ const Match: React.FC = () => {
             }
         } catch (error) {
             console.error("Error checking for active match:", error);
-            if (axios.isAxiosError(error)) {
-                handleError(error);
-            }
             setActiveMatch(null);
             setMatchFound(false);
             setOpponentProfile(null);

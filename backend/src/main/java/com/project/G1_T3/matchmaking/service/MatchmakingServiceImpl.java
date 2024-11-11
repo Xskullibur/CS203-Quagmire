@@ -14,6 +14,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import java.util.UUID;
 import java.util.List;
 import java.time.LocalDateTime;
+
 /**
  * Service implementation for matchmaking functionality.
  */
@@ -43,7 +44,8 @@ public class MatchmakingServiceImpl implements MatchmakingService {
     @Override
     public void addPlayerToQueue(PlayerProfile player, double latitude, double longitude) {
         if (playerQueue.containsPlayer(player.getUser().getId())) {
-            throw new PlayerAlreadyInQueueException("Player with ID " + player.getUser().getId() + " is already in queue");
+            throw new PlayerAlreadyInQueueException(
+                    "Player with ID " + player.getUser().getId() + " is already in queue");
         }
 
         log.info("Adding player to queue: {} (ID: {})", player.getUser().getId(), player.getProfileId());
@@ -88,7 +90,8 @@ public class MatchmakingServiceImpl implements MatchmakingService {
                 try {
                     meetingPoint = meetingPointService.findMeetingPoint(player, matchCandidate);
                 } catch (MeetingPointNotFoundException e) {
-                    log.error("Failed to find meeting point for players {} and {}", player.getPlayer().getUser().getId(),
+                    log.error("Failed to find meeting point for players {} and {}",
+                            player.getPlayer().getUser().getId(),
                             matchCandidate.getPlayer().getUser().getId());
                     continue; // Skip this match and try the next
                 }
@@ -145,8 +148,8 @@ public class MatchmakingServiceImpl implements MatchmakingService {
      */
     @Override
     public MatchNotification createMatchNotification(Match match, UUID uuid) {
-        String opponentId = match.getPlayer1Id().equals(uuid) ? match.getPlayer2Id().toString()
-                : match.getPlayer1Id().toString();
+        UUID opponentId = match.getPlayer1Id().equals(uuid) ? match.getPlayer2Id()
+                : match.getPlayer1Id();
         PlayerProfile opponentProfile = playerProfileService.findByProfileId(opponentId);
 
         return new MatchNotification(

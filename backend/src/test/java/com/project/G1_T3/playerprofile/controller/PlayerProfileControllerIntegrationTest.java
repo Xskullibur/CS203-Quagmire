@@ -44,8 +44,8 @@ class PlayerProfileControllerIntegrationTest {
     private PlayerProfile testProfile;
 
     private User testUser;
-    private final String TEST_USER_ID = UUID.randomUUID().toString();
-    private final String TEST_PROFILE_ID = UUID.randomUUID().toString();
+    private final UUID TEST_USER_ID = UUID.randomUUID();
+    private final UUID TEST_PROFILE_ID = UUID.randomUUID();
 
     @BeforeEach
     void setUp() {
@@ -54,7 +54,7 @@ class PlayerProfileControllerIntegrationTest {
         testUser.setUsername("testuser");
 
         testProfile = new PlayerProfile();
-        testProfile.setProfileId(UUID.fromString(TEST_PROFILE_ID));
+        testProfile.setProfileId(TEST_PROFILE_ID);
         testProfile.setUser(testUser);
         testProfile.setFirstName("John");
         testProfile.setLastName("Doe");

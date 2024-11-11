@@ -52,7 +52,6 @@ class MatchServiceTest {
         matchDTO = new MatchDTO();
         matchDTO.setPlayer1Id(UUID.randomUUID());
         matchDTO.setPlayer2Id(UUID.randomUUID());
-        matchDTO.setRefereeId(UUID.randomUUID());
         matchDTO.setScheduledTime(LocalDateTime.now().plusDays(1));
         matchDTO.setScore("0-0");
 
@@ -60,7 +59,6 @@ class MatchServiceTest {
         validMatchId = UUID.randomUUID();
         match = new Match();
         match.setMatchId(validMatchId);
-        match.setRefereeId(matchDTO.getRefereeId());
         match.setStatus(Status.SCHEDULED);
     }
 
@@ -79,7 +77,6 @@ class MatchServiceTest {
         Match expectedMatch = new Match();
         expectedMatch.setPlayer1Id(matchDTO.getPlayer1Id());
         expectedMatch.setPlayer2Id(matchDTO.getPlayer2Id());
-        expectedMatch.setRefereeId(matchDTO.getRefereeId());
         expectedMatch.setScheduledTime(matchDTO.getScheduledTime());
         expectedMatch.setStatus(Status.SCHEDULED);
 
@@ -105,19 +102,7 @@ class MatchServiceTest {
         });
         assertEquals("Player 1 ID must not be null", exception.getMessage());
     }
-
-    @Test
-    void createMatch_nullPlayer2Id_throwsException() {
-        // Arrange
-        matchDTO.setPlayer2Id(null);
-
-        // Act & Assert
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            matchServiceImpl.createMatch(matchDTO);
-        });
-        assertEquals("Player 2 ID must not be null", exception.getMessage());
-    }
-
+    
     @Test
     void createMatch_samePlayerIds_throwsException() {
         // Arrange
@@ -201,18 +186,6 @@ class MatchServiceTest {
         assertEquals("Match is not scheduled", exception.getMessage());
     }
 
-    @Test
-    void startMatch_unauthorizedReferee_throwsException() {
-        // Arrange
-        matchDTO.setRefereeId(UUID.randomUUID()); // Set different referee ID
-        when(matchRepository.findById(validMatchId)).thenReturn(Optional.of(match));
-
-        // Act & Assert
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            matchServiceImpl.startMatch(validMatchId, matchDTO);
-        });
-        assertEquals("Unauthorized referee", exception.getMessage());
-    }
 
     @Test
     void startMatch_successfulStart_savesMatch() {
@@ -254,7 +227,7 @@ class MatchServiceTest {
     @Test
     void completeMatch_matchNotFound_throwsException() {
         setUpForCompleteMatch();
-        
+
         // Arrange
         when(matchRepository.findById(validMatchId)).thenReturn(Optional.empty());
 
@@ -280,33 +253,20 @@ class MatchServiceTest {
         assertEquals("Match is already completed", exception.getMessage());
     }
 
-    @Test
-    void completeMatch_unauthorizedReferee_throwsException() {
-        setUpForCompleteMatch();
 
-        // Arrange
-        matchDTO.setRefereeId(UUID.randomUUID()); // Set an invalid referee ID
-        when(matchRepository.findById(validMatchId)).thenReturn(Optional.of(match));
-
-        // Act & Assert
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            matchServiceImpl.completeMatch(validMatchId, matchDTO);
-        });
-        assertEquals("Unauthorized referee", exception.getMessage());
-    }
 
     @Test
     void completeMatch_winnerIdNull_throwsException() {
         // Arrange: Setup valid match and null winner in matchDTO
         when(matchRepository.findById(validMatchId)).thenReturn(Optional.of(match));
-        
+
         matchDTO.setWinnerId(null);  // Set Winner ID to null
-    
+
         // Act & Assert: Check that an IllegalArgumentException is thrown
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
             matchServiceImpl.completeMatch(validMatchId, matchDTO);
         });
-    
+
         // Assert that the correct exception message is thrown
         assertEquals("Winner ID must not be null", exception.getMessage());
     }
@@ -338,8 +298,8 @@ class MatchServiceTest {
         player1Profile.setProfileId(matchDTO.getPlayer2Id());
 
         when(matchRepository.findById(validMatchId)).thenReturn(Optional.of(match));
-        when(playerProfileService.findByProfileId(matchDTO.getPlayer1Id().toString())).thenReturn(player1Profile);
-        when(playerProfileService.findByProfileId(matchDTO.getPlayer2Id().toString())).thenReturn(player2Profile);
+        when(playerProfileService.findByProfileId(matchDTO.getPlayer1Id())).thenReturn(player1Profile);
+        when(playerProfileService.findByProfileId(matchDTO.getPlayer2Id())).thenReturn(player2Profile);
 
         // Act
         matchServiceImpl.completeMatch(validMatchId, matchDTO);

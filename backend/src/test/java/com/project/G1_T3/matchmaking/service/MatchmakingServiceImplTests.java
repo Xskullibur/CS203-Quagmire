@@ -1,22 +1,15 @@
 package com.project.G1_T3.matchmaking.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
 
 import com.project.G1_T3.common.exception.PlayerAlreadyInQueueException;
 import com.project.G1_T3.common.exception.PlayerNotFoundException;
 import com.project.G1_T3.match.model.Match;
 import com.project.G1_T3.match.model.MatchDTO;
+import com.project.G1_T3.matchmaking.model.MatchNotification;
 import com.project.G1_T3.match.service.MatchService;
 import com.project.G1_T3.playerprofile.model.PlayerProfile;
 import com.project.G1_T3.playerprofile.service.PlayerProfileService;
@@ -129,56 +122,81 @@ class MatchmakingServiceImplTests {
 
     @Test
     void testFindMatch_MatchFound() {
+        // Set up player 1
         PlayerProfile player1 = new PlayerProfile();
         User user1 = new User();
-        user1.setUserId(UUID.randomUUID());
+        UUID player1UserId = UUID.randomUUID();
+        UUID player1ProfileId = UUID.randomUUID();
+        user1.setUserId(player1UserId);
         player1.setUser(user1);
-        player1.setProfileId(UUID.randomUUID());
+        player1.setProfileId(player1ProfileId);
         player1.setGlickoRating(1500);
         player1.setRatingDeviation(200);
 
+        // Set up player 2
         PlayerProfile player2 = new PlayerProfile();
-        User user2 = mock(User.class);
-        user2.setUserId(UUID.randomUUID());
+        User user2 = new User();
+        UUID player2UserId = UUID.randomUUID();
+        UUID player2ProfileId = UUID.randomUUID();
+        user2.setUserId(player2UserId);
         player2.setUser(user2);
-        player2.setProfileId(UUID.randomUUID());
+        player2.setProfileId(player2ProfileId);
         player2.setGlickoRating(1500);
         player2.setRatingDeviation(200);
 
+        // Add players to queue
         matchmakingService.addPlayerToQueue(player1, 0, 0);
         matchmakingService.addPlayerToQueue(player2, 0, 0);
 
-        // Ensure that matchmakingAlgorithm.isGoodMatch returns true
-        when(matchmakingAlgorithm.isGoodMatch(any(), any())).thenReturn(true);
-        // Ensure that glickoMatchmaking.isGoodMatch returns true
-        when(glickoMatchmaking.isGoodMatch(any(), any())).thenReturn(true);
+        // Mock meeting point service
+        double[] meetingPoint = new double[] { 42.3601, -71.0589 }; // Example coordinates
+        when(meetingPointService.findMeetingPoint(any(), any())).thenReturn(meetingPoint);
 
-        when(meetingPointService.findMeetingPoint(any(), any())).thenReturn(new double[] { 0, 0 });
-
+        // Create and configure mock match
         Match mockMatch = new Match();
         mockMatch.setMatchId(UUID.randomUUID());
-        mockMatch.setPlayer1Id(player1.getProfileId());
-        mockMatch.setPlayer2Id(player2.getProfileId());
+        mockMatch.setPlayer1Id(player1ProfileId);
+        mockMatch.setPlayer2Id(player2ProfileId);
         mockMatch.setGameType(Match.GameType.SOLO);
+        mockMatch.setMeetingLatitude(meetingPoint[0]); // Set the latitude
+        mockMatch.setMeetingLongitude(meetingPoint[1]); // Set the longitude
+
+        // Mock match creation
         when(matchService.createMatch(any(MatchDTO.class))).thenReturn(mockMatch);
 
-        when(playerProfileService.findByProfileId(anyString())).thenReturn(mockOpponentProfile);
+        // Mock opponent profile retrieval
+        when(playerProfileService.findByProfileId(any(UUID.class))).thenReturn(mockOpponentProfile);
         when(mockOpponentProfile.getName()).thenReturn("MockOpponent");
 
-        doNothing().when(messagingTemplate).convertAndSend(any(String.class), any(Object.class));
+        // Mock messaging with specific argument matchers
+        doNothing().when(messagingTemplate).convertAndSend(
+                eq("/topic/solo/match/" + player1ProfileId),
+                any(MatchNotification.class));
+        doNothing().when(messagingTemplate).convertAndSend(
+                eq("/topic/solo/match/" + player2ProfileId),
+                any(MatchNotification.class));
 
+        // Execute test
         Match match = matchmakingService.findMatch();
 
+        // Verify results
         assertNotNull(match);
         assertEquals(Match.GameType.SOLO, match.getGameType());
         assertTrue(
-                (player1.getProfileId().equals(match.getPlayer1Id())
-                        && player2.getProfileId().equals(match.getPlayer2Id())) ||
-                        (player2.getProfileId().equals(match.getPlayer1Id())
-                                && player1.getProfileId().equals(match.getPlayer2Id())),
+                (player1ProfileId.equals(match.getPlayer1Id()) && player2ProfileId.equals(match.getPlayer2Id())) ||
+                        (player2ProfileId.equals(match.getPlayer1Id())
+                                && player1ProfileId.equals(match.getPlayer2Id())),
                 "The match should contain both players, regardless of order");
+        assertEquals(meetingPoint[0], match.getMeetingLatitude());
+        assertEquals(meetingPoint[1], match.getMeetingLongitude());
 
-        verify(messagingTemplate, times(2)).convertAndSend(any(String.class), any(Object.class));
-        verify(playerProfileService, times(2)).findByProfileId(anyString());
+        // Verify notifications were sent with specific destinations
+        verify(messagingTemplate).convertAndSend(
+                eq("/topic/solo/match/" + player1ProfileId),
+                any(MatchNotification.class));
+        verify(messagingTemplate).convertAndSend(
+                eq("/topic/solo/match/" + player2ProfileId),
+                any(MatchNotification.class));
+        verify(playerProfileService, times(2)).findByProfileId(any(UUID.class));
     }
 }
