@@ -37,7 +37,16 @@ public class TournamentServiceImpl implements TournamentService {
 
     @Override
     public Page<Tournament> getAllTournaments(Pageable pageable) {
-        return tournamentRepository.findAll(pageable);
+        return tournamentRepository.findAllByOrderByStartDateAsc(pageable);
+    }
+
+    // Method to fetch tournaments by their status (IN_PROGRESS or SCHEDULED)
+    public Page<Tournament> getTournamentsByStatus(String status, Pageable pageable) {
+        // Split the status string into a list of statuses
+        List<String> statusList = Arrays.asList(status.split(","));
+        
+        // Call the repository to fetch the tournaments based on status and pagination
+        return tournamentRepository.findByStatusInOrderByStartDateAsc(statusList, pageable);
     }
 
     @Override

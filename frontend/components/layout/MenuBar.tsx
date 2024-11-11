@@ -58,25 +58,27 @@ export default function MenuBar() {
 
     return (
       <>
-        <Link
+        {user?.role === "USER" && (<Link
           href="/match"
           className="text-sm bg-zinc-500 text-white px-4 py-2 rounded-full hover:bg-gray-700 transition"
         >
           Solo Queue
-        </Link>
+        </Link>)}
+
         <DropdownMenu>
           <DropdownMenuTrigger className="flex items-center space-x-2 hover:text-gray-600 transition outline-none">
             <UserCircle2 className="w-4 h-4" />
             <span>Profile</span>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
-            <DropdownMenuItem
+            {user?.role === "USER" && (<DropdownMenuItem
               className="cursor-pointer hover:bg-zinc-800 focus:bg-zinc-800"
               onClick={handleNavigateToProfile}
             >
               <User className="w-4 h-4" />
               <span>Profile</span>
-            </DropdownMenuItem>
+            </DropdownMenuItem>)}
+
             <DropdownMenuItem
               className="cursor-pointer hover:bg-zinc-800 focus:bg-zinc-800"
               onClick={() => router.push("/users")}
@@ -200,14 +202,12 @@ export default function MenuBar() {
 
       {/* Mobile menu overlay */}
       <div
-        className={`fixed inset-0 bg-black z-50 transition-opacity duration-300 ease-in-out ${
-          isMenuOpen ? "opacity-90" : "opacity-0 pointer-events-none"
-        }`}
+        className={`fixed inset-0 bg-black z-50 transition-opacity duration-300 ease-in-out ${isMenuOpen ? "opacity-90" : "opacity-0 pointer-events-none"
+          }`}
       >
         <div
-          className={`flex flex-col items-center justify-center h-full transition-all duration-300 ease-in-out ${
-            isMenuOpen ? "opacity-100 scale-100" : "opacity-0 scale-95"
-          }`}
+          className={`flex flex-col items-center justify-center h-full transition-all duration-300 ease-in-out ${isMenuOpen ? "opacity-100 scale-100" : "opacity-0 scale-95"
+            }`}
         >
           <button
             className="absolute top-8 right-10 text-white text-3xl"

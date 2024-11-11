@@ -21,6 +21,11 @@ public interface TournamentRepository extends JpaRepository<Tournament, UUID> {
     // Pagination for all tournaments (already paginated)
     Page<Tournament> findAll(Pageable pageable);
 
+    Page<Tournament> findAllByOrderByStartDateAsc(Pageable pageable);
+
+    // Find tournaments by a list of statuses
+    Page<Tournament> findByStatusInOrderByStartDateAsc(List<String> statusList, Pageable pageable);
+
     // Find tournaments by name (added pagination)
     Page<Tournament> findByName(String name, Pageable pageable);
 

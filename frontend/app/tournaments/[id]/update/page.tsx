@@ -179,7 +179,7 @@ const UpdateTournament = () => {
   };
 
   return (
-    <div className="mt-20 mb-20 flex flex-col items-center justify-center mx-auto min-h-screen bg-primary-foreground">
+    <div className="flex flex-col items-center justify-center mx-auto min-h-screen bg-primary-foreground">
       {step === 1 && (
         <TournamentForm
           tournament={tournament}

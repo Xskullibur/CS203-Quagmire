@@ -28,10 +28,14 @@ public class TournamentController {
     // Get all tournaments with pagination
     @GetMapping
     public ResponseEntity<Page<Tournament>> getAllTournaments(Pageable pageable) {
-
-        System.out.println("test1");
-
         Page<Tournament> tournaments = tournamentService.getAllTournaments(pageable);
+        return ResponseEntity.ok(tournaments);
+    }
+
+    // Method to get tournaments that are IN_PROGRESS or SCHEDULED (incomplete)
+    @GetMapping("/active")
+    public ResponseEntity<Page<Tournament>> getActiveTournaments(Pageable pageable) {
+        Page<Tournament> tournaments = tournamentService.getTournamentsByStatus("IN_PROGRESS,SCHEDULED", pageable);
         return ResponseEntity.ok(tournaments);
     }
 
@@ -127,7 +131,6 @@ public class TournamentController {
 
             // Call the service to create the tournament
             Tournament createdTournament = tournamentService.createTournament(tournamentDTO);
-
 
             // Log successful creation
             System.out.println("Tournament created successfully: " + createdTournament.getName());

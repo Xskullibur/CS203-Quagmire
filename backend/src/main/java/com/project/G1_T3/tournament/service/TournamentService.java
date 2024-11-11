@@ -14,6 +14,9 @@ import java.util.*;
 public interface TournamentService {
     Page<Tournament> getAllTournaments(Pageable pageable); // Get all tournaments with pagination
 
+    // Method to fetch tournaments by their status (IN_PROGRESS or SCHEDULED)
+    public Page<Tournament> getTournamentsByStatus(String status, Pageable pageable);
+
     Tournament findTournamentById(UUID id); // Find a specific tournament by ID
 
     TournamentDTO findTournamentDTO(UUID id);

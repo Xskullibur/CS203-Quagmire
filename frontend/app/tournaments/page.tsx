@@ -16,7 +16,7 @@ const API_URL = `${process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL}/tournament`;
 
 const TournamentHeader: React.FC = () => (
     <header className="bg-background/10 w-full py-4 text-center text-white">
-        <h1 className="text-3xl font-bold">Tournaments</h1>
+        <h1 className="text-2xl font-bold">Tournaments</h1>
     </header>
 );
 
@@ -85,8 +85,8 @@ const TournamentPage: React.FC = () => {
 
                 let endpoint =
                     currentTab === "upcoming"
-                        ? `${API_URL}/upcoming?page=0&size=10`
-                        : `${API_URL}/past?page=0&size=10`;
+                        ? `${API_URL}/upcoming?`
+                        : `${API_URL}/past?`;
 
                 // Append 'from' and 'to' parameters only if they are present in the URL
                 if (from || to) {

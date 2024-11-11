@@ -7,7 +7,7 @@ export interface Tournament {
     startTime: string;
     endDate: string;
     endTime: string;
-    status: 'SCHEDULED'| 'INPROGRESS' | 'COMPLETED' | 'CANCELLED';
+    status: 'SCHEDULED'| 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
     deadline: string;
     deadlineTime: string;
     maxParticipants: number;

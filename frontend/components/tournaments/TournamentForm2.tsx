@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 
 interface AdditionalDetailsFormProps {
     tournament: {
+        name: string;
         deadlineDate: string;
         deadlineTime: string;
         maxParticipants: number;
