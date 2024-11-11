@@ -90,7 +90,12 @@ const TournamentPage: React.FC = () => {
                 }
 
                 const response = await axiosInstance.get(endpoint);
-                setTournaments(response.data.content);
+                setTournaments(
+                    response.data.content.map((tournament:any) => ({
+                      ...tournament,
+                      deadlineDate: tournament.deadline
+                    }))
+                );
             } catch (error) {
 
                 if (axios.isAxiosError(error)) {
