@@ -179,14 +179,19 @@ const TournamentDetails: React.FC<{ params: { id: string } }> = ({
         </p>
 
         {/* Register Tournament for Players Only */}
-        {!isAdmin && tournament.status === "SCHEDULED" && (
+        {isAuthenticated && !isAdmin && tournament.status === "SCHEDULED" && (
           <div className="flex justify-center w-full">
             <Button
               variant={registrationClosed ? "outline" : "default"}
               disabled={registrationClosed}
               className="mt-4 flex justify-center w-auto"
+              onClick={onRegisterToggle}
             >
-              {registrationClosed ? "Registration Closed" : "Register Now"}
+              {registrationClosed
+                ? "Registration Closed"
+                : registered
+                  ? "Withdraw"
+                  : "Register Now"}
             </Button>
           </div>
         )}
@@ -205,7 +210,8 @@ const TournamentDetails: React.FC<{ params: { id: string } }> = ({
         {/* Conditionally display message or button based on tournament status */}
         {(() => {
           if (
-            tournament.status === "IN_PROGRESS" || tournament.status === "COMPLETED"
+            tournament.status === "IN_PROGRESS" ||
+            tournament.status === "COMPLETED"
           ) {
             return (
               <div className="relative overflow-x-auto">
