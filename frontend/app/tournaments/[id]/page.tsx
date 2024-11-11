@@ -11,6 +11,7 @@ import { getPlayerProfileById } from '@/hooks/tournamentDataManager';
 interface Tournament {
     name: string;
     startDate: string;
+    startTime: string;
     endDate: string;
     description: string;
     deadline: string;
@@ -53,7 +54,17 @@ const TournamentDetails: React.FC<{ params: { id: string } }> = ({ params }) => 
                     tournamentData.photoUrl = `${firebaseBaseURL}${encodeURIComponent(tournamentData.photoUrl)}?alt=media`;
                 }
 
-                setTournament(tournamentData);
+                // Assuming tournamentData.startDate is in ISO format: "YYYY-MM-DDTHH:MM:SS"
+                const startDateTime = new Date(tournamentData.startDate);
+                const formattedStartDate = startDateTime.toISOString().split("T")[0]; // "YYYY-MM-DD"
+                const formattedStartTime = startDateTime.toTimeString().split(":").slice(0, 2).join(":"); // "HH:MM"
+
+                // Set the tournament data with split startDate and startTime
+                setTournament({
+                    ...tournamentData,
+                    startDate: formattedStartDate,
+                    startTime: formattedStartTime,
+                });
                 if (tournamentData.winnerId != null) {
                     const winnerProfile = await getPlayerProfileById(tournamentData.winnerId);
                     setWinnerUsername(winnerProfile.username);
@@ -123,6 +134,8 @@ const TournamentDetails: React.FC<{ params: { id: string } }> = ({ params }) => 
             <div className="mt-8 max-w-xl w-full">
                 <h2 className="text-lg font-semibold">Location:</h2>
                 <p className="text-base">{tournament.location}</p>
+                <h2 className="mt-4 text-lg font-semibold">Start Time:</h2>
+                <p className="text-base">{tournament.startTime} hrs</p>
                 <h2 className="mt-4 text-lg font-semibold">Description:</h2>
                 <p className="text-base">{tournament.description}</p>
                 <h2 className="mt-4 text-lg font-semibold">Registration Deadline:</h2>
@@ -160,10 +173,10 @@ const TournamentDetails: React.FC<{ params: { id: string } }> = ({ params }) => 
                             View Brackets
                         </Button>
                     </div>
-                ) :  (
-                        <p className="text-center text-gray-500">Draw is not available for this tournament</p>
+                ) : (
+                    <p className="text-center text-gray-500">Draw is not available for this tournament</p>
 
-                    )}
+                )}
 
 
 

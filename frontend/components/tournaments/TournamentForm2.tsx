@@ -73,7 +73,7 @@ const AdditionalDetailsForm: React.FC<AdditionalDetailsFormProps> = ({
                     <label className="text-sm font-medium text-white" htmlFor="description">Tournament Description</label>
                     <textarea
                         id="description"
-                        placeholder="Describe the tournament"
+                        placeholder="Please arrive on time so that you do not miss the weighing period."
                         name="description"
                         value={tournament.description}
                         onChange={handleChange}
