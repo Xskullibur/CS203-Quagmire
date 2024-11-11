@@ -224,7 +224,7 @@ public class TournamentServiceImpl implements TournamentService {
     }
 
 
-    public void startTournament(UUID tournamentId) {
+    public Tournament startTournament(UUID tournamentId) {
         // Retrieve the tournament
 
         Tournament tournament = tournamentRepository.findById(tournamentId)
@@ -250,7 +250,6 @@ public class TournamentServiceImpl implements TournamentService {
         // Set the tournament as started (IN_PROGRESS)
         tournament.setStatus(Status.IN_PROGRESS);
 
-        // tournamentRepository.save(tournament);
         try{
             stageService.startStage(curStage.getStageId());
 
@@ -260,7 +259,7 @@ public class TournamentServiceImpl implements TournamentService {
         }
 
         try {
-            tournamentRepository.save(tournament);
+            return tournamentRepository.save(tournament);
         } catch (Exception e) {
             System.err.println("Error saving tournament: " + e.getMessage());
             e.printStackTrace(); // Print the full stack trace

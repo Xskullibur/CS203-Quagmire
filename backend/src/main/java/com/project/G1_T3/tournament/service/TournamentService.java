@@ -46,7 +46,7 @@ public interface TournamentService {
 
     Tournament updateTournament(UUID tournamentId, Tournament updatedTournament);
 
-    public void startTournament(UUID tournamentId);
+    public Tournament startTournament(UUID tournamentId);
 
     public void progressToNextStage(UUID tournamentId);
 

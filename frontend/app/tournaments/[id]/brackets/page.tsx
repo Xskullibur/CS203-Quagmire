@@ -19,7 +19,8 @@ const BracketsPage = () => {
   const { user, isAuthenticated } = useAuth();
   const isAdmin = user?.role === UserRole.ADMIN;
   const router = useRouter();
-  const tournamentId = (Array.isArray(useParams().id) ? useParams().id[0] : useParams().id).toString();
+  const params = useParams();
+  const tournamentId = Array.isArray(params.id) ? params.id[0] : params.id.toString();
 
   const [currentStageIndex, setCurrentStageIndex] = useState(0);
   const [roundIds, setRoundIds] = useState<string[]>([]);

@@ -13,7 +13,6 @@ import { tournamentDTO } from "@/types/tournamentDTO";
 
 
 const API_URL = process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL;
-const WEB_URL = process.env.NEXT_PUBLIC_API_URL;
 
 const CreateTournament = () => {
   const router = useRouter();
@@ -149,14 +148,18 @@ const CreateTournament = () => {
         }
       );
 
-      if (res.status === 200 || res.status === 201) {
-        router.push(WEB_URL + '/tournaments');
+      if (res.status === 200) {
+        router.push(res.data.id);
       } else {
         alert('Error creating tournament');
       }
     } catch (error) {
+
+      if (axios.isAxiosError(error)) {
+        handleError(error);
+      }
+
       console.error('Error creating tournament:', error);
-      alert('An error occurred while creating the tournament.');
     }
   };
 

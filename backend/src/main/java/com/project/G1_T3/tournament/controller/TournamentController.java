@@ -162,8 +162,8 @@ public class TournamentController {
     public ResponseEntity<String> startTournament(@PathVariable UUID tournamentId) {
         try {
             // Call the service method to start the tournament
-            tournamentService.startTournament(tournamentId);
-            return ResponseEntity.ok("Tournament started successfully.");
+            Tournament createdTournament = tournamentService.startTournament(tournamentId);
+            return ResponseEntity.ok(createdTournament.getId().toString());
         } catch (IllegalArgumentException | EntityNotFoundException e) {
             System.out.println(e);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
