@@ -183,6 +183,7 @@ public class SecurityConfig {
                 "http://www.quagmire.site",
                 "http://quagmire.site",
                 "http://localhost:3000",
+                "https://localhost:3000",
                 "https://quagmire-frontend-alb-1718208115.us-east-1.elb.amazonaws.com",
                 "https://quagmire.site",
                 "https://www.quagmire.site",
