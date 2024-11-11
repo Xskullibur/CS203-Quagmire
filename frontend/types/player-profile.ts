@@ -9,4 +9,5 @@ export interface PlayerProfile {
     bio: string;
     currentRating: number;
     profilePicturePath: string;
+    glickoRating: number;
   }
