@@ -6,33 +6,33 @@ import com.google.firebase.FirebaseOptions;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
-import java.io.FileInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 @Configuration
+@Profile("!test")
 public class FirebaseConfig {
 
     @Value("${firebase.storage.bucket}")
     private String storageBucket;
 
-    @Value("${firebase.credentials.path}")
-    private String credentialsPath;
+    @Value("${firebase.credentials.json}")
+    private String credentialsJson;
 
     @Bean
     FirebaseApp initializeFirebase() throws IOException {
-
         if (FirebaseApp.getApps().isEmpty()) {
-            FileInputStream serviceAccount = new FileInputStream(credentialsPath);
-    
+            ByteArrayInputStream credentialsStream = new ByteArrayInputStream(credentialsJson.getBytes());
+
             FirebaseOptions options = FirebaseOptions.builder()
-                    .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+                    .setCredentials(GoogleCredentials.fromStream(credentialsStream))
                     .setStorageBucket(storageBucket)
                     .build();
-    
+
             return FirebaseApp.initializeApp(options);
         }
-
         return FirebaseApp.getInstance();
     }
 

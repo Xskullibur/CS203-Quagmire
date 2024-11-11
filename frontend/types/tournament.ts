@@ -7,9 +7,10 @@ export interface Tournament {
     startTime: string;
     endDate: string;
     endTime: string;
-    status: 'SCHEDULED'| 'INPROGRESS' | 'COMPLETED' | 'CANCELLED';
-    deadlineDate: string;
+    status: 'SCHEDULED'| 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
+    deadline: string;
     deadlineTime: string;
     maxParticipants: number;
     description: string;
+    photoUrl: string;
   }

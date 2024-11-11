@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.UUID;
 
 import com.project.G1_T3.matchmaking.model.QueuedPlayer;
-import com.project.G1_T3.player.model.PlayerProfile;
+import com.project.G1_T3.playerprofile.model.PlayerProfile;
 
 public interface PlayerQueue {
     void addPlayer(PlayerProfile player, double latitude, double longitude);

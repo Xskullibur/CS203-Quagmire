@@ -12,7 +12,6 @@ import lombok.Getter;
 import lombok.Setter;
 import jakarta.persistence.Id;
 import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
@@ -25,7 +24,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import com.project.G1_T3.common.model.Status;
-import com.project.G1_T3.player.model.PlayerProfile;
+import com.project.G1_T3.playerprofile.model.PlayerProfile;
 import com.project.G1_T3.round.model.Round;
 
 

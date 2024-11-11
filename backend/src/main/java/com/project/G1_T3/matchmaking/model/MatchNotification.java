@@ -1,12 +1,11 @@
 package com.project.G1_T3.matchmaking.model;
 
-import com.project.G1_T3.player.model.PlayerProfile;
-
 import lombok.NoArgsConstructor;
 
 import java.util.UUID;
 
 import com.project.G1_T3.match.model.Match;
+import com.project.G1_T3.playerprofile.model.PlayerProfile;
 
 @NoArgsConstructor
 

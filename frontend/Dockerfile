@@ -21,10 +21,8 @@ ENV NEXT_PUBLIC_SPRINGBOOT_API_URL=$NEXT_PUBLIC_SPRINGBOOT_API_URL
 
 # Print the contents of node_modules to verify installation, then build the app
 RUN ls -la node_modules | grep framer-motion && npm run build
-
 # Production image, copy all the files and run next
 FROM node:18.17.0-alpine AS runner
-
 WORKDIR /app
 
 # Set environment variables
@@ -34,6 +32,7 @@ ENV NODE_ENV=production
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
+
 COPY --from=builder /app/public ./public
 
 # Create a non-root user
@@ -42,7 +41,6 @@ RUN adduser -S nextjs -u 1001
 
 # Change ownership of the app directory to the non-root user
 RUN chown -R nextjs:nodejs /app
-
 # Switch to non-root user
 USER nextjs
 

@@ -9,6 +9,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -24,6 +25,7 @@ import com.project.G1_T3.user.repository.UserRepository;
 import com.project.G1_T3.authentication.model.AdminRegisterRequestDTO;
 import com.project.G1_T3.authentication.service.JwtService;
 
+@Tag("Integration")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class AdminControllerIntegrationTest {
 
@@ -112,7 +114,7 @@ class AdminControllerIntegrationTest {
 
     @Test
     void registerAdmin_Success() throws Exception {
-        URI uri = new URI(baseUrl + port + "/admin/register-admin");
+        URI uri = new URI(baseUrl + port + "/admin");
 
         AdminRegisterRequestDTO requestDTO = new AdminRegisterRequestDTO();
         requestDTO.setUsername("newadmin");

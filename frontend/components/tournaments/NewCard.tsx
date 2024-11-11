@@ -9,10 +9,9 @@ import { Tournament } from '@/types/tournament';
 
 interface NewCardProps {
     tournament: Tournament;
-    className?: string;
 }
 
-const NewCard: React.FC<NewCardProps> = ({ tournament, className }) => {
+const NewCard: React.FC<NewCardProps> = ({ tournament }) => {
     return (
         <Card className="flex flex-col border-border overflow-hidden bg-primary-foreground hover:shadow-[0_0_15px_rgba(200,200,200,0.1)] transition duration-200 ease-in-out transform hover:bg-zinc-900 min-h-[250px]">
             <CardHeader className="space-y-1 p-4">
@@ -24,7 +23,7 @@ const NewCard: React.FC<NewCardProps> = ({ tournament, className }) => {
                         <p><span className="font-medium">Start:</span> {new Date(tournament.startDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}</p>
                         <p><span className="font-medium">End:</span> {new Date(tournament.endDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}</p>
                     </div>
-                    <p><span className="font-medium">Registration:</span> {new Date(tournament.deadlineDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}</p>
+                    <p><span className="font-medium">Registration:</span> {new Date(tournament.deadline).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}</p>
                     <p><span className="font-medium">Location:</span> {tournament.location}</p>
                 </div>
             </CardContent>

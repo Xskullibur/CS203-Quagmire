@@ -25,7 +25,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
-@ActiveProfiles("test") // Make sure you have a 'test' profile configuration for testing purposes
 @Transactional // Ensures a rollback after each teslows rollback after each test
 public class TournamentIntegrationTest {
 
@@ -61,7 +60,7 @@ public class TournamentIntegrationTest {
     @Rollback // Ensures the database is rolled back after the test
     void shouldSaveAndRetrieveTournament() {
         // Act: Create tournament from TournamentDTO using the service
-        
+
 
 
         Tournament savedTournament = tournamentService.createTournament(tournamentDTO, null);

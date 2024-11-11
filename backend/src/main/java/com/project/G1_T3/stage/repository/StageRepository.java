@@ -13,5 +13,9 @@ public interface StageRepository extends JpaRepository<Stage, UUID> {
     List<Stage> findByTournamentIdOrderByCreatedAtAsc(UUID tournamentId);
 
     // Find a specific stage by its ID and tournamentId
-    // Optional<Stage> findByStageIdAndTournamentId(UUID stageId, UUID tournamentId);
+    Optional<Stage> findByStageIdAndTournamentId(UUID stageId, UUID tournamentId);
+
+    // Find a specific stage by its ID
+    Optional<Stage> findByStageId(UUID stageId);
+
 }

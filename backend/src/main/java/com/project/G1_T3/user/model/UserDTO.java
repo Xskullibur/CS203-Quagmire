@@ -1,6 +1,6 @@
 package com.project.G1_T3.user.model;
 
-import com.project.G1_T3.player.model.PlayerProfile;
+import com.project.G1_T3.playerprofile.model.PlayerProfile;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;

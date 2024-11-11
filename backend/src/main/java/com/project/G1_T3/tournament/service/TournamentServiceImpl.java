@@ -1,7 +1,8 @@
 package com.project.G1_T3.tournament.service;
 
-import com.project.G1_T3.player.model.PlayerProfile;
-import com.project.G1_T3.player.service.PlayerProfileService;
+import com.project.G1_T3.playerprofile.model.PlayerProfile;
+import com.project.G1_T3.playerprofile.repository.PlayerProfileRepository;
+import com.project.G1_T3.playerprofile.service.PlayerProfileService;
 import com.project.G1_T3.stage.model.StageDTO;
 import com.project.G1_T3.stage.service.StageService;
 import com.project.G1_T3.tournament.model.Tournament;
@@ -12,7 +13,6 @@ import com.project.G1_T3.stage.model.Format;
 import com.project.G1_T3.stage.model.Stage;
 import com.project.G1_T3.common.model.Status;
 import com.project.G1_T3.filestorage.service.FileStorageService;
-
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 
@@ -22,15 +22,23 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.io.IOException;
 import java.util.*;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 public class TournamentServiceImpl implements TournamentService {
 
     @Autowired
     private TournamentRepository tournamentRepository;
+
+    @Autowired
+    private PlayerProfileRepository playerProfileRepository;
 
     @Autowired
     private PlayerProfileService playerProfileService;
@@ -40,6 +48,8 @@ public class TournamentServiceImpl implements TournamentService {
 
     @Autowired
     private FileStorageService fileStorageService;
+
+    Logger logger = LoggerFactory.getLogger(TournamentServiceImpl.class);
 
     @Override
     public Page<Tournament> getAllTournaments(Pageable pageable) {
@@ -66,8 +76,7 @@ public class TournamentServiceImpl implements TournamentService {
 
     @Override
     public Page<Tournament> findUpcomingTournaments(Pageable pageable) {
-        // Fetch tournaments with status SCHEDULED
-        return tournamentRepository.findByStatus(Status.SCHEDULED, pageable);
+        return tournamentRepository.findByStartDateAfter(LocalDateTime.now(), pageable);
     }
 
     @Override
@@ -83,10 +92,12 @@ public class TournamentServiceImpl implements TournamentService {
     }
 
     @Override
-    public Page<Tournament> findTournamentsByAvailability(Pageable pageable, LocalDateTime availableStartDate,
-            LocalDateTime availableEndDate) {
-        return tournamentRepository.findByStartAndEndDateWithinAvailability(availableStartDate, availableEndDate,
-                pageable);
+    public Page<Tournament> findTournamentsByAvailability(Pageable pageable, LocalDate availableStartDate,
+            LocalDate availableEndDate) {
+        LocalDateTime availableStartDateTime = availableStartDate.atStartOfDay();
+        LocalDateTime availableEndDateTime = availableEndDate.atTime(LocalTime.MAX);
+        return tournamentRepository.findByStartAndEndDateWithinAvailability(availableStartDateTime,
+                availableEndDateTime, pageable);
     }
 
     @Override
@@ -103,11 +114,6 @@ public class TournamentServiceImpl implements TournamentService {
     public Page<Tournament> findByKeywordInDescription(String keyword, Pageable pageable) {
         return tournamentRepository.findByKeywordInDescription(keyword, pageable);
     }
-
-    // @Override
-    // public Tournament createTournament(Tournament tournament) {
-    // return tournamentRepository.save(tournament);
-    // }
 
     @Override
     @Transactional
@@ -135,7 +141,6 @@ public class TournamentServiceImpl implements TournamentService {
             }
         }
 
-
         tournamentRepository.save(tournament);
 
         // Handle stage creation
@@ -148,18 +153,19 @@ public class TournamentServiceImpl implements TournamentService {
                 stage.setEndDate(stageDTO.getEndDate());
                 stage.setFormat(stageDTO.getFormat());
                 stage.setStatus(stageDTO.getStatus() != null ? stageDTO.getStatus() : Status.SCHEDULED);
-                stage.setTournament(tournament);  // Link the stage with the tournament
-                tournament.getStages().add(stage);  // Add the stage to the tournament
+                stage.setTournament(tournament); // Link the stage with the tournament
+                tournament.getStages().add(stage); // Add the stage to the tournament
             }
         } else {
-            // Automatically create a default single elimination stage if no stages are provided
+            // Automatically create a default single elimination stage if no stages are
+            // provided
             Stage defaultStage = new Stage();
             defaultStage.setStageName("Single Elimination");
             defaultStage.setStartDate(tournamentDTO.getStartDate());
             defaultStage.setEndDate(tournamentDTO.getEndDate());
-            defaultStage.setFormat(Format.SINGLE_ELIMINATION);  // Assuming this is an enum
+            defaultStage.setFormat(Format.SINGLE_ELIMINATION); // Assuming this is an enum
             defaultStage.setStatus(Status.SCHEDULED);
-            defaultStage.setTournament(tournament);  // Link to tournament
+            defaultStage.setTournament(tournament); // Link to tournament
             tournament.getStages().add(defaultStage);
         }
         tournament.setNumStages(tournament.getStages().size());
@@ -167,50 +173,80 @@ public class TournamentServiceImpl implements TournamentService {
         return tournamentRepository.save(tournament);
     }
 
-
     public Set<PlayerProfile> getPlayers(UUID tournamentId) {
         Tournament tournament = tournamentRepository.findById(tournamentId).get();
         return tournament.getPlayers();
     }
 
-        public Tournament addPlayerToTournament(UUID tournamentId, UUID profileId) {
+    public Tournament addPlayerToTournament(UUID tournamentId, UUID profileId) {
 
-            System.out.println("Adding player: " + profileId);
+        System.out.println("Adding player: " + profileId);
 
-            Tournament tournament = tournamentRepository.findById(tournamentId).get();
+        Tournament tournament = tournamentRepository.findById(tournamentId).get();
 
-            if (tournament == null) {
-                System.out.println("Invalid tournament id");
-                return null;
-            } else {
-                System.out.println("Tournament ID: " + tournament.getId());
-            }
-
-            if (tournament.getStatus() != Status.SCHEDULED) {
-                System.out.println("Tournament signups are over");
-                return null;
-            }
-
-            PlayerProfile player = playerProfileService.findByProfileId(profileId);
-
-            if (player == null) {
-                System.out.println("Invalid player id");
-                return null;
-            } else {
-                System.out.println("Player Name: " + player.getFirstName());
-            }
-
-            if (!tournament.getPlayers().contains(player)) {
-                tournament.getPlayers().add(player);
-                System.out.println("Player added!");
-            } else {
-                System.out.println("Player is already in tournament.");
-            }
-
-            System.out.println("ENDING SERVICE");
-
-            return tournamentRepository.save(tournament);
+        if (tournament == null) {
+            System.out.println("Invalid tournament id");
+            return null;
+        } else {
+            System.out.println("Tournament ID: " + tournament.getId());
         }
+
+        if (tournament.getStatus() != Status.SCHEDULED) {
+            System.out.println("Tournament signups are over");
+            return null;
+        }
+
+        PlayerProfile player = playerProfileService.findByUserId(profileId);
+
+        if (player == null) {
+            System.out.println("Invalid player id");
+            return null;
+        } else {
+            System.out.println("Player Name: " + player.getFirstName());
+        }
+
+        if (!tournament.getPlayers().contains(player)) {
+            tournament.getPlayers().add(player);
+            System.out.println("Player added!");
+        } else {
+            System.out.println("Player is already in tournament.");
+        }
+
+        return tournamentRepository.save(tournament);
+    }
+
+    public Tournament deletePlayerFromTournament(UUID tournamentId, UUID userId) {
+        System.out.println("Removing player: " + userId);
+
+        // Fetch the tournament by ID
+        Tournament tournament = tournamentRepository.findById(tournamentId).orElse(null);
+        if (tournament == null) {
+            System.out.println("Invalid tournament ID");
+            return null;
+        } else {
+            System.out.println("Tournament ID: " + tournament.getId());
+        }
+
+        // Fetch the player by ID
+        PlayerProfile player = playerProfileRepository.findByUserId(userId);
+        if (player == null) {
+            System.out.println("Invalid player ID");
+            return null;
+        } else {
+            System.out.println("Player Name: " + player.getFirstName());
+        }
+
+        // Check if the player is in the tournament and remove if present
+        if (tournament.getPlayers().contains(player)) {
+            tournament.getPlayers().remove(player);
+            System.out.println("Player removed from tournament.");
+        } else {
+            System.out.println("Player is not in tournament.");
+        }
+
+        // Save and return the updated tournament
+        return tournamentRepository.save(tournament);
+    }
 
     public Tournament updateTournament(UUID id, Tournament updatedTournament) {
         updatedTournament.setId(id);
@@ -223,6 +259,37 @@ public class TournamentServiceImpl implements TournamentService {
                 .orElseThrow(() -> new NoSuchElementException("Tournament not found with id: " + id));
     }
 
+    public Page<Tournament> findUpcomingTournamentsWithinDateRange(
+            LocalDate fromDate,
+            LocalDate toDate,
+            Pageable pageable) {
+        // Convert LocalDate to LocalDateTime at the start and end of the day
+        LocalDateTime fromDateTime = fromDate.atStartOfDay();
+        LocalDateTime toDateTime = toDate.atTime(LocalTime.MAX);
+        LocalDateTime now = LocalDateTime.now();
+
+        return tournamentRepository.findByStartDateBetweenAndStartDateGreaterThanEqual(
+                fromDateTime,
+                toDateTime,
+                now,
+                pageable);
+    }
+
+    public Page<Tournament> findPastTournamentsWithinDateRange(
+            LocalDate fromDate,
+            LocalDate toDate,
+            Pageable pageable) {
+        // Convert LocalDate to LocalDateTime at the start and end of the day
+        LocalDateTime fromDateTime = fromDate.atStartOfDay();
+        LocalDateTime toDateTime = toDate.atTime(LocalTime.MAX);
+        LocalDateTime now = LocalDateTime.now();
+
+        return tournamentRepository.findByStartDateBetweenAndStartDateLessThan(
+                fromDateTime,
+                toDateTime,
+                now,
+                pageable);
+    }
 
     public Tournament startTournament(UUID tournamentId) {
         // Retrieve the tournament
@@ -231,11 +298,11 @@ public class TournamentServiceImpl implements TournamentService {
                 .orElseThrow(() -> new EntityNotFoundException("Tournament with ID " + tournamentId + " not found"));
 
         // Ensure there are enough players
-        if (tournament.getPlayers() == null || tournament.getPlayers().size() <= 1) {
+        if (tournament.getPlayers() == null && tournament.getPlayers().size() <= 1) {
             throw new IllegalArgumentException("Tournament must have more than 1 player to start.");
         }
 
-        if (tournament.getStages() == null || tournament.getStages().isEmpty()) {
+        if (tournament.getStages() == null && tournament.getStages().isEmpty()) {
             throw new IllegalArgumentException("Tournament must have at least 1 stage.");
         }
 
@@ -246,14 +313,14 @@ public class TournamentServiceImpl implements TournamentService {
 
         int numStages = allStages.size();
         tournament.setNumStages(numStages);
-    
+
         // Set the tournament as started (IN_PROGRESS)
         tournament.setStatus(Status.IN_PROGRESS);
 
         try{
             stageService.startStage(curStage.getStageId());
 
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             throw e;
         }
@@ -320,4 +387,19 @@ public class TournamentServiceImpl implements TournamentService {
         }
         tournamentRepository.deleteById(tournamentId);
     }
+
+    // returns a list of the closest 5 upcoming tournaments
+    public List<Tournament> findFeaturedTournaments(Pageable pageable) {
+        Page<Tournament> upcomingTournaments = tournamentRepository.findByStartDateAfter(LocalDateTime.now(), pageable);
+
+        // Convert to a modifiable list
+        List<Tournament> sortedTournaments = new ArrayList<>(upcomingTournaments.getContent());
+
+        // Sort the tournaments by start date
+        sortedTournaments.sort(Comparator.comparing(Tournament::getStartDate));
+
+        // Return the top 5 tournaments
+        return sortedTournaments.subList(0, Math.min(5, sortedTournaments.size()));
+    }
+
 }

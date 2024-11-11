@@ -13,6 +13,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.test.context.ActiveProfiles;
 
 import com.project.G1_T3.authentication.model.LoginResponseDTO;
 import com.project.G1_T3.common.exception.InvalidTokenException;
@@ -31,6 +32,7 @@ import static org.mockito.Mockito.*;
 import java.util.Optional;
 import java.util.UUID;
 
+@ActiveProfiles("test")
 class AuthServiceTest {
 
     @InjectMocks

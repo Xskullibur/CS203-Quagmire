@@ -2,6 +2,7 @@ package com.project.G1_T3.authentication.service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import com.project.G1_T3.common.exception.InvalidTokenException;
@@ -21,6 +22,7 @@ import static org.mockito.Mockito.*;
 import java.util.Base64;
 import java.util.Date;
 
+@ActiveProfiles("test")
 class JwtServiceTest {
 
     private JwtService jwtService;

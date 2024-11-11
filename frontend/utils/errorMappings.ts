@@ -45,6 +45,10 @@ export const errorCodeMappings: Record<ErrorCode, ErrorMapping> = {
         title: 'Account Locked',
         message: 'Your account has been locked. Please contact support.'
     },
+    [ErrorCode.EMAIL_NOT_VERIFIED]: {
+        title: 'Account Not Verified',
+        message: 'Your email address has not been verified. Please check your inbox for a verification email before trying again.'
+    },
 
     // Registration
     [ErrorCode.USERNAME_TAKEN]: {
@@ -80,6 +84,10 @@ export const errorCodeMappings: Record<ErrorCode, ErrorMapping> = {
     [ErrorCode.USER_DELETE_ERROR]: {
         title: 'User Deletion Failed',
         message: 'Failed to delete user.'
+    },
+    [ErrorCode.ENTITY_NOT_FOUND]: {
+        title: 'Entity Data Error',
+        message: 'Failed to retrieve entity.'
     },
 
     // Form & Validation

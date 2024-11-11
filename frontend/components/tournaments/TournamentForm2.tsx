@@ -2,14 +2,10 @@
 import React from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Tournament } from '@/types/tournament';
 
 interface AdditionalDetailsFormProps {
-    tournament: {
-        deadlineDate: string;
-        deadlineTime: string;
-        maxParticipants: number;
-        description: string;
-    };
+    tournament: Tournament;
     handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
     handleBack: (e: React.FormEvent) => void;
     handleSubmit: (e: React.FormEvent) => void;
@@ -31,13 +27,13 @@ const AdditionalDetailsForm: React.FC<AdditionalDetailsFormProps> = ({
             <form className="flex flex-col gap-6" onSubmit={handleSubmit}>
                 {/* Deadline */}
                 <div className="mb-4">
-                    <label className="text-sm font-medium text-white" htmlFor="deadlineDate">Deadline to Join Tournament</label>
+                    <label className="text-sm font-medium text-white" htmlFor="deadline">Deadline to Join Tournament</label>
                     <div className="flex gap-4">
                         <Input
                             type="date"
-                            id="deadlineDate"
-                            name="deadlineDate"
-                            value={tournament.deadlineDate}
+                            id="deadline"
+                            name="deadline"
+                            value={tournament.deadline}
                             onChange={handleChange}
                             required
                             className="bg-transparent border-b border-zinc-600 text-white placeholder-zinc-500 transition duration-300"
@@ -83,9 +79,6 @@ const AdditionalDetailsForm: React.FC<AdditionalDetailsFormProps> = ({
                         style={{ resize: 'none' }}
                     />
                 </div>
-
-                
-                
                 <div className="flex justify-between gap-8">
                     <Button onClick={handleBack} type="button" className="w-1/2">Back</Button>
                     <Button type="submit" className="w-1/2">Create Tournament</Button>

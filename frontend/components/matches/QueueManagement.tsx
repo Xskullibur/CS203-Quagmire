@@ -1,13 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { useWebSocket } from '@/hooks/useWebSocket';
-import { Button } from '@/components/ui/button';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { PlayerProfile } from '@/types/player-profile';
-import { useGeolocation } from '@/hooks/useGeolocation';
+import React, { useState, useEffect, useCallback, useRef } from "react";
+import { useWebSocket } from "@/hooks/useWebSocket";
+import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { PlayerProfile } from "@/types/player-profile";
+import { useGeolocation } from "@/hooks/useGeolocation";
 
 interface QueueManagementProps {
     playerId: string;
-    onMatchFound: (matchFound: boolean, opponentName: string, meetingPoint: [number, number], opponentProfile: PlayerProfile) => void;
+    onMatchFound: (
+        matchFound: boolean,
+        opponentName: string,
+        meetingPoint: [number, number],
+        opponentProfile: PlayerProfile
+    ) => void;
 }
 
 interface MatchNotification {
@@ -18,61 +23,17 @@ interface MatchNotification {
     opponentProfile: PlayerProfile;
 }
 
-/**
- * QueueManagement component handles the logic for a player to join and leave a matchmaking queue.
- * It uses WebSocket for real-time communication and Geolocation for player's location.
- *
- * @component
- * @param {QueueManagementProps} props - The props for the component.
- * @param {string} props.playerId - The ID of the player.
- * @param {function} props.onMatchFound - Callback function to handle when a match is found.
- *
- * @returns {JSX.Element} The rendered component.
- *
- * @example
- * <QueueManagement playerId="player123" onMatchFound={handleMatchFound} />
- *
- * @remarks
- * - The component subscribes to a WebSocket topic to receive match notifications.
- * - It uses geolocation to send the player's location when joining the queue.
- * - The component manages its own state for queue status, queue time, and match found status.
- *
- * @internal
- * This component is intended to be used within the matchmaking system of the application.
- */
-const QueueManagement: React.FC<QueueManagementProps> = ({ playerId, onMatchFound }) => {
+const QueueManagement: React.FC<QueueManagementProps> = ({
+    playerId,
+    onMatchFound,
+}) => {
     const [inQueue, setInQueue] = useState(false);
     const [queueTime, setQueueTime] = useState(0);
     const [matchFound, setMatchFound] = useState(false);
-    const [opponentName, setOpponentName] = useState('');
+    const [opponentName, setOpponentName] = useState("");
     const { client, connected } = useWebSocket();
     const { location, error } = useGeolocation();
-
-    useEffect(() => {
-        if (client && connected) {
-            const subscription = client.subscribe(`/topic/solo/match/${playerId}`, (message) => {
-                try {
-                    const notification: MatchNotification = JSON.parse(message.body);
-                    console.log('Match found:', notification);
-                    setMatchFound(true);
-                    setInQueue(false);
-                    setOpponentName(notification.opponentName);
-                    onMatchFound(
-                        true,
-                        notification.opponentName,
-                        [notification.meetingLatitude, notification.meetingLongitude],
-                        notification.opponentProfile
-                    );
-                } catch (error) {
-                    console.error('Error parsing match data:', error);
-                }
-            });
-
-            return () => {
-                subscription.unsubscribe();
-            };
-        }
-    }, [client, connected, playerId, onMatchFound]);
+    const subscriptionRef = useRef<any>(null); // Use a ref to store the subscription
 
     useEffect(() => {
         let interval: NodeJS.Timeout;
@@ -86,46 +47,85 @@ const QueueManagement: React.FC<QueueManagementProps> = ({ playerId, onMatchFoun
         return () => clearInterval(interval);
     }, [inQueue]);
 
-    const leaveQueue = React.useCallback(() => {
+    const leaveQueue = useCallback(() => {
         if (client && connected) {
-            client.publish({ destination: '/app/solo/dequeue', body: playerId });
-            setInQueue(false);
+            client.publish({
+                destination: "/app/solo/dequeue",
+                body: JSON.stringify({ playerId }),
+            });
         }
+        // Unsubscribe from the subscription
+        if (subscriptionRef.current) {
+            subscriptionRef.current.unsubscribe();
+            subscriptionRef.current = null;
+        }
+        setInQueue(false);
     }, [client, connected, playerId]);
 
     useEffect(() => {
-        // This effect will run when the component mounts
-        // and clean up (dequeue) when the component unmounts
         return () => {
             if (inQueue) {
                 leaveQueue();
             }
         };
-    }, [inQueue, leaveQueue]);
+    }, [leaveQueue, inQueue]);
 
-    const joinQueue = () => {
+    const joinQueue = useCallback(() => {
         if (client && connected && location) {
-            console.log('Sending join queue request for player:', playerId);
+            console.log("Sending join queue request for player:", playerId);
+
+            // Set up the subscription before publishing the join request
+            subscriptionRef.current = client.subscribe(
+                `/topic/solo/match/${playerId}`,
+                (message) => {
+                    try {
+                        const notification: MatchNotification = JSON.parse(message.body);
+                        console.log("Match found:", notification);
+                        setMatchFound(true);
+                        setInQueue(false);
+                        setOpponentName(notification.opponentName);
+                        onMatchFound(
+                            true,
+                            notification.opponentName,
+                            [notification.meetingLatitude, notification.meetingLongitude],
+                            notification.opponentProfile
+                        );
+                    } catch (error) {
+                        console.error("Error parsing match data:", error);
+                    }
+                }
+            );
+
             client.publish({
-                destination: '/app/solo/queue',
+                destination: "/app/solo/queue",
                 body: JSON.stringify({
                     playerId: playerId,
                     location: {
                         latitude: location.latitude,
-                        longitude: location.longitude
-                    }
-                })
+                        longitude: location.longitude,
+                    },
+                }),
             });
             setInQueue(true);
         } else {
-            console.error('Cannot join queue: client not connected or location not available');
+            console.error(
+                "Cannot join queue: client not connected or location not available"
+            );
             // Show an error message to the user
-            alert('Unable to join queue. Please ensure location services are enabled and try again.');
+            alert(
+                "Unable to join queue. Please ensure location services are enabled and try again."
+            );
         }
-    };
+    }, [client, connected, location, playerId, onMatchFound]);
+
     return (
         <div className="p-4 mx-auto max-w-md text-center">
-            {error && <Alert variant="destructive"><AlertTitle>Location Error</AlertTitle><AlertDescription>{error}</AlertDescription></Alert>}
+            {error && (
+                <Alert variant="destructive">
+                    <AlertTitle>Location Error</AlertTitle>
+                    <AlertDescription>{error}</AlertDescription>
+                </Alert>
+            )}
             {matchFound ? (
                 <Alert>
                     <AlertTitle>Match Found!</AlertTitle>
@@ -135,15 +135,20 @@ const QueueManagement: React.FC<QueueManagementProps> = ({ playerId, onMatchFoun
                 </Alert>
             ) : inQueue ? (
                 <div>
-                    <p>In Queue: {Math.floor(queueTime / 60)}:{queueTime % 60 < 10 ? '0' : ''}{queueTime % 60}</p>
+                    <p>
+                        In Queue: {Math.floor(queueTime / 60)}:
+                        {queueTime % 60 < 10 ? "0" : ""}
+                        {queueTime % 60}
+                    </p>
                     <Button onClick={leaveQueue}>Leave Queue</Button>
                 </div>
             ) : (
                 <Button
                     variant="outline"
                     onClick={joinQueue}
-                    className='hover:text-muted'
-                    disabled={!connected || !location}>
+                    className="hover:text-muted"
+                    disabled={!connected || !location}
+                >
                     Join Queue
                 </Button>
             )}

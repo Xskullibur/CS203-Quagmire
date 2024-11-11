@@ -1,7 +1,7 @@
 package com.project.G1_T3.stage.model;
 
 import com.project.G1_T3.common.model.Status;
-import com.project.G1_T3.player.model.PlayerProfile;
+import com.project.G1_T3.playerprofile.model.PlayerProfile;
 
 import java.time.LocalDateTime;
 import java.util.Set;

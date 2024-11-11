@@ -56,7 +56,7 @@ public class AuthenticationController {
                 .build();
     }
 
-    @PostMapping("/send-verification-email")
+    @PostMapping("/verify-email/send")
     public ResponseEntity<?> sendVerificationEmail(@RequestBody String userId) {
         userService.sendVerificationEmailByUserId(userId);
         return ResponseEntity.status(HttpStatus.CREATED).body("Verification email sent successfully");

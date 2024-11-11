@@ -11,7 +11,7 @@ interface OpponentprofileProps {
 
 /**
  * ProfilePlayerCard component displays the profile information of a player.
- * 
+ *
  * @param {OpponentprofileProps} props - The props for the component.
  * @param {PlayerProfile | null} props.profile - The player's profile data.
  * @param {string} props.name - The player's username.

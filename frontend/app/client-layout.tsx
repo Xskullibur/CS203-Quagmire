@@ -8,6 +8,7 @@ import { ErrorHandlerProvider } from "./context/ErrorMessageProvider";
 import { Toaster } from "@/components/ui/toaster";
 import { AlertDialogProvider } from "./context/AlertDialogContext";
 import { GlobalAlertDialog } from "@/components/GlobalAlertDialog";
+import { Suspense } from "react";
 
 export default function ClientLayout({
   children,
@@ -15,17 +16,19 @@ export default function ClientLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <AlertDialogProvider>
-      <GlobalAlertDialog />
-      <ErrorHandlerProvider>
-        <AuthProvider>
-          <Toaster />
-          <AmbientLight />
-          <MenuBar />
-          {children}
-          <Footer />
-        </AuthProvider>
-      </ErrorHandlerProvider>
-    </AlertDialogProvider>
+    <Suspense>
+      <AlertDialogProvider>
+        <GlobalAlertDialog />
+        <ErrorHandlerProvider>
+          <AuthProvider>
+            <Toaster />
+            <AmbientLight />
+            <MenuBar />
+            {children}
+            <Footer />
+          </AuthProvider>
+        </ErrorHandlerProvider>
+      </AlertDialogProvider>
+    </Suspense>
   );
 }

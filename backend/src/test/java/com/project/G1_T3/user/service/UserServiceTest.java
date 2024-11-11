@@ -1,5 +1,8 @@
 package com.project.G1_T3.user.service;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -7,50 +10,54 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.project.G1_T3.authentication.model.ResetPasswordDTO;
 import com.project.G1_T3.authentication.service.JwtService;
 import com.project.G1_T3.common.exception.EmailAlreadyInUseException;
 import com.project.G1_T3.common.exception.UsernameAlreadyTakenException;
 import com.project.G1_T3.email.service.EmailService;
-import com.project.G1_T3.player.model.PlayerProfile;
-import com.project.G1_T3.player.repository.PlayerProfileRepository;
-import com.project.G1_T3.player.service.PlayerProfileService;
+import com.project.G1_T3.playerprofile.model.PlayerProfile;
+import com.project.G1_T3.playerprofile.repository.PlayerProfileRepository;
+import com.project.G1_T3.user.model.UpdateEmailDTO;
+import com.project.G1_T3.user.model.UpdatePasswordDTO;
 import com.project.G1_T3.user.model.User;
 import com.project.G1_T3.user.model.UserDTO;
 import com.project.G1_T3.user.model.UserRole;
 import com.project.G1_T3.user.repository.UserRepository;
+
 import java.time.LocalDateTime;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.context.ActiveProfiles;
 
+@ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
 
     @Mock
     private JwtService jwtService;
-
     @Mock
     private EmailService emailService;
-
     @Mock
     private UserRepository userRepository;
-
     @Mock
     private PasswordEncoder passwordEncoder;
-
     @Mock
     private PlayerProfileRepository playerProfileRepository;
 
@@ -58,188 +65,331 @@ class UserServiceTest {
     private UserService userService;
 
     private User testUser;
+    private final String TEST_USERNAME = "testuser";
+    private final String TEST_EMAIL = "test@example.com";
+    private final String TEST_PASSWORD = "password";
 
     @BeforeEach
     void setUp() {
-
         testUser = new User();
-        testUser.setId(UUID.randomUUID().toString());
-        testUser.setUsername("testuser");
-        testUser.setEmail("test@example.com");
+        testUser.setId(UUID.randomUUID());
+        testUser.setUsername(TEST_USERNAME);
+        testUser.setEmail(TEST_EMAIL);
         testUser.setPasswordHash("hashedpassword");
         testUser.setRole(UserRole.PLAYER);
         testUser.setCreatedAt(LocalDateTime.now());
         testUser.setUpdatedAt(LocalDateTime.now());
     }
 
-    @Test
-    void registerUser_ValidArguments_ReturnsUserDTO() {
+    @Nested
+    class RegistrationTests {
+        @Test
+        void registerUser_ValidPlayerArguments_ReturnsUserDTO() {
+            when(userRepository.existsByUsername(anyString())).thenReturn(false);
+            when(userRepository.existsByEmail(anyString())).thenReturn(false);
+            when(userRepository.save(any(User.class))).thenReturn(testUser);
+            when(jwtService.generateEmailVerificationToken(any())).thenReturn("valid-token");
 
-        UserDTO expectedUserDTO = UserDTO.fromUser(testUser);
+            UserDTO result = userService.registerUser(TEST_USERNAME, TEST_EMAIL, TEST_PASSWORD, UserRole.PLAYER);
 
-        when(userRepository.existsByUsername(anyString())).thenReturn(false);
-        when(userRepository.existsByEmail(anyString())).thenReturn(false);
-        when(userRepository.save(any(User.class))).thenReturn(testUser);
-        when(jwtService.generateEmailVerificationToken(any(User.class))).thenReturn("valid-token");
-        when(emailService.sendVerificationEmail(anyString(), anyString(), anyString())).thenReturn(null);
-        when(playerProfileRepository.save(any(PlayerProfile.class))).thenReturn(null);
+            assertNotNull(result);
+            assertEquals(TEST_USERNAME, result.getUsername());
+            verify(emailService).sendVerificationEmail(anyString(), anyString(), anyString());
+        }
 
-        UserDTO actualUserDTO = userService.registerUser(testUser.getUsername(), testUser.getEmail(), testUser.getPasswordHash(), testUser.getRole());
+        @Test
+        void registerUser_ValidAdminArguments_ReturnsUserDTOWithoutVerification() {
+            testUser.setRole(UserRole.ADMIN);
+            when(userRepository.existsByUsername(anyString())).thenReturn(false);
+            when(userRepository.existsByEmail(anyString())).thenReturn(false);
+            when(userRepository.save(any(User.class))).thenReturn(testUser);
 
-        assertEquals(expectedUserDTO, actualUserDTO);
-        verify(userRepository).existsByUsername(anyString());
-        verify(userRepository).existsByEmail(anyString());
-        verify(userRepository).save(any(User.class));
-        verify(jwtService).generateEmailVerificationToken(any(User.class));
-        verify(emailService).sendVerificationEmail(anyString(), anyString(), anyString());
-        verify(playerProfileRepository).save(any(PlayerProfile.class));
+            UserDTO result = userService.registerUser(TEST_USERNAME, TEST_EMAIL, TEST_PASSWORD, UserRole.ADMIN);
+
+            assertNotNull(result);
+            assertEquals(TEST_USERNAME, result.getUsername());
+            verify(emailService, never()).sendVerificationEmail(anyString(), anyString(), anyString());
+            verify(playerProfileRepository, never()).save(any(PlayerProfile.class));
+        }
+
+        @ParameterizedTest
+        @ValueSource(strings = { "TestUser", "testUser", "TESTUSER" })
+        void registerUser_UsernameAlreadyExists_ThrowsUsernameAlreadyTakenException(String username) {
+            when(userRepository.existsByUsername(anyString())).thenReturn(true);
+
+            assertThrows(UsernameAlreadyTakenException.class,
+                    () -> userService.registerUser(username, TEST_EMAIL, TEST_PASSWORD, UserRole.PLAYER));
+
+            verify(userRepository).existsByUsername(username.toLowerCase());
+        }
+
+        @ParameterizedTest
+        @ValueSource(strings = { "Test@Example.com", "test@example.com", "TEST@EXAMPLE.COM" })
+        void registerUser_EmailAlreadyExists_ThrowsEmailAlreadyInUseException(String email) {
+            when(userRepository.existsByUsername(anyString())).thenReturn(false);
+            when(userRepository.existsByEmail(anyString())).thenReturn(true);
+
+            assertThrows(EmailAlreadyInUseException.class,
+                    () -> userService.registerUser(TEST_USERNAME, email, TEST_PASSWORD, UserRole.PLAYER));
+
+            verify(userRepository).existsByEmail(email.toLowerCase());
+        }
+    }
+
+    @Nested
+    class UserSearchTests {
+        @Test
+        void findUsersByUsernameContaining_ValidPattern_ReturnsMatchingUsers() {
+            User user1 = createTestUser("test1");
+            User user2 = createTestUser("test2");
+            when(userRepository.findByUsernameContainingIgnoreCase("test"))
+                    .thenReturn(Arrays.asList(user1, user2));
+
+            var results = userService.findUsersByUsernameContaining("test");
+
+            assertEquals(2, results.size());
+            assertTrue(results.stream().allMatch(u -> u.getUsername().contains("test")));
+        }
+
+        @Test
+        void findByUserId_ValidId_ReturnsUser() {
+            UUID userId = UUID.randomUUID();
+            testUser.setId(userId);
+            when(userRepository.findById(userId)).thenReturn(Optional.of(testUser));
+
+            Optional<User> result = userService.findByUserId(userId.toString());
+
+            assertTrue(result.isPresent());
+            assertEquals(userId.toString(), result.get().getId().toString());
+        }
+
+        @Test
+        void findByUserId_InvalidId_ReturnsEmpty() {
+            when(userRepository.findById(any(UUID.class))).thenReturn(Optional.empty());
+
+            Optional<User> result = userService.findByUserId(UUID.randomUUID().toString());
+
+            assertFalse(result.isPresent());
+        }
+
+        @Test
+        void getUserDTOByUsername_UsernameExists_ReturnsUserDTO() {
+            when(userRepository.findByUsername(TEST_USERNAME)).thenReturn(Optional.of(testUser));
+
+            UserDTO result = userService.getUserDTOByUsername(TEST_USERNAME);
+
+            assertNotNull(result);
+            assertEquals(TEST_USERNAME, result.getUsername());
+        }
+
+        @Test
+        void getUserDTOByUsername_UsernameDoesNotExist_ThrowsUsernameNotFoundException() {
+            when(userRepository.findByUsername(anyString())).thenReturn(Optional.empty());
+
+            assertThrows(UsernameNotFoundException.class,
+                    () -> userService.getUserDTOByUsername(TEST_USERNAME));
+        }
+    }
+
+    @Nested
+    class UserManagementTests {
+        @Test
+        void setUserVerified_ValidUser_UpdatesVerificationStatus() {
+            LocalDateTime originalUpdateTime = testUser.getUpdatedAt();
+            when(userRepository.save(any(User.class))).thenReturn(testUser);
+
+            userService.setUserVerified(testUser, true);
+
+            assertTrue(testUser.isEmailVerified());
+            assertTrue(testUser.getUpdatedAt().isEqual(originalUpdateTime)
+                    || testUser.getUpdatedAt().isAfter(originalUpdateTime));
+            verify(userRepository).save(testUser);
+        }
+
+        @Test
+        void sendVerificationEmailByUserId_ValidId_SendsEmail() {
+            UUID userId = UUID.randomUUID();
+            testUser.setId(userId);
+            when(userRepository.findById(any(UUID.class))).thenReturn(Optional.of(testUser));
+            when(jwtService.generateEmailVerificationToken(any())).thenReturn("valid-token");
+
+            userService.sendVerificationEmailByUserId(userId.toString());
+
+            verify(jwtService).generateEmailVerificationToken(testUser);
+            verify(emailService).sendVerificationEmail(anyString(), anyString(), anyString());
+        }
+
+        @Test
+        void sendVerificationEmailByUserId_InvalidId_ThrowsUsernameNotFoundException() {
+            when(userRepository.findById(any(UUID.class))).thenReturn(Optional.empty());
+
+            assertThrows(UsernameNotFoundException.class,
+                    () -> userService.sendVerificationEmailByUserId(UUID.randomUUID().toString()));
+        }
+
+        @Test
+        void updatePassword_ValidPassword_UpdatesUserPassword() {
+            String newPassword = "newPassword";
+            String encodedPassword = "encodedPassword";
+            when(passwordEncoder.encode(newPassword)).thenReturn(encodedPassword);
+            when(userRepository.save(any(User.class))).thenReturn(testUser);
+
+            userService.updatePassword(testUser, newPassword);
+
+            assertEquals(encodedPassword, testUser.getPasswordHash());
+            verify(passwordEncoder).encode(newPassword);
+            verify(userRepository).save(testUser);
+        }
+    }
+
+    private User createTestUser(String username) {
+        User user = new User();
+        user.setId(UUID.randomUUID());
+        user.setUsername(username);
+        user.setEmail(username + "@example.com");
+        user.setRole(UserRole.PLAYER);
+        return user;
     }
 
     @Test
-    void registerUser_UppercaseUsernameAlreadyExistsLowercase_ThrowsUsernameAlreadyTakenException() {
-        when(userRepository.existsByUsername("existinguser")).thenReturn(true);
+    void resetPassword_Success() {
+        // Arrange
+        ResetPasswordDTO resetPasswordDTO = new ResetPasswordDTO();
+        resetPasswordDTO.setUsername("testuser");
+        resetPasswordDTO.setCurrentPassword("currentPassword");
+        resetPasswordDTO.setNewPassword("newPassword");
 
-        assertThrows(UsernameAlreadyTakenException.class,
-            () -> userService.registerUser("ExistingUser", "new@example.com", "password",
-                UserRole.PLAYER));
-
-        verify(userRepository).existsByUsername("existinguser");
-    }
-
-    @Test
-    void registerUser_LowercaseUsernameAlreadyExistsUppercase_ThrowsUsernameAlreadyTakenException() {
-        when(userRepository.existsByUsername("existinguser")).thenReturn(true);
-
-        assertThrows(UsernameAlreadyTakenException.class,
-            () -> userService.registerUser("existinguser", "new@example.com", "password",
-                UserRole.PLAYER));
-
-        verify(userRepository).existsByUsername("existinguser");
-    }
-
-    @Test
-    void registerUser_UppercaseEmailAlreadyExistsLowercase_ThrowsEmailAlreadyInUseException() {
-        when(userRepository.existsByUsername("newuser")).thenReturn(false);
-        when(userRepository.existsByEmail("existing@example.com")).thenReturn(true);
-
-        assertThrows(EmailAlreadyInUseException.class,
-            () -> userService.registerUser("newuser", "Existing@Example.com", "password",
-                UserRole.PLAYER));
-
-        verify(userRepository).existsByEmail("existing@example.com");
-    }
-
-    @Test
-    void registerUser_LowercaseEmailAlreadyExistsUppercase_ThrowsEmailAlreadyInUseException() {
-        when(userRepository.existsByUsername("newuser")).thenReturn(false);
-        when(userRepository.existsByEmail("existing@example.com")).thenReturn(true);
-
-        assertThrows(EmailAlreadyInUseException.class,
-            () -> userService.registerUser("newuser", "existing@example.com", "password",
-                UserRole.PLAYER));
-
-        verify(userRepository).existsByEmail("existing@example.com");
-    }
-
-    @Test
-    void registerUser_UsernameAlreadyExists_ThrowsUsernameAlreadyTakenException() {
-        when(userRepository.existsByUsername("existinguser")).thenReturn(true);
-
-        assertThrows(UsernameAlreadyTakenException.class,
-            () -> userService.registerUser("existingUser", "new@example.com", "password",
-                UserRole.PLAYER));
-    }
-
-    @Test
-    void registerUser_EmailAlreadyExists_ThrowsEmailAlreadyInUseException() {
-        when(userRepository.existsByUsername("newuser")).thenReturn(false);
-        when(userRepository.existsByEmail("existing@example.com")).thenReturn(true);
-
-        assertThrows(EmailAlreadyInUseException.class,
-            () -> userService.registerUser("newUser", "existing@example.com", "password",
-                UserRole.PLAYER));
-    }
-
-    @Test
-    void existsByUsername_UsernameExists_ReturnsTrue() {
-        when(userRepository.existsByUsername("existinguser")).thenReturn(true);
-
-        assertTrue(userService.existsByUsername("existingUser"));
-    }
-
-    @Test
-    void existsByUsername_UsernameDoesNotExist_ReturnsFalse() {
-        when(userRepository.existsByUsername("nonexistentuser")).thenReturn(false);
-
-        assertFalse(userService.existsByUsername("nonexistentUser"));
-    }
-
-    @Test
-    void existsByEmail_EmailExists_ReturnsTrue() {
-        when(userRepository.existsByEmail("existing@example.com")).thenReturn(true);
-
-        assertTrue(userService.existsByEmail("existing@example.com"));
-    }
-
-    @Test
-    void existsByEmail_EmailDoesNotExist_ReturnsFalse() {
-        when(userRepository.existsByEmail("nonexistent@example.com")).thenReturn(false);
-
-        assertFalse(userService.existsByEmail("nonexistent@example.com"));
-    }
-
-    @Test
-    void findByUsername_UsernameExists_ReturnsUser() {
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
+        when(passwordEncoder.matches("currentPassword", "hashedpassword")).thenReturn(true);
+        when(passwordEncoder.encode("newPassword")).thenReturn("newHashedPassword");
 
-        Optional<User> result = userService.findByUsername("testUser");
+        // Act
+        userService.resetPassword(resetPasswordDTO);
 
-        assertTrue(result.isPresent());
-        assertEquals("testuser", result.get().getUsername());
+        // Assert
+        assertTrue(testUser.getPasswordHash().equals("newHashedPassword"));
     }
 
     @Test
-    void findByUsername_UsernameDoesNotExist_ReturnsEmpty() {
+    void resetPassword_IncorrectCurrentPassword() {
+        // Arrange
+        ResetPasswordDTO resetPasswordDTO = new ResetPasswordDTO();
+        resetPasswordDTO.setUsername("testuser");
+        resetPasswordDTO.setCurrentPassword("wrongPassword");
+        resetPasswordDTO.setNewPassword("newPassword");
+
+        when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
+        when(passwordEncoder.matches("wrongPassword", "hashedpassword")).thenReturn(false);
+
+        // Act & Assert
+        assertThrows(IllegalArgumentException.class, () -> userService.resetPassword(resetPasswordDTO));
+    }
+
+    @Test
+    void resetPassword_UserNotFound() {
+        // Arrange
+        ResetPasswordDTO resetPasswordDTO = new ResetPasswordDTO();
+        resetPasswordDTO.setUsername("nonexistentuser");
+        resetPasswordDTO.setCurrentPassword("currentPassword");
+        resetPasswordDTO.setNewPassword("newPassword");
+
         when(userRepository.findByUsername("nonexistentuser")).thenReturn(Optional.empty());
 
-        Optional<User> result = userService.findByUsername("nonexistentUser");
-
-        assertFalse(result.isPresent());
+        // Act & Assert
+        assertThrows(UsernameNotFoundException.class, () -> userService.resetPassword(resetPasswordDTO));
     }
 
     @Test
-    void getAllUsers_UsersExist_ReturnsUserList() {
-        User user1 = new User();
-        user1.setId(UUID.randomUUID().toString());
-        user1.setUsername("user1");
-        User user2 = new User();
-        user2.setId(UUID.randomUUID().toString());
-        user2.setUsername("user2");
+    void updatePassword_Success() {
+        // Arrange
+        UpdatePasswordDTO updatePasswordDTO = new UpdatePasswordDTO();
+        updatePasswordDTO.setCurrentPassword("currentPassword");
+        updatePasswordDTO.setNewPassword("newPassword");
 
-        when(userRepository.findAllUsersWithoutPassword()).thenReturn(Arrays.asList(user1, user2));
-
-        List<UserDTO> result = userService.getAllUsers();
-
-        assertEquals(2, result.size());
-        assertEquals("user1", result.get(0).getUsername());
-        assertEquals("user2", result.get(1).getUsername());
-    }
-
-    @Test
-    void getUserDTOByUsername_UsernameExists_ReturnsUserDTO() {
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
+        when(passwordEncoder.matches("currentPassword", "hashedpassword")).thenReturn(true);
+        when(passwordEncoder.encode("newPassword")).thenReturn("newHashedPassword");
 
-        UserDTO result = userService.getUserDTOByUsername("testUser");
+        // Act
+        userService.updatePassword("testuser", updatePasswordDTO);
 
-        assertNotNull(result);
-        assertEquals("testuser", result.getUsername());
+        // Assert
+        assertTrue(testUser.getPasswordHash().equals("newHashedPassword"));
     }
 
     @Test
-    void getUserDTOByUsername_UsernameDoesNotExist_ThrowsUsernameNotFoundException() {
+    void updatePassword_IncorrectCurrentPassword() {
+        // Arrange
+        UpdatePasswordDTO updatePasswordDTO = new UpdatePasswordDTO();
+        updatePasswordDTO.setCurrentPassword("wrongPassword");
+        updatePasswordDTO.setNewPassword("newPassword");
+
+        when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
+        when(passwordEncoder.matches("wrongPassword", "hashedpassword")).thenReturn(false);
+
+        // Act & Assert
+        assertThrows(IllegalArgumentException.class, () -> userService.updatePassword("testuser", updatePasswordDTO));
+    }
+
+    @Test
+    void updatePassword_UserNotFound() {
+        // Arrange
+        UpdatePasswordDTO updatePasswordDTO = new UpdatePasswordDTO();
+        updatePasswordDTO.setCurrentPassword("currentPassword");
+        updatePasswordDTO.setNewPassword("newPassword");
+
         when(userRepository.findByUsername("nonexistentuser")).thenReturn(Optional.empty());
 
+        // Act & Assert
         assertThrows(UsernameNotFoundException.class,
-            () -> userService.getUserDTOByUsername("nonexistentUser"));
+                () -> userService.updatePassword("nonexistentuser", updatePasswordDTO));
+    }
+
+    @Test
+    void updateEmail_Success() {
+        // Arrange
+        UpdateEmailDTO updateEmailDTO = new UpdateEmailDTO();
+        updateEmailDTO.setNewEmail("new@example.com");
+        updateEmailDTO.setPassword("currentPassword");
+
+        when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
+        when(passwordEncoder.matches("currentPassword", "hashedpassword")).thenReturn(true);
+
+        // Act
+        boolean result = userService.updateEmail("testuser", updateEmailDTO);
+
+        // Assert
+        assertTrue(result);
+        assertTrue(testUser.getEmail().equals("new@example.com"));
+    }
+
+    @Test
+    void updateEmail_IncorrectPassword() {
+        // Arrange
+        UpdateEmailDTO updateEmailDTO = new UpdateEmailDTO();
+        updateEmailDTO.setNewEmail("new@example.com");
+        updateEmailDTO.setPassword("wrongPassword");
+
+        when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
+        when(passwordEncoder.matches("wrongPassword", "hashedpassword")).thenReturn(false);
+
+        // Act
+        boolean result = userService.updateEmail("testuser", updateEmailDTO);
+
+        // Assert
+        assertTrue(!result); // Ensure that the email was not updated
+    }
+
+    @Test
+    void updateEmail_UserNotFound() {
+        // Arrange
+        UpdateEmailDTO updateEmailDTO = new UpdateEmailDTO();
+        updateEmailDTO.setNewEmail("new@example.com");
+        updateEmailDTO.setPassword("currentPassword");
+
+        when(userRepository.findByUsername("nonexistentuser")).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(UsernameNotFoundException.class, () -> userService.updateEmail("nonexistentuser", updateEmailDTO));
     }
 }

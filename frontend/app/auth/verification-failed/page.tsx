@@ -21,7 +21,7 @@ const VerificationFailed: React.FC = () => {
   const handleResendVerification = async () => {
     axiosInstance
       .post(
-        new URL("/authentication/send-verification-email", API_URL).toString(),
+        new URL("/authentication/verify-email/send", API_URL).toString(),
         user!.userId,
         {
           headers: {

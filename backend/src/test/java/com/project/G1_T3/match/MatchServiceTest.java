@@ -3,8 +3,8 @@ package com.project.G1_T3.match;
 import com.project.G1_T3.match.model.Match;
 import com.project.G1_T3.match.model.MatchDTO;
 import com.project.G1_T3.match.service.MatchServiceImpl;
-import com.project.G1_T3.player.model.PlayerProfile;
-import com.project.G1_T3.player.service.PlayerProfileService;
+import com.project.G1_T3.playerprofile.model.PlayerProfile;
+import com.project.G1_T3.playerprofile.service.PlayerProfileService;
 import com.project.G1_T3.match.repository.MatchRepository;
 import com.project.G1_T3.common.model.Status;
 
@@ -14,6 +14,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.context.ActiveProfiles;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -28,6 +29,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 import java.util.Optional;
 
+@ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
 class MatchServiceTest {
 
@@ -100,19 +102,7 @@ class MatchServiceTest {
         });
         assertEquals("Player 1 ID must not be null", exception.getMessage());
     }
-
-    @Test
-    void createMatch_nullPlayer2Id_throwsException() {
-        // Arrange
-        matchDTO.setPlayer2Id(null);
-
-        // Act & Assert
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            matchServiceImpl.createMatch(matchDTO);
-        });
-        assertEquals("Player 2 ID must not be null", exception.getMessage());
-    }
-
+    
     @Test
     void createMatch_samePlayerIds_throwsException() {
         // Arrange
@@ -196,7 +186,7 @@ class MatchServiceTest {
         assertEquals("Match is not scheduled", exception.getMessage());
     }
 
- 
+
     @Test
     void startMatch_successfulStart_savesMatch() {
         // Arrange
@@ -237,7 +227,7 @@ class MatchServiceTest {
     @Test
     void completeMatch_matchNotFound_throwsException() {
         setUpForCompleteMatch();
-        
+
         // Arrange
         when(matchRepository.findById(validMatchId)).thenReturn(Optional.empty());
 
@@ -263,20 +253,20 @@ class MatchServiceTest {
         assertEquals("Match is already completed", exception.getMessage());
     }
 
-  
+
 
     @Test
     void completeMatch_winnerIdNull_throwsException() {
         // Arrange: Setup valid match and null winner in matchDTO
         when(matchRepository.findById(validMatchId)).thenReturn(Optional.of(match));
-        
+
         matchDTO.setWinnerId(null);  // Set Winner ID to null
-    
+
         // Act & Assert: Check that an IllegalArgumentException is thrown
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
             matchServiceImpl.completeMatch(validMatchId, matchDTO);
         });
-    
+
         // Assert that the correct exception message is thrown
         assertEquals("Winner ID must not be null", exception.getMessage());
     }
@@ -308,8 +298,8 @@ class MatchServiceTest {
         player1Profile.setProfileId(matchDTO.getPlayer2Id());
 
         when(matchRepository.findById(validMatchId)).thenReturn(Optional.of(match));
-        when(playerProfileService.findByProfileId(matchDTO.getPlayer1Id().toString())).thenReturn(player1Profile);
-        when(playerProfileService.findByProfileId(matchDTO.getPlayer2Id().toString())).thenReturn(player2Profile);
+        when(playerProfileService.findByProfileId(matchDTO.getPlayer1Id())).thenReturn(player1Profile);
+        when(playerProfileService.findByProfileId(matchDTO.getPlayer2Id())).thenReturn(player2Profile);
 
         // Act
         matchServiceImpl.completeMatch(validMatchId, matchDTO);

@@ -15,138 +15,134 @@ import { tournamentDTO } from "@/types/tournamentDTO";
 const API_URL = process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL;
 
 const CreateTournament = () => {
-  const router = useRouter();
+    const router = useRouter();
 
-  // State to control the form step (1 for Basic Info, 2 for Additional Details)
-  const [step, setStep] = useState(1);
+    // State to control the form step (1 for Basic Info, 2 for Additional Details)
+    const [step, setStep] = useState(1);
 
-  // Tournament state
-  const [tournament, setTournament] = useState<Tournament>({
-    id: null,
-    name: "",
-    location: "",
-    startDate: "",
-    startTime: "",
-    endDate: "",
-    endTime: "",
-    status: "SCHEDULED",
-    deadlineDate: "",
-    deadlineTime: "",
-    maxParticipants: 0,
-    description: "",
-  });
-
-  const [photo, setPhoto] = useState<File | null>(null);
-  const [refereeSearchQuery, setRefereeSearchQuery] = useState<string>('');
-  const [searchResults, setSearchResults] = useState<any[]>([]);
-  const [selectedReferees, setSelectedReferees] = useState<string[]>([]);
-  const { handleError } = useGlobalErrorHandler();
-
-  const handleRefereeSearch = async (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setRefereeSearchQuery(e.target.value);
-
-    if (e.target.value.length >= 3) {
-      // Start searching after 3 characters
-      try {
-        const res = await axiosInstance.get(
-          new URL(
-            `/users/search?username=${e.target.value}`,
-            API_URL
-          ).toString()
-        );
-
-        // const res = await fetch(`${API_URL}/users/search?username=${e.target.value}`);
-        // const data = await res.json();
-        setSearchResults(res.data);
-      } catch (error) {
-        if (axios.isAxiosError(error)) {
-          handleError(error);
-        }
-
-        console.error("Error searching for referees:", error);
-      }
-    } else {
-      setSearchResults([]);
-    }
-  };
-
-  
-
-  // Handle input change
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-    setTournament({
-      ...tournament,
-      [name]: value,
+    // Tournament state
+    const [tournament, setTournament] = useState<Tournament>({
+        id: null,
+        name: "",
+        location: "",
+        startDate: "",
+        startTime: "",
+        endDate: "",
+        endTime: "",
+        status: "SCHEDULED",
+        deadline: "",
+        deadlineTime: "",
+        maxParticipants: 0,
+        description: "",
+        photoUrl: "",
     });
-  };
 
-  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setPhoto(e.target.files[0]);
-    }
-  };
+    const [photo, setPhoto] = useState<File | null>(null);
+    const [refereeSearchQuery, setRefereeSearchQuery] = useState<string>('');
+    const [searchResults, setSearchResults] = useState<any[]>([]);
+    const [selectedReferees, setSelectedReferees] = useState<string[]>([]);
+    const { handleError } = useGlobalErrorHandler();
 
-  // Handle next step
-  const handleNext = (e: React.FormEvent) => {
-    e.preventDefault();
-    setStep(2);
-  };
+    const handleRefereeSearch = async (
+        e: React.ChangeEvent<HTMLInputElement>
+    ) => {
+        setRefereeSearchQuery(e.target.value);
 
-  // Handle going back to the previous step
-  const handleBack = (e: React.FormEvent) => {
-    e.preventDefault();
-    setStep(1);
-  };
+        if (e.target.value.length >= 3) {
+            // Start searching after 3 characters
+            try {
+                const res = await axiosInstance.get(
+                    new URL(
+                        `/users/search?username=${e.target.value}`,
+                        API_URL
+                    ).toString()
+                );
 
+                // const res = await fetch(`${API_URL}/users/search?username=${e.target.value}`);
+                // const data = await res.json();
+                setSearchResults(res.data);
+            } catch (error) {
+                if (axios.isAxiosError(error)) {
+                    handleError(error);
+                }
 
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (tournament.maxParticipants <= 0) {
-      alert("Max participants must be a positive number");
-      return;
-    }
-
-    const startdatetime = `${tournament.startDate}T${tournament.startTime}:00`;
-    const enddatetime = `${tournament.endDate}T${tournament.endTime}:00`;
-    const deadline = `${tournament.deadlineDate}T${tournament.deadlineTime}:00`;
-
-
-    const tournamentData: tournamentDTO = {
-      id: tournament.id,
-      name: tournament.name,
-      location: tournament.location,
-      status: tournament.status,
-      maxParticipants: tournament.maxParticipants,
-      description: tournament.description,
-      startDate: startdatetime,
-      endDate: enddatetime,
-      deadline: deadline,
-      stageDTOs: null
+                console.error("Error searching for referees:", error);
+            }
+        } else {
+            setSearchResults([]);
+        }
     };
 
-    const formData = new FormData();
-    formData.append("tournament", JSON.stringify(tournamentData)); // Convert the entire object to a JSON string
-    if (photo) {
-      formData.append("photo", photo);
-    }
+    // Handle input change
+    const handleChange = (
+        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    ) => {
+        const { name, value } = e.target;
+        setTournament({
+            ...tournament,
+            [name]: value,
+        });
+    };
 
-    try {
-      const res = await axiosInstance.post(
-        new URL("/tournament/create", API_URL).toString(),
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
+    const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            setPhoto(e.target.files[0]);
         }
-      );
+    };
+
+    // Handle next step
+    const handleNext = (e: React.FormEvent) => {
+        e.preventDefault();
+        setStep(2);
+    };
+
+    // Handle going back to the previous step
+    const handleBack = (e: React.FormEvent) => {
+        e.preventDefault();
+        setStep(1);
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+
+        if (tournament.maxParticipants <= 0) {
+            alert("Max participants must be a positive number");
+            return;
+        }
+
+        const startdatetime = `${tournament.startDate}T${tournament.startTime}:00`;
+        const enddatetime = `${tournament.endDate}T${tournament.endTime}:00`;
+        const deadline = `${tournament.deadline}T${tournament.deadlineTime}:00`;
+
+        const tournamentData: tournamentDTO = {
+            id: tournament.id,
+            name: tournament.name,
+            location: tournament.location,
+            status: tournament.status,
+            maxParticipants: tournament.maxParticipants,
+            description: tournament.description,
+            startDate: startdatetime,
+            endDate: enddatetime,
+            deadline: deadline,
+            stageDTOs: null,
+        };
+
+        const formData = new FormData();
+        formData.append("tournament", JSON.stringify(tournamentData));
+        if (photo) {
+            formData.append("photo", photo);
+        }
+
+        try {
+            const res = await axiosInstance.post(
+                new URL("/tournament/create", API_URL).toString(),
+                formData,
+                {
+                    headers: {
+                        "Content-Type": "multipart/form-data",
+                    },
+                }
+            );
 
       if (res.status === 200) {
         router.push(res.data.id);
@@ -163,28 +159,28 @@ const CreateTournament = () => {
     }
   };
 
-  return (
-    <div className="mt-20 flex flex-col items-center justify-center mx-auto min-h-screen bg-primary-foreground">
-      {step === 1 && (
-        <TournamentForm
-          tournament={tournament}
-          handleChange={handleChange}
-          handleSubmit={handleNext}
-          buttonLabel="Next"
-        />
-      )}
+    return (
+        <div className="mt-20 flex flex-col items-center justify-center mx-auto min-h-screen bg-primary-foreground">
+            {step === 1 && (
+                <TournamentForm
+                    tournament={tournament}
+                    handleChange={handleChange}
+                    handleSubmit={handleNext}
+                    buttonLabel="Next"
+                />
+            )}
 
-      {step === 2 && (
-        <AdditionalDetailsForm
-          tournament={tournament}
-          handleChange={handleChange}
-          handleBack={handleBack}
-          handleSubmit={handleSubmit}
-        />
+            {step === 2 && (
+                <AdditionalDetailsForm
+                    tournament={tournament}
+                    handleChange={handleChange}
+                    handleBack={handleBack}
+                    handleSubmit={handleSubmit}
+                />
 
-      )}
-    </div>
-  );
+            )}
+        </div>
+    );
 };
 
 export default CreateTournament;

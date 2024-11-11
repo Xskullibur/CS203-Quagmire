@@ -2,11 +2,11 @@ package com.project.G1_T3.leaderboard.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.project.G1_T3.player.repository.PlayerProfileRepository;
+import com.project.G1_T3.playerprofile.repository.PlayerProfileRepository;
 import com.project.G1_T3.user.model.User;
 import com.project.G1_T3.user.service.UserService;
 import com.project.G1_T3.leaderboard.model.LeaderboardPlayerProfile;
-import com.project.G1_T3.player.model.PlayerProfile;
+import com.project.G1_T3.playerprofile.model.PlayerProfile;
 
 import java.util.List;
 import java.util.Optional;
@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class LeaderboardServiceImpl implements LeaderboardService {
-    
+
     @Autowired
     private PlayerProfileRepository playerProfileRepository;
 
@@ -30,20 +30,19 @@ public class LeaderboardServiceImpl implements LeaderboardService {
                 .map(profile -> new LeaderboardPlayerProfile(profile.getProfileId(),
                         profile.getFirstName(),
                         profile.getLastName(),
-                        profile.getCurrentRating()))
+                        profile.getGlickoRating()))
                 .collect(Collectors.toList());
 
         return top10Players;
     }
 
-    private List<PlayerProfile> getTop10PlayerProfiles() {
-        return playerProfileRepository.findTop10ByOrderByCurrentRatingDesc();
+    public List<PlayerProfile> getTop10PlayerProfiles() {
+        return playerProfileRepository.findTop10ByOrderByGlickoRatingDesc();
     }
 
-    // LeaderboardService.java
     public LeaderboardPlayerProfile getPlayerInfo(String username) {
         Optional<User> user = userService.findByUsername(username);
-        UUID userId = user.get().getId();
+        UUID userId = user.get().getUserId();
         PlayerProfile player = playerProfileRepository.findByUserId(userId);
         long position = playerProfileRepository.getPositionOfPlayer(userId);
         return new LeaderboardPlayerProfile(player, position);

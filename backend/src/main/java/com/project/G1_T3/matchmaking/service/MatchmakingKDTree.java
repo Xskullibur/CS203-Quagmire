@@ -6,6 +6,91 @@ import java.util.*;
 
 import org.springframework.stereotype.Component;
 
+/**
+ * The MatchmakingKDTree class represents a k-dimensional tree (KD-Tree) for
+ * matchmaking purposes.
+ * It supports insertion, deletion, and nearest neighbor search operations based
+ * on multiple dimensions:
+ * glickoRating, glickoRD, latitude, and longitude.
+ *
+ * <p>
+ * This class is designed to facilitate efficient matchmaking by organizing
+ * players in a multi-dimensional space.
+ * It provides methods to insert players, find the k-nearest neighbors, remove
+ * players, and retrieve all players.
+ *
+ * <p>
+ * Usage example:
+ *
+ * <pre>
+ * {@code
+ * MatchmakingKDTree kdTree = new MatchmakingKDTree();
+ * kdTree.insert(new QueuedPlayer(...));
+ * PriorityQueue<Map.Entry<QueuedPlayer, Double>> nearestNeighbors = kdTree.findKNearest(targetPlayer, maxRatingDiff, maxDeviationDiff, maxDistanceKm, k);
+ * }
+ * </pre>
+ *
+ * <p>
+ * Note: This implementation assumes that the QueuedPlayer class provides
+ * methods to retrieve glickoRating, glickoRD, latitude, and longitude.
+ *
+ * <p>
+ * Attributes:
+ * <ul>
+ * <li>root: The root node of the KD-Tree.
+ * <li>K: The number of dimensions (4 in this case).
+ * <li>size: The number of nodes in the KD-Tree.
+ * </ul>
+ *
+ * <p>
+ * Methods:
+ * <ul>
+ * <li>{@link #MatchmakingKDTree()}: Constructor to initialize an empty KD-Tree.
+ * <li>{@link #insert(QueuedPlayer)}: Inserts a player into the KD-Tree.
+ * <li>{@link #findKNearest(QueuedPlayer, double, double, double, int)}: Finds
+ * the k-nearest neighbors to a target player within specified constraints.
+ * <li>{@link #remove(QueuedPlayer)}: Removes a player from the KD-Tree.
+ * <li>{@link #isEmpty()}: Checks if the KD-Tree is empty.
+ * <li>{@link #size()}: Returns the number of nodes in the KD-Tree.
+ * <li>{@link #pollRootPlayer()}: Removes and returns the root player of the
+ * KD-Tree.
+ * <li>{@link #containsPlayer(UUID)}: Checks if a player with the specified ID
+ * exists in the KD-Tree.
+ * <li>{@link #removeByPlayerId(UUID)}: Removes a player with the specified ID
+ * from the KD-Tree.
+ * <li>{@link #getAllPlayers()}: Retrieves a list of all players in the KD-Tree.
+ * </ul>
+ *
+ * <p>
+ * Inner Classes:
+ * <ul>
+ * <li>{@link Node}: Represents a node in the KD-Tree, containing a player, left
+ * and right children, and depth information.
+ * </ul>
+ *
+ * <p>
+ * Private Methods:
+ * <ul>
+ * <li>{@link #insert(Node, QueuedPlayer, int)}: Helper method to recursively
+ * insert a player into the KD-Tree.
+ * <li>{@link #getAxisValue(QueuedPlayer, int)}: Retrieves the value of the
+ * specified axis for a player.
+ * <li>{@link #findKNearest(Node, QueuedPlayer, double, double, double, int, PriorityQueue)}:
+ * Helper method to recursively find the k-nearest neighbors.
+ * <li>{@link #calculateDistance(QueuedPlayer, QueuedPlayer)}: Calculates the
+ * Euclidean distance between two players.
+ * <li>{@link #remove(Node, QueuedPlayer, int)}: Helper method to recursively
+ * remove a player from the KD-Tree.
+ * <li>{@link #findMin(Node, int, int)}: Finds the node with the minimum value
+ * along the specified axis.
+ * <li>{@link #containsPlayer(Node, UUID)}: Helper method to recursively check
+ * if a player with the specified ID exists.
+ * <li>{@link #removeByPlayerId(Node, UUID, int)}: Helper method to recursively
+ * remove a player with the specified ID.
+ * <li>{@link #getAllPlayers(Node, List)}: Helper method to recursively retrieve
+ * all players in the KD-Tree.
+ * </ul>
+ */
 @Component
 class MatchmakingKDTree {
     private Node root;
@@ -82,7 +167,9 @@ class MatchmakingKDTree {
             return;
 
         double distance = calculateDistance(target, node.player);
-        if (distance <= maxDistanceKm) {
+        if (distance <= maxDistanceKm &&
+                Math.abs(target.getGlickoRating() - node.player.getGlickoRating()) <= maxRatingDiff &&
+                Math.abs(target.getGlickoRD() - node.player.getGlickoRD()) <= maxDeviationDiff) {
             nearestNeighbors.offer(Map.entry(node.player, distance));
             if (nearestNeighbors.size() > k) {
                 nearestNeighbors.poll();
@@ -97,7 +184,7 @@ class MatchmakingKDTree {
         Node other = (next == node.left) ? node.right : node.left;
 
         findKNearest(next, target, maxRatingDiff, maxDeviationDiff, maxDistanceKm, k, nearestNeighbors);
-        if (Math.abs(targetValue - nodeValue) < maxDistanceKm) {
+        if (nearestNeighbors.size() < k || Math.abs(targetValue - nodeValue) < maxDistanceKm) {
             findKNearest(other, target, maxRatingDiff, maxDeviationDiff, maxDistanceKm, k, nearestNeighbors);
         }
     }

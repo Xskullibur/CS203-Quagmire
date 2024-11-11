@@ -1,13 +1,13 @@
 import { MatchTracker } from "@/types/matchTracker";
 import { MatchDTO } from "@/types/matchDTO";
-import axios from "axios";
+import axiosInstance from "@/lib/axios";
 
 const API_URL = process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL;
 
 // Function to get player profile by ID
 const getPlayerProfileById = async (id: string): Promise<any> => {
     try {
-        const response = await axios.get(`${API_URL}/profile/player/${id}`);
+        const response = await axiosInstance.get(`${API_URL}/profile/player/${id}`);
         return response.data;
     } catch (error) {
         console.error(`Error fetching player profile for ID: ${id}`, error);
@@ -21,7 +21,7 @@ const convertMatchToMatchTracker = async (match: any): Promise<MatchTracker> => 
         // Fetch player profiles for player1 and player2
         const player1Profile = await getPlayerProfileById(match.player1Id);
         const player2Profile = match.player2Id ? await getPlayerProfileById(match.player2Id) : null;
-        const winnerProfile = match.winnerId? await getPlayerProfileById(match.winnerId) : null;
+        const winnerProfile = match.winnerId ? await getPlayerProfileById(match.winnerId) : null;
 
         // Create the MatchTracker object
         const matchTracker: MatchTracker = {
@@ -57,7 +57,7 @@ const convertMatchToMatchTracker = async (match: any): Promise<MatchTracker> => 
 // Convert MatchTracker to MatchDTO
 const convertToMatchDTO = (match: MatchTracker): MatchDTO => {
     const score = match.player2 ? `${match.player1.score}-${match.player2.score}` : "0-0";
-    const matchDTO: MatchDTO =  {
+    const matchDTO: MatchDTO = {
         player1Id: match.player1.id,
         player2Id: match.player2 ? match.player2.id : null,
         scheduledTime: null,
@@ -71,7 +71,7 @@ const convertToMatchDTO = (match: MatchTracker): MatchDTO => {
 
 const getCurrentStageFromTournament = async (tournamentId: string) => {
     try {
-        const stagesResponse = await axios.get(`${API_URL}/tournament/${tournamentId}/stage/allStages`);
+        const stagesResponse = await axiosInstance.get(`${API_URL}/tournament/${tournamentId}/stage/allStages`);
         const stages = stagesResponse.data;
         if (!stages.length) {
             console.log('No stages found for this tournament.');
@@ -87,7 +87,7 @@ const getCurrentStageFromTournament = async (tournamentId: string) => {
 
 const getRoundsForTournamentAndStageId = async (tournamentId: string, stageId: string): Promise<any[]> => {
     try {
-        const roundsResponse = await axios.get(`${API_URL}/tournament/${tournamentId}/stage/${stageId}/round/allRounds`);
+        const roundsResponse = await axiosInstance.get(`${API_URL}/tournament/${tournamentId}/stage/${stageId}/round/allRounds`);
         const rounds = roundsResponse.data;
         return rounds;
     } catch (error) {
@@ -98,7 +98,7 @@ const getRoundsForTournamentAndStageId = async (tournamentId: string, stageId: s
 
 const getMatchesForRound = async (roundId: string) => {
     try {
-        const matchesResponse = await axios.get(`${API_URL}/match/round/${roundId}`);
+        const matchesResponse = await axiosInstance.get(`${API_URL}/match/round/${roundId}`);
         const matches = matchesResponse.data;
         const result = await Promise.all(matches.map((match: any) => convertMatchToMatchTracker(match)));
         return result;
@@ -110,7 +110,7 @@ const getMatchesForRound = async (roundId: string) => {
 
 const getProfileFromUsername = async (username: string) => {
     try {
-        const response = await axios.get(`${API_URL}/profile/player/${username}`);
+        const response = await axiosInstance.get(`${API_URL}/profile/player/${username}`);
         const profileId = response.data.profileId;
         return profileId;
     } catch (error) {

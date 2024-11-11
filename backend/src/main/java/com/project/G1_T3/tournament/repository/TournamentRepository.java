@@ -5,6 +5,7 @@ import com.project.G1_T3.common.model.Status;
 
 import jakarta.validation.constraints.NotNull;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import org.springframework.data.domain.Page;
@@ -17,7 +18,7 @@ import java.util.*;
 
 @Repository
 public interface TournamentRepository extends JpaRepository<Tournament, UUID> {
-    
+
     Optional<Tournament> findById(UUID id);
 
     // Pagination for all tournaments (already paginated)
@@ -40,25 +41,40 @@ public interface TournamentRepository extends JpaRepository<Tournament, UUID> {
     // Find tournaments that end before a specific date (already paginated)
     Page<Tournament> findByEndDateBefore(LocalDateTime endDate, Pageable pageable);
 
-    // Find tournaments where the deadline is before a specific date (already paginated)
+    // Find tournaments where the deadline is before a specific date (already
+    // paginated)
     Page<Tournament> findByDeadlineBefore(LocalDateTime deadline, Pageable pageable);
 
-    // Find tournaments that start and end within the specified dates (added pagination)
+    // Find tournaments that start and end within the specified dates (added
+    // pagination)
     @Query("SELECT t FROM Tournament t WHERE t.startDate >= :availableStartDate AND t.endDate <= :availableEndDate")
-        Page<Tournament> findByStartAndEndDateWithinAvailability(
-            @Param("availableStartDate") LocalDateTime availableStartDate, 
-            @Param("availableEndDate") LocalDateTime availableEndDate, 
+    Page<Tournament> findByStartAndEndDateWithinAvailability(
+            @Param("availableStartDate") LocalDateTime availableStartDate,
+            @Param("availableEndDate") LocalDateTime availableEndDate,
             Pageable pageable);
 
     // Custom query to search tournaments by name (added pagination)
     @Query("SELECT t FROM Tournament t WHERE t.name LIKE %:name%")
     Page<Tournament> searchByName(@Param("name") String name, Pageable pageable);
 
-    // Custom query to search tournaments by keyword in description (added pagination)
+    // Custom query to search tournaments by keyword in description (added
+    // pagination)
     @Query("SELECT t FROM Tournament t WHERE t.description LIKE %:keyword%")
     Page<Tournament> findByKeywordInDescription(@Param("keyword") String keyword, Pageable pageable);
 
     // Custom query to find tournaments by location (added pagination)
     @Query("SELECT t FROM Tournament t WHERE t.location = :location")
     Page<Tournament> searchByLocation(@Param("location") String location, Pageable pageable);
+
+    Page<Tournament> findByStartDateBetweenAndStartDateGreaterThanEqual(
+            LocalDateTime fromDate,
+            LocalDateTime toDate,
+            LocalDateTime currentDate,
+            Pageable pageable);
+
+    Page<Tournament> findByStartDateBetweenAndStartDateLessThan(
+            LocalDateTime fromDate,
+            LocalDateTime toDate,
+            LocalDateTime currentDate,
+            Pageable pageable);
 }

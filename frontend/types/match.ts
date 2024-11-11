@@ -1,11 +1,15 @@
-import { PlayerProfile } from "./player-profile";
-
-export type Match = {
+export interface Match {
     matchId: string;
-    player1: string;
-    player2?: string;
-    winner?: string;
-    completed: boolean;
+    player1Id: string;
+    player2Id: string;
+    refereeId?: string;
+    scheduledTime: string;
+    status: 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
+    winnerId?: string;
     score?: string;
-    date?: string;
-}
+    createdAt: string;
+    updatedAt: string;
+    gameType: 'SOLO' | 'TOURNAMENT';
+    meetingLatitude: number;
+    meetingLongitude: number;
+  }
