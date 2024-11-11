@@ -151,9 +151,9 @@ const UserTable: React.FC<UserTableProps> = ({
           ))}
         </TableBody>
       </Table>
-
+      
       <div className="flex items-center justify-between p-4">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 ">
           <Label htmlFor="page-size">Show</Label>
           <Select
             value={pageSize.toString()}

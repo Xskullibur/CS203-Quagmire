@@ -9,24 +9,6 @@ import axios from 'axios';
 
 const API_URL = `${process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL}/tournament`;
 
-const transformTournamentData = (tournament: any): Tournament => {
-    return {
-        id: String(tournament.id),
-        name: tournament.name,
-        location: tournament.location,
-        startDate: tournament.start_date.split('T')[0],
-        startTime: tournament.start_date.split('T')[1]?.slice(0, 5) || '00:00',
-        endDate: tournament.end_date.split('T')[0],
-        endTime: tournament.end_date.split('T')[0]?.slice(0, 5) || '00:00',
-        status: tournament.status.toUpperCase() as Tournament['status'],
-        deadline: tournament.registration_deadline.split('T')[0],
-        deadlineTime: tournament.registration_deadline.split('T')[1]?.slice(0, 5) || '00:00',
-        maxParticipants: tournament.max_participants,
-        description: tournament.description,
-        refereeIds: tournament.refereeIds || []
-    };
-};
-
 const TournamentCardViewerCarousel = () => {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [cardsToShow, setCardsToShow] = useState(3);

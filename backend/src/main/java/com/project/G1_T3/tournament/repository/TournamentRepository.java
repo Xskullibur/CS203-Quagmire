@@ -1,6 +1,9 @@
 package com.project.G1_T3.tournament.repository;
 
 import com.project.G1_T3.tournament.model.Tournament;
+import com.project.G1_T3.common.model.Status;
+
+import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -21,11 +24,21 @@ public interface TournamentRepository extends JpaRepository<Tournament, UUID> {
     // Pagination for all tournaments (already paginated)
     Page<Tournament> findAll(Pageable pageable);
 
+    Page<Tournament> findAllByOrderByStartDateAsc(Pageable pageable);
+
+    // Find tournaments by a list of statuses
+    Page<Tournament> findByStatusInOrderByStartDateAsc(List<String> statusList, Pageable pageable);
+
     // Find tournaments by name (added pagination)
     Page<Tournament> findByName(String name, Pageable pageable);
 
     // Find tournaments by location (added pagination)
     Page<Tournament> findByLocation(String location, Pageable pageable);
+    // Find tournaments by status
+    Page<Tournament> findByStatus(Status status, Pageable pageable);
+
+    // Find tournaments by a range of start dates
+    List<Tournament> findByStartDateBetween(LocalDateTime startDate, LocalDateTime endDate);
 
     // Find tournaments that start after a specific date (already paginated)
     Page<Tournament> findByStartDateAfter(LocalDateTime startDate, Pageable pageable);

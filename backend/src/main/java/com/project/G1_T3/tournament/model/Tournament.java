@@ -6,6 +6,8 @@ import com.project.G1_T3.common.model.Status;
 import com.project.G1_T3.playerprofile.model.PlayerProfile;
 import com.project.G1_T3.stage.model.Stage;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -66,18 +68,10 @@ public class Tournament {
         inverseJoinColumns = @JoinColumn(name = "profile_id")
     )
     @JsonIgnore
-    private Set<PlayerProfile> players;
-
-    @ManyToMany
-    @JoinTable(
-        name = "tournament_referees",  // Create a join table for referees in each stage
-        joinColumns = @JoinColumn(name = "tournament_id"),
-        inverseJoinColumns = @JoinColumn(name = "profile_id")
-    )
-    @JsonIgnore
-    private Set<PlayerProfile> referees;
+    private Set<PlayerProfile> players = new HashSet<>();
 
     @OneToMany(mappedBy = "tournament", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<Stage> stages = new ArrayList<>();  // Add a list to hold the stage
 
     @Column
@@ -85,5 +79,8 @@ public class Tournament {
 
     @Column
     private int currentStageIndex = 0;
+
+    @Column
+    private String photoUrl;
 
 }

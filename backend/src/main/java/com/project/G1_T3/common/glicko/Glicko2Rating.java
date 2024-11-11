@@ -116,7 +116,7 @@ public class Glicko2Rating {
         double muPrime = mu + phiPrime * phiPrime * delta / v;
 
         // Convert back to original scale
-        rating = muPrime * SCALE + INITIAL_RATING;
+        rating = Math.max(Math.min(muPrime * SCALE + INITIAL_RATING, 3000), 1);
         ratingDeviation = phiPrime * SCALE;
         volatility = sigmaPrime;
 

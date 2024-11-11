@@ -9,6 +9,7 @@ import com.project.G1_T3.tournament.service.TournamentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.HttpStatus;
 
 import java.util.List;
 import java.util.UUID;
@@ -19,6 +20,13 @@ public class StageController {
 
     @Autowired
     private StageService stageService;
+
+    @GetMapping("/{stageId}")
+    public ResponseEntity<Stage> getStageById(@PathVariable UUID stageId) {
+        // Call the service to retrieve the stage by its stageId
+        Stage stage = stageService.getStageById(stageId);
+        return ResponseEntity.ok(stage);
+    }
 
     // Endpoint to start a stage by its ID
     @PutMapping("/{stageId}/start")
@@ -31,6 +39,26 @@ public class StageController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
+    @GetMapping("/allStages")
+    public ResponseEntity<List<Stage>> getStagesByTournamentId(@PathVariable UUID tournamentId) {
+        List<Stage> stages = stageService.findAllStagesByTournamentIdSortedByCreatedAtAsc(tournamentId);
+        return ResponseEntity.ok(stages);
+    }
+
+    // Get stage by ID
+    // @GetMapping("/{stageId}")
+    // public ResponseEntity<Stage> getStageById(@PathVariable UUID tournamentId, @PathVariable UUID stageId) {
+    //     try {
+    //         Stage stage = stageService.getStageById(stageId);
+    //         if (stage == null) {
+    //             return ResponseEntity.notFound().build();
+    //         }
+    //         return ResponseEntity.ok(stage);
+    //     } catch (RuntimeException e) {
+    //         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+    //     }
+    // }
 
 }
 

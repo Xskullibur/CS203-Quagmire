@@ -72,7 +72,7 @@ class UserServiceTest {
     @BeforeEach
     void setUp() {
         testUser = new User();
-        testUser.setId(UUID.randomUUID().toString());
+        testUser.setId(UUID.randomUUID());
         testUser.setUsername(TEST_USERNAME);
         testUser.setEmail(TEST_EMAIL);
         testUser.setPasswordHash("hashedpassword");
@@ -154,7 +154,7 @@ class UserServiceTest {
         @Test
         void findByUserId_ValidId_ReturnsUser() {
             UUID userId = UUID.randomUUID();
-            testUser.setId(userId.toString());
+            testUser.setId(userId);
             when(userRepository.findById(userId)).thenReturn(Optional.of(testUser));
 
             Optional<User> result = userService.findByUserId(userId.toString());
@@ -209,7 +209,7 @@ class UserServiceTest {
         @Test
         void sendVerificationEmailByUserId_ValidId_SendsEmail() {
             UUID userId = UUID.randomUUID();
-            testUser.setId(userId.toString());
+            testUser.setId(userId);
             when(userRepository.findById(any(UUID.class))).thenReturn(Optional.of(testUser));
             when(jwtService.generateEmailVerificationToken(any())).thenReturn("valid-token");
 
@@ -244,7 +244,7 @@ class UserServiceTest {
 
     private User createTestUser(String username) {
         User user = new User();
-        user.setId(UUID.randomUUID().toString());
+        user.setId(UUID.randomUUID());
         user.setUsername(username);
         user.setEmail(username + "@example.com");
         user.setRole(UserRole.PLAYER);
@@ -341,7 +341,8 @@ class UserServiceTest {
         when(userRepository.findByUsername("nonexistentuser")).thenReturn(Optional.empty());
 
         // Act & Assert
-        assertThrows(UsernameNotFoundException.class, () -> userService.updatePassword("nonexistentuser", updatePasswordDTO));
+        assertThrows(UsernameNotFoundException.class,
+                () -> userService.updatePassword("nonexistentuser", updatePasswordDTO));
     }
 
     @Test
@@ -376,7 +377,7 @@ class UserServiceTest {
         boolean result = userService.updateEmail("testuser", updateEmailDTO);
 
         // Assert
-        assertTrue(!result);  // Ensure that the email was not updated
+        assertTrue(!result); // Ensure that the email was not updated
     }
 
     @Test

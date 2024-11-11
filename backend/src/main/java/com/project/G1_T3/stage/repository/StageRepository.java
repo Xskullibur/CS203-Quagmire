@@ -5,8 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import com.project.G1_T3.stage.model.Stage;
 import java.util.*;
-import java.util.Optional;
-import java.util.UUID;
 
 @Repository
 public interface StageRepository extends JpaRepository<Stage, UUID> {
@@ -16,4 +14,8 @@ public interface StageRepository extends JpaRepository<Stage, UUID> {
 
     // Find a specific stage by its ID and tournamentId
     Optional<Stage> findByStageIdAndTournamentId(UUID stageId, UUID tournamentId);
+
+    // Find a specific stage by its ID
+    Optional<Stage> findByStageId(UUID stageId);
+
 }

@@ -76,7 +76,7 @@ class PlayerProfileServiceTest {
 
         // Set up User
         user = new User();
-        user.setId(userId.toString());
+        user.setId(userId);
         user.setUsername("testuser");
 
         // Set up existing profile
@@ -114,7 +114,7 @@ class PlayerProfileServiceTest {
         when(userService.findByUserId(userId.toString())).thenReturn(Optional.of(user));
         when(playerProfileRepository.findByUser(user)).thenReturn(existingProfile);
 
-        PlayerProfile result = playerProfileService.findByUserId(userId.toString());
+        PlayerProfile result = playerProfileService.findByUserId(userId);
 
         assertNotNull(result);
         assertEquals(existingProfile, result);
@@ -124,7 +124,7 @@ class PlayerProfileServiceTest {
     void findByUserId_WithInvalidUserId_ThrowsException() {
         when(userService.findByUserId(userId.toString())).thenReturn(Optional.empty());
 
-        Supplier<PlayerProfile> findByUserIdCall = () -> playerProfileService.findByUserId(userId.toString());
+        Supplier<PlayerProfile> findByUserIdCall = () -> playerProfileService.findByUserId(userId);
 
         assertThrows(EntityNotFoundException.class, findByUserIdCall::get);
     }
@@ -164,7 +164,7 @@ class PlayerProfileServiceTest {
         UUID profileId = UUID.randomUUID();
         when(playerProfileRepository.findById(profileId)).thenReturn(Optional.of(existingProfile));
 
-        PlayerProfile result = playerProfileService.findByProfileId(profileId.toString());
+        PlayerProfile result = playerProfileService.findByProfileId(profileId);
 
         assertNotNull(result);
         assertEquals(existingProfile, result);
@@ -175,7 +175,7 @@ class PlayerProfileServiceTest {
         UUID profileId = UUID.randomUUID();
         when(playerProfileRepository.findById(profileId)).thenReturn(Optional.empty());
 
-        Supplier<PlayerProfile> findByProfileIdCall = () -> playerProfileService.findByProfileId(profileId.toString());
+        Supplier<PlayerProfile> findByProfileIdCall = () -> playerProfileService.findByProfileId(profileId);
 
         assertThrows(EntityNotFoundException.class, findByProfileIdCall::get);
     }
@@ -193,7 +193,7 @@ class PlayerProfileServiceTest {
         when(playerRatingService.getNumberOfPlayersAhead(anyInt())).thenReturn(0);
         when(playerRatingService.getTotalPlayers()).thenReturn(1);
 
-        double rank = playerProfileService.getPlayerRank(profileId.toString());
+        double rank = playerProfileService.getPlayerRank(profileId);
 
         assertEquals(100.0, rank); // Should return 100% since it's the only player
 

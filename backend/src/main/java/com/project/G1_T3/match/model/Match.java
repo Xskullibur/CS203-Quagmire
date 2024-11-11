@@ -1,5 +1,6 @@
 package com.project.G1_T3.match.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.project.G1_T3.common.model.Status;
 import com.project.G1_T3.round.model.Round;
 import jakarta.persistence.*;
@@ -20,12 +21,13 @@ public class Match {
 
     @ManyToOne
     @JoinColumn(name = "round_id", nullable = true)
+    @JsonIgnore
     private Round round;
 
     @Column(nullable = false)
     private UUID player1Id;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private UUID player2Id;
 
     @Column(nullable = true)
@@ -42,7 +44,7 @@ public class Match {
     private UUID winnerId;
 
     @Column(length = 50)
-    private String score;
+    private String score = "0-0";
 
     @Column(name = "created_at", columnDefinition = "TIMESTAMP")
     private LocalDateTime createdAt;
@@ -54,10 +56,10 @@ public class Match {
     private GameType gameType;
 
     @Column(name = "meeting_latitude", nullable = true)
-    private double meetingLatitude;
+    private Double meetingLatitude;
 
     @Column(name = "meeting_longitude", nullable = true)
-    private double meetingLongitude;
+    private Double meetingLongitude;
 
     public enum GameType {
         SOLO, TOURNAMENT
@@ -82,7 +84,7 @@ public class Match {
     }
 
     public void completeMatch(UUID winnerId, String score) {
-        if (this.status == Status.IN_PROGRESS) {
+        if (this.status != Status.COMPLETED || this.status != Status.CANCELLED) {
             this.winnerId = winnerId;
             this.score = score;
             this.status = Status.COMPLETED;
@@ -131,11 +133,11 @@ public class Match {
         return status;
     }
 
-    public void setMeetingLatitude(double meetingLatitude) {
+    public void setMeetingLatitude(Double meetingLatitude) {
         this.meetingLatitude = meetingLatitude;
     }
 
-    public void setMeetingLongitude(double meetingLongitude) {
+    public void setMeetingLongitude(Double meetingLongitude) {
         this.meetingLongitude = meetingLongitude;
     }
 }

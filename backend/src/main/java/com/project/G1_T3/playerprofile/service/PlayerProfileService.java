@@ -15,6 +15,7 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.dao.DataAccessException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -54,23 +55,34 @@ public class PlayerProfileService {
     private PlayerRatingService playerRatingService;
 
     public List<PlayerProfile> findAll() {
-        return playerProfileRepository.findAll();
+        try {
+            return playerProfileRepository.findAll();
+        } catch (DataAccessException e) {
+            throw new RuntimeException("Error fetching all player profiles", e);
+        }
     }
 
-    public PlayerProfile findByUserId(String id) {
-        return userService.findByUserId(id).map(user -> playerProfileRepository.findByUser(user))
+    public PlayerProfile findByUserId(UUID id) {
+        return userService.findByUserId(id.toString()).map(user -> playerProfileRepository.findByUser(user))
                 .orElseThrow(() -> new EntityNotFoundException("User not found for user ID: " + id));
     }
 
-    public PlayerProfile findByProfileId(String id) {
-        return playerProfileRepository.findById(UUID.fromString(id)).orElseThrow(
+    public PlayerProfile findByProfileId(UUID id) {
+        return playerProfileRepository.findById(id).orElseThrow(
                 () -> new EntityNotFoundException("Player profile not found for ID: " + id));
     }
 
+    public PlayerProfile save(PlayerProfile profile) {
+        try {
+            return playerProfileRepository.save(profile);
+        } catch (DataAccessException e) {
+            throw new RuntimeException("Error saving player profile", e);
+        }
+    }
 
-    public double getPlayerRank(String profileId) {
+    public double getPlayerRank(UUID profileId) {
         // Get the player's profile
-        PlayerProfile playerProfile = playerProfileRepository.findByProfileId(UUID.fromString(profileId));
+        PlayerProfile playerProfile = playerProfileRepository.findByProfileId(profileId);
         if (playerProfile == null) {
             // Handle player not found
             throw new NoSuchElementException("Player with ID " + profileId + " not found.");
