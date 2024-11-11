@@ -175,10 +175,42 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList(frontendUrl, "http://www.quagmire.site", "http://quagmire.site", "http://localhost:3000", "https://localhost:3000", "https://quagmire-frontend-alb-1718208115.us-east-1.elb.amazonaws.com", "https://quagmire.site", "https://www.quagmire.site", "https://api.quagmire.site", "http://api.quagmire.site"));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("*"));
+
+        // Allow specific origins
+        configuration.setAllowedOrigins(Arrays.asList(
+                frontendUrl,
+                "http://www.quagmire.site",
+                "http://quagmire.site",
+                "http://localhost:3000",
+                "https://quagmire-frontend-alb-1718208115.us-east-1.elb.amazonaws.com",
+                "https://quagmire.site",
+                "https://www.quagmire.site",
+                "https://api.quagmire.site",
+                "http://api.quagmire.site"));
+
+        // Expand allowed methods
+        configuration.setAllowedMethods(Arrays.asList(
+                "GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"));
+
+        // Be more specific with allowed headers
+        configuration.setAllowedHeaders(Arrays.asList(
+                "Authorization",
+                "Content-Type",
+                "X-Requested-With",
+                "Accept",
+                "Origin",
+                "Access-Control-Request-Method",
+                "Access-Control-Request-Headers"));
+
+        // Expose specific headers
+        configuration.setExposedHeaders(Arrays.asList(
+                "Access-Control-Allow-Origin",
+                "Access-Control-Allow-Credentials",
+                "Authorization"));
+
         configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L); // Cache preflight requests for 1 hour
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
