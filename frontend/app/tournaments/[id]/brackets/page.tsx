@@ -67,6 +67,8 @@ const BracketsPage = () => {
   };
 
   const handleNextRound = async () => {
+    let tempNextRoundId = null;
+
     if (currentStageIndex === roundIds.length - 1 && isAdmin) {
       try {
         //complete the current round, and get the roundIds
@@ -78,6 +80,7 @@ const BracketsPage = () => {
           console.log(rounds);
           const roundIdArr = rounds.map((round) => round.roundId);
           setRoundIds(roundIdArr);
+          tempNextRoundId = roundIdArr[roundIdArr.length - 1];
         } else {
           console.log("Round already completed");
         }
@@ -100,14 +103,14 @@ const BracketsPage = () => {
 
       try {
 
-        const nextRoundId = roundIds[currentStageIndex + 1];
+        const nextRoundId = tempNextRoundId !== null? tempNextRoundId : roundIds[currentStageIndex + 1];
         const matches = await getMatchesForRound(nextRoundId);
+
         if (matches && Array.isArray(matches)) {
           setMatches(matches);
           filterMatches(matches);
           setCurrentStageIndex(currentStageIndex + 1);
         }
-        console.log(currentStageIndex);
 
       } catch (error) {
         console.error('Error fetching next round matches:', error);
