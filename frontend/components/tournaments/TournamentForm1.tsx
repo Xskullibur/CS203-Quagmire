@@ -2,19 +2,14 @@
 import React from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Tournament } from '@/types/tournament';
 
 interface TournamentFormProps {
-  tournament: {
-    name: string;
-    location: string;
-    startDate: string;
-    startTime: string;
-    endDate: string;
-    endTime: string;
-  };
+  tournament: Tournament;
   handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   handleSubmit: (e: React.FormEvent) => void;
   buttonLabel: string;
+  isCreate: boolean
 }
 
 const TournamentForm: React.FC<TournamentFormProps> = ({
@@ -22,12 +17,14 @@ const TournamentForm: React.FC<TournamentFormProps> = ({
   handleChange,
   handleSubmit,
   buttonLabel,
+  isCreate
 }) => {
+  console.log(isCreate);
   return (
     <div className="w-[95vw] md:w-1/2 max-w-xl p-6 bg-primary-foreground rounded-lg shadow-md relative
         overflow-hidden backdrop-blur-sm hover:backdrop-blur-md transition
         duration-300 z-10 border border-zinc-700 hover:border-zinc-400 hover:bg-zinc-800/50 shadow-zinc-800">
-      <h1 className="text-2xl font-bold mb-6 text-white">Create Tournament - Step 1</h1>
+      <h1 className="text-2xl font-bold mb-6 text-white">{isCreate? "Create" : "Update"} Tournament - Step 1</h1>
       <form className="flex flex-col gap-6" onSubmit={handleSubmit}>
         {/* Tournament Name */}
         <div>

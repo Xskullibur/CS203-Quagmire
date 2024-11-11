@@ -9,6 +9,7 @@ interface AdditionalDetailsFormProps {
     handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
     handleBack: (e: React.FormEvent) => void;
     handleSubmit: (e: React.FormEvent) => void;
+    isCreate: boolean;
 }
 
 
@@ -17,6 +18,7 @@ const AdditionalDetailsForm: React.FC<AdditionalDetailsFormProps> = ({
     handleChange,
     handleBack,
     handleSubmit,
+    isCreate
 }) => {
     return (
         <div className="w-[95vw] md:w-1/2 max-w-xl p-6 bg-primary-foreground rounded-lg shadow-md relative
@@ -74,14 +76,14 @@ const AdditionalDetailsForm: React.FC<AdditionalDetailsFormProps> = ({
                         value={tournament.description}
                         onChange={handleChange}
                         required
-                        className="h-20 bg-transparent border-b border-zinc-600 text-white placeholder-zinc-500 transition duration-300"
+                        className="h-20 bg-transparent border border-zinc-600 text-white text-sm placeholder-zinc-500 transition duration-300 p-1 rounded-md focus:outline-none focus:ring-2 focus:ring-white"
                         rows={4}
                         style={{ resize: 'none' }}
                     />
                 </div>
                 <div className="flex justify-between gap-8">
                     <Button onClick={handleBack} type="button" className="w-1/2">Back</Button>
-                    <Button type="submit" className="w-1/2">Create Tournament</Button>
+                    <Button type="submit" className="w-1/2" onClick={handleSubmit}>{isCreate? "Create" : "Update"} Tournament</Button>
                 </div>
             </form>
         </div>
