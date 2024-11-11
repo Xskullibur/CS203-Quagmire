@@ -10,6 +10,7 @@ import { getPlayerProfileById } from "@/hooks/tournamentDataManager";
 import TournamentBracket from "@/components/tournaments/TournamentBracket";
 import { Skeleton } from "@/components/ui/skeleton";
 import TournamentDetailsSkeleton from "@/components/tournaments/TournamentDetailsSkeleton ";
+import { toast } from "@/hooks/use-toast";
 
 interface Tournament {
   name: string;
@@ -34,7 +35,6 @@ const TournamentDetails: React.FC<{ params: { id: string } }> = ({
   const router = useRouter();
   const [tournament, setTournament] = useState<Tournament | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
   const [registrationClosed, setRegistrationClosed] = useState<boolean>(false);
   const [winnerUsername, setWinnerUsername] = useState<string | null>(null);
 
@@ -48,7 +48,6 @@ const TournamentDetails: React.FC<{ params: { id: string } }> = ({
       if (!id) return;
 
       setLoading(true);
-      setError(null);
 
       try {
         const response = await axiosInstance.get(`${API_URL}/tournament/${id}`);
@@ -101,11 +100,21 @@ const TournamentDetails: React.FC<{ params: { id: string } }> = ({
       const response = await axiosInstance.put(
         `${API_URL}/tournament/${id}/start`
       );
-      alert(response.data); // Should display "Tournament started successfully."
+      
+      toast({
+        variant: "success",
+        title: "Success",
+        description: `${tournament.name} has started`,
+      });
+
       router.push(`/tournaments/${id}/brackets`);
     } catch (error) {
+
+      if (axios.isAxiosError(error)) {
+        handleError(error)
+      }
+
       console.error("Error starting tournament:", error);
-      alert("An error occurred while starting the tournament.");
     }
   };
 

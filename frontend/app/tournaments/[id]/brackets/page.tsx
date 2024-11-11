@@ -11,12 +11,14 @@ import { getCurrentStageFromTournament, getMatchesForRound, getRoundsForTourname
 import { useAuth } from "@/hooks/useAuth";
 import { UserRole } from "@/types/user-role";
 import axiosInstance from "@/lib/axios";
+import axios from "axios";
+import { useGlobalErrorHandler } from "@/app/context/ErrorMessageProvider";
 
 const API_URL = process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL;
 
 
 const BracketsPage = () => {
-  const { user, isAuthenticated } = useAuth();
+  const { user } = useAuth();
   const isAdmin = user?.role === UserRole.ADMIN;
   const router = useRouter();
   const params = useParams();
@@ -32,6 +34,7 @@ const BracketsPage = () => {
   const [filteredActualMatches, setFilteredActualMatches] = useState<MatchTracker[]>([]);
   const [filteredAutoAdvanceMatches, setFilteredAutoAdvanceMatches] = useState<MatchTracker[]>([]);
   const [stageId, setStageId] = useState<string>("");
+  const { handleError } = useGlobalErrorHandler();
 
   useEffect(() => {
     const initialiseTournament = async () => {
@@ -49,6 +52,11 @@ const BracketsPage = () => {
           }
         }
       } catch (error) {
+
+        if (axios.isAxiosError(error)) {
+          handleError(error)
+        }
+
         console.error('Error fetching stage and matches:', error);
       }
     };
@@ -71,10 +79,14 @@ const BracketsPage = () => {
         //complete the current round, and get the roundIds
         await axiosInstance.put(new URL(`/tournament/${tournamentId}/stage/${stageId}/round/${roundIds[currentStageIndex]}/end`, API_URL).toString());
         const rounds = await getRoundsForTournamentAndStageId(tournamentId, stageId);
-        console.log(rounds);
         const roundIdArr = rounds.map((round) => round.roundId);
         setRoundIds(roundIdArr);
       } catch (error) {
+        
+        if (axios.isAxiosError(error)) {
+          handleError(error)
+        }
+
         console.log("unable to complete round" + error)
       }
 
@@ -85,6 +97,10 @@ const BracketsPage = () => {
           await axiosInstance.put(new URL(`/tournament/${tournamentId}/progress`, API_URL).toString());
           router.push(`/tournaments/${tournamentId}`);
         } catch (error) {
+          
+        if (axios.isAxiosError(error)) {
+          handleError(error)
+        }
           console.log("failed to complete tournaemnt" + error);
         }
       }
@@ -99,9 +115,13 @@ const BracketsPage = () => {
         filterMatches(matches);
         setCurrentStageIndex(currentStageIndex + 1);
       }
-      console.log(currentStageIndex);
 
     } catch (error) {
+      
+      if (axios.isAxiosError(error)) {
+        handleError(error)
+      }
+
       console.error('Error fetching next round matches:', error);
     }
 
@@ -118,17 +138,17 @@ const BracketsPage = () => {
           setCurrentStageIndex(currentStageIndex - 1);
         }
       } catch (error) {
+
+        if (axios.isAxiosError(error)) {
+          handleError(error)
+        }
+
         console.error('Error fetching previous round matches:', error);
       }
     }
   };
 
   const handleMatchComplete = (index: number, winner: { username: string; id: string }) => {
-    if (!isAdmin) {
-      alert("Only administrators can update match results.");
-      return;
-    }
-
     const updatedMatches = matches.map((match, i) =>
       i === index ? { ...match, completed: true, winner: winner } : match
     );
