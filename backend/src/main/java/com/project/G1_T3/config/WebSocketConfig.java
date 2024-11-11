@@ -13,6 +13,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import org.springframework.messaging.converter.MappingJackson2MessageConverter;
 import org.springframework.messaging.converter.MessageConverter;
+
 import java.util.List;
 
 @Configuration
@@ -32,9 +33,13 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws")
-                .setAllowedOrigins(frontendUrl, "http://localhost:3000")
+                .setAllowedOrigins(frontendUrl, "http://www.quagmire.site", "http://quagmire.site",
+                        "http://localhost:3000", "https://quagmire-frontend-alb-1718208115.us-east-1.elb.amazonaws.com",
+                        "https://quagmire.site", "https://www.quagmire.site", "https://api.quagmire.site",
+                        "http://api.quagmire.site")
                 .withSockJS();
     }
+
     @Override
     public boolean configureMessageConverters(List<MessageConverter> messageConverters) {
         messageConverters.add(messageConverter());
