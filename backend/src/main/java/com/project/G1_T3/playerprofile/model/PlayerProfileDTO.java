@@ -36,8 +36,11 @@ public class PlayerProfileDTO {
     @JsonProperty("profilePicturePath")
     private String profileImagePath;
 
+    @JsonProperty("glickoRating")
+    private int glickoRating;
+
     public PlayerProfileDTO() {
-        
+
     }
 
     public PlayerProfileDTO(PlayerProfile playerProfile) {
@@ -50,6 +53,7 @@ public class PlayerProfileDTO {
         this.bio = playerProfile.getBio();
         this.currentRating = playerProfile.getCurrentRating();
         this.profileImagePath = playerProfile.getProfilePicturePath();
+        this.glickoRating = playerProfile.getGlickoRating();
     }
 
     // Constructor, getters, and setters
