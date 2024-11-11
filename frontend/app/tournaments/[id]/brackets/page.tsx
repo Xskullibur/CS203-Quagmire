@@ -11,9 +11,10 @@ import { getCurrentStageFromTournament, getMatchesForRound, getRoundsForTourname
 import { useAuth } from "@/hooks/useAuth";
 import { UserRole } from "@/types/user-role";
 import axiosInstance from "@/lib/axios";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 
 const API_URL = process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL;
+const WEB_URL = process.env.NEXT_PUBLIC_API_URL;
 
 
 const BracketsPage = () => {
@@ -43,6 +44,7 @@ const BracketsPage = () => {
           const roundIdsArray = rounds.map((round: any) => round.roundId);
           setRoundIds(roundIdsArray);
           const matches = await getMatchesForRound(rounds[rounds.length - 1].roundId);
+          setCurrentStageIndex(rounds.length- 1);
           if (matches && Array.isArray(matches)) {
             setMatches(matches);
             filterMatches(matches);
@@ -65,44 +67,51 @@ const BracketsPage = () => {
   };
 
   const handleNextRound = async () => {
-
     if (currentStageIndex === roundIds.length - 1 && isAdmin) {
       try {
         //complete the current round, and get the roundIds
-        await axiosInstance.put(new URL(`/tournament/${tournamentId}/stage/${stageId}/round/${roundIds[currentStageIndex]}/end`, API_URL).toString());
-        const rounds = await getRoundsForTournamentAndStageId(tournamentId, stageId);
-        console.log(rounds);
-        const roundIdArr = rounds.map((round) => round.roundId);
-        setRoundIds(roundIdArr);
+        const res = await axiosInstance.get(new URL(`/tournament/${tournamentId}/stage/${stageId}/round/${roundIds[currentStageIndex]}`, API_URL).toString());
+        const curRoundStatus = res.data.status;
+        if (curRoundStatus !== 'COMPLETED') {
+          await axiosInstance.put(new URL(`/tournament/${tournamentId}/stage/${stageId}/round/${roundIds[currentStageIndex]}/end`, API_URL).toString());
+          const rounds = await getRoundsForTournamentAndStageId(tournamentId, stageId);
+          console.log(rounds);
+          const roundIdArr = rounds.map((round) => round.roundId);
+          setRoundIds(roundIdArr);
+        } else {
+          console.log("Round already completed");
+        }
+
       } catch (error) {
         console.log("unable to complete round" + error)
       }
 
-      if (matches.length === 1) {
-        //make a post to complete tournament and redirect to winners page
-        try {
-          await axiosInstance.put(new URL(`/tournament/${tournamentId}/stage/${stageId}/round/${roundIds[currentStageIndex]}/end`, API_URL).toString());
-          await axiosInstance.put(new URL(`/tournament/${tournamentId}/progress`, API_URL).toString());
-          router.push(`/tournaments/${tournamentId}`);
-        } catch (error) {
-          console.log("failed to complete tournaemnt" + error);
-        }
-      }
-
     }
-    try {
-
-      const nextRoundId = roundIds[currentStageIndex + 1];
-      const matches = await getMatchesForRound(nextRoundId);
-      if (matches && Array.isArray(matches)) {
-        setMatches(matches);
-        filterMatches(matches);
-        setCurrentStageIndex(currentStageIndex + 1);
+    if (matches.length === 1) {
+      //make a post to complete tournament and redirect to winners page
+      try {
+        await axiosInstance.put(new URL(`/tournament/${tournamentId}/progress`, API_URL).toString());
+        console.log(router)
+        router?.push(`${WEB_URL}/tournaments/${tournamentId}`);
+      } catch (error) {
+        console.log("failed to complete tournaemnt" + error);
       }
-      console.log(currentStageIndex);
+    } else {
 
-    } catch (error) {
-      console.error('Error fetching next round matches:', error);
+      try {
+
+        const nextRoundId = roundIds[currentStageIndex + 1];
+        const matches = await getMatchesForRound(nextRoundId);
+        if (matches && Array.isArray(matches)) {
+          setMatches(matches);
+          filterMatches(matches);
+          setCurrentStageIndex(currentStageIndex + 1);
+        }
+        console.log(currentStageIndex);
+
+      } catch (error) {
+        console.error('Error fetching next round matches:', error);
+      }
     }
 
   };

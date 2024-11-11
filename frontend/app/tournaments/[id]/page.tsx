@@ -146,17 +146,24 @@ const TournamentDetails: React.FC<{ params: { id: string } }> = ({ params }) => 
                 {/* Conditionally display message or button based on tournament status */}
                 {tournament.status === "INPROGRESS" ? (
                     <div className="flex flex-col items-center">
-                        <p className="text-center text-green-600 text-xl font-semibold">Tournament is in progress!</p>
+                        <p className="text-center text-xl font-semibold">Tournament is in progress!</p>
                         <Button onClick={goToBrackets} className="mt-4">
                             View Brackets
                         </Button>
                     </div>
-                ) : tournament.status === "SCHEDULED" ?(
+                ) : tournament.status === "SCHEDULED" ? (
                     <p className="text-center text-gray-500">Draw has yet to be released</p>
-                ):(
-                    <p className="text-center text-gray-500">Draw is not available for this tournament</p>
+                ) : tournament.status === "COMPLETED" ? (
+                    <div className="flex flex-col items-center">
+                        <p className="text-center text-xl font-semibold">View Tournament History</p>
+                        <Button onClick={goToBrackets} className="mt-4">
+                            View Brackets
+                        </Button>
+                    </div>
+                ) :  (
+                        <p className="text-center text-gray-500">Draw is not available for this tournament</p>
 
-                )}
+                    )}
 
 
 
