@@ -10,6 +10,7 @@ import { Tournament } from "@/types/tournament";
 import axiosInstance from "@/lib/axios";
 import axios from "axios";
 import { useGlobalErrorHandler } from "@/app/context/ErrorMessageProvider";
+import { useToast } from "@/hooks/use-toast";
 import withAuth from "@/HOC/withAuth";
 import { UserRole } from "@/types/user-role";
 
@@ -44,6 +45,7 @@ const UpdateTournament = () => {
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [selectedReferees, setSelectedReferees] = useState<string[]>([]);
   const { handleError } = useGlobalErrorHandler();
+  const { toast } = useToast();
 
   const handleRefereeSearch = async (
     e: React.ChangeEvent<HTMLInputElement>
@@ -149,12 +151,20 @@ const UpdateTournament = () => {
       });
 
       if (res.ok) {
-        router.push(`${WEB_URL}/tournaments`); // Redirect after successful update
+        router.push(WEB_URL + "/admin/dashboard");
+
+        toast({
+          title: "Success",
+          description: "Tournament updated successfully",
+          variant: "success",
+        })
       } else {
         alert('Error updating tournament');
       }
     } catch (error) {
-      console.error('Error updating tournament:', error);
+      if (axios.isAxiosError(error)) {
+        handleError(error);
+      }
     }
   };
 
@@ -177,6 +187,7 @@ const UpdateTournament = () => {
           handleChange={handleChange}
           handleSubmit={handleNext}
           buttonLabel="Next"
+          isCreate={false}
         />
       )}
 
@@ -186,8 +197,8 @@ const UpdateTournament = () => {
         handleChange={handleChange}
         handleBack={handleBack}
         handleSubmit={handleSubmit}
+        isCreate={false}
       />
-        
       )}
     </div>
   );

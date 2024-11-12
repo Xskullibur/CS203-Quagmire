@@ -10,13 +10,16 @@ import axiosInstance from "@/lib/axios";
 import axios from "axios";
 import { useGlobalErrorHandler } from "@/app/context/ErrorMessageProvider";
 import { tournamentDTO } from "@/types/tournamentDTO";
+import { useToast } from "@/hooks/use-toast";
 import withAuth from "@/HOC/withAuth";
 import { UserRole } from "@/types/user-role";
 
 const API_URL = process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL;
+const WEB_URL = process.env.NEXT_PUBLIC_API_URL;
 
 const CreateTournament = () => {
   const router = useRouter();
+  const { toasts } = useToast();
 
   // State to control the form step (1 for Basic Info, 2 for Additional Details)
   const [step, setStep] = useState(1);
@@ -43,6 +46,7 @@ const CreateTournament = () => {
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [selectedReferees, setSelectedReferees] = useState<string[]>([]);
   const { handleError } = useGlobalErrorHandler();
+  const { toast } = useToast();
 
   const handleRefereeSearch = async (
     e: React.ChangeEvent<HTMLInputElement>
@@ -147,16 +151,20 @@ const CreateTournament = () => {
       );
 
       if (res.status === 200) {
-        router.push(res.data.id);
+        router.push(WEB_URL + "/admin/dashboard"); // Redirect after successful creation
       } else {
         alert("Error creating tournament");
       }
+
+      toast({
+        title: "Success",
+        description: "Tournament created successfully",
+        variant: "success",
+      })
     } catch (error) {
       if (axios.isAxiosError(error)) {
         handleError(error);
       }
-
-      console.error("Error creating tournament:", error);
     }
   };
 
@@ -168,6 +176,7 @@ const CreateTournament = () => {
           handleChange={handleChange}
           handleSubmit={handleNext}
           buttonLabel="Next"
+          isCreate={true}
         />
       )}
 
@@ -177,6 +186,7 @@ const CreateTournament = () => {
           handleChange={handleChange}
           handleBack={handleBack}
           handleSubmit={handleSubmit}
+          isCreate={true}
         />
       )}
     </div>

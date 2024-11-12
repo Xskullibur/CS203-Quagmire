@@ -36,7 +36,7 @@ const ProfilePlayerCard: React.FC<OpponentprofileProps> = ({ profile, name }) =>
                 {profile.dateOfBirth && <p><strong>Date of Birth:</strong> {profile.dateOfBirth}</p>}
                 {profile.country && <p><strong>Country:</strong> {profile.country}</p>}
                 {profile.bio && <p><strong>Bio:</strong> {profile.bio}</p>}
-                {profile.currentRating !== null && <p><strong>Current Rating:</strong> {profile.currentRating}</p>}
+                {profile.glickoRating !== null && <p><strong>Glicko Rating:</strong> {profile.glickoRating}</p>}
             </CardContent>
         </Card>
     );
