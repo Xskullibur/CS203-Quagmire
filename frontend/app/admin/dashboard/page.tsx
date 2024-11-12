@@ -220,7 +220,7 @@ const AdminDashboard: React.FC = () => {
   return (
     <div className="flex flex-col items-center min-h-screen mt-24">
       <div className="flex items-center justify-center mb-4 w-full max-w-[80%]">
-        <h2 className="text-2xl font-bold flex-1 text-center">Manage Admins</h2>
+        <h2 className="text-2xl font-bold flex-1 text-center">Manage Users</h2>
 
         <Dialog
           onOpenChange={() => {
