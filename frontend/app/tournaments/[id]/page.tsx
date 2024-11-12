@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import axiosInstance from "@/lib/axios";
 import { useGlobalErrorHandler } from "@/app/context/ErrorMessageProvider";
 import { useAuth } from "@/hooks/useAuth";
-import withAuth from "@/hooks/withAuth";
+import withAuth from "@/HOC/withAuth";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Tournament } from "@/types/tournament";
@@ -179,14 +179,19 @@ const TournamentDetails: React.FC<{ params: { id: string } }> = ({
         </p>
 
         {/* Register Tournament for Players Only */}
-        {!isAdmin && tournament.status === "SCHEDULED" && (
+        {isAuthenticated && !isAdmin && tournament.status === "SCHEDULED" && (
           <div className="flex justify-center w-full">
             <Button
               variant={registrationClosed ? "outline" : "default"}
               disabled={registrationClosed}
               className="mt-4 flex justify-center w-auto"
+              onClick={onRegisterToggle}
             >
-              {registrationClosed ? "Registration Closed" : "Register Now"}
+              {registrationClosed
+                ? "Registration Closed"
+                : registered
+                  ? "Withdraw"
+                  : "Register Now"}
             </Button>
           </div>
         )}
@@ -205,7 +210,8 @@ const TournamentDetails: React.FC<{ params: { id: string } }> = ({
         {/* Conditionally display message or button based on tournament status */}
         {(() => {
           if (
-            tournament.status === "IN_PROGRESS" || tournament.status === "COMPLETED"
+            tournament.status === "IN_PROGRESS" ||
+            tournament.status === "COMPLETED"
           ) {
             return (
               <div className="relative overflow-x-auto">

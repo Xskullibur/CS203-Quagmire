@@ -187,21 +187,10 @@ public class TournamentController {
     // Start tournament
     @PutMapping("/{tournamentId}/start")
     public ResponseEntity<String> startTournament(@PathVariable UUID tournamentId) {
-        try {
-            // Call the service method to start the tournament
-            Tournament createdTournament = tournamentService.startTournament(tournamentId);
-            return ResponseEntity.ok(createdTournament.getId().toString());
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("Tournament not found: " + e.getMessage());
-        } catch (IllegalStateException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Invalid tournament state: " + e.getMessage());
-        } catch (Exception e) {
-            logger.error("Error starting tournament: ", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Failed to start tournament: " + e.getMessage());
-        }
+
+        // Call the service method to start the tournament
+        Tournament createdTournament = tournamentService.startTournament(tournamentId);
+        return ResponseEntity.ok(createdTournament.getId().toString());
     }
 
     // Progress tournament (includes ending)

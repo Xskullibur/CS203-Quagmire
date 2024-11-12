@@ -1,6 +1,6 @@
 // frontend/types/user-role.ts
 
 export enum UserRole {
-  USER = "USER",
+  USER = "PLAYER",
   ADMIN = "ADMIN",
 }

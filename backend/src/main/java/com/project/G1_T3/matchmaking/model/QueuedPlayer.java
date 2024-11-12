@@ -40,12 +40,12 @@ public class QueuedPlayer {
     public double getPriority() {
         // Combining both priority calculations
         long waitTimeSeconds = getQueueTimeSeconds();
-        return (waitTimeSeconds * 0.1) + player.getCurrentRating();
+        return (waitTimeSeconds * 0.1) + player.getGlickoRating();
     }
 
     // getglickorating
     public double getGlickoRating() {
-        return player.getCurrentRating();
+        return player.getGlickoRating();
     }
 
     // getglickord

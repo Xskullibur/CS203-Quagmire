@@ -11,6 +11,11 @@ import com.project.G1_T3.tournament.repository.TournamentRepository;
 
 import com.project.G1_T3.stage.model.Format;
 import com.project.G1_T3.stage.model.Stage;
+import com.project.G1_T3.common.exception.tournament.InsufficientPlayersException;
+import com.project.G1_T3.common.exception.tournament.NoStagesDefinedException;
+import com.project.G1_T3.common.exception.tournament.StageStartException;
+import com.project.G1_T3.common.exception.tournament.TournamentNotFoundException;
+import com.project.G1_T3.common.exception.tournament.TournamentUpdateException;
 import com.project.G1_T3.common.model.Status;
 import com.project.G1_T3.filestorage.service.FileStorageService;
 import jakarta.persistence.EntityNotFoundException;
@@ -301,46 +306,41 @@ public class TournamentServiceImpl implements TournamentService {
     }
 
     public Tournament startTournament(UUID tournamentId) {
-        // Retrieve the tournament
+    // Retrieve the tournament
+    Tournament tournament = tournamentRepository.findById(tournamentId)
+            .orElseThrow(() -> new TournamentNotFoundException("Tournament with ID " + tournamentId + " not found"));
 
-        Tournament tournament = tournamentRepository.findById(tournamentId)
-                .orElseThrow(() -> new EntityNotFoundException("Tournament with ID " + tournamentId + " not found"));
+    // Ensure there are enough players
+    if (tournament.getPlayers() == null || tournament.getPlayers().size() <= 1) {
+        throw new InsufficientPlayersException("Tournament must have more than 1 player to start.");
+    }
 
-        // Ensure there are enough players
-        if (tournament.getPlayers() == null && tournament.getPlayers().size() <= 1) {
-            throw new IllegalArgumentException("Tournament must have more than 1 player to start.");
-        }
+    if (tournament.getStages() == null || tournament.getStages().isEmpty()) {
+        throw new NoStagesDefinedException("Tournament must have at least 1 stage.");
+    }
 
-        if (tournament.getStages() == null && tournament.getStages().isEmpty()) {
-            throw new IllegalArgumentException("Tournament must have at least 1 stage.");
-        }
+    List<Stage> allStages = stageService.findAllStagesByTournamentIdSortedByCreatedAtAsc(tournamentId);
 
-        List<Stage> allStages = stageService.findAllStagesByTournamentIdSortedByCreatedAtAsc(tournamentId);
+    Stage curStage = allStages.get(0);
+    curStage.setPlayers(new HashSet<>(tournament.getPlayers()));
 
-        Stage curStage = allStages.get(0);
-        curStage.setPlayers(new HashSet<>(tournament.getPlayers()));
+    int numStages = allStages.size();
+    tournament.setNumStages(numStages);
 
-        int numStages = allStages.size();
-        tournament.setNumStages(numStages);
+    // Set the tournament as started (IN_PROGRESS)
+    tournament.setStatus(Status.IN_PROGRESS);
 
-        // Set the tournament as started (IN_PROGRESS)
-        tournament.setStatus(Status.IN_PROGRESS);
+    try {
+        stageService.startStage(curStage.getStageId());
+    } catch (Exception e) {
+        throw new StageStartException("Failed to start stage: " + e.getMessage());
+    }
 
-        try{
-            stageService.startStage(curStage.getStageId());
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e;
-        }
-
-        try {
-            return tournamentRepository.save(tournament);
-        } catch (Exception e) {
-            System.err.println("Error saving tournament: " + e.getMessage());
-            e.printStackTrace(); // Print the full stack trace
-            throw e; // Rethrow the exception if necessary
-        }
+    try {
+        return tournamentRepository.save(tournament);
+    } catch (Exception e) {
+        throw new TournamentUpdateException("Failed to update tournament: " + e.getMessage());
+    }
     }
 
     public void progressToNextStage(UUID tournamentId) {

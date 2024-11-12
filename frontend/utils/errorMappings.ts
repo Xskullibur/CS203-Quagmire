@@ -116,7 +116,7 @@ export const errorCodeMappings: Record<ErrorCode, ErrorMapping> = {
         title: 'Invalid Password',
         message: 'Password must be at least 7 characters long.'
     },
-    
+
     // Network & System
     [ErrorCode.NETWORK_ERROR]: {
         title: 'Network Error',
@@ -157,6 +157,28 @@ export const errorCodeMappings: Record<ErrorCode, ErrorMapping> = {
     [ErrorCode.INVALID_FILE_TYPE]: {
         title: 'Invalid File Type',
         message: 'The selected file type is not supported.'
+    },
+
+    // Tournament
+    [ErrorCode.TOURNAMENT_NOT_FOUND]: {
+        title: 'Tournament Not Found',
+        message: 'The specified tournament could not be found.'
+    },
+    [ErrorCode.INSUFFICIENT_PLAYERS]: {
+        title: 'Not Enough Players',
+        message: 'Tournament requires at least 2 players to start.'
+    },
+    [ErrorCode.NO_STAGES_DEFINED]: {
+        title: 'No Stages Defined',
+        message: 'Tournament must have at least one stage defined.'
+    },
+    [ErrorCode.STAGE_START_ERROR]: {
+        title: 'Stage Start Failed',
+        message: 'Failed to start the tournament stage. Please try again.'
+    },
+    [ErrorCode.TOURNAMENT_UPDATE_ERROR]: {
+        title: 'Tournament Update Failed',
+        message: 'Failed to update tournament status. Please try again.'
     },
 
     // Default
