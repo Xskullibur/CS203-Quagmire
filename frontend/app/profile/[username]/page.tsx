@@ -132,11 +132,6 @@ const Profile = ({ params }: { params: { username: string } }) => {
   }, [handleError, router, isOwnProfile]);
 
   useEffect(() => {
-    // Redirect user to not found page if no params
-    if (params.username == undefined) {
-      notFound();
-    }
-
     // Only fetch data if we're done checking own profile status
     if (!isCheckingOwnProfile) {
       fetchProfile(params.username);
