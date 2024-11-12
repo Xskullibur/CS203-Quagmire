@@ -22,7 +22,11 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 
-import com.google.firebase.ErrorCode;
+import com.project.G1_T3.common.exception.tournament.InsufficientPlayersException;
+import com.project.G1_T3.common.exception.tournament.NoStagesDefinedException;
+import com.project.G1_T3.common.exception.tournament.StageStartException;
+import com.project.G1_T3.common.exception.tournament.TournamentNotFoundException;
+import com.project.G1_T3.common.exception.tournament.TournamentUpdateException;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
@@ -100,7 +104,7 @@ public class GlobalExceptionHandler {
         };
     }
 
-    @ExceptionHandler({ MatchmakingException.class, InsufficientPlayersException.class })
+    @ExceptionHandler({ MatchmakingException.class, com.project.G1_T3.common.exception.InsufficientPlayersException.class })
     public ResponseEntity<Object> handleGameRelatedExceptions(Exception ex, WebRequest request) {
         Map<String, Object> body = createErrorResponseBody(ex, HttpStatus.BAD_REQUEST, request);
         body.put(ERROR_CODE, "API_ERROR");
@@ -136,6 +140,44 @@ public class GlobalExceptionHandler {
         body.put("message", ex.getMessage());
         body.put("path", request.getDescription(false));
         return body;
+    }
+
+    @ExceptionHandler({
+            TournamentNotFoundException.class,
+            InsufficientPlayersException.class,
+            NoStagesDefinedException.class,
+            StageStartException.class,
+            TournamentUpdateException.class
+    })
+    public ResponseEntity<ProblemDetail> handleTournamentExceptions(Exception ex) {
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        String errorCode = "TOURNAMENT_ERROR";
+        String description = "Tournament operation failed";
+
+        if (ex instanceof TournamentNotFoundException) {
+            status = HttpStatus.NOT_FOUND;
+            errorCode = "TOURNAMENT_NOT_FOUND";
+            description = "The specified tournament could not be found";
+        } else if (ex instanceof InsufficientPlayersException) {
+            errorCode = "INSUFFICIENT_PLAYERS";
+            description = "Not enough players to start the tournament";
+        } else if (ex instanceof NoStagesDefinedException) {
+            errorCode = "NO_STAGES_DEFINED";
+            description = "Tournament must have at least one stage defined";
+        } else if (ex instanceof StageStartException) {
+            status = HttpStatus.INTERNAL_SERVER_ERROR;
+            errorCode = "STAGE_START_ERROR";
+            description = "Failed to start tournament stage";
+        } else if (ex instanceof TournamentUpdateException) {
+            status = HttpStatus.INTERNAL_SERVER_ERROR;
+            errorCode = "TOURNAMENT_UPDATE_ERROR";
+            description = "Failed to update tournament status";
+        }
+
+        ProblemDetail errorDetail = ProblemDetail.forStatusAndDetail(status, ex.getMessage());
+        errorDetail.setProperty("description", description);
+        errorDetail.setProperty("code", errorCode);
+        return ResponseEntity.status(status).body(errorDetail);
     }
 
     @ExceptionHandler({
@@ -185,9 +227,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(EmailNotVerifiedException.class)
     public ResponseEntity<ProblemDetail> handleEmailNotVerifiedException(EmailNotVerifiedException ex) {
         ProblemDetail errorDetail = ProblemDetail.forStatusAndDetail(
-            HttpStatus.FORBIDDEN, 
-            ex.getMessage()
-        );
+                HttpStatus.FORBIDDEN,
+                ex.getMessage());
         errorDetail.setProperty("description", "Email verification required to access this resource");
         errorDetail.setProperty("code", "EMAIL_NOT_VERIFIED");
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorDetail);

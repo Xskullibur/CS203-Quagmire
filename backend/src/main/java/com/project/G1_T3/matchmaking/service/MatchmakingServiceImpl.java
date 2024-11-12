@@ -8,6 +8,8 @@ import com.project.G1_T3.matchmaking.model.QueuedPlayer;
 import com.project.G1_T3.playerprofile.model.PlayerProfile;
 import com.project.G1_T3.playerprofile.service.PlayerProfileService;
 import com.project.G1_T3.common.exception.*;
+import com.project.G1_T3.common.exception.InsufficientPlayersException;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
