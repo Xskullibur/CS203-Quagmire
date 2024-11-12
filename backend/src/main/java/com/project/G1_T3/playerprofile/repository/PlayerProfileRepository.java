@@ -31,11 +31,10 @@ public interface PlayerProfileRepository extends JpaRepository<PlayerProfile, UU
     @Query(value = "select t1.position\n" + //
             "from player_profiles pp1,\n" + //
             "(select \n" + //
-            "row_number() over (order by pp2.current_rating desc) as position,\n" + //
-            "pp2.user_id uid, pp2.current_rating \n" + //
+            "row_number() over (order by pp2.glicko_rating desc) as position,\n" + //
+            "pp2.user_id uid, pp2.glicko_rating \n" + //
             "from player_profiles pp2\n" + //
-            "order by current_rating desc) as t1\n" + //
+            "order by glicko_rating desc) as t1\n" + //
             "where t1.uid = pp1.user_id and t1.uid = :userId", nativeQuery = true)
     public Long getPositionOfPlayer(@Param("userId") UUID userId);
-
 }
