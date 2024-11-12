@@ -15,6 +15,8 @@ export const PlayerInfo = ({ playerProfile }: PlayerInfoProps) => (
       width={100}
       height={100}
       className="rounded-full object-cover"
+      unoptimized
+      loading="eager"
     />
     <h1 className="text-5xl font-bold mt-4">
       {`${playerProfile.firstName} ${playerProfile.lastName}`}
