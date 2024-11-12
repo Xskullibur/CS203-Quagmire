@@ -40,7 +40,7 @@ const EditProfile = () => {
         sessionStorage.removeItem('returnPath');
         router.push(returnPath);
       } else {
-        router.push(`/profile/${user?.username}`);
+        router.push(`/`);
       }
     },
   });
