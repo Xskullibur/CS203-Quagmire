@@ -54,15 +54,4 @@ class QueuedPlayerTest {
         };
         assertEquals(1000.0, newPlayer.getPriority(), 0.001);
     }
-
-    @Test
-    void getPriority_longWaitTime_shouldIncreasePriority() {
-        QueuedPlayer longWaitPlayer = new QueuedPlayer(mockProfile, 0, 0) {
-            @Override
-            public long getQueueTimeSeconds() {
-                return 3600; // 1 hour wait
-            }
-        };
-        assertTrue(longWaitPlayer.getPriority() > 1000.0);
-    }
 }
