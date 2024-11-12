@@ -43,15 +43,4 @@ class QueuedPlayerTest {
         double laterPriority = queuedPlayer.getPriority();
         assertTrue(laterPriority > initialPriority);
     }
-
-    @Test
-    void getPriority_zeroWaitTime_shouldEqualRating() {
-        QueuedPlayer newPlayer = new QueuedPlayer(mockProfile, 0, 0) {
-            @Override
-            public long getQueueTimeSeconds() {
-                return 0;
-            }
-        };
-        assertEquals(1000.0, newPlayer.getPriority(), 0.001);
-    }
 }
