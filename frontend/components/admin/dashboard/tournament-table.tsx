@@ -34,8 +34,11 @@ import axios, { AxiosError } from "axios";
 import { useGlobalErrorHandler } from "@/app/context/ErrorMessageProvider";
 import { client } from "stompjs";
 import Link from "next/link";
+import axiosInstance from "@/lib/axios";
+import { toast } from "@/hooks/use-toast";
 
 const API_URL = `${process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL}/tournament`;
+const WEB_URL = `${process.env.NEXT_PUBLIC_WEB_URL}`;
 
 // Add the new prop for resetting passwords
 interface TournamentTableProps {
@@ -59,12 +62,23 @@ const TournamentTable: React.FC<TournamentTableProps> = ({
   const [error, setError] = React.useState<string | null>(null);
   const router = useRouter();
 
-  const handleStart = async (tournamentId: string | null) => {
+  const handleStartOrUpdate = async (tournament: Tournament) => {
     try {
-      // TODO Change tournament status to in progress
+      // If tournament is to be started, change tournament status to in progress
+      if (tournament.status === "SCHEDULED") {
+        const response = await axiosInstance.put(
+          `${API_URL}/${tournament.id}/start`
+        );
 
-      // TODO Navigate to tournament configurations
-      router.push(``);
+        toast({
+          variant: "success",
+          title: "Success",
+          description: `${tournament.name} has started`,
+        });
+      }
+
+      // Navigate to tournament configurations
+      router.push(`/tournaments/${tournament.id}/brackets`);
     } catch (error) {
       if (axios.isAxiosError(error)) {
         handleError(error);
@@ -83,11 +97,6 @@ const TournamentTable: React.FC<TournamentTableProps> = ({
               className="w-2/12 cursor-pointer"
             >
               Name{" "}
-            </TableHead>
-            <TableHead
-              className="w-3/12 cursor-pointer"
-            >
-              Location{" "}
             </TableHead>
             <TableHead
               className="w-2/12 cursor-pointer"
@@ -109,22 +118,21 @@ const TournamentTable: React.FC<TournamentTableProps> = ({
 
         <TableBody>
           {tournaments.map((tournament) => (
-            <TableRow key={tournament.id} 
-            className="cursor-pointer"
-            onClick={() => router.push(`/tournaments/${tournament.id}`)}
+            <TableRow key={tournament.id}
+              className="cursor-pointer"
+              onClick={() => router.push(`/tournaments/${tournament.id}`)}
             >
               <TableCell className="truncate">{tournament.name}</TableCell>
-              <TableCell className="truncate">{tournament.location}</TableCell>
               <TableCell className="truncate">{tournament.status}</TableCell>
               <TableCell className="truncate">{new Date(tournament.startDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}</TableCell>
               <TableCell className="truncate">{new Date(tournament.endDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}</TableCell>
-              
+
               <TableCell className="flex justify-center items-center space-x-2">
                 <Button
                   className="w-24 h-10 flex items-center justify-center p-0 cursor-pointer"
                   onClick={(e) => {
                     e.stopPropagation();
-                    handleStart(tournament.id);
+                    handleStartOrUpdate(tournament);
                   }}
                 >
                   {tournament.status === "SCHEDULED" ? "Start" : "Update"}
@@ -138,7 +146,7 @@ const TournamentTable: React.FC<TournamentTableProps> = ({
                     <PenIcon />
                   </Button>
                 </Link>
-                
+
               </TableCell>
             </TableRow>
           ))}
