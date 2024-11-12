@@ -13,7 +13,7 @@ export const TournamentsPanel = ({
     tournaments
 }: TournamentsPanelProps) => {
     return (
-        <div className="h-full flex flex-col justify-center">
+        <div className="h-full flex flex-col">
             <SheetHeader>
                 <SheetTitle className="text-3xl font-bold mb-6">
                     My Tournaments
