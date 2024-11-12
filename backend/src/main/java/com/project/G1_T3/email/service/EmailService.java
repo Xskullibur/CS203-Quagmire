@@ -16,14 +16,13 @@ import com.project.G1_T3.user.model.UserDTO;
 import org.springframework.core.io.ClassPathResource;
 
 import jakarta.mail.internet.MimeMessage;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+@Slf4j
 @Service
 public class EmailService {
 
@@ -35,8 +34,6 @@ public class EmailService {
 
     @Value("${app.frontend.url}")
     private String frontendUrl;
-
-    private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
 
     @Async
     public CompletableFuture<Void> sendTempPasswordEmail(UserDTO userDTO, String tempPassword) {
@@ -119,15 +116,17 @@ public class EmailService {
                 }
             }
 
-            logger.info("Attempting to send email to: {}", to);
+            log.info("Attempting to send email to: {}", to);
             mailSender.send(message);
-            logger.info("Successfully sent email to: {}", to);
+            log.info("Successfully sent email to: {}", to);
 
         } catch (MessagingException e) {
-            logger.error("Failed to send email to: {}. Error: {}", to, e.getMessage(), e);
+            log.error("Failed to send email to: {}. Error: {}", to, e.getMessage(), e);
+            log.info("Failed to send email to: {}. Error: {}", to, e.getMessage(), e);
             throw new EmailServiceException(e.getMessage());
         } catch (Exception e) {
-            logger.error("Unexpected error while sending email to: {}. Error: {}", to, e.getMessage(), e);
+            log.error("Unexpected error while sending email to: {}. Error: {}", to, e.getMessage(), e);
+            log.info("Unexpected error while sending email to: {}. Error: {}", to, e.getMessage(), e);
             throw new EmailServiceException("Unexpected error while sending email: " + e.getMessage());
         }
 

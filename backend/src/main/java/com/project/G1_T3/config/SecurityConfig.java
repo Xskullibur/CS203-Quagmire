@@ -63,19 +63,20 @@ public class SecurityConfig {
                 new RequestMapping("/profile/**", "GET"),
                 new RequestMapping("/tournament/**", "GET"),
                 new RequestMapping("/ws/**"),
-                new RequestMapping("/matches/**"));
+                new RequestMapping("/matches/**"),
+                new RequestMapping("/health"),
+                new RequestMapping("/health/**"));
 
         // Paths that require specific roles
         private static final List<RequestMapping> ADMIN_PATHS = Arrays.asList(
-            new RequestMapping("/admin/**"),
-            new RequestMapping("/tournament/create"),
-            new RequestMapping("/tournament/{id}", "PUT"),
-            new RequestMapping("/tournament/{tournamentId}/start"),
-            new RequestMapping("/tournament/{tournamentId}/progress"),
-            new RequestMapping("/match/{matchId}/start"),
-            new RequestMapping("/match/{matchId}/complete"),
-            new RequestMapping("/achievements", "POST")
-        );
+                new RequestMapping("/admin/**"),
+                new RequestMapping("/tournament/create"),
+                new RequestMapping("/tournament/{id}", "PUT"),
+                new RequestMapping("/tournament/{tournamentId}/start"),
+                new RequestMapping("/tournament/{tournamentId}/progress"),
+                new RequestMapping("/match/{matchId}/start"),
+                new RequestMapping("/match/{matchId}/complete"),
+                new RequestMapping("/achievements", "POST"));
 
         // Paths that require authentication (JWT needed)
         private static final List<RequestMapping> AUTHENTICATED_PATHS = Arrays.asList(
