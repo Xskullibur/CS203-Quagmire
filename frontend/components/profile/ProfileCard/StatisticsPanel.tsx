@@ -51,7 +51,7 @@ export const StatisticsPanel = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <StatisticItem
             label="Current Rating"
-            value={playerProfile.currentRating}
+            value={playerProfile.glickoRating}
           />
           <StatisticItem label="Ranking" value={`#${ranking}`} />
         </div>

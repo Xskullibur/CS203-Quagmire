@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import com.project.G1_T3.playerprofile.repository.*;
 
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class AchievementService {
@@ -15,9 +16,9 @@ public class AchievementService {
     private final AchievementRepository achievementRepository;
     private PlayerProfileRepository playerProfileRepository;
 
-    @Autowired 
+    @Autowired
     public AchievementService(AchievementRepository achievementRepository,
-                              PlayerProfileRepository playerProfileRepository) {
+            PlayerProfileRepository playerProfileRepository) {
         this.achievementRepository = achievementRepository;
         this.playerProfileRepository = playerProfileRepository;
     }
@@ -43,42 +44,58 @@ public class AchievementService {
 
     public void checkParticipationAchievements(PlayerProfile player) {
         // Get all achievements
-        List<Achievement> achievementList= achievementRepository.findAll();
+        List<Achievement> achievementList = achievementRepository.findByCriteriaType("PARTICIPATION");
 
         // Get the player's tournament participation count
         int participationCount = player.getTournaments().size();
 
-        // Check if the player has participated in * tournaments 
+        // Get player's acheivements
+        Set<Achievement> playerAchievements = player.getAchievements();
+
+        // Check if the player has participated in * tournaments
         for (Achievement achievement : achievementList) {
-            if (achievement.getCriteriaType().toLowerCase().equals("participation") && participationCount >= achievement.getCriteriaCount()) {
-                updateAchievement(player, achievement);
+            if (!playerAchievements.contains(achievement) && participationCount >= achievement.getCriteriaCount()) {
+                addAchievement(player, achievement);
+            } else if (playerAchievements.contains(achievement)
+                    && participationCount < achievement.getCriteriaCount()) {
+                removeAchievement(player, achievement);
             }
         }
     }
 
     public void checkRatingAchievements(PlayerProfile player) {
         // Get all achievements
-        List<Achievement> achievementList= achievementRepository.findAll();
+        List<Achievement> achievementList = achievementRepository.findByCriteriaType("RATING");
 
         // Get the player's current Glicko rating
         int currentRating = player.getGlickoRating();
-    
+        
+        // Get player's acheivements
+        Set<Achievement> playerAchievements = player.getAchievements();
+
         // Check if the player has reached a Glicko rating of *
         for (Achievement achievement : achievementList) {
-            if (achievement.getCriteriaType().toLowerCase().equals("rating") && currentRating >= achievement.getCriteriaCount()) {
-                updateAchievement(player, achievement);
+            if (!playerAchievements.contains(achievement) && currentRating >= achievement.getCriteriaCount()) {
+                addAchievement(player, achievement);
+            } else if (playerAchievements.contains(achievement) && currentRating <= achievement.getCriteriaCount()) {
+                removeAchievement(player, achievement);
             }
         }
     }
 
-    public void updateAchievement(PlayerProfile player, Achievement achievement) {
-        if (!player.getAchievements().contains(achievement)) {
-            // Add the achievement to the player's list of achievements
-            player.getAchievements().add(achievement);
-            
-            // Save the updated player profile and achievement
-            playerProfileRepository.save(player);
-            achievementRepository.save(achievement);
-        }
+    public void addAchievement(PlayerProfile player, Achievement achievement) {
+        player.getAchievements().add(achievement);
+
+        // Save the updated player profile and achievement
+        playerProfileRepository.save(player);
+        achievementRepository.save(achievement);
+    }
+
+    public void removeAchievement(PlayerProfile player, Achievement achievement) {
+        player.getAchievements().remove(achievement);
+
+        // Save the updated player profile and achievement
+        playerProfileRepository.save(player);
+        achievementRepository.save(achievement);
     }
 }

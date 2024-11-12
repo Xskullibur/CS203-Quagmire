@@ -10,7 +10,7 @@ export const AchievementsPanel = ({
     achievements
 }: AchievementsPanelProps) => {
     return (
-        <div className="h-full flex flex-col justify-center">
+        <div className="h-full flex flex-col">
             <SheetHeader>
                 <SheetTitle className="text-3xl font-bold mb-6">
                     My Achievements
@@ -22,7 +22,7 @@ export const AchievementsPanel = ({
                 <p>You are on the way to getting your first achievement!</p>
             ) : (
                 // Step 2: Display achievements if available
-                <div className="space-y-2">
+                <div>
                     {achievements.map((achievement) => (
                         <div className="mb-4" key={achievement.id}>
                             <Card>
