@@ -150,7 +150,8 @@ public class SecurityConfig {
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         logger.info("Configuring SecurityFilterChain");
 
-        http.csrf(csrf -> csrf.disable())
+        http
+                .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> {
@@ -183,10 +184,30 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList(frontendUrl, "http://www.quagmire.site", "http://quagmire.site", "http://localhost:3000", "https://quagmire-frontend-alb-1718208115.us-east-1.elb.amazonaws.com", "https://quagmire.site", "https://www.quagmire.site", "https://api.quagmire.site", "http://api.quagmire.site"));
+
+        // Allow specific origins
+        configuration.setAllowedOrigins(Arrays.asList(
+                frontendUrl,
+                "http://www.quagmire.site",
+                "http://quagmire.site",
+                "http://localhost:3000",
+                "https://localhost:3000",
+                "https://quagmire-frontend-alb-1718208115.us-east-1.elb.amazonaws.com",
+                "https://quagmire.site",
+                "https://www.quagmire.site",
+                "https://api.quagmire.site",
+                "http://api.quagmire.site"));
+
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
+        configuration.setExposedHeaders(Arrays.asList(
+                "Access-Control-Allow-Origin",
+                "Access-Control-Allow-Credentials",
+                "Authorization"));
+
         configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L);
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
