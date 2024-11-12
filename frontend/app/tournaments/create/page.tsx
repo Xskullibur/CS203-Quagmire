@@ -13,13 +13,13 @@ import { tournamentDTO } from "@/types/tournamentDTO";
 import { useToast } from "@/hooks/use-toast";
 import withAuth from "@/HOC/withAuth";
 import { UserRole } from "@/types/user-role";
+import { useAlertDialog } from "@/app/context/AlertDialogContext";
 
 const API_URL = process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL;
-const WEB_URL = process.env.NEXT_PUBLIC_API_URL;
 
 const CreateTournament = () => {
   const router = useRouter();
-  const { toasts } = useToast();
+  useToast();
 
   // State to control the form step (1 for Basic Info, 2 for Additional Details)
   const [step, setStep] = useState(1);
@@ -42,41 +42,9 @@ const CreateTournament = () => {
   });
 
   const [photo, setPhoto] = useState<File | null>(null);
-  const [refereeSearchQuery, setRefereeSearchQuery] = useState<string>("");
-  const [searchResults, setSearchResults] = useState<any[]>([]);
-  const [selectedReferees, setSelectedReferees] = useState<string[]>([]);
-  const { handleError } = useGlobalErrorHandler();
+  const { handleError, showErrorToast } = useGlobalErrorHandler();
+  const { showAlert } = useAlertDialog();
   const { toast } = useToast();
-
-  const handleRefereeSearch = async (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setRefereeSearchQuery(e.target.value);
-
-    if (e.target.value.length >= 3) {
-      // Start searching after 3 characters
-      try {
-        const res = await axiosInstance.get(
-          new URL(
-            `/users/search?username=${e.target.value}`,
-            API_URL
-          ).toString()
-        );
-
-        // const res = await fetch(`${API_URL}/users/search?username=${e.target.value}`);
-        // const data = await res.json();
-        setSearchResults(res.data);
-      } catch (error) {
-        if (axios.isAxiosError(error)) {
-          handleError(error);
-        }
-
-        console.error("Error searching for referees:", error);
-      }
-    } else {
-      setSearchResults([]);
-    }
-  };
 
   // Handle input change
   const handleChange = (
@@ -112,7 +80,13 @@ const CreateTournament = () => {
 
     // Validate maxParticipants before sending the request
     if (tournament.maxParticipants <= 0) {
-      alert("Max participants must be a positive number");
+      showAlert({
+        variant: "alert",
+        title: "Warning",
+        description:
+          "Max participants must be a positive number",
+        confirmText: "OK",
+      });
       return;
     }
 
@@ -151,9 +125,9 @@ const CreateTournament = () => {
       );
 
       if (res.status === 200) {
-        router.push(WEB_URL + "/admin/dashboard"); // Redirect after successful creation
+        router.push(res.data.id);
       } else {
-        alert("Error creating tournament");
+        showErrorToast('Creation Error', 'Failed to create tournament. Please try again');
       }
 
       toast({

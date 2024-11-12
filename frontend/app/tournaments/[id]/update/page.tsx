@@ -1,11 +1,11 @@
 // UpdateTournament.tsx
 // UpdateTournament.tsx
-'use client'
+"use client";
 
 import React, { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
-import TournamentForm from '@/components/tournaments/TournamentForm1';
-import AdditionalDetailsForm from '@/components/tournaments/TournamentForm2';
+import TournamentForm from "@/components/tournaments/TournamentForm1";
+import AdditionalDetailsForm from "@/components/tournaments/TournamentForm2";
 import { Tournament } from "@/types/tournament";
 import axiosInstance from "@/lib/axios";
 import axios from "axios";
@@ -13,9 +13,9 @@ import { useGlobalErrorHandler } from "@/app/context/ErrorMessageProvider";
 import { useToast } from "@/hooks/use-toast";
 import withAuth from "@/HOC/withAuth";
 import { UserRole } from "@/types/user-role";
+import { useAlertDialog } from "@/app/context/AlertDialogContext";
 
 const API_URL = process.env.NEXT_PUBLIC_SPRINGBOOT_API_URL;
-const WEB_URL = process.env.NEXT_PUBLIC_API_URL;
 
 const UpdateTournament = () => {
   const router = useRouter();
@@ -23,86 +23,60 @@ const UpdateTournament = () => {
 
   // Step state (1 for Basic Info, 2 for Additional Details)
   const [step, setStep] = useState(1);
-  
 
   const [tournament, setTournament] = useState<Tournament>({
     id: null,
-    name: '',
-    location: '',
-    startDate: '',
-    startTime: '',
-    endDate: '',
-    endTime: '',
-    status: 'SCHEDULED',
-    deadline: '',
-    deadlineTime: '',
+    name: "",
+    location: "",
+    startDate: "",
+    startTime: "",
+    endDate: "",
+    endTime: "",
+    status: "SCHEDULED",
+    deadline: "",
+    deadlineTime: "",
     maxParticipants: 0,
-    description: '',
-    photoUrl: ''
+    description: "",
+    photoUrl: "",
   });
 
-  const [refereeSearchQuery, setRefereeSearchQuery] = useState<string>('');
-  const [searchResults, setSearchResults] = useState<any[]>([]);
-  const [selectedReferees, setSelectedReferees] = useState<string[]>([]);
-  const { handleError } = useGlobalErrorHandler();
+  const { handleError, showErrorToast } = useGlobalErrorHandler();
+  const { showAlert } = useAlertDialog();
   const { toast } = useToast();
 
-  const handleRefereeSearch = async (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setRefereeSearchQuery(e.target.value);
+  // Fetch existing tournament data based on the ID from the URL
+  useEffect(() => {
+    if (!id) return;
 
-    if (e.target.value.length >= 3) {
-      // Start searching after 3 characters
+    const fetchTournament = async () => {
       try {
-        const res = await axiosInstance.get(
-          new URL(
-            `/users/search?username=${e.target.value}`,
-            API_URL
-          ).toString()
+        const res = await axios.get(
+          new URL(`/tournament/DTO/${id}`, API_URL).toString()
         );
-
-        // const res = await fetch(`${API_URL}/users/search?username=${e.target.value}`);
-        // const data = await res.json();
-        setSearchResults(res.data);
+      
+        if (res.status !== 200) {
+          showErrorToast('Creation Error', 'Failed to create tournament. Please try again');
+          return;
+        }
+      
+        const data = res.data;
+        const { startDate, endDate, deadline, ...rest } = data;
+      
+        setTournament({
+          ...rest,
+          startDate: startDate.split("T")[0],
+          startTime: startDate.split("T")[1]?.slice(0, 5),
+          endDate: endDate.split("T")[0],
+          endTime: endDate.split("T")[1]?.slice(0, 5),
+          deadline: deadline.split("T")[0],
+          deadlineTime: deadline.split("T")[1]?.slice(0, 5),
+        });
       } catch (error) {
         if (axios.isAxiosError(error)) {
           handleError(error);
         }
-
-        console.error("Error searching for referees:", error);
-      }
-    } else {
-      setSearchResults([]);
-    }
-  };
-
-  // Fetch existing tournament data based on the ID from the URL
-  useEffect(() => {
-    if (!id) return; // Ensure 'id' is available before fetching
-
-    const fetchTournament = async () => {
-      try {
-        const res = await fetch(`${API_URL}/tournament/DTO/${id}`);
-        if (!res.ok) {
-          alert('Error fetching tournament details');
-          return;
-        }
-
-        const data = await res.json();
-        const { startDate, endDate, deadline, ...rest } = data;
-
-        setTournament({
-          ...rest,
-          startDate: startDate.split('T')[0],
-          startTime: startDate.split('T')[1]?.slice(0, 5),
-          endDate: endDate.split('T')[0],
-          endTime: endDate.split('T')[1]?.slice(0, 5),
-          deadline: deadline.split('T')[0],
-          deadlineTime: deadline.split('T')[1]?.slice(0, 5),
-        });
-      } catch (error) {
-        console.error('Error fetching tournament:', error);
+      
+        console.error("Error fetching tournament details:", error);
       }
     };
 
@@ -110,11 +84,13 @@ const UpdateTournament = () => {
   }, [id]);
 
   // Handle input changes
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
     setTournament({
       ...tournament,
-      [name]: value
+      [name]: value,
     });
   };
 
@@ -124,7 +100,13 @@ const UpdateTournament = () => {
 
     // Validate maxParticipants before submitting
     if (tournament.maxParticipants <= 0) {
-      alert("Max participants must be a positive number");
+      showAlert({
+        variant: "alert",
+        title: "Warning",
+        description:
+          "Max participants must be a positive number",
+        confirmText: "OK",
+      });
       return;
     }
 
@@ -132,34 +114,43 @@ const UpdateTournament = () => {
     const enddatetime = `${tournament.endDate}T${tournament.endTime}:00`;
     const deadline = `${tournament.deadline}T${tournament.deadlineTime}:00`;
 
-    const { startDate, startTime, endDate, endTime, deadlineTime, ...tournamentDetails } = tournament;
+    const {
+      startDate,
+      startTime,
+      endDate,
+      endTime,
+      deadlineTime,
+      ...tournamentDetails
+    } = tournament;
 
     const data = {
       ...tournamentDetails,
       startDate: startdatetime,
       endDate: enddatetime,
-      deadline: deadline
+      deadline: deadline,
     };
 
     try {
-      const res = await fetch(`${API_URL}/tournament/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
+      const res = await axiosInstance.put(
+        new URL(`/tournament/${id}`, API_URL).toString(),
+        data,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-      if (res.ok) {
-        router.push(WEB_URL + "/admin/dashboard");
+      if (res.status === 200) {
+        router.push("/admin/dashboard");
 
         toast({
           title: "Success",
           description: "Tournament updated successfully",
           variant: "success",
-        })
+        });
       } else {
-        alert('Error updating tournament');
+        showErrorToast('Update Error', 'Failed to update tournament. Please try again');
       }
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -193,12 +184,12 @@ const UpdateTournament = () => {
 
       {step === 2 && (
         <AdditionalDetailsForm
-        tournament={tournament}
-        handleChange={handleChange}
-        handleBack={handleBack}
-        handleSubmit={handleSubmit}
-        isCreate={false}
-      />
+          tournament={tournament}
+          handleChange={handleChange}
+          handleBack={handleBack}
+          handleSubmit={handleSubmit}
+          isCreate={false}
+        />
       )}
     </div>
   );
