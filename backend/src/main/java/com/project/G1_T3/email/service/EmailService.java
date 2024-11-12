@@ -2,6 +2,7 @@ package com.project.G1_T3.email.service;
 
 import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
@@ -32,6 +33,9 @@ public class EmailService {
     @Autowired
     private SpringTemplateEngine templateEngine;
 
+    @Value("${app.frontend.url}")
+    private String frontendUrl;
+
     private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
 
     @Async
@@ -47,7 +51,7 @@ public class EmailService {
 
         Context context = new Context();
         context.setVariable("name", userDTO.getUsername());
-        context.setVariable("loginUrl", "http://localhost:3000/auth/login");
+        context.setVariable("loginUrl", frontendUrl + "/auth/login");
         context.setVariable("tempPassword", tempPassword);
 
         String htmlContent = templateEngine.process("AdminTempPasswordTemplate", context);
@@ -115,11 +119,16 @@ public class EmailService {
                 }
             }
 
+            logger.info("Attempting to send email to: {}", to);
             mailSender.send(message);
-            logger.info("Sent email to: {}", to);
+            logger.info("Successfully sent email to: {}", to);
 
         } catch (MessagingException e) {
+            logger.error("Failed to send email to: {}. Error: {}", to, e.getMessage(), e);
             throw new EmailServiceException(e.getMessage());
+        } catch (Exception e) {
+            logger.error("Unexpected error while sending email to: {}. Error: {}", to, e.getMessage(), e);
+            throw new EmailServiceException("Unexpected error while sending email: " + e.getMessage());
         }
 
         return CompletableFuture.completedFuture(null);
