@@ -80,22 +80,7 @@ public class PlayerProfileService {
         }
     }
 
-    public double getPlayerRank(UUID profileId) {
-        // Get the player's profile
-        PlayerProfile playerProfile = playerProfileRepository.findByProfileId(profileId);
-        if (playerProfile == null) {
-            // Handle player not found
-            throw new NoSuchElementException("Player with ID " + profileId + " not found.");
-        }
-
-        int playerRating = playerProfile.getGlickoRating();
-        int numberOfPlayersAhead = playerRatingService.getNumberOfPlayersAhead(playerRating);
-        int totalPlayers = playerRatingService.getTotalPlayers();
-
-        double rankPercentage = ((double) (totalPlayers - numberOfPlayersAhead)) / totalPlayers * 100;
-
-        return rankPercentage;
-    }
+    
 
     @Cacheable(value = "playerRankings", key = "'rankings'")
     public List<PlayerProfile> getSortedPlayerProfiles() {
@@ -241,6 +226,34 @@ public class PlayerProfileService {
         return player.getTournaments();
     }
 
+    
+    public double getPlayerRank(UUID profileId) {
+        // Get the player's profile
+        PlayerProfile playerProfile = playerProfileRepository.findByProfileId(profileId);
+        if (playerProfile == null) {
+            // Handle player not found
+            throw new NoSuchElementException("Player with ID " + profileId + " not found.");
+        }
+
+        int playerRating = playerProfile.getGlickoRating();
+        int numberOfPlayersAhead = playerRatingService.getNumberOfPlayersAhead(playerRating);
+        int numberOfPlayersInBucket = playerRatingService.getNumberOfPlayersInBucket(playerRating);
+        int totalPlayers = playerRatingService.getTotalPlayers();
+
+        //rank percentage is calculated from number of players in their (current rating bucket + number of players) over total players
+        double rankPercentage = ((double) (numberOfPlayersAhead + numberOfPlayersInBucket)) / totalPlayers * 100;
+
+        return rankPercentage;
+    }
+
+    public double getPlayerRankByUsername(String username){
+        // Fetch the user by username & player by userId
+        Optional<User> user = userService.findByUsername(username);
+        UUID userId = user.get().getUserId();
+        PlayerProfile player = playerProfileRepository.findByUserId(userId);
+        return getPlayerRank(player.getProfileId());
+   }
+
     public void updatePlayerRating(UUID playerId, List<Glicko2Result> results) {
         Optional<PlayerProfile> playerOpt = playerProfileRepository.findById(playerId);
         if (playerOpt.isPresent()) {
@@ -253,7 +266,7 @@ public class PlayerProfileService {
             playerProfileRepository.save(playerProfile);
 
             // Update the rating counts
-            playerRatingService.updateRating(oldRating, newRating);
+            playerRatingService.updateRating(playerProfile.getProfileId(), oldRating, newRating);
         } else {
             throw new NoSuchElementException("Player with ID " + playerId + " not found.");
         }

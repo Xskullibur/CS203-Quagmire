@@ -191,6 +191,7 @@ class PlayerProfileServiceTest {
 
         // Mock the rating service methods
         when(playerRatingService.getNumberOfPlayersAhead(anyInt())).thenReturn(0);
+        when(playerRatingService.getNumberOfPlayersInBucket(anyInt())).thenReturn(1);
         when(playerRatingService.getTotalPlayers()).thenReturn(1);
 
         double rank = playerProfileService.getPlayerRank(profileId);

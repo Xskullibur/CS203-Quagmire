@@ -31,3 +31,5 @@ application.properties
 
 .firebase/
 backend/.firebase/*
+
+backend\src\main\resources\application.yml
