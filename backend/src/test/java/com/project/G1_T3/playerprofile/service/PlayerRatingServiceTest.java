@@ -28,10 +28,11 @@ class PlayerRatingServiceTest {
     public void setUp() {
         // Prepare a list of mock PlayerProfiles with different ratings
         List<PlayerProfile> mockPlayers = new ArrayList<>();
-        
+
         // Add 10 players with rating 1500
         for (int i = 0; i < 10; i++) {
             PlayerProfile player = new PlayerProfile();
+            player.setProfileId(UUID.randomUUID()); // Assign a unique UUID
             player.setGlickoRating(1500);
             mockPlayers.add(player);
         }
@@ -39,6 +40,7 @@ class PlayerRatingServiceTest {
         // Add 5 players with rating 1501
         for (int i = 0; i < 5; i++) {
             PlayerProfile player = new PlayerProfile();
+            player.setProfileId(UUID.randomUUID());
             player.setGlickoRating(1501);
             mockPlayers.add(player);
         }
@@ -46,6 +48,7 @@ class PlayerRatingServiceTest {
         // Add 8 players with rating 1499
         for (int i = 0; i < 8; i++) {
             PlayerProfile player = new PlayerProfile();
+            player.setProfileId(UUID.randomUUID());
             player.setGlickoRating(1499);
             mockPlayers.add(player);
         }
@@ -58,12 +61,28 @@ class PlayerRatingServiceTest {
     }
 
     @Test
-    void testInitialBucketCounts() {
+    void testInitialBucketCountsAndContents() {
         // Test that the bucketCounts are initialized correctly
         int[] bucketCounts = playerRatingService.getBucketCounts();
         assertEquals(10, bucketCounts[1500], "Bucket for rating 1500 should have 10 players");
         assertEquals(5, bucketCounts[1501], "Bucket for rating 1501 should have 5 players");
         assertEquals(8, bucketCounts[1499], "Bucket for rating 1499 should have 8 players");
+
+        // Verify that the rating buckets themselves contain the correct number of UUIDs
+        Set<UUID>[] ratingBuckets = playerRatingService.getRatingBuckets();
+
+        assertEquals(10, ratingBuckets[1500].size(), "Bucket for rating 1500 should contain 10 UUIDs");
+        assertEquals(5, ratingBuckets[1501].size(), "Bucket for rating 1501 should contain 5 UUIDs");
+        assertEquals(8, ratingBuckets[1499].size(), "Bucket for rating 1499 should contain 8 UUIDs");
+
+        // Further validate that each bucket contains unique UUIDs (no duplicates within
+        // buckets)
+        assertEquals(10, new HashSet<>(ratingBuckets[1500]).size(),
+                "Bucket for rating 1500 should contain unique UUIDs");
+        assertEquals(5, new HashSet<>(ratingBuckets[1501]).size(),
+                "Bucket for rating 1501 should contain unique UUIDs");
+        assertEquals(8, new HashSet<>(ratingBuckets[1499]).size(),
+                "Bucket for rating 1499 should contain unique UUIDs");
     }
 
     @Test
@@ -81,7 +100,7 @@ class PlayerRatingServiceTest {
         // Retrieve a player's ID with a rating of 1500 for the update
         Set<UUID> playerIds = playerRatingService.getPlayersInBucket(1500);
         UUID playerId = null;
-        for(UUID pId : playerIds){
+        for (UUID pId : playerIds) {
             playerId = pId;
             break;
         }
@@ -114,7 +133,8 @@ class PlayerRatingServiceTest {
         int numberOfPlayersAhead1499 = playerRatingService.getNumberOfPlayersAhead(1499);
         int totalPlayers = playerRatingService.getTotalPlayers();
 
-        assertEquals(5, numberOfPlayersAhead1500, "The number of players higher than initial rating should remain the same");
+        assertEquals(5, numberOfPlayersAhead1500,
+                "The number of players higher than initial rating should remain the same");
         assertEquals(16, numberOfPlayersAhead1499, "Number of players ahead 1499 should be one more now");
         assertEquals(24, totalPlayers, "Total players should have increased");
     }
@@ -159,4 +179,71 @@ class PlayerRatingServiceTest {
         double rankPercentage = ((double) (numberOfPlayersAhead + numberOfPlayersInBucket)) / totalPlayers * 100;
         assertEquals(1.0 / 24 * 100, rankPercentage, 0.01);
     }
+
+    @Test
+    void testGetTop10Players() {
+        // Prepare a list of player IDs with different ratings
+        List<UUID> expectedTop10Players = new ArrayList<>();
+
+        // Add 5 players with a high rating of 2000 (they should be included in the top
+        // 10)
+        for (int i = 0; i < 5; i++) {
+            UUID playerId = UUID.randomUUID();
+            playerRatingService.addPlayer(playerId, 2000);
+            expectedTop10Players.add(playerId); // Keep track of these players for validation
+        }
+
+        // Add 3 players with a rating of 1999 (should be in the top 10)
+        for (int i = 0; i < 3; i++) {
+            UUID playerId = UUID.randomUUID();
+            playerRatingService.addPlayer(playerId, 1999);
+            expectedTop10Players.add(playerId);
+        }
+
+        // Add 2 players with a rating of 1998 (should also be in the top 10)
+        for (int i = 0; i < 2; i++) {
+            UUID playerId = UUID.randomUUID();
+            playerRatingService.addPlayer(playerId, 1998);
+            expectedTop10Players.add(playerId);
+        }
+
+        // Add 10 additional players with lower ratings to ensure they are not in the
+        // top 10
+        for (int i = 0; i < 10; i++) {
+            UUID playerId = UUID.randomUUID();
+            playerRatingService.addPlayer(playerId, 1500);
+        }
+
+        // Retrieve the top 10 players
+        List<UUID> top10Players = playerRatingService.getTop10Players();
+
+        // Verify that we have exactly 10 players in the list
+        assertEquals(10, top10Players.size(), "Top 10 players list should contain exactly 10 players");
+
+        // Verify that the top 10 players are the ones with the highest ratings
+        assertTrue(top10Players.containsAll(expectedTop10Players),
+                "Top 10 players should include those with the highest ratings");
+
+        // Verify that the order is correct (highest ratings first)
+        // Expected order: players with rating 2000, then 1999, then 1998
+        List<Integer> expectedRatings = Arrays.asList(2000, 2000, 2000, 2000, 2000, 1999, 1999, 1999, 1998, 1998);
+        List<Integer> actualRatings = new ArrayList<>();
+        for (UUID playerId : top10Players) {
+            for (int rating = 3000; rating >= 0; rating--) {
+                if (playerRatingService.getPlayersInBucket(rating).contains(playerId)) {
+                    actualRatings.add(rating);
+                    break;
+                }
+            }
+        }
+        assertEquals(expectedRatings, actualRatings, "Top 10 players should be ordered by highest ratings");
+    }
+
+    @Test
+    void testTop10EdgeCaseEquallyRatedPlayers() {
+        // Prepare a list of player IDs with different ratings
+        List<UUID> top10List = playerRatingService.getTop10Players();
+        assertTrue(top10List.size() > 10);
+    }
+
 }

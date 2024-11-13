@@ -41,7 +41,7 @@ public class PlayerRatingService {
 
             List<PlayerProfile> players = playerProfileRepository.findAll();
             for (PlayerProfile player : players) {
-                int rating = player.getGlickoRating();
+                int rating = Math.round(player.getGlickoRating());
                 UUID playerId = player.getProfileId(); // Assuming PlayerProfile has getProfileId() method that returns UUID
 
                 // Add player ID to the bucket for their rating
@@ -64,6 +64,10 @@ public class PlayerRatingService {
 
     public int getTotalPlayers() {
         return prefixSums[0];
+    }
+
+    public Set<UUID>[] getRatingBuckets() {
+        return ratingBuckets;
     }
 
     private void computePrefixSums() {
@@ -148,7 +152,7 @@ public class PlayerRatingService {
                     topPlayers.addAll(bucket);
                 }
             }
-            return topPlayers.stream().limit(10).collect(Collectors.toList());
+            return topPlayers.stream().collect(Collectors.toList());
         } finally {
             lock.readLock().unlock();
         }
