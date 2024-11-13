@@ -72,7 +72,7 @@ public class PlayerProfile {
     private String bio;
 
     @Column(name = "glicko_rating", nullable = false)
-    private int glickoRating = 1500;
+    private float glickoRating = 1500;
 
     @Column(name = "rating_deviation", nullable = false)
     private float ratingDeviation = (float) 350.0;
@@ -141,7 +141,7 @@ public class PlayerProfile {
                     this.ratingDeviation,
                     this.volatility);
         } else {
-            this.glicko2Rating.setRating((float) this.glickoRating);
+            this.glicko2Rating.setRating(this.glickoRating);
             this.glicko2Rating.setRatingDeviation(this.ratingDeviation);
             this.glicko2Rating.setVolatility(this.volatility);
         }
@@ -167,7 +167,7 @@ public class PlayerProfile {
         glicko2Rating.updateRating(results);
 
         // Update fields with new values
-        this.glickoRating = (int) Math.round(glicko2Rating.getRating());
+        this.glickoRating = (float) glicko2Rating.getRating();
         this.ratingDeviation = (float) glicko2Rating.getRatingDeviation();
         this.volatility = (float) glicko2Rating.getVolatility();
 

@@ -30,7 +30,7 @@ public class LeaderboardServiceImpl implements LeaderboardService {
                 .map(profile -> new LeaderboardPlayerProfile(profile.getProfileId(),
                         profile.getFirstName(),
                         profile.getLastName(),
-                        profile.getGlickoRating()))
+                        Math.round(profile.getGlickoRating())))
                 .collect(Collectors.toList());
 
         return top10Players;

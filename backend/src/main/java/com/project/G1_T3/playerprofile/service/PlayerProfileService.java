@@ -235,7 +235,7 @@ public class PlayerProfileService {
             throw new NoSuchElementException("Player with ID " + profileId + " not found.");
         }
 
-        int playerRating = playerProfile.getGlickoRating();
+        int playerRating = Math.round(playerProfile.getGlickoRating());
         int numberOfPlayersAhead = playerRatingService.getNumberOfPlayersAhead(playerRating);
         int numberOfPlayersInBucket = playerRatingService.getNumberOfPlayersInBucket(playerRating);
         int totalPlayers = playerRatingService.getTotalPlayers();
@@ -258,11 +258,11 @@ public class PlayerProfileService {
         Optional<PlayerProfile> playerOpt = playerProfileRepository.findById(playerId);
         if (playerOpt.isPresent()) {
             PlayerProfile playerProfile = playerOpt.get();
-            int oldRating = playerProfile.getGlickoRating();
+            int oldRating = Math.round(playerProfile.getGlickoRating());
 
             playerProfile.updateRating(results);
 
-            int newRating = playerProfile.getGlickoRating();
+            int newRating = Math.round(playerProfile.getGlickoRating());
             playerProfileRepository.save(playerProfile);
 
             // Update the rating counts
