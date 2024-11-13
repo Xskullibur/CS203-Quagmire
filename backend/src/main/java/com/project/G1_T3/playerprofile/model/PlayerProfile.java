@@ -147,8 +147,8 @@ public class PlayerProfile {
         }
     }
 
-    public void setGlickoRating(int glickoRating) {
-        this.glickoRating = glickoRating;
+    public void setGlickoRating(double glickoRating) {
+        this.glickoRating = (float) glickoRating;
         syncGlicko2Rating();
     }
 

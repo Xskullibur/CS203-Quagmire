@@ -246,4 +246,100 @@ class PlayerRatingServiceTest {
         assertTrue(top10List.size() > 10);
     }
 
+    @Test
+    void top10EdgeCaseFloatingPointDifference() {
+
+        // Arrange
+        List<UUID> expectedRetrievals = new ArrayList<>();
+        List<PlayerProfile> mockRepo = new ArrayList<>();
+
+        // Add 5 players with a high rating of 2000 (they should be included in the top
+        // 10)
+        for (int i = 0; i < 5; i++) {
+            PlayerProfile player = new PlayerProfile();
+            player.setProfileId(UUID.randomUUID());
+            player.setGlickoRating(2000 + (1 - i) * 0.01);
+            mockRepo.add(player);
+            playerRatingService.addPlayer(player.getProfileId(), Math.round(player.getGlickoRating()));
+            expectedRetrievals.add(player.getProfileId()); // Keep track of these players for validation
+        }
+
+        // Add 10 players with a rating of 1999 (should be in the top 10)
+        for (int i = 0; i < 10; i++) {
+            PlayerProfile player = new PlayerProfile();
+            player.setProfileId(UUID.randomUUID());
+            player.setGlickoRating(1999 + (10 - i - 1) * 0.01);
+            playerRatingService.addPlayer(player.getProfileId(), Math.round(player.getGlickoRating()));
+            mockRepo.add(player);
+            expectedRetrievals.add(player.getProfileId()); // Keep track of these players for validation
+        }
+
+        // Expected Top 10 list limited to 10 players
+        List<UUID> expectedTop10 = expectedRetrievals.stream().limit(10).toList();
+
+        // Act
+        List<UUID> actualRetrievals = playerRatingService.getTop10Players();
+        List<PlayerProfile> actualTop10Profiles = new ArrayList<>();
+
+        // Get profiles from mock repo based on UUIDs in actualRetrievals
+        for (PlayerProfile pfp : mockRepo) {
+            for (UUID pId : actualRetrievals) {
+                if (pfp.getProfileId().equals(pId)) {
+                    actualTop10Profiles.add(pfp);
+                }
+            }
+        }
+
+        // Sort profiles by descending Glicko rating
+        actualTop10Profiles.sort(
+                (PlayerProfile o1, PlayerProfile o2) -> -Double.compare(o1.getGlickoRating(), o2.getGlickoRating()));
+
+        // Convert actual top 10 profiles to a list of UUIDs
+        List<UUID> actualTop10 = actualTop10Profiles.stream().limit(10).map(PlayerProfile::getProfileId).toList();
+
+        // Assert Top 10 retrieval
+        assertEquals(Set.of(expectedRetrievals.toArray()), Set.of(actualRetrievals.toArray()));
+        assertEquals(expectedTop10, actualTop10, "The top 10 UUIDs should match the expected top 10 order");
+
+        // Additional assertions for bucket counts
+
+        // Verify number of players in bucket 2000
+        int bucket2000Count = playerRatingService.getRatingBuckets()[2000].size();
+        assertEquals(5, bucket2000Count, "Bucket for rating 2000 should contain 5 players");
+
+        // Verify number of players in bucket 1999
+        int bucket1999Count = playerRatingService.getRatingBuckets()[1999].size();
+        assertEquals(10, bucket1999Count, "Bucket for rating 1999 should contain 10 players");
+
+        // Verify that the players in each bucket are correctly assigned based on
+        // rounded ratings
+        Set<UUID> bucket2000Players = playerRatingService.getRatingBuckets()[2000];
+        Set<UUID> bucket1999Players = playerRatingService.getRatingBuckets()[1999];
+
+        List<UUID> actual2000BucketUUIDs = mockRepo.stream()
+                .filter(player -> Math.round(player.getGlickoRating()) == 2000)
+                .map(PlayerProfile::getProfileId)
+                .toList();
+        List<UUID> actual1999BucketUUIDs = mockRepo.stream()
+                .filter(player -> Math.round(player.getGlickoRating()) == 1999)
+                .map(PlayerProfile::getProfileId)
+                .toList();
+
+        assertTrue(bucket2000Players.containsAll(actual2000BucketUUIDs),
+                "Bucket for rating 2000 should contain the correct players");
+        assertTrue(bucket1999Players.containsAll(actual1999BucketUUIDs),
+                "Bucket for rating 1999 should contain the correct players");
+
+        // Verify order of Top 10 based on actual Glicko rating
+        List<Float> expectedRatings = actualTop10Profiles.stream()
+                .map(PlayerProfile::getGlickoRating)
+                .sorted(Comparator.reverseOrder())
+                .toList();
+        List<Float> actualRatings = actualTop10Profiles.stream()
+                .map(PlayerProfile::getGlickoRating)
+                .toList();
+        assertEquals(expectedRatings, actualRatings,
+                "Top 10 players should be ordered by their Glicko ratings in descending order");
+    }
+
 }
