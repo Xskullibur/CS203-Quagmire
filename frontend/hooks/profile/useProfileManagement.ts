@@ -8,7 +8,7 @@ import axios from "axios";
 import { addCacheBustingParameter, cleanupObjectURL } from "@/utils/imageUtils";
 import { PlayerProfile } from "@/types/player-profile";
 
-const PROFILE_IMAGE_API = process.env.NEXT_PUBLIC_PROFILEPICTURE_API_URL;
+const PROFILE_IMAGE_API = 'https://api.dicebear.com/9.x/initials/png?fontFamily=Georgia&backgroundType=gradientLinear&seed=';
 
 
 interface UseProfileManagementProps {

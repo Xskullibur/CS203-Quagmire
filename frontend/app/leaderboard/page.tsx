@@ -45,7 +45,7 @@ export default function Leaderboard() {
 
   console.log(data);
   return (
-    <div className="flex flex-col items-center mt-16 pt-4 pb-8">
+    <div className="flex flex-col items-center mt-16 pt-4 pb-8 min-h-screen">
       <h2 className="text-2xl font-bold my-4">Leaderboard</h2>
       <div className="w-4/5 h-auto bg-card">
         <ul>

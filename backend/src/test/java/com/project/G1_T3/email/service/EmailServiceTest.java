@@ -1,5 +1,6 @@
 package com.project.G1_T3.email.service;
 
+import com.project.G1_T3.common.exception.EmailServiceException;
 import com.project.G1_T3.user.model.UserDTO;
 
 import jakarta.mail.internet.MimeMessage;
@@ -111,19 +112,19 @@ class EmailServiceTest {
 
     @Test
     void sendEmail_NullTo() {
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(EmailServiceException.class,
                 () -> emailService.sendEmail(null, "Test Subject", "Test Body", null));
     }
 
     @Test
     void sendEmail_NullSubject() {
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(EmailServiceException.class,
                 () -> emailService.sendEmail("test@example.com", null, "Test Body", null));
     }
 
     @Test
     void sendEmail_NullBody() {
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(EmailServiceException.class,
                 () -> emailService.sendEmail("test@example.com", "Test Subject", null, null));
     }
 

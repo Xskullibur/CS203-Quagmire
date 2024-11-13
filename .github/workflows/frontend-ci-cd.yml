@@ -29,6 +29,9 @@ jobs:
         env:
           NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
           NEXT_PUBLIC_SPRINGBOOT_API_URL: ${{ secrets.NEXT_PUBLIC_SPRINGBOOT_API_URL }}
+          NEXT_PUBLIC_FIREBASE_BASE_URL: ${{ secrets.NEXT_PUBLIC_FIREBASE_BASE_URL }}
+          NEXT_PUBLIC_PROFILEPICTURE_API_URL: ${{ secrets.NEXT_PUBLIC_PROFILEPICTURE_API_URL }}
+
 
       - name: Set IMAGE_TAG
         run: |

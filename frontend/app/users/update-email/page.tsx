@@ -49,7 +49,11 @@ const UpdateEmailPage: React.FC = () => {
     } catch (error: any) {
       console.error("Failed to update email:", error);
       if (axios.isAxiosError(error)) {
-        handleError(error);
+
+        if (error.status !== 401) {
+          handleError(error);
+        }
+
       }
       setError(
         "Failed to update email. Please check your password and try again."

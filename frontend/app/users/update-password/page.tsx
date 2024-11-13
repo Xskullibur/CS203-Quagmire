@@ -116,9 +116,6 @@ const UpdatePasswordForm: React.FC = () => {
               required
             />
           </div>
-          {!passwordsMatch && (
-            <p className="text-red-500 text-sm mb-4">Passwords do not match</p>
-          )}
           <Button
             type="submit"
             className="w-full bg-primary hover:bg-accent text-black hover:text-white transition duration-300"

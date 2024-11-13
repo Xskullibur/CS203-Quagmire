@@ -111,23 +111,23 @@ public class PlayerProfileService {
     }
 
     // For editing profile
-    public PlayerProfile updateProfile(UUID id, PlayerProfileDTO profileUpdates,
+    public PlayerProfile updateProfile(UUID userId, PlayerProfileDTO profileUpdates,
             MultipartFile profileImage) throws IOException {
 
         // Check if the user is who they claim they are
-        User user = authorizationService.authorizeUserById(id);
+        User user = authorizationService.authorizeUserById(userId);
 
         // Retrieve the existing profile
         PlayerProfile existingProfile = playerProfileRepository.findByUser(user);
 
         // Throw an exception if the profile is not found
         if (existingProfile == null) {
-            throw new EntityNotFoundException("Player profile not found for user ID: " + id);
+            throw new EntityNotFoundException("Player profile not found for user ID: " + userId);
         }
 
         // Upload Image
         if (profileImage != null) {
-            String profileImagePath = uploadProfileImage(id.toString(), profileImage);
+            String profileImagePath = uploadProfileImage(userId.toString(), profileImage);
             existingProfile.setProfilePicturePath(profileImagePath);
         }
 
@@ -152,23 +152,30 @@ public class PlayerProfileService {
         return playerProfileRepository.save(existingProfile);
     }
 
-    public PlayerProfile createProfile(UUID id, PlayerProfileDTO profileUpdates,
+    public PlayerProfile createProfile(UUID userId, PlayerProfileDTO profileUpdates,
             MultipartFile profileImage) throws IOException {
 
         // Check if the user is who they claim they are
-        User user = authorizationService.authorizeUserById(id);
+        User user = authorizationService.authorizeUserById(userId);
 
         // Retrieve the existing profile
         PlayerProfile existingProfile = playerProfileRepository.findByUser(user);
 
         // Throw an exception if the profile is not found
         if (existingProfile != null) {
-            throw new ProfileAlreadyExistException("Player profile already exist for user ID: " + id);
+            throw new ProfileAlreadyExistException("Player profile already exist for user ID: " + userId);
         }
 
         // Save the updated profile
         PlayerProfile newProfile = PlayerProfile.fromDTO(profileUpdates);
         newProfile.setUser(user);
+
+        // Upload Image
+        if (profileImage != null) {
+            String profileImagePath = uploadProfileImage(userId.toString(), profileImage);
+            newProfile.setProfilePicturePath(profileImagePath);
+        }
+
         return playerProfileRepository.save(newProfile);
     }
 

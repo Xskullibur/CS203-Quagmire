@@ -2,6 +2,7 @@ package com.project.G1_T3.email.service;
 
 import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
@@ -15,14 +16,13 @@ import com.project.G1_T3.user.model.UserDTO;
 import org.springframework.core.io.ClassPathResource;
 
 import jakarta.mail.internet.MimeMessage;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+@Slf4j
 @Service
 public class EmailService {
 
@@ -32,7 +32,8 @@ public class EmailService {
     @Autowired
     private SpringTemplateEngine templateEngine;
 
-    private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
+    @Value("${app.frontend.url}")
+    private String frontendUrl;
 
     @Async
     public CompletableFuture<Void> sendTempPasswordEmail(UserDTO userDTO, String tempPassword) {
@@ -47,7 +48,7 @@ public class EmailService {
 
         Context context = new Context();
         context.setVariable("name", userDTO.getUsername());
-        context.setVariable("loginUrl", "http://localhost:3000/auth/login");
+        context.setVariable("loginUrl", frontendUrl + "/auth/login");
         context.setVariable("tempPassword", tempPassword);
 
         String htmlContent = templateEngine.process("AdminTempPasswordTemplate", context);
@@ -115,11 +116,18 @@ public class EmailService {
                 }
             }
 
+            log.info("Attempting to send email to: {}", to);
             mailSender.send(message);
-            logger.info("Sent email to: {}", to);
+            log.info("Successfully sent email to: {}", to);
 
         } catch (MessagingException e) {
+            log.error("Failed to send email to: {}. Error: {}", to, e.getMessage(), e);
+            log.info("Failed to send email to: {}. Error: {}", to, e.getMessage(), e);
             throw new EmailServiceException(e.getMessage());
+        } catch (Exception e) {
+            log.error("Unexpected error while sending email to: {}. Error: {}", to, e.getMessage(), e);
+            log.info("Unexpected error while sending email to: {}. Error: {}", to, e.getMessage(), e);
+            throw new EmailServiceException("Unexpected error while sending email: " + e.getMessage());
         }
 
         return CompletableFuture.completedFuture(null);

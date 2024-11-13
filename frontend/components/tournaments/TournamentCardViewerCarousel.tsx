@@ -53,20 +53,23 @@ const TournamentCardViewerCarousel = () => {
     return (
         <div className="flex flex-col items-center justify-center text-white p-4 w-full my-16">
             <p className="text-sm text-center mb-8 font-mono text-zinc-400">Featured Tournaments</p>
-            <div className="relative w-full max-w-7xl overflow-x-hidden">
+            <div className="relative w-full max-w-8xl overflow-x-hidden">
                 <motion.div
-                    className="flex space-x-8"
+                    className="flex space-x-5"
                     animate={{ x: `-${currentIndex * (100 / cardsToShow)}%` }}
                     transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                    style={{
+                        paddingRight: "40px" // Optional: can tweak this based on observed cut-off
+                    }}
                 >
                     {tournaments.length === 0 ? (
-                        <p className="text-red-500">No tournaments available</p>
+                        <p className="text-lg text-gray-500">No tournaments available</p>
                     ) : (
                         tournaments.map((tournament) => (
                             <div
                                 key={tournament.id}
-                                className={`w-full flex-shrink-0 flex-grow-0`}
-                                style={{ flexBasis: `${100 / cardsToShow}%` }}
+                                className={`flex-shrink-0 flex-grow-0`}
+                                style={{ flexBasis: `calc((100% - ${(cardsToShow - 1)} * 5px) / ${cardsToShow})` }}
                             >
                                 <NewCard tournament={tournament} />
                             </div>
