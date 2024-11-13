@@ -147,10 +147,6 @@ public class StageServiceImpl implements StageService {
         throw new IllegalArgumentException("There must be more than 1 player");
         }
 
-        // Validate input: Referees must not be null and should have at least 1 referee
-        if (stageDTO.getReferees() == null || stageDTO.getReferees().isEmpty()) {
-        throw new IllegalArgumentException("There must be at least 1 referee");
-        }
 
         // Create a new Stage entity and populate its fields
         Stage stage = new Stage();

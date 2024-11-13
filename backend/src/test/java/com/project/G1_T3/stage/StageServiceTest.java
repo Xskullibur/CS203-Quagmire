@@ -57,7 +57,6 @@ class StageServiceTest {
     private Tournament tournament;
     private StageDTO stageDTO;
     private PlayerProfile player;
-    private PlayerProfile referee;
 
     @BeforeEach
     void setUp() {
@@ -92,13 +91,11 @@ class StageServiceTest {
 
         // Set the players with two PlayerProfile instances
         stageDTO.setPlayers(new HashSet<>(Set.of(player1, player2)));
-        stageDTO.setReferees(new HashSet<>(Set.of(new PlayerProfile())));
 
         // Player and Referee
         player = new PlayerProfile();
         player.setCurrentRating(1500f);
 
-        referee = new PlayerProfile();
     }
 
     @Test
@@ -364,18 +361,6 @@ class StageServiceTest {
             stageService.createStage(stageDTO, tournament);
         });
         assertEquals("There must be more than 1 player", exception.getMessage());
-    }
-
-    @Test
-    void testCreateStage_NoReferees_ThrowsException() {
-        // Arrange
-        stageDTO.setReferees(new HashSet<>()); // No referees
-
-        // Act & Assert
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            stageService.createStage(stageDTO, tournament);
-        });
-        assertEquals("There must be at least 1 referee", exception.getMessage());
     }
 
     @Test
