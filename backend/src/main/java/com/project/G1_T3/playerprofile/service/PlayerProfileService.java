@@ -135,7 +135,9 @@ public class PlayerProfileService {
         }
 
         // Save the updated profile
-        return playerProfileRepository.save(existingProfile);
+        PlayerProfile savedProfile = playerProfileRepository.save(existingProfile);
+        playerRatingService.addPlayer(savedProfile.getProfileId(), Math.round(savedProfile.getGlickoRating()));
+        return savedProfile;
     }
 
     public PlayerProfile createProfile(UUID userId, PlayerProfileDTO profileUpdates,
@@ -162,7 +164,7 @@ public class PlayerProfileService {
             newProfile.setProfilePicturePath(profileImagePath);
         }
 
-        return playerProfileRepository.save(newProfile);
+        return save(newProfile);
     }
 
     private String uploadProfileImage(String userId, MultipartFile profileImage)

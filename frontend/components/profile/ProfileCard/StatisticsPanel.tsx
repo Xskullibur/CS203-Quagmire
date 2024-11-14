@@ -18,12 +18,14 @@ import { calculateAge } from "@/utils/dateUtils";
 
 interface StatisticsPanelProps {
   playerProfile: PlayerProfile;
-  ranking: number;
+  ranking: number | null;
+  rankPercentage : number | null;
 }
 
 export const StatisticsPanel = ({
   playerProfile,
   ranking,
+  rankPercentage
 }: StatisticsPanelProps) => (
   <div className="h-full flex flex-col justify-center">
     <SheetHeader>
@@ -49,11 +51,13 @@ export const StatisticsPanel = ({
 
       <div className="rounded-lg p-6 shadow-sm">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <StatisticItem
-            label="Current Rating"
-            value={playerProfile.glickoRating}
-          />
-          <StatisticItem label="Ranking" value={`#${ranking}`} />
+        {ranking !== null ? (
+            <StatisticItem label="Ranking" value={`#${ranking}`} />
+          ) : (
+            rankPercentage !== null && (
+              <StatisticItem label="Rank Percentage" value={`Top ${rankPercentage.toFixed(2)}%`} />
+            )
+          )}
         </div>
       </div>
     </div>

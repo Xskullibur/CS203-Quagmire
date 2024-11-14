@@ -158,6 +158,7 @@ const Profile = ({ params }: { params: { username: string } }) => {
       <ProfileCard
         playerProfile={playerProfile}
         ranking={leaderboardData.position}
+        rankPercentage = {leaderboardData.rankPercentage}
         achievements={achievements}
         tournaments={tournaments}
         isOwnProfile={isOwnProfile}

@@ -2,6 +2,8 @@ package com.project.G1_T3.playerprofile.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
+
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.HashSet;
 import java.util.Set;
@@ -21,7 +23,7 @@ public class PlayerRatingService {
 
     private final int[] bucketCounts = new int[MAX_RATING + 1];
     private final int[] prefixSums = new int[MAX_RATING + 1];
-    
+
     @SuppressWarnings("unchecked")
     private final Set<UUID>[] ratingBuckets = new HashSet[MAX_RATING + 1];
 
@@ -42,7 +44,8 @@ public class PlayerRatingService {
             List<PlayerProfile> players = playerProfileRepository.findAll();
             for (PlayerProfile player : players) {
                 int rating = Math.round(player.getGlickoRating());
-                UUID playerId = player.getProfileId(); // Assuming PlayerProfile has getProfileId() method that returns UUID
+                UUID playerId = player.getProfileId(); // Assuming PlayerProfile has getProfileId() method that returns
+                                                       // UUID
 
                 // Add player ID to the bucket for their rating
                 ratingBuckets[rating].add(playerId);
@@ -52,6 +55,11 @@ public class PlayerRatingService {
         } finally {
             lock.writeLock().unlock();
         }
+    }
+
+    @Scheduled(fixedRate = 60000) // Refresh every minute
+    public void refreshData() {
+        initializeBuckets();
     }
 
     public int[] getBucketCounts() {
@@ -128,7 +136,7 @@ public class PlayerRatingService {
             if (ratingBuckets[rating].remove(playerId)) {
                 // Decrease the bucket count
                 bucketCounts[rating]--;
-    
+
                 // Update prefix sums
                 for (int i = rating; i >= 0; i--) {
                     prefixSums[i] = bucketCounts[i] + ((i + 1 <= MAX_RATING) ? prefixSums[i + 1] : 0);

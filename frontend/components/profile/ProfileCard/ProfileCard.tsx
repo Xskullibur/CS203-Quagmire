@@ -13,7 +13,8 @@ import { useRouter } from "next/navigation";
 
 interface ProfileCardProps {
   playerProfile: PlayerProfile;
-  ranking: number;
+  ranking: number | null;
+  rankPercentage : number | null;
   achievements: Achievement[];
   tournaments: Tournament[];
   isOwnProfile?: boolean;
@@ -22,6 +23,7 @@ interface ProfileCardProps {
 const ProfileCard = ({ 
   playerProfile, 
   ranking, 
+  rankPercentage,
   achievements, 
   tournaments, 
   isOwnProfile = false 
@@ -93,6 +95,7 @@ const ProfileCard = ({
               <StatisticsPanel 
                 playerProfile={playerProfile} 
                 ranking={ranking}
+                rankPercentage = {rankPercentage}
               />
             )}
 
