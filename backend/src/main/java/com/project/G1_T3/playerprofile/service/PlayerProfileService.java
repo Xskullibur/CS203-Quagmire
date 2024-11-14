@@ -7,6 +7,7 @@ import com.project.G1_T3.user.service.UserService;
 
 import jakarta.persistence.EntityNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -270,6 +271,23 @@ public class PlayerProfileService {
         } else {
             throw new NoSuchElementException("Player with ID " + playerId + " not found.");
         }
+    }
+
+    public List<PlayerProfile> getTop10Players(){
+
+        List<UUID> playerIds = playerRatingService.getTop10Players();
+
+        List<PlayerProfile> result = new ArrayList<>();
+
+        for(UUID playerId : playerIds){
+            result.add(findByProfileId(playerId));
+        }
+        //sort the players only by their glickoRating, including the floating points
+        result.sort((PlayerProfile o1, PlayerProfile o2) -> -Double.compare(o1.getGlickoRating(), o2.getGlickoRating()));
+
+        //restrict the number of players here
+        return result.stream().limit(10).toList();
+        
     }
 
 }

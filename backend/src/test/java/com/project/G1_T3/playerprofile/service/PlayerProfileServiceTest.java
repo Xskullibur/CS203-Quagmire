@@ -24,6 +24,7 @@ import jakarta.persistence.EntityNotFoundException;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -294,4 +295,59 @@ class PlayerProfileServiceTest {
         assertNotNull(updatedProfile);
         verify(playerProfileRepository).save(existingProfile);
     }
+
+    @Test
+    void getTop10Players_ReturnsTop10ProfilesOrderedByRating() {
+        // Arrange
+        List<UUID> top10PlayerIds = new ArrayList<>();
+        List<PlayerProfile> mockProfiles = new ArrayList<>();
+
+        // Generate 10 players with descending ratings
+        for (int i = 0; i < 10; i++) {
+            UUID playerId = UUID.randomUUID();
+            top10PlayerIds.add(playerId);
+
+            PlayerProfile playerProfile = new PlayerProfile();
+            playerProfile.setProfileId(playerId);
+            playerProfile.setGlickoRating(2000 - i); // Descending ratings from 2000 to 1991
+            mockProfiles.add(playerProfile);
+        }
+
+        // Mock the playerRatingService to return the top 10 UUIDs
+        when(playerRatingService.getTop10Players()).thenReturn(top10PlayerIds);
+
+        // Mock playerProfileRepository to return a profile for each UUID
+        for (PlayerProfile profile : mockProfiles) {
+            when(playerProfileRepository.findById(profile.getProfileId()))
+                    .thenReturn(Optional.of(profile));
+        }
+
+        // Act
+        List<PlayerProfile> result = playerProfileService.getTop10Players();
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(10, result.size(), "The result should contain exactly 10 players");
+
+        // Verify that the players are ordered by Glicko rating in descending order
+        for (int i = 0; i < result.size() - 1; i++) {
+            assertTrue(result.get(i).getGlickoRating() >= result.get(i + 1).getGlickoRating(),
+                    "Players should be ordered by Glicko rating in descending order");
+        }
+
+        // Verify that the returned profiles match the mockProfiles by ID and rating
+        for (int i = 0; i < result.size(); i++) {
+            assertEquals(mockProfiles.get(i).getProfileId(), result.get(i).getProfileId(),
+                    "The profile ID at index " + i + " should match the expected profile");
+            assertEquals(mockProfiles.get(i).getGlickoRating(), result.get(i).getGlickoRating(),
+                    "The profile rating at index " + i + " should match the expected rating");
+        }
+
+        // Verify the calls to the repository
+        verify(playerRatingService, times(1)).getTop10Players();
+        for (UUID playerId : top10PlayerIds) {
+            verify(playerProfileRepository, times(1)).findById(playerId);
+        }
+    }
+
 }
