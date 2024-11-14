@@ -350,4 +350,55 @@ class PlayerProfileServiceTest {
         }
     }
 
+    @Test
+    void rankRetrival_ReturnsCorrectValuesWhenManyProfiles() {
+        UUID profileId = UUID.randomUUID();
+        existingProfile.setProfileId(profileId);
+        existingProfile.setGlickoRating(1500); // Set the rating of the main profile
+
+        List<PlayerProfile> playersAbove1500 = new ArrayList<>();
+        List<PlayerProfile> playersBelow1500 = new ArrayList<>();
+
+        // Create 700 profiles with a rating above 1500
+        for (int i = 0; i < 700; i++) {
+            PlayerProfile current = new PlayerProfile();
+            current.setProfileId(UUID.randomUUID());
+            current.setGlickoRating(1600 + i);
+            playersAbove1500.add(current);
+        }
+
+        // Create 500 profiles with a rating below 1500
+        for (int i = 0; i < 500; i++) {
+            PlayerProfile current = new PlayerProfile();
+            current.setProfileId(UUID.randomUUID());
+            current.setGlickoRating(1400 - i);
+            playersBelow1500.add(current);
+        }
+
+        // Mock repository to return the main profile when findByProfileId is called
+        when(playerProfileRepository.findByProfileId(profileId)).thenReturn(existingProfile);
+
+        // Mock PlayerRatingService interactions
+        when(playerRatingService.getNumberOfPlayersAhead(1500)).thenReturn(playersAbove1500.size());
+        when(playerRatingService.getNumberOfPlayersInBucket(1500)).thenReturn(3); // Assume 
+        when(playerRatingService.getTotalPlayers()).thenReturn(playersAbove1500.size() + playersBelow1500.size() + 3);
+
+        // Act
+        double rankPercentage = playerProfileService.getPlayerRank(profileId);
+
+        // Calculate expected rank percentage
+        int totalPlayers = playersAbove1500.size() + playersBelow1500.size() + 3; // 1203 players in total
+        double expectedRankPercentage = ((double) playersAbove1500.size() + 3) / totalPlayers * 100;
+
+        // Assert
+        assertEquals(expectedRankPercentage, rankPercentage, 0.01,
+                "The rank percentage should be calculated correctly");
+
+        // Verify interactions with mocks
+        verify(playerProfileRepository).findByProfileId(profileId);
+        verify(playerRatingService).getNumberOfPlayersAhead(1500);
+        verify(playerRatingService).getNumberOfPlayersInBucket(1500);
+        verify(playerRatingService).getTotalPlayers();
+    }
+
 }
