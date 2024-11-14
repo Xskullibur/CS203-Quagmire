@@ -121,6 +121,24 @@ public class PlayerRatingService {
         }
     }
 
+    public void deletePlayer(UUID playerId, int rating) {
+        lock.writeLock().lock();
+        try {
+            // Check if the player exists in the rating bucket
+            if (ratingBuckets[rating].remove(playerId)) {
+                // Decrease the bucket count
+                bucketCounts[rating]--;
+    
+                // Update prefix sums
+                for (int i = rating; i >= 0; i--) {
+                    prefixSums[i] = bucketCounts[i] + ((i + 1 <= MAX_RATING) ? prefixSums[i + 1] : 0);
+                }
+            }
+        } finally {
+            lock.writeLock().unlock();
+        }
+    }
+
     public void updateRating(UUID playerId, int oldRating, int newRating) {
         lock.writeLock().lock();
         try {

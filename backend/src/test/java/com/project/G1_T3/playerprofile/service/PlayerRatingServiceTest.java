@@ -181,6 +181,35 @@ class PlayerRatingServiceTest {
     }
 
     @Test
+    void testDeletePlayer() {
+        UUID playerId = UUID.randomUUID();
+        int rating = 2000;
+
+        // Add the player first to the service
+        playerRatingService.addPlayer(playerId, rating);
+
+        // Verify that the player was added
+        assertTrue(playerRatingService.getPlayersInBucket(rating).contains(playerId),
+                "Player should exist in the bucket before deletion");
+
+        // Delete the player
+        playerRatingService.deletePlayer(playerId, rating);
+
+        // Verify the player was removed
+        assertFalse(playerRatingService.getPlayersInBucket(rating).contains(playerId),
+                "Player should not exist in the bucket after deletion");
+
+        // Verify that the bucket count is decremented
+        assertEquals(0, playerRatingService.getBucketCounts()[rating],
+                "Bucket count should be decremented after player deletion");
+
+        // Check if the prefix sums were updated correctly
+        int totalPlayersAhead = playerRatingService.getNumberOfPlayersAhead(rating);
+        assertEquals(0, totalPlayersAhead,
+                "Number of players ahead should reflect the updated prefix sums after deletion");
+    }
+
+    @Test
     void testGetTop10Players() {
         // Prepare a list of player IDs with different ratings
         List<UUID> expectedTop10Players = new ArrayList<>();
