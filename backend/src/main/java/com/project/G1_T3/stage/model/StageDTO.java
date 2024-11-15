@@ -24,7 +24,6 @@ public class StageDTO {
     private LocalDateTime startDate;
     private LocalDateTime endDate;
     private Set<PlayerProfile> players;
-    private Set<PlayerProfile> referees;
     private Status status;  // Default to UPCOMING for creation
     private Format format;   // SINGLE_ELIMINATION, DOUBLE_ELIMINATION, etc.
 }

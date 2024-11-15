@@ -1,194 +1,191 @@
-// package com.project.G1_T3.leaderboard.service;
+package com.project.G1_T3.leaderboard.service;
 
-// import com.project.G1_T3.leaderboard.model.LeaderboardPlayerProfile;
-// import com.project.G1_T3.player.model.PlayerProfile;
-// import com.project.G1_T3.player.repository.PlayerProfileRepository;
-// import com.project.G1_T3.user.model.User;
-// import com.project.G1_T3.user.service.UserService;
 
-// import org.junit.jupiter.api.Test;
-// import org.junit.jupiter.api.extension.ExtendWith;
-// import org.mockito.InjectMocks;
-// import org.mockito.Mock;
-// import org.mockito.Mockito;
-// import org.mockito.junit.jupiter.MockitoExtension;
-// import static org.junit.jupiter.api.Assertions.*;
-// import static org.mockito.Mockito.*;
+import com.project.G1_T3.leaderboard.model.LeaderboardPlayerProfile;
+import com.project.G1_T3.leaderboard.service.LeaderboardServiceImpl;
+import com.project.G1_T3.playerprofile.model.PlayerProfile;
+import com.project.G1_T3.playerprofile.repository.PlayerProfileRepository;
+import com.project.G1_T3.user.model.User;
+import com.project.G1_T3.user.service.UserService;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.context.ActiveProfiles;
 
-// import java.util.Collections;
-// import java.util.List;
-// import java.util.NoSuchElementException;
-// import java.util.Optional;
-// import java.util.UUID;
-// import java.util.ArrayList;
-// import java.util.Arrays;
+import java.util.Arrays;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.Collections;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
-// @ExtendWith(MockitoExtension.class)
-// public class LeaderboardServiceTest {
+@ActiveProfiles("test")
+@ExtendWith(MockitoExtension.class)
+class LeaderboardServiceTest {
 
-//     @Mock
-//     private PlayerProfileRepository playerProfileRepository;
+    @Mock
+    private PlayerProfileRepository playerProfileRepository;
 
-//     @Mock
-//     private UserService userService;
+    @Mock
+    private UserService userService;
 
-//     @InjectMocks
-//     private LeaderboardServiceImpl leaderboardService;
+    @InjectMocks
+    private LeaderboardServiceImpl leaderboardService;
 
-//     private PlayerProfile createPlayerProfile(String firstName, String lastName, int glickoRating, float ratingDeviation, float volatility, float currentRating) {
-//         PlayerProfile playerProfile = new PlayerProfile();
-//         playerProfile.setProfileId(UUID.randomUUID());
-//         playerProfile.setUserId(UUID.randomUUID());
-//         playerProfile.setFirstName(firstName);
-//         playerProfile.setLastName(lastName);
-//         playerProfile.setCountry("US");
-//         playerProfile.setCommunity("Gaming");
-//         playerProfile.setBio("Top player");
-//         playerProfile.setGlickoRating(glickoRating);
-//         playerProfile.setRatingDeviation(ratingDeviation);
-//         playerProfile.setVolatility(volatility);
-//         playerProfile.setCurrentRating(currentRating);
-//         playerProfile.setProfilePicturePath("path/to/image");
+    @BeforeEach
+    public void setUp() {
+        MockitoAnnotations.openMocks(this);
+    }
 
-//         // Optionally set other fields if needed...
+    @Test
+    void testGetTop10LeaderboardPlayerProfiles() {
+        // Arrange
+        PlayerProfile player1 = new PlayerProfile();
+        player1.setProfileId(UUID.randomUUID());
+        player1.setFirstName("Alice");
+        player1.setLastName("Smith");
+        player1.setGlickoRating(2000);
 
-//         return playerProfile;
-//     }
+        PlayerProfile player2 = new PlayerProfile();
+        player2.setProfileId(UUID.randomUUID());
+        player2.setFirstName("Bob");
+        player2.setLastName("Johnson");
+        player2.setGlickoRating(1950);
 
-//     private List<PlayerProfile> createPlayerProfilesList(int count, String firstName, String lastName, int startRating) {
-//         List<PlayerProfile> playerProfiles = new ArrayList<>();
-//         for (int i = 0; i < count; i++) {
-//             playerProfiles.add(createPlayerProfile(
-//                 firstName, 
-//                 lastName + i, // Unique last name to differentiate
-//                 startRating + i * 10, // Incremental rating
-//                 300.0f,       // ratingDeviation
-//                 0.05f,        // volatility
-//                 startRating + i * 10 // currentRating matching glickoRating
-//             ));
-//         }
-//         return playerProfiles;
-//     }
+        List<PlayerProfile> mockPlayerProfiles = Arrays.asList(player1, player2);
 
-//     // getTop10LeaderboardPlayerProfiles
+        when(playerProfileRepository.findTop10ByOrderByGlickoRatingDesc()).thenReturn(mockPlayerProfiles);
 
-//     @Test
-//     public void getTop10LeaderboardPlayerProfiles_fewerThan10Players_returnAllPlayers() {
-//         List<PlayerProfile> fewerPlayers = createPlayerProfilesList(2, "Ant", "Tan", 1500);
-//         when(playerProfileRepository.findTop10ByOrderByCurrentRatingDesc()).thenReturn(fewerPlayers);
+        // Act
+        List<LeaderboardPlayerProfile> result = leaderboardService.getTop10LeaderboardPlayerProfiles();
 
-//         List<LeaderboardPlayerProfile> result = leaderboardService.getTop10LeaderboardPlayerProfiles();
+        // Assert
+        assertNotNull(result);
+        assertEquals(2, result.size());
 
-//         assertEquals(1, result.size());
-//         verify(playerProfileRepository, times(1)).findTop10ByOrderByCurrentRatingDesc();
-//     }
+        LeaderboardPlayerProfile firstPlayer = result.get(0);
+        assertEquals(player1.getProfileId(), firstPlayer.getProfileId());
+        assertEquals("Alice", firstPlayer.getFirstName());
+        assertEquals("Smith", firstPlayer.getLastName());
+        assertEquals(2000, firstPlayer.getGlickoRating(), 0.001);
+    }
 
-//     @Test
-//     public void getTop10LeaderboardPlayerProfiles_noPlayers_returnEmptyList() {
-//         when(playerProfileRepository.findTop10ByOrderByCurrentRatingDesc()).thenReturn(Collections.emptyList());
+    @Test
+    void testGetTop10LeaderboardPlayerProfiles_EmptyList() {
+        // Arrange
+        when(playerProfileRepository.findTop10ByOrderByGlickoRatingDesc()).thenReturn(Collections.emptyList());
 
-//         List<LeaderboardPlayerProfile> result = leaderboardService.getTop10LeaderboardPlayerProfiles();
+        // Act
+        List<LeaderboardPlayerProfile> result = leaderboardService.getTop10LeaderboardPlayerProfiles();
 
-//         assertTrue(result.isEmpty());
-//         verify(playerProfileRepository, times(1)).findTop10ByOrderByCurrentRatingDesc();
-//     }
+        // Assert
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+    }
 
-//     @Test
-//     public void getTop10LeaderboardPlayerProfiles_exactly10Players_returnTop10Players() {
-//         List<PlayerProfile> tenPlayers = createPlayerProfilesList(10, "Ant", "Tan", 1500);;
-//         when(playerProfileRepository.findTop10ByOrderByCurrentRatingDesc()).thenReturn(tenPlayers);
+    @Test
+    void testGetPlayerInfo() {
+        // Arrange
+        String username = "alice_smith";
+        UUID userId = UUID.randomUUID();
 
-//         List<LeaderboardPlayerProfile> result = leaderboardService.getTop10LeaderboardPlayerProfiles();
+        User mockUser = new User();
+        mockUser.setUserId(userId);
+        mockUser.setUsername(username);
 
-//         assertEquals(10, result.size());
-//         verify(playerProfileRepository, times(1)).findTop10ByOrderByCurrentRatingDesc();
-//     }
+        PlayerProfile mockPlayerProfile = new PlayerProfile();
+        mockPlayerProfile.setProfileId(UUID.randomUUID());
+        mockPlayerProfile.setUser(mockUser);
+        mockPlayerProfile.setFirstName("Alice");
+        mockPlayerProfile.setLastName("Smith");
+        mockPlayerProfile.setGlickoRating(2000);
 
-//     // getPlayerInfo
+        long position = 1L;
 
-//     @Test
-//     public void getPlayerInfo_usernameNotFound_throwException() {
-//         String username = "nonexistentuser";
-//         when(userService.findByUsername(username)).thenReturn(Optional.empty());
+        when(userService.findByUsername(username)).thenReturn(Optional.of(mockUser));
+        when(playerProfileRepository.findByUserId(userId)).thenReturn(mockPlayerProfile);
+        when(playerProfileRepository.getPositionOfPlayer(userId)).thenReturn(position);
 
-//         assertThrows(NoSuchElementException.class, () -> leaderboardService.getPlayerInfo(username));
-//         verify(userService, times(1)).findByUsername(username);
-//         verifyNoMoreInteractions(playerProfileRepository);
-//     }
+        // Act
+        LeaderboardPlayerProfile result = leaderboardService.getPlayerInfo(username);
 
-//     @Test
-//     public void getPlayerInfo_profileNotFound_returnNull() {
-//         String username = "testuser";
-//         UUID userId = UUID.randomUUID();
-//         when(userService.findByUsername(username)).thenReturn(Optional.of(new User(userId, username, "email@example.com", "password123")));
-//         when(playerProfileRepository.findByUserId(userId)).thenReturn(null);
+        // Assert
+        assertNotNull(result);
+        assertEquals(mockPlayerProfile.getProfileId(), result.getProfileId());
+        assertEquals("Alice", result.getFirstName());
+        assertEquals("Smith", result.getLastName());
+        assertEquals(2000, result.getGlickoRating(), 0.001);
+        assertEquals(position, result.getPosition());
+    }
 
-//         LeaderboardPlayerProfile result = leaderboardService.getPlayerInfo(username);
+    @Test
+    void testGetPlayerInfo_UserNotFound() {
+        // Arrange
+        String username = "nonexistent_user";
+        when(userService.findByUsername(username)).thenReturn(Optional.empty());
 
-//         assertNull(result);
-//         verify(userService, times(1)).findByUsername(username);
-//         verify(playerProfileRepository, times(1)).findByUserId(userId);
-//     }
+        // Act & Assert
+        assertThrows(NoSuchElementException.class, () -> {
+            leaderboardService.getPlayerInfo(username);
+        });
+    }
 
-//     @Test
-//     public void getPlayerInfo_noLeaderboardPosition_returnProfileWithPositionZero() {
-//         String username = "testuser";
-//         UUID userId = UUID.randomUUID();
-//         PlayerProfile profile = new PlayerProfile(userId, UUID.randomUUID(), "John", "Doe", null, "US", "Gaming", "Top player", 1600, 350, 0.06f, 1600, null, "path/to/image");
+    @Test
+    void testGetPlayerInfoById() {
+        // Arrange
+        UUID userId = UUID.randomUUID();
 
-//         when(userService.findByUsername(username)).thenReturn(Optional.of(new User(userId, username, "email@example.com", "password123")));
-//         when(playerProfileRepository.findByUserId(userId)).thenReturn(profile);
-//         when(playerProfileRepository.getPositionOfPlayer(userId)).thenReturn(0L);
+        PlayerProfile mockPlayerProfile = new PlayerProfile();
+        mockPlayerProfile.setProfileId(UUID.randomUUID());
+        mockPlayerProfile.setFirstName("Alice");
+        mockPlayerProfile.setLastName("Smith");
+        mockPlayerProfile.setGlickoRating(2000);
 
-//         LeaderboardPlayerProfile result = leaderboardService.getPlayerInfo(username);
+        long position = 1L;
 
-//         assertNotNull(result);
-//         assertEquals(0L, result.getPosition());
-//         verify(userService, times(1)).findByUsername(username);
-//         verify(playerProfileRepository, times(1)).findByUserId(userId);
-//         verify(playerProfileRepository, times(1)).getPositionOfPlayer(userId);
-//     }
+        when(playerProfileRepository.findByUserId(userId)).thenReturn(mockPlayerProfile);
+        when(playerProfileRepository.getPositionOfPlayer(userId)).thenReturn(position);
 
-//     // getPlayerInfoById
+        // Act
+        LeaderboardPlayerProfile result = leaderboardService.getPlayerInfoById(userId.toString());
 
-//     @Test
-//     public void getPlayerInfoById_userIdNotFound_throwException() {
-//         String userId = UUID.randomUUID().toString();
-//         UUID uuid = UUID.fromString(userId);
+        // Assert
+        assertNotNull(result);
+        assertEquals(mockPlayerProfile.getProfileId(), result.getProfileId());
+        assertEquals("Alice", result.getFirstName());
+        assertEquals("Smith", result.getLastName());
+        assertEquals(2000, result.getGlickoRating(), 0.001);
+        assertEquals(position, result.getPosition());
+    }
 
-//         when(playerProfileRepository.findByUserId(uuid)).thenReturn(null);
+    @Test
+    void testGetPlayerInfoById_InvalidUUID() {
+        // Arrange
+        String invalidUserId = "invalid-uuid";
 
-//         assertThrows(NoSuchElementException.class, () -> leaderboardService.getPlayerInfoById(userId));
-//         verify(playerProfileRepository, times(1)).findByUserId(uuid);
-//     }
+        // Act & Assert
+        assertThrows(IllegalArgumentException.class, () -> {
+            leaderboardService.getPlayerInfoById(invalidUserId);
+        });
+    }
 
-//     @Test
-//     public void getPlayerInfoById_profileNotFound_returnNull() {
-//         String userId = UUID.randomUUID().toString();
-//         UUID uuid = UUID.fromString(userId);
+    @Test
+    void testGetPlayerInfoById_PlayerNotFound() {
+        // Arrange
+        UUID userId = UUID.randomUUID();
+        when(playerProfileRepository.findByUserId(userId)).thenReturn(null);
 
-//         when(playerProfileRepository.findByUserId(uuid)).thenReturn(null);
+        // Act & Assert
+        assertThrows(NullPointerException.class, () -> {
+            leaderboardService.getPlayerInfoById(userId.toString());
+        });
+    }
 
-//         LeaderboardPlayerProfile result = leaderboardService.getPlayerInfoById(userId);
-
-//         assertNull(result);
-//         verify(playerProfileRepository, times(1)).findByUserId(uuid);
-//     }
-
-//     @Test
-//     public void getPlayerInfoById_noLeaderboardPosition_returnProfileWithPositionZero() {
-//         String userId = UUID.randomUUID().toString();
-//         UUID uuid = UUID.fromString(userId);
-//         PlayerProfile profile = new PlayerProfile(uuid, UUID.randomUUID(), "Jane", "Doe", null, "US", "Gaming", "Top player", 1550, 300, 0.05f, 1550, null, "path/to/image");
-
-//         when(playerProfileRepository.findByUserId(uuid)).thenReturn(profile);
-//         when(playerProfileRepository.getPositionOfPlayer(uuid)).thenReturn(0L);
-
-//         LeaderboardPlayerProfile result = leaderboardService.getPlayerInfoById(userId);
-
-//         assertNotNull(result);
-//         assertEquals(0L, result.getPosition());
-//         verify(playerProfileRepository, times(1)).findByUserId(uuid);
-//         verify(playerProfileRepository, times(1)).getPositionOfPlayer(uuid);
-//     }
-// }
+    // Additional edge cases can be added here
+}
