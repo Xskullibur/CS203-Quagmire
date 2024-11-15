@@ -1,4 +1,4 @@
-package com.project.G1_T3.round;
+package com.project.G1_T3.round.service;
 
 import com.project.G1_T3.match.model.Match;
 import com.project.G1_T3.match.model.MatchDTO;
@@ -72,22 +72,6 @@ class RoundServiceTest {
     private PlayerProfile player2 = testCreatePlayerProfile(1800f);
     private UUID roundId;
     private UUID stageId;
-
-    // @BeforeEach
-    // void setUp() {
-    // // Initialize a mock stage
-    // stage = new Stage();
-    // stage.setStageId(1L);
-    // PlayerProfile referee = testCreatePlayerProfile(2500f);
-    // Set<PlayerProfile> referees = new HashSet<>();
-    // referees.add(referee); // Adding the referee to the set
-    // stage.setReferees(referees);
-
-    // // Initialize a list of sorted players
-    // sortedPlayers = new ArrayList<>();
-    // sortedPlayers.add(testCreatePlayerProfile(1200f));
-    // sortedPlayers.add(testCreatePlayerProfile(1800f));
-    // }
 
     @BeforeEach
     void setUp() {
@@ -255,6 +239,22 @@ class RoundServiceTest {
             roundService.endRound(roundId);
         });
         assertEquals("Winner not found for match with ID: " + match.getMatchId(), exception.getMessage());
+    }
+
+    @Test
+    void endRound_invalidMatchStatus_throwsException() {
+        // Arrange
+        Match match = matches.get(0);
+        match.setStatus(Status.SCHEDULED); // Set the match status to something other than COMPLETED
+        round.setMatches(Collections.singletonList(match));
+
+        when(roundRepository.findById(roundId)).thenReturn(Optional.of(round));
+
+        // Act & Assert
+        IllegalStateException exception = assertThrows(IllegalStateException.class, () -> {
+            roundService.endRound(roundId);
+        });
+        assertEquals("Match " + match.getMatchId() + " has not been completed.", exception.getMessage());
     }
 
     @Test

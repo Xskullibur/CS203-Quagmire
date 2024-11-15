@@ -44,21 +44,14 @@ public class MatchController {
         return ResponseEntity.ok(completedMatches);
     }
 
-    // // Referee starts a match
-    // @PutMapping("/{matchId}/start")
-    // public ResponseEntity<?> startMatch(@PathVariable Long matchId, @RequestParam UUID refereeId) {
-    //     matchService.startMatch(matchId, refereeId);
-    //     return ResponseEntity.ok("Match started");
-    // }
-
-    // Referee starts a match
+    // Admin starts a match
     @PutMapping("/{matchId}/start")
     public ResponseEntity<?> startMatch(@PathVariable UUID matchId, @RequestBody MatchDTO matchDTO) {
         matchService.startMatch(matchId, matchDTO);
         return ResponseEntity.ok("Match started");
     }
 
-    // Referee completes a match and selects a winner
+    // Admin completes a match and selects a winner
     @PutMapping("/{matchId}/complete")
     public ResponseEntity<?> completeMatch(@PathVariable UUID matchId, @RequestBody MatchDTO matchDTO) {
         matchService.completeMatch(matchId, matchDTO);
