@@ -6,7 +6,7 @@ import ProfileCardSkeleton from "@/components/profile/ProfileCard/ProfileCardSke
 import { Achievement } from "@/types/achievement";
 import { PlayerProfile } from "@/types/player-profile";
 import { Tournament } from "@/types/tournament";
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 import { useRouter } from "next/navigation";
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
