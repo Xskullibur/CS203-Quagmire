@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.project.G1_T3.authentication.service.PasswordGeneratorServiceImpl;
@@ -76,7 +77,7 @@ public class AdminService {
 
     public void updateUserLockedStatus(UUID id, boolean isLocked) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         user.setIsLocked(isLocked); 
         userRepository.save(user);
