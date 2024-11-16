@@ -149,7 +149,7 @@ public class MatchServiceImpl implements MatchService {
         matchRepository.save(match);
     }
 
-    // Method for referee to complete the match and select the winner
+    // Method for admin to complete the match and select the winner
     public void completeMatch(UUID matchId, MatchDTO matchDTO) {
         // Null checks for matchId and matchDTO
         if (matchId == null || matchDTO == null) {

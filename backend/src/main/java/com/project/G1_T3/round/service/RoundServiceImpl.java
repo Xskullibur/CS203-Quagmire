@@ -193,8 +193,6 @@ public class RoundServiceImpl implements RoundService {
             matchDTO.setPlayer1Id(player1.getProfileId());
             matchDTO.setPlayer2Id(player2.getProfileId());
 
-            // Pick a random referee if there are multiple, otherwise pick the only referee
-
             matchDTO.setScheduledTime(LocalDateTime.now().plusDays(1));
 
             matchDTOs.add(matchDTO);
@@ -216,8 +214,6 @@ public class RoundServiceImpl implements RoundService {
         if (stage == null) {
             throw new IllegalArgumentException("Stage must not be null");
         }
-
-        System.out.println("round number = " + roundNumber);
 
         if (roundNumber == null || roundNumber < 0) {
             throw new IllegalArgumentException("Round number must be non-negative");

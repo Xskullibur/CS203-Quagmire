@@ -30,9 +30,6 @@ public class Match {
     @Column(nullable = true)
     private UUID player2Id;
 
-    @Column(nullable = true)
-    private UUID refereeId;
-
     @Column(name = "scheduled_time", columnDefinition = "TIMESTAMP")
     private LocalDateTime scheduledTime;
 

@@ -6,8 +6,8 @@ import ProfileCardSkeleton from "@/components/profile/ProfileCard/ProfileCardSke
 import { Achievement } from "@/types/achievement";
 import { PlayerProfile } from "@/types/player-profile";
 import { Tournament } from "@/types/tournament";
-import axios, { AxiosError } from "axios";
-import { notFound, useRouter } from "next/navigation";
+import axios from "axios";
+import { useRouter } from "next/navigation";
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -42,124 +42,93 @@ const useOwnProfileCheck = (username: string) => {
   return { isChecking, isOwnProfile: user?.username === username };
 };
 
-const Profile = ({ params }: { params: { username: string } }) => {
-  const [playerProfile, setPlayerProfile] = useState<PlayerProfile>();
-  const [leaderboardData, setLeaderboardData] = useState<any>(null);
-  const [achievements, setAchievements] = useState<Achievement[] | null>(null);
-  const [tournaments, setTournaments] = useState<Tournament[] | null>(null);
+// Custom hook for data fetching
+const useProfileData = (username: string, isOwnProfile: boolean) => {
+  const [data, setData] = useState({
+    profile: null as PlayerProfile | null,
+    leaderboard: null as any,
+    achievements: null as Achievement[] | null,
+    tournaments: null as Tournament[] | null,
+  });
+  const [loading, setLoading] = useState(true);
   const { handleError } = useGlobalErrorHandler();
   const router = useRouter();
-  const { isChecking: isCheckingOwnProfile, isOwnProfile } = useOwnProfileCheck(params.username);
-
-  const fetchProfile = React.useCallback((username: string) => {
-    axios
-      .get(new URL(`/profile`, API_URL).toString(), {
-        params: {
-          username: username,
-        },
-      })
-      .then((response) => {
-        if (response.status === 200) {
-          setPlayerProfile(response.data);
-        }
-      })
-      .catch((error: AxiosError) => {
-        // Only redirect to notfound if it's not the user's own profile
-        if (!isOwnProfile || error.response?.status !== 404) {
-          handleError(error);
-          router.push("/notfound");
-        }
-      });
-  }, [handleError, router, isOwnProfile]);
-
-  const fetchLeaderboard = React.useCallback((username: string) => {
-    axios
-      .get(new URL(`/leaderboard/user`, API_URL).toString(), {
-        params: {
-          username: username,
-        },
-      })
-      .then((response) => {
-        if (response.status == 200) {
-          setLeaderboardData(response.data);
-        }
-      })
-      .catch((error: AxiosError) => {
-        // Only handle errors for non-404 cases when viewing own profile
-        if (!isOwnProfile || error.response?.status !== 404) {
-          handleError(error);
-          router.push("/notfound");
-        }
-      });
-  }, [handleError, router, isOwnProfile]);
-
-  const fetchAchievements = React.useCallback((username: string) => {
-    axios
-      .get(new URL(`/profile/achievements`, API_URL).toString(), {
-        params: { 
-          username: username },
-      })
-      .then((response) => {
-        if (response.status === 200) {
-          setAchievements(response.data);
-        }
-      })
-      .catch((error: AxiosError) => {
-        if (!isOwnProfile || error.response?.status !== 404) {
-          handleError(error);
-          router.push("/notfound");
-        }
-      });
-  }, [handleError, router, isOwnProfile]);
-
-  const fetchTournaments = React.useCallback((username: string) => {
-    axios
-      .get(new URL(`/profile/tournaments`, API_URL).toString(), {
-        params: { 
-          username: username },
-      })
-      .then((response) => {
-        if (response.status === 200) {
-          setTournaments(response.data);
-        }
-      })
-      .catch((error: AxiosError) => {
-        if (!isOwnProfile || error.response?.status !== 404) {
-          handleError(error);
-          router.push("/notfound");
-        }
-      });
-  }, [handleError, router, isOwnProfile]);
 
   useEffect(() => {
-    // Only fetch data if we're done checking own profile status
-    if (!isCheckingOwnProfile) {
-      fetchProfile(params.username);
-      fetchLeaderboard(params.username);
-      fetchAchievements(params.username);
-      fetchTournaments(params.username);
-    }
-  }, [
-    fetchAchievements,
-    fetchLeaderboard,
-    fetchProfile,
-    fetchTournaments,
-    params.username,
-    isCheckingOwnProfile
-  ]);
+    const fetchAllData = async () => {
+      try {
+        setLoading(true);
+        
+        // Fetch profile first
+        const profileResponse = await axios.get(
+          new URL(`/profile`, API_URL).toString(),
+          { params: { username } }
+        );
+        
+        if (!profileResponse.data && !isOwnProfile) {
+          router.push("/notfound");
+          return;
+        }
 
-  // Show loading state while checking profile or fetching data
-  if (isCheckingOwnProfile || !playerProfile || !leaderboardData || !achievements || !tournaments) {
+        // Only proceed with other fetches if we have a profile or it's the user's own profile
+        const [leaderboardResponse, achievementsResponse, tournamentsResponse] = await Promise.all([
+          axios.get(new URL(`/leaderboard/user`, API_URL).toString(), { 
+            params: { username }
+          }).catch(() => ({ data: { position: "N/A" } })),
+          
+          axios.get(new URL(`/profile/achievements`, API_URL).toString(), { 
+            params: { username }
+          }).catch(() => ({ data: [] })),
+          
+          axios.get(new URL(`/profile/tournaments`, API_URL).toString(), { 
+            params: { username }
+          }).catch(() => ({ data: [] }))
+        ]);
+
+        setData({
+          profile: profileResponse.data,
+          leaderboard: leaderboardResponse.data,
+          achievements: achievementsResponse.data,
+          tournaments: tournamentsResponse.data
+        });
+        
+      } catch (error: any) {
+        if (!isOwnProfile || error.response?.status !== 404) {
+          handleError(error);
+          router.push("/notfound");
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (username) {
+      fetchAllData();
+    }
+  }, [username, isOwnProfile, handleError, router]);
+
+  return { ...data, loading };
+};
+
+const Profile = ({ params }: { params: { username: string } }) => {
+  const { isChecking, isOwnProfile } = useOwnProfileCheck(params.username);
+  const { profile, leaderboard, achievements, tournaments, loading } = useProfileData(
+    params.username,
+    isOwnProfile
+  );
+
+  // Show loading state while checking own profile or fetching data
+  if (isChecking || loading || !profile) {
     return <ProfileCardSkeleton />;
   }
 
   return (
     <div className="text-white min-h-screen flex flex-col items-center justify-center">
       <ProfileCard
-        playerProfile={playerProfile}
-        ranking={leaderboardData.position}
-        achievements={achievements}
-        tournaments={tournaments}
+        playerProfile={profile}
+        ranking={leaderboard?.position}
+        achievements={achievements || []}
+        tournaments={tournaments || []}
         isOwnProfile={isOwnProfile}
       />
     </div>
