@@ -200,7 +200,7 @@ class AdminControllerIntegrationTest {
 
         @Test
         void getPaginatedUsers_Success() throws Exception {
-            URI uri = new URI(baseUrl + port + "/admin/get-users?page=0&size=10&field=username&order=asc");
+            URI uri = new URI(baseUrl + port + "/admin/users?page=0&size=10&field=username&order=asc");
 
             HttpEntity<String> entity = new HttpEntity<>(null, getAuthHeaders(adminToken));
             ResponseEntity<PaginatedResponse<UserDTO>> result = restTemplate.exchange(
@@ -219,7 +219,7 @@ class AdminControllerIntegrationTest {
 
         @Test
         void getPaginatedUsers_InvalidPage_Failure() throws Exception {
-            URI uri = new URI(baseUrl + port + "/admin/get-users?page=-1&size=10&field=username&order=asc");
+            URI uri = new URI(baseUrl + port + "/admin/users?page=-1&size=10&field=username&order=asc");
 
             HttpEntity<String> entity = new HttpEntity<>(null, getAuthHeaders(adminToken));
             ResponseEntity<String> result = restTemplate.exchange(uri, HttpMethod.GET, entity, String.class);

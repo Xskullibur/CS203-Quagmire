@@ -37,7 +37,7 @@ public class AdminController {
         return ResponseEntity.ok("Welcome to the admin dashboard!");
     }
 
-    @GetMapping("/get-users")
+    @GetMapping("/users")
     public ResponseEntity<Page<UserDTO>> getPaginatedUsers(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
