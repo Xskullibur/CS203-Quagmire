@@ -29,20 +29,20 @@ public class LeaderboardPlayerProfile {
         this.glickoRating = glickoRating;
     }
 
-    public LeaderboardPlayerProfile(PlayerProfile player, Integer p) {
+    public LeaderboardPlayerProfile(PlayerProfile player, Integer position) {
         profileId = player.getProfileId();
         firstName = player.getFirstName();
         lastName = player.getLastName();
         glickoRating = Math.round(player.getGlickoRating());
-        position = p;
+        this.position = position;
     }
 
-    public LeaderboardPlayerProfile(PlayerProfile player, Double p) {
+    public LeaderboardPlayerProfile(PlayerProfile player, Double rankPercentage) {
         profileId = player.getProfileId();
         firstName = player.getFirstName();
         lastName = player.getLastName();
         glickoRating = Math.round(player.getGlickoRating());
-        rankPercentage = p;
+        this.rankPercentage = rankPercentage;
     }
 
 }
