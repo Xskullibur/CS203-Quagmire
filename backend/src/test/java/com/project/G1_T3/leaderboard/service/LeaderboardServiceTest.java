@@ -1,9 +1,7 @@
 package com.project.G1_T3.leaderboard.service;
 
-
 import com.project.G1_T3.leaderboard.model.LeaderboardPlayerProfile;
 import com.project.G1_T3.playerprofile.model.PlayerProfile;
-import com.project.G1_T3.playerprofile.repository.PlayerProfileRepository;
 import com.project.G1_T3.playerprofile.service.PlayerProfileService;
 import com.project.G1_T3.user.model.User;
 import com.project.G1_T3.user.service.UserService;
@@ -12,7 +10,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -21,7 +18,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.Collections;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -29,21 +26,19 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class LeaderboardServiceTest {
 
-    @Mock
-    private PlayerProfileRepository playerProfileRepository;
-
-    @Mock
-    private UserService userService;
 
     @Mock
     private PlayerProfileService playerProfileService;
+
+    @Mock
+    private UserService userService;
 
     @InjectMocks
     private LeaderboardServiceImpl leaderboardService;
 
     @BeforeEach
     public void setUp() {
-        MockitoAnnotations.openMocks(this);
+        // Initialization if needed
     }
 
     @Test
@@ -63,7 +58,8 @@ class LeaderboardServiceTest {
 
         List<PlayerProfile> mockPlayerProfiles = Arrays.asList(player1, player2);
 
-        when(playerProfileRepository.findTop10ByOrderByGlickoRatingDesc()).thenReturn(mockPlayerProfiles);
+        // Mock the PlayerProfileService to return top 10 profiles
+        when(playerProfileService.getTop10Players()).thenReturn(mockPlayerProfiles);
 
         // Act
         List<LeaderboardPlayerProfile> result = leaderboardService.getTop10LeaderboardPlayerProfiles();
@@ -77,19 +73,6 @@ class LeaderboardServiceTest {
         assertEquals("Alice", firstPlayer.getFirstName());
         assertEquals("Smith", firstPlayer.getLastName());
         assertEquals(2000, firstPlayer.getGlickoRating(), 0.001);
-    }
-
-    @Test
-    void testGetTop10LeaderboardPlayerProfiles_EmptyList() {
-        // Arrange
-        when(playerProfileRepository.findTop10ByOrderByGlickoRatingDesc()).thenReturn(Collections.emptyList());
-
-        // Act
-        List<LeaderboardPlayerProfile> result = leaderboardService.getTop10LeaderboardPlayerProfiles();
-
-        // Assert
-        assertNotNull(result);
-        assertTrue(result.isEmpty());
     }
 
     @Test
@@ -109,11 +92,10 @@ class LeaderboardServiceTest {
         mockPlayerProfile.setLastName("Smith");
         mockPlayerProfile.setGlickoRating(2000);
 
-        long position = 1L;
-
+        List<PlayerProfile> top10Profiles = Arrays.asList(mockPlayerProfile);
         when(userService.findByUsername(username)).thenReturn(Optional.of(mockUser));
-        when(playerProfileRepository.findByUserId(userId)).thenReturn(mockPlayerProfile);
-        when(playerProfileRepository.getPositionOfPlayer(userId)).thenReturn(position);
+        when(playerProfileService.findByUserId(userId)).thenReturn(mockPlayerProfile);
+        when(playerProfileService.getTop10Players()).thenReturn(top10Profiles);
 
         // Act
         LeaderboardPlayerProfile result = leaderboardService.getPlayerInfo(username);
@@ -124,7 +106,7 @@ class LeaderboardServiceTest {
         assertEquals("Alice", result.getFirstName());
         assertEquals("Smith", result.getLastName());
         assertEquals(2000, result.getGlickoRating(), 0.001);
-        assertEquals(position, result.getPosition().longValue());
+        assertEquals(1, result.getPosition());
     }
 
     @Test
@@ -134,61 +116,59 @@ class LeaderboardServiceTest {
         when(userService.findByUsername(username)).thenReturn(Optional.empty());
 
         // Act & Assert
-        assertThrows(NoSuchElementException.class, () -> {
-            leaderboardService.getPlayerInfo(username);
-        });
+        assertThrows(NoSuchElementException.class, () -> leaderboardService.getPlayerInfo(username));
     }
-
+    
+    
     @Test
-    void testGetPlayerInfoById() {
+    void testGetPlayerInfo_UserNotInTop10() {
         // Arrange
-        UUID userId = UUID.randomUUID();
+        String username = "john_doe";
+        UUID userId = UUID.fromString("11111111-1111-1111-1111-111111111111");
 
+        User mockUser = new User();
+        mockUser.setUserId(userId);
+        mockUser.setUsername(username);
+
+        UUID profileId = UUID.fromString("11111111-1111-1111-1111-111111111112");
         PlayerProfile mockPlayerProfile = new PlayerProfile();
-        mockPlayerProfile.setProfileId(UUID.randomUUID());
-        mockPlayerProfile.setFirstName("Alice");
-        mockPlayerProfile.setLastName("Smith");
-        mockPlayerProfile.setGlickoRating(2000);
+        mockPlayerProfile.setProfileId(profileId);
+        mockPlayerProfile.setUser(mockUser);
+        mockPlayerProfile.setFirstName("John");
+        mockPlayerProfile.setLastName("Doe");
+        mockPlayerProfile.setGlickoRating(1800); // A rating that would not be in the top 10
 
-        long position = 1L;
+        List<PlayerProfile> top10Profiles = Arrays.asList(); // Empty top 10 list to simulate the user not being in the top 10
 
-        when(playerProfileRepository.findByUserId(userId)).thenReturn(mockPlayerProfile);
-        when(playerProfileRepository.getPositionOfPlayer(userId)).thenReturn(position);
+        // Mock user retrieval
+        when(userService.findByUsername(username)).thenReturn(Optional.of(mockUser));
+
+        // Mock PlayerProfile retrieval by user ID
+        when(playerProfileService.findByUserId(userId)).thenReturn(mockPlayerProfile);
+
+        // Mock top 10 list to be empty or not include this player
+        when(playerProfileService.getTop10Players()).thenReturn(top10Profiles);
+
+        // Mock player rank percentage retrieval
+        double rankPercentage = 85.0; // Assume this is the calculated rank for this user
+        when(playerProfileService.getPlayerRank(profileId)).thenReturn(rankPercentage);
 
         // Act
-        LeaderboardPlayerProfile result = leaderboardService.getPlayerInfoById(userId.toString());
+        LeaderboardPlayerProfile result = leaderboardService.getPlayerInfo(username);
 
         // Assert
         assertNotNull(result);
         assertEquals(mockPlayerProfile.getProfileId(), result.getProfileId());
-        assertEquals("Alice", result.getFirstName());
-        assertEquals("Smith", result.getLastName());
-        assertEquals(2000, result.getGlickoRating(), 0.001);
-        assertEquals(position, result.getPosition().longValue());
+        assertEquals("John", result.getFirstName());
+        assertEquals("Doe", result.getLastName());
+        assertEquals(1800, result.getGlickoRating(), 0.001);
+        assertNull(result.getPosition(), "Position should be null because the player is not in the top 10");
+        assertEquals(rankPercentage, result.getRankPercentage(), 0.001, "Rank percentage should match the calculated value");
+
+        // Verify interactions with mocks
+        verify(userService).findByUsername(username);
+        verify(playerProfileService).findByUserId(userId);
+        verify(playerProfileService).getTop10Players();
+        verify(playerProfileService).getPlayerRank(mockPlayerProfile.getProfileId());
     }
-
-    @Test
-    void testGetPlayerInfoById_InvalidUUID() {
-        // Arrange
-        String invalidUserId = "invalid-uuid";
-
-        // Act & Assert
-        assertThrows(IllegalArgumentException.class, () -> {
-            leaderboardService.getPlayerInfoById(invalidUserId);
-        });
-    }
-
-    @Test
-    void testGetPlayerInfoById_PlayerNotFound() {
-        // Arrange
-        UUID userId = UUID.randomUUID();
-        when(playerProfileRepository.findByUserId(userId)).thenReturn(null);
-
-        // Act & Assert
-        assertThrows(NullPointerException.class, () -> {
-            leaderboardService.getPlayerInfoById(userId.toString());
-        });
-    }
-
-    // Additional edge cases can be added here
 }

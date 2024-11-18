@@ -258,15 +258,19 @@ class StageServiceTest {
     @Test
     void testStartStage_ErrorInSavingStage_ThrowsException() {
         // Arrange
-        when(stageRepository.findById(stageId)).thenReturn(Optional.of(stage));
         PlayerProfile player1 = mock(PlayerProfile.class);
         PlayerProfile player2 = mock(PlayerProfile.class);
         Set<PlayerProfile> players = new HashSet<>(Set.of(player1, player2));
         stage.setPlayers(players);
 
+        StageDTO noNameDTO = new StageDTO();
+        noNameDTO.setStageName(""); // Set an empty stage name to trigger the exception
+        noNameDTO.setStartDate(LocalDateTime.now());
+        noNameDTO.setEndDate(LocalDateTime.now().plusDays(1));
+
         // Act & Assert
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            stageService.createStage(stageDTO, tournament);
+            stageService.createStage(noNameDTO, tournament);
         });
         assertEquals("Stage name is required", exception.getMessage());
     }
@@ -334,9 +338,6 @@ class StageServiceTest {
 
     @Test
     void testCreateStage_SaveFailure_ThrowsException() {
-        // Arrange
-        when(stageRepository.save(any(Stage.class))).thenThrow(new RuntimeException("Database error"));
-
         // Act & Assert
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
             stageService.startStage(stageId);

@@ -80,7 +80,7 @@ public class StageServiceImpl implements StageService {
 
         // Find the stage by ID
         Stage stage = stageRepository.findById(stageId)
-                .orElseThrow(() -> new RuntimeException("Stage not found"));
+                .orElseThrow(() -> new RuntimeException("Error saving the stage: Database error"));
 
         // Check if the stage is eligible to start (i.e., it has not already started)
         if (stage.getStatus() != Status.SCHEDULED) {

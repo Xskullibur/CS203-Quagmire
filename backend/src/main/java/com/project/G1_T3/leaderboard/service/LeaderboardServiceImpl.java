@@ -30,9 +30,9 @@ public class LeaderboardServiceImpl implements LeaderboardService {
      * @return List of top 10 LeaderboardPlayerProfile objects.
      */
     public List<LeaderboardPlayerProfile> getTop10LeaderboardPlayerProfiles() {
+
         List<LeaderboardPlayerProfile> top10Players;
 
-        // Convert the top 10 PlayerProfile entities to LeaderboardPlayerProfile DTOs
         top10Players = getTop10PlayerProfiles().stream()
                 .map(profile -> new LeaderboardPlayerProfile(profile.getProfileId(),
                         profile.getFirstName(),
