@@ -17,9 +17,9 @@ public class Glicko2Rating {
     private static final double INITIAL_RD = 350;
     private static final double INITIAL_VOLATILITY = 0.06;
 
-    private double rating; // R
-    private double ratingDeviation; // RD
-    private double volatility; // sigma
+    private double rating; // R: actual rating of the player
+    private double ratingDeviation; // RD: increases when the player's skills level are unknown, eg, when they haven't played in a long time
+    private double volatility; // sigma: volatility tracks the consitency of the player's perfomrance
 
     public Glicko2Rating() {
         this.rating = INITIAL_RATING;

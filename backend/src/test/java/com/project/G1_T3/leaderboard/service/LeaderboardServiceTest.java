@@ -2,9 +2,9 @@ package com.project.G1_T3.leaderboard.service;
 
 
 import com.project.G1_T3.leaderboard.model.LeaderboardPlayerProfile;
-import com.project.G1_T3.leaderboard.service.LeaderboardServiceImpl;
 import com.project.G1_T3.playerprofile.model.PlayerProfile;
 import com.project.G1_T3.playerprofile.repository.PlayerProfileRepository;
+import com.project.G1_T3.playerprofile.service.PlayerProfileService;
 import com.project.G1_T3.user.model.User;
 import com.project.G1_T3.user.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,6 +34,9 @@ class LeaderboardServiceTest {
 
     @Mock
     private UserService userService;
+
+    @Mock
+    private PlayerProfileService playerProfileService;
 
     @InjectMocks
     private LeaderboardServiceImpl leaderboardService;
@@ -121,7 +124,7 @@ class LeaderboardServiceTest {
         assertEquals("Alice", result.getFirstName());
         assertEquals("Smith", result.getLastName());
         assertEquals(2000, result.getGlickoRating(), 0.001);
-        assertEquals(position, result.getPosition());
+        assertEquals(position, result.getPosition().longValue());
     }
 
     @Test
@@ -161,7 +164,7 @@ class LeaderboardServiceTest {
         assertEquals("Alice", result.getFirstName());
         assertEquals("Smith", result.getLastName());
         assertEquals(2000, result.getGlickoRating(), 0.001);
-        assertEquals(position, result.getPosition());
+        assertEquals(position, result.getPosition().longValue());
     }
 
     @Test
