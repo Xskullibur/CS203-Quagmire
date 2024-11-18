@@ -21,8 +21,6 @@ public class ImageValidationService {
             "image/webp",
             "image/svg+xml");
 
-    private static final long MAX_FILE_SIZE = 5L * 1024 * 1024; // 5MB
-
     public void validateImage(MultipartFile file) {
         
         if (file == null || file.isEmpty()) {

@@ -56,9 +56,6 @@ class MatchmakingIntegrationTests {
     private int port;
 
     @Autowired
-    private TestRestTemplate restTemplate;
-
-    @Autowired
     private UserRepository userRepository;
 
     @Autowired
