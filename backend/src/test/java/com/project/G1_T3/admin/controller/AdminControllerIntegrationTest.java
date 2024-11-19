@@ -22,6 +22,7 @@ import com.project.G1_T3.user.model.User;
 import com.project.G1_T3.user.model.UserDTO;
 import com.project.G1_T3.user.model.UserRole;
 import com.project.G1_T3.user.repository.UserRepository;
+import com.project.G1_T3.admin.model.LockUserRequest;
 import com.project.G1_T3.authentication.model.AdminRegisterRequestDTO;
 import com.project.G1_T3.authentication.service.JwtService;
 
@@ -54,8 +55,6 @@ class AdminControllerIntegrationTest {
     private String regularPassword = "userPassword";
 
     private String adminToken;
-    private String regularUserToken;
-
     private List<UUID> testUUIDs = new ArrayList<>();
 
     @BeforeEach
@@ -66,7 +65,7 @@ class AdminControllerIntegrationTest {
 
         // Generate tokens
         adminToken = jwtService.generateToken(adminUser);
-        regularUserToken = jwtService.generateToken(regularUser);
+        jwtService.generateToken(regularUser);
     }
 
     private User createTestUser(String username, String email, String password, UserRole role) {
@@ -101,54 +100,95 @@ class AdminControllerIntegrationTest {
         return headers;
     }
 
-    @Test
-    void getAdminDashboard_Success() throws Exception {
-        URI uri = new URI(baseUrl + port + "/admin/dashboard");
+    @Nested
+    class AdminRegistrationTests {
+        @Test
+        void registerAdmin_Success() throws Exception {
+            URI uri = new URI(baseUrl + port + "/admin");
 
-        HttpEntity<String> entity = new HttpEntity<>(null, getAuthHeaders(adminToken));
-        ResponseEntity<String> result = restTemplate.exchange(uri, HttpMethod.GET, entity, String.class);
+            AdminRegisterRequestDTO requestDTO = new AdminRegisterRequestDTO();
+            requestDTO.setUsername("newadmin");
+            requestDTO.setEmail("newadmin@example.com");
 
-        assertEquals(HttpStatus.OK, result.getStatusCode());
-        assertEquals("Welcome to the admin dashboard!", result.getBody());
+            HttpEntity<AdminRegisterRequestDTO> request = new HttpEntity<>(requestDTO, getAuthHeaders(adminToken));
+            ResponseEntity<UserDTO> result = restTemplate.exchange(uri, HttpMethod.POST, request, UserDTO.class);
+
+            assertEquals(HttpStatus.CREATED, result.getStatusCode());
+            assertNotNull(result.getBody());
+            assertEquals("newadmin", result.getBody().getUsername());
+            assertEquals("newadmin@example.com", result.getBody().getEmail());
+            assertEquals(UserRole.ADMIN, result.getBody().getRole());
+
+            testUUIDs.add(UUID.fromString(result.getBody().getUserId()));
+        }
+
+        @Test
+        void registerAdmin_InvalidEmail_Failure() throws Exception {
+            URI uri = new URI(baseUrl + port + "/admin");
+
+            AdminRegisterRequestDTO requestDTO = new AdminRegisterRequestDTO();
+            requestDTO.setUsername("newadmin");
+            requestDTO.setEmail("invalid-email");
+
+            HttpEntity<AdminRegisterRequestDTO> request = new HttpEntity<>(requestDTO, getAuthHeaders(adminToken));
+            ResponseEntity<String> result = restTemplate.exchange(uri, HttpMethod.POST, request, String.class);
+
+            assertEquals(HttpStatus.BAD_REQUEST, result.getStatusCode());
+        }
+
+        @Test
+        void registerAdmin_DuplicateUsername_Failure() throws Exception {
+            URI uri = new URI(baseUrl + port + "/admin");
+
+            AdminRegisterRequestDTO requestDTO = new AdminRegisterRequestDTO();
+            requestDTO.setUsername(adminUsername); // Using existing admin username
+            requestDTO.setEmail("different@example.com");
+
+            HttpEntity<AdminRegisterRequestDTO> request = new HttpEntity<>(requestDTO, getAuthHeaders(adminToken));
+            ResponseEntity<String> result = restTemplate.exchange(uri, HttpMethod.POST, request, String.class);
+
+            assertEquals(HttpStatus.BAD_REQUEST, result.getStatusCode());
+        }
     }
 
-    @Test
-    void registerAdmin_Success() throws Exception {
-        URI uri = new URI(baseUrl + port + "/admin");
+    @Nested
+    class UserManagementTests {
+        private User testUser;
 
-        AdminRegisterRequestDTO requestDTO = new AdminRegisterRequestDTO();
-        requestDTO.setUsername("newadmin");
-        requestDTO.setEmail("newadmin@example.com");
+        @BeforeEach
+        void setUp() {
+            testUser = createTestUser("locktest", "locktest@example.com", "password", UserRole.PLAYER);
+        }
 
-        HttpEntity<AdminRegisterRequestDTO> request = new HttpEntity<>(requestDTO, getAuthHeaders(adminToken));
-        ResponseEntity<UserDTO> result = restTemplate.exchange(uri, HttpMethod.POST, request, UserDTO.class);
+        @Test
+        void lockUser_Success() throws Exception {
+            URI uri = new URI(baseUrl + port + "/admin/lock");
 
-        assertEquals(HttpStatus.CREATED, result.getStatusCode());
-        assertNotNull(result.getBody());
-        assertEquals("newadmin", result.getBody().getUsername());
-        assertEquals("newadmin@example.com", result.getBody().getEmail());
-        assertEquals(UserRole.ADMIN, result.getBody().getRole());
+            LockUserRequest lockRequest = new LockUserRequest(testUser.getId().toString(), true);
 
-        userRepository.deleteById(UUID.fromString(result.getBody().getUserId()));
+            HttpEntity<LockUserRequest> request = new HttpEntity<>(lockRequest, getAuthHeaders(adminToken));
+            ResponseEntity<String> result = restTemplate.exchange(uri, HttpMethod.PUT, request, String.class);
+
+            assertEquals(HttpStatus.OK, result.getStatusCode());
+
+            // Verify user is actually locked in database
+            User updatedUser = userRepository.findById(testUser.getId()).get();
+            assertTrue(updatedUser.isLocked());
+        }
     }
 
-    @Test
-    void accessWithoutAuthentication_Failure() throws Exception {
-        URI uri = new URI(baseUrl + port + "/admin/dashboard");
+    @Nested
+    class AdminPasswordResetTests {
+        @Test
+        void resetAdminPassword_InvalidUserId_Failure() throws Exception {
+            URI uri = new URI(baseUrl + port + "/admin/reset-admin-password");
 
-        ResponseEntity<String> result = restTemplate.getForEntity(uri, String.class);
+            String invalidAdminId = "\"" + UUID.randomUUID().toString() + "\"";
+            HttpEntity<String> request = new HttpEntity<>(invalidAdminId, getAuthHeaders(adminToken));
+            ResponseEntity<String> result = restTemplate.exchange(uri, HttpMethod.POST, request, String.class);
 
-        assertEquals(HttpStatus.UNAUTHORIZED, result.getStatusCode());
-    }
-
-    @Test
-    void accessWithNonAdminAuthentication_Forbidden() throws Exception {
-        URI uri = new URI(baseUrl + port + "/admin/dashboard");
-
-        HttpEntity<String> entity = new HttpEntity<>(null, getAuthHeaders(regularUserToken));
-        ResponseEntity<String> result = restTemplate.exchange(uri, HttpMethod.GET, entity, String.class);
-
-        assertEquals(HttpStatus.FORBIDDEN, result.getStatusCode());
+            assertEquals(HttpStatus.BAD_REQUEST, result.getStatusCode());
+        }
     }
 
     @Nested
@@ -160,7 +200,7 @@ class AdminControllerIntegrationTest {
 
         @Test
         void getPaginatedUsers_Success() throws Exception {
-            URI uri = new URI(baseUrl + port + "/admin/get-users?page=0&size=10&field=username&order=asc");
+            URI uri = new URI(baseUrl + port + "/admin/users?page=0&size=10&field=username&order=asc");
 
             HttpEntity<String> entity = new HttpEntity<>(null, getAuthHeaders(adminToken));
             ResponseEntity<PaginatedResponse<UserDTO>> result = restTemplate.exchange(
@@ -178,24 +218,14 @@ class AdminControllerIntegrationTest {
         }
 
         @Test
-        void getPaginatedUsers_DifferentPageAndSize_Success() throws Exception {
-            URI uri = new URI(baseUrl + port + "/admin/get-users?page=1&size=5&field=username&order=desc");
+        void getPaginatedUsers_InvalidPage_Failure() throws Exception {
+            URI uri = new URI(baseUrl + port + "/admin/users?page=-1&size=10&field=username&order=asc");
 
             HttpEntity<String> entity = new HttpEntity<>(null, getAuthHeaders(adminToken));
-            ResponseEntity<PaginatedResponse<UserDTO>> result = restTemplate.exchange(
-                    uri,
-                    HttpMethod.GET,
-                    entity,
-                    new ParameterizedTypeReference<PaginatedResponse<UserDTO>>() {
-                    });
+            ResponseEntity<String> result = restTemplate.exchange(uri, HttpMethod.GET, entity, String.class);
 
-            assertEquals(HttpStatus.OK, result.getStatusCode());
-            assertNotNull(result.getBody());
-            assertEquals(5, result.getBody().getContent().size());
-            assertTrue(result.getBody().getTotalElements() > 5);
-            assertTrue(isSortedDescending(result.getBody().getContent()));
+            assertEquals(HttpStatus.BAD_REQUEST, result.getStatusCode());
         }
-
     }
 
     private boolean isSortedAscending(List<UserDTO> users) {

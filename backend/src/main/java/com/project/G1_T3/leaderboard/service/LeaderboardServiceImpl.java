@@ -23,6 +23,12 @@ public class LeaderboardServiceImpl implements LeaderboardService {
     @Autowired
     private UserService userService;
 
+    /**
+     * Retrieves the top 10 players sorted by Glicko rating
+     * and maps them to LeaderboardPlayerProfile objects.
+     *
+     * @return List of top 10 LeaderboardPlayerProfile objects.
+     */
     public List<LeaderboardPlayerProfile> getTop10LeaderboardPlayerProfiles() {
 
         List<LeaderboardPlayerProfile> top10Players;
@@ -37,16 +43,33 @@ public class LeaderboardServiceImpl implements LeaderboardService {
         return top10Players;
     }
 
+    /**
+     * Retrieves the top 10 player profiles ordered by Glicko rating.
+     *
+     * @return List of top 10 PlayerProfile entities.
+     */
     public List<PlayerProfile> getTop10PlayerProfiles() {
         return playerProfileService.getTop10Players();
     }
 
+    /**
+     * Retrieves a player's leaderboard information using their username.
+     *
+     * @param username The username of the player.
+     * @return The LeaderboardPlayerProfile object for the specified player.
+     */
     public LeaderboardPlayerProfile getPlayerInfo(String username) {
         Optional<User> user = userService.findByUsername(username);
         UUID userId = user.get().getUserId();
         return getPlayerInfoById(userId.toString());
     }
 
+    /**
+     * Retrieves a player's leaderboard information using their user ID.
+     *
+     * @param userId The UUID of the player.
+     * @return The LeaderboardPlayerProfile object for the specified player.
+     */
     public LeaderboardPlayerProfile getPlayerInfoById(String userId) {
         UUID uuid = UUID.fromString(userId);
         PlayerProfile player = playerProfileService.findByUserId(uuid);
@@ -68,5 +91,4 @@ public class LeaderboardServiceImpl implements LeaderboardService {
         Double rankPercentage = playerProfileService.getPlayerRank(playerId);
         return new LeaderboardPlayerProfile(player, rankPercentage);
     }
-
 }

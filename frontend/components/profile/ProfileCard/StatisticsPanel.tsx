@@ -19,19 +19,17 @@ import { calculateAge } from "@/utils/dateUtils";
 interface StatisticsPanelProps {
   playerProfile: PlayerProfile;
   ranking: number | null;
-  rankPercentage : number | null;
+  rankPercentage: number | null;
 }
 
 export const StatisticsPanel = ({
   playerProfile,
   ranking,
-  rankPercentage
+  rankPercentage,
 }: StatisticsPanelProps) => (
   <div className="h-full flex flex-col justify-center">
     <SheetHeader>
-      <SheetTitle className="text-3xl font-bold mb-6">
-        My Statistics
-      </SheetTitle>
+      <SheetTitle className="text-3xl font-bold mb-6">My Statistics</SheetTitle>
     </SheetHeader>
 
     <div className="space-y-8">
@@ -51,11 +49,14 @@ export const StatisticsPanel = ({
 
       <div className="rounded-lg p-6 shadow-sm">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {ranking !== null ? (
+          {ranking !== null ? (
             <StatisticItem label="Ranking" value={`#${ranking}`} />
           ) : (
             rankPercentage !== null && (
-              <StatisticItem label="Rank Percentage" value={`Top ${rankPercentage.toFixed(2)}%`} />
+              <StatisticItem
+                label="Rank Percentage"
+                value={`Top ${typeof rankPercentage === "number" ? rankPercentage.toFixed(2) : "N/A"}%`}
+              />
             )
           )}
         </div>

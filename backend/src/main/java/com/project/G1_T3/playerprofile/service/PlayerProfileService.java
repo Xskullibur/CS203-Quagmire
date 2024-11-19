@@ -82,6 +82,8 @@ public class PlayerProfileService {
         }
     }
 
+    
+
     @Cacheable(value = "playerRankings", key = "'rankings'")
     public List<PlayerProfile> getSortedPlayerProfiles() {
         // Fetch all players sorted by current rating
@@ -228,6 +230,7 @@ public class PlayerProfileService {
         return player.getTournaments();
     }
 
+    
     public double getPlayerRank(UUID profileId) {
         // Get the player's profile
         PlayerProfile playerProfile = playerProfileRepository.findByProfileId(profileId);
@@ -241,20 +244,19 @@ public class PlayerProfileService {
         int numberOfPlayersInBucket = playerRatingService.getNumberOfPlayersInBucket(playerRating);
         int totalPlayers = playerRatingService.getTotalPlayers();
 
-        // rank percentage is calculated from number of players in their (current rating
-        // bucket + number of players) over total players
+        //rank percentage is calculated from number of players in their (current rating bucket + number of players) over total players
         double rankPercentage = ((double) (numberOfPlayersAhead + numberOfPlayersInBucket)) / totalPlayers * 100;
 
         return rankPercentage;
     }
 
-    public double getPlayerRankByUsername(String username) {
+    public double getPlayerRankByUsername(String username){
         // Fetch the user by username & player by userId
         Optional<User> user = userService.findByUsername(username);
         UUID userId = user.get().getUserId();
         PlayerProfile player = playerProfileRepository.findByUserId(userId);
         return getPlayerRank(player.getProfileId());
-    }
+   }
 
     public void updatePlayerRating(UUID playerId, List<Glicko2Result> results) {
         Optional<PlayerProfile> playerOpt = playerProfileRepository.findById(playerId);
@@ -274,22 +276,21 @@ public class PlayerProfileService {
         }
     }
 
-    public List<PlayerProfile> getTop10Players() {
+    public List<PlayerProfile> getTop10Players(){
 
         List<UUID> playerIds = playerRatingService.getTop10Players();
 
         List<PlayerProfile> result = new ArrayList<>();
 
-        for (UUID playerId : playerIds) {
+        for(UUID playerId : playerIds){
             result.add(findByProfileId(playerId));
         }
-        // sort the players only by their glickoRating, including the floating points
-        result.sort(
-                (PlayerProfile o1, PlayerProfile o2) -> -Double.compare(o1.getGlickoRating(), o2.getGlickoRating()));
+        //sort the players only by their glickoRating, including the floating points
+        result.sort((PlayerProfile o1, PlayerProfile o2) -> -Double.compare(o1.getGlickoRating(), o2.getGlickoRating()));
 
-        // restrict the number of players here
+        //restrict the number of players here
         return result.stream().limit(10).toList();
-
+        
     }
 
 }

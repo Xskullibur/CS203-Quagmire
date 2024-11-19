@@ -1,4 +1,4 @@
-package com.project.G1_T3.round;
+package com.project.G1_T3.round.service;
 
 import com.project.G1_T3.match.model.Match;
 import com.project.G1_T3.match.model.MatchDTO;
@@ -8,7 +8,6 @@ import com.project.G1_T3.playerprofile.repository.PlayerProfileRepository;
 import com.project.G1_T3.playerprofile.service.PlayerProfileService;
 import com.project.G1_T3.round.model.Round;
 import com.project.G1_T3.round.repository.RoundRepository;
-import com.project.G1_T3.round.service.RoundServiceImpl;
 import com.project.G1_T3.stage.model.Stage;
 import com.project.G1_T3.stage.repository.StageRepository;
 import com.project.G1_T3.common.model.Status;
@@ -37,7 +36,6 @@ import java.util.UUID;
 import java.util.Optional;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Set;
 import java.util.HashSet;
 import java.util.Collections;
 import java.util.Arrays;
@@ -72,22 +70,6 @@ class RoundServiceTest {
     private PlayerProfile player2 = testCreatePlayerProfile(1800f);
     private UUID roundId;
     private UUID stageId;
-
-    // @BeforeEach
-    // void setUp() {
-    // // Initialize a mock stage
-    // stage = new Stage();
-    // stage.setStageId(1L);
-    // PlayerProfile referee = testCreatePlayerProfile(2500f);
-    // Set<PlayerProfile> referees = new HashSet<>();
-    // referees.add(referee); // Adding the referee to the set
-    // stage.setReferees(referees);
-
-    // // Initialize a list of sorted players
-    // sortedPlayers = new ArrayList<>();
-    // sortedPlayers.add(testCreatePlayerProfile(1200f));
-    // sortedPlayers.add(testCreatePlayerProfile(1800f));
-    // }
 
     @BeforeEach
     void setUp() {
@@ -128,7 +110,6 @@ class RoundServiceTest {
         PlayerProfile playerProfile = new PlayerProfile();
         playerProfile.setProfileId(UUID.randomUUID());
         playerProfile.setUser(new User());
-        ;
         playerProfile.setFirstName("John");
         playerProfile.setLastName("Doe");
         playerProfile.setDateOfBirth(LocalDate.of(1990, 1, 1));
@@ -255,6 +236,22 @@ class RoundServiceTest {
             roundService.endRound(roundId);
         });
         assertEquals("Winner not found for match with ID: " + match.getMatchId(), exception.getMessage());
+    }
+
+    @Test
+    void endRound_invalidMatchStatus_throwsException() {
+        // Arrange
+        Match match = matches.get(0);
+        match.setStatus(Status.SCHEDULED); // Set the match status to something other than COMPLETED
+        round.setMatches(Collections.singletonList(match));
+
+        when(roundRepository.findById(roundId)).thenReturn(Optional.of(round));
+
+        // Act & Assert
+        IllegalStateException exception = assertThrows(IllegalStateException.class, () -> {
+            roundService.endRound(roundId);
+        });
+        assertEquals("Match " + match.getMatchId() + " has not been completed.", exception.getMessage());
     }
 
     @Test

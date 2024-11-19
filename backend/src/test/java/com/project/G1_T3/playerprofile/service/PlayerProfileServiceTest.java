@@ -390,7 +390,7 @@ class PlayerProfileServiceTest {
 
         // Mock PlayerRatingService interactions
         when(playerRatingService.getNumberOfPlayersAhead(1500)).thenReturn(playersAbove1500.size());
-        when(playerRatingService.getNumberOfPlayersInBucket(1500)).thenReturn(3); // Assume
+        when(playerRatingService.getNumberOfPlayersInBucket(1500)).thenReturn(3); // Assume 
         when(playerRatingService.getTotalPlayers()).thenReturn(playersAbove1500.size() + playersBelow1500.size() + 3);
 
         // Act

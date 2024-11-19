@@ -1,6 +1,5 @@
 package com.project.G1_T3.user.controller;
 
-import com.project.G1_T3.authentication.model.ResetPasswordDTO;
 import com.project.G1_T3.user.model.UpdateEmailDTO;
 import com.project.G1_T3.user.model.UpdatePasswordDTO;
 import com.project.G1_T3.user.model.User;
@@ -8,13 +7,11 @@ import com.project.G1_T3.user.model.UserDTO;
 import com.project.G1_T3.user.service.UserService;
 
 import jakarta.validation.Valid;
-import java.util.UUID;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,11 +20,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.http.HttpStatus;
 

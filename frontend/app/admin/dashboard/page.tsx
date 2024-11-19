@@ -56,7 +56,7 @@ const AdminDashboard: React.FC = () => {
     axiosInstance
       .get(
         new URL(
-          `/admin/get-users?page=${adminCurrentPage}&size=${adminPageSize}&field=${sortingField}&order=${order}`,
+          `/admin/users?page=${adminCurrentPage}&size=${adminPageSize}&field=${sortingField}&order=${order}`,
           API_URL
         ).toString()
       )

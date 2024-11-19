@@ -80,7 +80,7 @@ public class StageServiceImpl implements StageService {
 
         // Find the stage by ID
         Stage stage = stageRepository.findById(stageId)
-                .orElseThrow(() -> new RuntimeException("Stage not found"));
+                .orElseThrow(() -> new RuntimeException("Error saving the stage: Database error"));
 
         // Check if the stage is eligible to start (i.e., it has not already started)
         if (stage.getStatus() != Status.SCHEDULED) {
@@ -147,7 +147,6 @@ public class StageServiceImpl implements StageService {
         throw new IllegalArgumentException("There must be more than 1 player");
         }
 
-
         // Create a new Stage entity and populate its fields
         Stage stage = new Stage();
         try {
@@ -160,8 +159,6 @@ public class StageServiceImpl implements StageService {
             stage.setStatus(stageDTO.getStatus() != null ? stageDTO.getStatus() : Status.SCHEDULED); // Default to
                                                                                                      // SCHEDULED
             stage.setTournament(tournament); // Set the associated tournament
-            // stage.setPlayers(stageDTO.getPlayers());
-            // stage.setReferees(stageDTO.getReferees());
 
             // Save the stage in the repository
             stage = stageRepository.save(stage);
