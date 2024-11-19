@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.time.LocalDate;
+import java.util.Set;
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -15,12 +16,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.project.G1_T3.achievement.model.Achievement;
 import com.project.G1_T3.authentication.service.JwtService;
 import com.project.G1_T3.playerprofile.model.PlayerProfile;
 import com.project.G1_T3.playerprofile.service.PlayerProfileService;
 import com.project.G1_T3.security.service.SecurityService;
+import com.project.G1_T3.tournament.model.Tournament;
 import com.project.G1_T3.user.model.CustomUserDetails;
 import com.project.G1_T3.user.model.User;
 
@@ -130,4 +134,38 @@ class PlayerProfileControllerIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string("1.0"));
     }
+
+    @Test
+    void getPlayerRankByUserId_InvalidId_ReturnsNotFound() throws Exception {
+        when(playerProfileService.findByUserId(TEST_USER_ID)).thenReturn(null);
+
+        mockMvc.perform(get("/profile/rank/{userId}", TEST_USER_ID))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void getPlayerAchievements_ValidUsername_ReturnsAchievements() throws Exception {
+        Achievement achievement = new Achievement();
+        achievement.setName("First Win");
+        Set<Achievement> achievements = Set.of(achievement);
+        when(playerProfileService.getPlayerAchievements("testuser")).thenReturn(achievements);
+
+        mockMvc.perform(get("/profile/achievements").param("username", "testuser"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].name").value("First Win"));
+    }
+
+    @Test
+    void getPlayerTournaments_ValidUsername_ReturnsTournaments() throws Exception {
+        Tournament tournament = new Tournament();
+        tournament.setName("Spring Cup");
+        Set<Tournament> tournaments = Set.of(tournament);
+
+        when(playerProfileService.getPlayerTournaments("testuser")).thenReturn(tournaments);
+
+        mockMvc.perform(get("/profile/tournaments").param("username", "testuser"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].name").value("Spring Cup"));
+    }
+
 }

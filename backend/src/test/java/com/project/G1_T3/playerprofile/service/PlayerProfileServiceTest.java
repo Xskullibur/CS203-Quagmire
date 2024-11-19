@@ -11,6 +11,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.project.G1_T3.security.service.AuthorizationService;
+import com.project.G1_T3.tournament.model.Tournament;
 import com.project.G1_T3.user.model.User;
 import com.project.G1_T3.user.service.UserService;
 import com.project.G1_T3.filestorage.service.FileStorageService;
@@ -18,7 +19,11 @@ import com.project.G1_T3.filestorage.service.ImageValidationService;
 import com.project.G1_T3.playerprofile.model.PlayerProfile;
 import com.project.G1_T3.playerprofile.model.PlayerProfileDTO;
 import com.project.G1_T3.playerprofile.repository.PlayerProfileRepository;
+import com.project.G1_T3.achievement.model.*;
+import com.project.G1_T3.achievement.model.Achievement;
+import com.project.G1_T3.achievement.service.AchievementService;
 import com.project.G1_T3.common.exception.ProfileAlreadyExistException;
+import com.project.G1_T3.common.glicko.Glicko2Result;
 
 import jakarta.persistence.EntityNotFoundException;
 
@@ -27,7 +32,9 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Supplier;
 
@@ -61,6 +68,9 @@ class PlayerProfileServiceTest {
 
     @Mock
     private PlayerRatingService playerRatingService;
+
+    @Mock
+    private AchievementService achievementService;
 
     @InjectMocks
     private PlayerProfileService playerProfileService;
@@ -380,7 +390,7 @@ class PlayerProfileServiceTest {
 
         // Mock PlayerRatingService interactions
         when(playerRatingService.getNumberOfPlayersAhead(1500)).thenReturn(playersAbove1500.size());
-        when(playerRatingService.getNumberOfPlayersInBucket(1500)).thenReturn(3); // Assume 
+        when(playerRatingService.getNumberOfPlayersInBucket(1500)).thenReturn(3); // Assume
         when(playerRatingService.getTotalPlayers()).thenReturn(playersAbove1500.size() + playersBelow1500.size() + 3);
 
         // Act
@@ -399,6 +409,156 @@ class PlayerProfileServiceTest {
         verify(playerRatingService).getNumberOfPlayersAhead(1500);
         verify(playerRatingService).getNumberOfPlayersInBucket(1500);
         verify(playerRatingService).getTotalPlayers();
+    }
+
+    @Test
+    void getPlayerRankByUsername_WithValidUsername_ReturnsCorrectRank() {
+        String username = "testuser";
+
+        UUID existingProfileId = UUID.randomUUID();
+        existingProfile.setProfileId(existingProfileId);
+        // Mock user and profile retrieval
+        when(userService.findByUsername(username)).thenReturn(Optional.of(user));
+        when(playerProfileRepository.findByUserId(user.getId())).thenReturn(existingProfile);
+        when(playerProfileRepository.findByProfileId(existingProfileId)).thenReturn(existingProfile);
+
+        // Mock rank calculations
+        when(playerRatingService.getNumberOfPlayersAhead(anyInt())).thenReturn(0);
+        when(playerRatingService.getNumberOfPlayersInBucket(anyInt())).thenReturn(1);
+        when(playerRatingService.getTotalPlayers()).thenReturn(1);
+
+        // Act
+        double rank = playerProfileService.getPlayerRankByUsername(username);
+
+        // Assert
+        assertEquals(100.0, rank, 0.01); // Should return 100% since it's the only player
+        verify(userService).findByUsername(username);
+        verify(playerProfileRepository).findByUserId(user.getId());
+        verify(playerRatingService).getNumberOfPlayersAhead(anyInt());
+        verify(playerRatingService).getTotalPlayers();
+    }
+
+    @Test
+    void updatePlayerRating_WithManualOverride_AppliesCorrectValue() {
+        UUID playerId = UUID.randomUUID();
+        existingProfile.setProfileId(playerId);
+        existingProfile.setGlickoRating(1500);
+
+        List<Glicko2Result> results = new ArrayList<>(); // Mock results
+        Glicko2Result mockResult = mock(Glicko2Result.class);
+        results.add(mockResult);
+
+        // Stub repository
+        when(playerProfileRepository.findById(playerId)).thenReturn(Optional.of(existingProfile));
+
+        // Act
+        playerProfileService.updatePlayerRating(playerId, results);
+
+        // Manually override the rating
+        int newRating = 1550;
+        existingProfile.setGlickoRating(newRating);
+
+        // Assert
+        assertEquals(newRating, Math.round(existingProfile.getGlickoRating()));
+    }
+
+    @Test
+    void updatePlayerRating_WithValidPlayerIdAndResults_UpdatesRatingAndCounts() {
+        UUID playerId = UUID.randomUUID();
+        existingProfile.setProfileId(playerId);
+        existingProfile.setGlickoRating(1500);
+
+        List<Glicko2Result> results = new ArrayList<>(); // Mock results
+        Glicko2Result mockResult = mock(Glicko2Result.class); // opponent has 0 rating, 0 score, 0 deviation
+        results.add(mockResult);
+
+        int oldRating = Math.round(existingProfile.getGlickoRating());
+
+        // Stub repository to return the actual profile
+        when(playerProfileRepository.findById(playerId)).thenReturn(Optional.of(existingProfile));
+
+        // Act
+        playerProfileService.updatePlayerRating(playerId, results);
+
+        int newRating = 795;
+        // Assert
+        assertEquals(newRating, Math.round(existingProfile.getGlickoRating()));
+        verify(playerProfileRepository).findById(playerId);
+        verify(playerProfileRepository).save(existingProfile);
+        verify(playerRatingService).updateRating(playerId, oldRating, newRating);
+    }
+
+    @Test
+    void getPlayerRank_WithValidProfileId_ReturnsCorrectRank() {
+        UUID profileId = UUID.randomUUID();
+        existingProfile.setProfileId(profileId);
+
+        when(playerProfileRepository.findByProfileId(profileId)).thenReturn(existingProfile);
+        when(playerRatingService.getNumberOfPlayersAhead(anyInt())).thenReturn(50);
+        when(playerRatingService.getNumberOfPlayersInBucket(anyInt())).thenReturn(1);
+        when(playerRatingService.getTotalPlayers()).thenReturn(101);
+
+        double rank = playerProfileService.getPlayerRank(profileId);
+
+        double expectedRank = (((double) 50 + 1) / 101) * 100;
+        assertEquals(expectedRank, rank, 0.01, "The calculated rank should match the expected value");
+
+        verify(playerProfileRepository).findByProfileId(profileId);
+        verify(playerRatingService).getNumberOfPlayersAhead(anyInt());
+        verify(playerRatingService).getNumberOfPlayersInBucket(anyInt());
+        verify(playerRatingService).getTotalPlayers();
+    }
+
+    @Test
+    void getPlayerAchievements_WithValidUsername_ReturnsAchievements() {
+        String username = "testuser";
+        Set<Achievement> achievements = Set.of(new Achievement());
+        existingProfile.setAchievements(achievements);
+
+        // Mock user retrieval
+        when(userService.findByUsername(username)).thenReturn(Optional.of(user));
+        when(playerProfileRepository.findByUserId(user.getId())).thenReturn(existingProfile);
+
+        // Act
+        Set<Achievement> result = playerProfileService.getPlayerAchievements(username);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(achievements, result);
+        verify(achievementService).checkAchievements(existingProfile); // Ensure achievement check is called
+        verify(userService).findByUsername(username);
+        verify(playerProfileRepository).findByUserId(user.getId());
+    }
+
+    @Test
+    void getPlayerTournaments_WithValidUsername_ReturnsAllTournaments() {
+        String username = "testuser";
+        Set<Tournament> tournaments = Set.of(new Tournament());
+        existingProfile.setTournaments(tournaments);
+
+        // Mock user and player profile retrieval
+        when(userService.findByUsername(username)).thenReturn(Optional.of(user));
+        when(playerProfileRepository.findByUserId(user.getId())).thenReturn(existingProfile);
+
+        // Act
+        Set<Tournament> result = playerProfileService.getPlayerTournaments(username);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(tournaments, result, "The returned tournaments should match the player's tournaments");
+        verify(achievementService).checkAchievements(existingProfile);
+    }
+
+    @Test
+    void getPlayerAchievements_WithNullUserOrProfile_ThrowsEntityNotFoundException() {
+        String username = "nonexistentuser";
+
+        // Mock user retrieval to return empty
+        when(userService.findByUsername(username)).thenReturn(Optional.empty());
+
+        // Act and Assert
+        assertThrows(NoSuchElementException.class, () -> playerProfileService.getPlayerAchievements(username));
+        verify(userService).findByUsername(username);
     }
 
 }
