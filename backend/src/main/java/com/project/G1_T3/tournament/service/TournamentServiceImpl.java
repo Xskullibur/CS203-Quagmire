@@ -133,6 +133,23 @@ public class TournamentServiceImpl implements TournamentService {
     @Transactional
     public Tournament createTournament(TournamentDTO tournamentDTO, MultipartFile photo) {
 
+        // Validate required fields
+        if (tournamentDTO.getName() == null || tournamentDTO.getName().isEmpty()) {
+            throw new RuntimeException("Tournament name is required");
+        }
+        if (tournamentDTO.getLocation() == null || tournamentDTO.getLocation().isEmpty()) {
+            throw new RuntimeException("Tournament location is required");
+        }
+        if (tournamentDTO.getStartDate() == null) {
+            throw new RuntimeException("Tournament start date is required");
+        }
+        if (tournamentDTO.getEndDate() == null) {
+            throw new RuntimeException("Tournament end date is required");
+        }
+        if (tournamentDTO.getDeadline() == null) {
+            throw new RuntimeException("Tournament deadline is required");
+        }
+
         // Create the Tournament entity from the TournamentDTO
         Tournament tournament = new Tournament();
         tournament.setName(tournamentDTO.getName());
@@ -306,41 +323,41 @@ public class TournamentServiceImpl implements TournamentService {
     }
 
     public Tournament startTournament(UUID tournamentId) {
-    // Retrieve the tournament
-    Tournament tournament = tournamentRepository.findById(tournamentId)
-            .orElseThrow(() -> new TournamentNotFoundException("Tournament with ID " + tournamentId + " not found"));
+        // Retrieve the tournament
+        Tournament tournament = tournamentRepository.findById(tournamentId)
+                .orElseThrow(() -> new TournamentNotFoundException("Tournament with ID " + tournamentId + " not found"));
 
-    // Ensure there are enough players
-    if (tournament.getPlayers() == null || tournament.getPlayers().size() <= 1) {
-        throw new InsufficientPlayersException("Tournament must have more than 1 player to start.");
-    }
+        // Ensure there are enough players
+        if (tournament.getPlayers() == null || tournament.getPlayers().size() <= 1) {
+            throw new InsufficientPlayersException("Tournament must have more than 1 player to start.");
+        }
 
-    if (tournament.getStages() == null || tournament.getStages().isEmpty()) {
-        throw new NoStagesDefinedException("Tournament must have at least 1 stage.");
-    }
+        if (tournament.getStages() == null || tournament.getStages().isEmpty()) {
+            throw new NoStagesDefinedException("Tournament must have at least 1 stage.");
+        }
 
-    List<Stage> allStages = stageService.findAllStagesByTournamentIdSortedByCreatedAtAsc(tournamentId);
+        List<Stage> allStages = stageService.findAllStagesByTournamentIdSortedByCreatedAtAsc(tournamentId);
 
-    Stage curStage = allStages.get(0);
-    curStage.setPlayers(new HashSet<>(tournament.getPlayers()));
+        Stage curStage = allStages.get(0);
+        curStage.setPlayers(new HashSet<>(tournament.getPlayers()));
 
-    int numStages = allStages.size();
-    tournament.setNumStages(numStages);
+        int numStages = allStages.size();
+        tournament.setNumStages(numStages);
 
-    // Set the tournament as started (IN_PROGRESS)
-    tournament.setStatus(Status.IN_PROGRESS);
+        // Set the tournament as started (IN_PROGRESS)
+        tournament.setStatus(Status.IN_PROGRESS);
 
-    try {
-        stageService.startStage(curStage.getStageId());
-    } catch (Exception e) {
-        throw new StageStartException("Failed to start stage: " + e.getMessage());
-    }
+        try {
+            stageService.startStage(curStage.getStageId());
+        } catch (Exception e) {
+            throw new StageStartException("Failed to start stage: " + e.getMessage());
+        }
 
-    try {
-        return tournamentRepository.save(tournament);
-    } catch (Exception e) {
-        throw new TournamentUpdateException("Failed to update tournament: " + e.getMessage());
-    }
+        try {
+            return tournamentRepository.save(tournament);
+        } catch (Exception e) {
+            throw new TournamentUpdateException("Failed to update tournament: " + e.getMessage());
+        }
     }
 
     public void progressToNextStage(UUID tournamentId) {
