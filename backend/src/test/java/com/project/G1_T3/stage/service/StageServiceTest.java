@@ -92,6 +92,7 @@ class StageServiceTest {
         // Player
         player = new PlayerProfile();
         player.setCurrentRating(1500f);
+
     }
 
     @Test
