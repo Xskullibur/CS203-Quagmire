@@ -129,6 +129,7 @@ const Profile = ({ params }: { params: { username: string } }) => {
         ranking={leaderboard?.position}
         achievements={achievements || []}
         tournaments={tournaments || []}
+        rankPercentage = {leaderboard?.rankPercentage}
         isOwnProfile={isOwnProfile}
       />
     </div>

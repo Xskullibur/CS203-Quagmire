@@ -1,6 +1,7 @@
-package com.project.G1_T3.leaderboard.service;
+package com.project.G1_T3.leaderboard;
 
 import com.project.G1_T3.leaderboard.model.LeaderboardPlayerProfile;
+import com.project.G1_T3.leaderboard.service.LeaderboardServiceImpl;
 import com.project.G1_T3.playerprofile.model.PlayerProfile;
 import com.project.G1_T3.playerprofile.service.PlayerProfileService;
 import com.project.G1_T3.user.model.User;

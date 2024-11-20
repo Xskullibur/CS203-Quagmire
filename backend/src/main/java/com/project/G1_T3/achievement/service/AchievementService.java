@@ -68,7 +68,7 @@ public class AchievementService {
         List<Achievement> achievementList = achievementRepository.findByCriteriaType("RATING");
 
         // Get the player's current Glicko rating
-        int currentRating = player.getGlickoRating();
+        int currentRating = Math.round(player.getGlickoRating());
         
         // Get player's acheivements
         Set<Achievement> playerAchievements = player.getAchievements();

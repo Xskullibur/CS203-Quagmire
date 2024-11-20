@@ -53,7 +53,7 @@ public class PlayerProfileDTO {
         this.bio = playerProfile.getBio();
         this.currentRating = playerProfile.getCurrentRating();
         this.profileImagePath = playerProfile.getProfilePicturePath();
-        this.glickoRating = playerProfile.getGlickoRating();
+        this.glickoRating = Math.round(playerProfile.getGlickoRating());
     }
 
     // Constructor, getters, and setters

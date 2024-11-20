@@ -1,7 +1,6 @@
 package com.project.G1_T3.tournament.model;
 
 import com.project.G1_T3.common.model.Status;
-import com.project.G1_T3.playerprofile.model.PlayerProfile;
 import com.project.G1_T3.stage.model.StageDTO;
 
 import lombok.AllArgsConstructor;
@@ -10,10 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
-import java.util.stream.*;
 import java.util.List;
-import java.util.Set;
-import java.util.UUID;
 
 @Getter
 @Setter

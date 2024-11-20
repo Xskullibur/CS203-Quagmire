@@ -21,6 +21,14 @@ INSERT INTO users (user_id, username, email, password_hash, role, created_at, up
     ('cccccccc-cccc-cccc-cccc-cccccccccccc', 'player11', 'player11@example.com', '$2y$12$Iv3tmmwU.E25hWl3GyIkJei3lJ/ehRX3LVxGTbb/pWShbdHSAcnRG', 'PLAYER', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, TRUE, FALSE);
 
 
+INSERT INTO users (user_id, username, email, password_hash, role, created_at, updated_at, email_verified, is_locked) VALUES
+    ('dddddddd-dddd-dddd-dddd-dddddddddddd', 'player12', 'player12@example.com', '$2y$12$Iv3tmmwU.E25hWl3GyIkJei3lJ/ehRX3LVxGTbb/pWShbdHSAcnRG', 'PLAYER', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, TRUE, FALSE),
+    ('eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee', 'player13', 'player13@example.com', '$2y$12$Iv3tmmwU.E25hWl3GyIkJei3lJ/ehRX3LVxGTbb/pWShbdHSAcnRG', 'PLAYER', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, TRUE, FALSE),
+    ('ffffffff-ffff-ffff-ffff-ffffffffffff', 'player14', 'player14@example.com', '$2y$12$Iv3tmmwU.E25hWl3GyIkJei3lJ/ehRX3LVxGTbb/pWShbdHSAcnRG', 'PLAYER', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, TRUE, FALSE),
+    ('11111111-1111-1111-1111-222222222222', 'player15', 'player15@example.com', '$2y$12$Iv3tmmwU.E25hWl3GyIkJei3lJ/ehRX3LVxGTbb/pWShbdHSAcnRG', 'PLAYER', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, TRUE, FALSE),
+    ('33333333-3333-3333-3333-444444444444', 'player16', 'player16@example.com', '$2y$12$Iv3tmmwU.E25hWl3GyIkJei3lJ/ehRX3LVxGTbb/pWShbdHSAcnRG', 'PLAYER', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, TRUE, FALSE);
+
+
 -- Insert player profiles into player_profiles table
 INSERT INTO player_profiles (profile_id, user_id, current_rating, date_of_birth, glicko_rating, rating_deviation, volatility, bio, community, country, first_name, last_name, profile_picture_path) VALUES
     ('11111111-1111-1111-1111-111111111111', '22222222-2222-2222-2222-222222222222', 1500, '1990-01-01', 1500, 200, 0.06, 'A skilled player from community A', 'Community A', 'USA', 'John', 'Doe', '/images/profiles/john_doe.png'),
@@ -34,6 +42,14 @@ INSERT INTO player_profiles (profile_id, user_id, current_rating, date_of_birth,
     ('11111111-1111-1111-1111-111111111119', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 1510, '1998-09-09', 1510, 215, 0.06, 'Focused player from community I', 'Community I', 'Netherlands', 'Sophia', 'Taylor', '/images/profiles/sophia_taylor.png'),
     ('11111111-1111-1111-1111-111111111120', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 1475, '1999-10-10', 1475, 235, 0.07, 'Tactical player from community J', 'Community J', 'Sweden', 'William', 'Anderson', '/images/profiles/william_anderson.png'),
     ('11111111-1111-1111-1111-111111111121', 'cccccccc-cccc-cccc-cccc-cccccccccccc', 1500, '2000-11-11', 1500, 200, 0.06, 'A dedicated player from community K', 'Community K', 'Norway', 'Olivia', 'Thomas', '/images/profiles/olivia_thomas.png');
+
+    INSERT INTO player_profiles (profile_id, user_id, current_rating, date_of_birth, glicko_rating, rating_deviation, volatility, bio, community, country, first_name, last_name, profile_picture_path) VALUES
+    ('22222222-2222-2222-2222-111111111112', 'dddddddd-dddd-dddd-dddd-dddddddddddd', 1495, '2001-12-12', 1495, 210, 0.06, 'A passionate player from community L', 'Community L', 'Finland', 'Lucas', 'Young', '/images/profiles/lucas_young.png'),
+    ('22222222-2222-2222-2222-111111111113', 'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee', 1500, '2002-01-15', 1500, 225, 0.07, 'An aspiring player from community M', 'Community M', 'Belgium', 'Lily', 'Harris', '/images/profiles/lily_harris.png'),
+    ('22222222-2222-2222-2222-111111111114', 'ffffffff-ffff-ffff-ffff-ffffffffffff', 1460, '2003-02-20', 1460, 205, 0.06, 'Dedicated player from community N', 'Community N', 'Switzerland', 'Henry', 'Clark', '/images/profiles/henry_clark.png'),
+    ('22222222-2222-2222-2222-111111111115', '11111111-1111-1111-1111-222222222222', 1525, '2004-03-25', 1525, 220, 0.07, 'Committed player from community O', 'Community O', 'Austria', 'Grace', 'Lewis', '/images/profiles/grace_lewis.png'),
+    ('22222222-2222-2222-2222-111111111116', '33333333-3333-3333-3333-444444444444', 1485, '2005-04-30', 1485, 215, 0.06, 'Young talent from community P', 'Community P', 'Denmark', 'Ethan', 'Walker', '/images/profiles/ethan_walker.png');
+
 
 
 -- Insert example tournaments into the tournament table with corrected status values

@@ -19,7 +19,8 @@ public class LeaderboardPlayerProfile {
     String firstName;
     String lastName;
     int glickoRating;
-    Long position;
+    Integer position;
+    Double rankPercentage;
 
     public LeaderboardPlayerProfile(UUID profileId, String firstName, String lastName, int glickoRating) {
         this.profileId = profileId;
@@ -28,12 +29,20 @@ public class LeaderboardPlayerProfile {
         this.glickoRating = glickoRating;
     }
 
-    public LeaderboardPlayerProfile(PlayerProfile player, Long p) {
+    public LeaderboardPlayerProfile(PlayerProfile player, Integer position) {
         profileId = player.getProfileId();
         firstName = player.getFirstName();
         lastName = player.getLastName();
-        glickoRating = player.getGlickoRating();
-        position = p;
+        glickoRating = Math.round(player.getGlickoRating());
+        this.position = position;
+    }
+
+    public LeaderboardPlayerProfile(PlayerProfile player, Double rankPercentage) {
+        profileId = player.getProfileId();
+        firstName = player.getFirstName();
+        lastName = player.getLastName();
+        glickoRating = Math.round(player.getGlickoRating());
+        this.rankPercentage = rankPercentage;
     }
 
 }

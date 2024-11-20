@@ -121,7 +121,6 @@ const BracketsPage = () => {
             tournamentId,
             stageId
           );
-          console.log(rounds);
           const roundIdArr = rounds.map((round) => round.roundId);
           setRoundIds(roundIdArr);
           tempNextRoundId = roundIdArr[roundIdArr.length - 1];
@@ -132,36 +131,44 @@ const BracketsPage = () => {
         if (axios.isAxiosError(error)) {
           handleError(error);
         }
-
         console.log("unable to complete round" + error);
       }
 
       if (matches.length === 1) {
         //make a post to complete tournament and redirect to winners page
-        try {
-          await axiosInstance.put(
-            new URL(
-              `/tournament/${tournamentId}/stage/${stageId}/round/${roundIds[currentStageIndex]}/end`,
-              API_URL
-            ).toString()
-          );
-          await axiosInstance.put(
-            new URL(`/tournament/${tournamentId}/progress`, API_URL).toString()
-          );
-          router.push(`/tournaments/${tournamentId}`);
-        } catch (error) {
-          if (axios.isAxiosError(error)) {
-            handleError(error);
-          }
-          console.log("failed to complete tournaemnt" + error);
-        }
+        await completeTournament();
       }
     }
+    await proceedToNextRound(tempNextRoundId);
+
+    
+  };
+
+  async function completeTournament() {
     try {
-      const nextRoundId =
-        tempNextRoundId !== null
-          ? tempNextRoundId
-          : roundIds[currentStageIndex + 1];
+      await axiosInstance.put(
+        new URL(
+          `/tournament/${tournamentId}/stage/${stageId}/round/${roundIds[currentStageIndex]}/end`,
+          API_URL
+        ).toString()
+      );
+      await axiosInstance.put(
+        new URL(`/tournament/${tournamentId}/progress`, API_URL).toString()
+      );
+      router.push(`/tournaments/${tournamentId}`);
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        handleError(error);
+      }
+      console.log("failed to complete tournaemnt" + error);
+    }
+  }
+
+  async function proceedToNextRound(tempNextRoundId:string) {
+    try {
+      const nextRoundId = tempNextRoundId !== null
+        ? tempNextRoundId
+        : roundIds[currentStageIndex + 1];
       const matches = await getMatchesForRound(nextRoundId);
 
       if (matches && Array.isArray(matches)) {
@@ -176,7 +183,7 @@ const BracketsPage = () => {
 
       console.error("Error fetching next round matches:", error);
     }
-  };
+  }
 
   const handlePreviousRound = async () => {
     if (currentStageIndex > 0) {
@@ -283,8 +290,8 @@ const BracketsPage = () => {
         <div className="mt-8">
           <h2 className="text-2xl font-semibold mb-4">Auto Advancements</h2>
           <div className="flex flex-wrap gap-4">
-            {filteredAutoAdvanceMatches.map((match, index) => (
-              <AutoAdvanceMatch key={index} player={match.player1} />
+            {filteredAutoAdvanceMatches.map((match) => (
+              <AutoAdvanceMatch key={match.matchId} player={match.player1} />
             ))}
           </div>
         </div>

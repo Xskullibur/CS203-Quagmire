@@ -6,11 +6,8 @@ import org.springframework.web.bind.annotation.*;
 
 import com.project.G1_T3.round.model.Round;
 import com.project.G1_T3.round.service.RoundService;
-import com.project.G1_T3.match.model.MatchDTO;
-
 import java.util.UUID;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/tournament/{tournamentId}/stage/{stageId}/round")

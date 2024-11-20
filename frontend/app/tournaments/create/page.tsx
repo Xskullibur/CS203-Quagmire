@@ -27,19 +27,20 @@ const CreateTournament = () => {
   // Tournament state
   const [tournament, setTournament] = useState<Tournament>({
     id: null,
-    name: "",
-    location: "",
-    startDate: "",
-    startTime: "",
-    endDate: "",
-    endTime: "",
-    status: "SCHEDULED",
-    deadline: "",
-    deadlineTime: "",
-    maxParticipants: 0,
-    description: "",
-    photoUrl: "",
+    name: "New Tournament",
+    location: "Singapore",
+    startDate: new Date((new Date().getDate()) + 1).toISOString().split("T")[0], 
+    startTime: "09:00", // Default to 9:00 AM
+    endDate: new Date((new Date().getDate()) + 1).toISOString().split("T")[0], 
+    endTime: "18:00", // Default to 6:00 PM
+    status: "SCHEDULED", // Default status
+    deadline: new Date().toISOString().split("T")[0], 
+    deadlineTime: "23:59",
+    maxParticipants: 16, 
+    description: "Please arrive on time so that the weighing process can be swiftly concluded.", 
+    photoUrl: "", 
   });
+  
 
   const [photo, setPhoto] = useState<File | null>(null);
   const { handleError, showErrorToast } = useGlobalErrorHandler();

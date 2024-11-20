@@ -6,7 +6,6 @@ import com.project.G1_T3.stage.model.Stage;
 import com.project.G1_T3.stage.model.StageDTO;
 import com.project.G1_T3.stage.model.Format;
 import com.project.G1_T3.stage.repository.StageRepository;
-import com.project.G1_T3.stage.service.StageServiceImpl;
 import com.project.G1_T3.tournament.model.Tournament;
 import com.project.G1_T3.common.model.Status;
 
@@ -23,9 +22,7 @@ import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -95,6 +92,7 @@ class StageServiceTest {
         // Player
         player = new PlayerProfile();
         player.setCurrentRating(1500f);
+
     }
 
     @Test
@@ -261,14 +259,86 @@ class StageServiceTest {
     @Test
     void testStartStage_ErrorInSavingStage_ThrowsException() {
         // Arrange
-        when(stageRepository.findById(stageId)).thenReturn(Optional.of(stage));
         PlayerProfile player1 = mock(PlayerProfile.class);
         PlayerProfile player2 = mock(PlayerProfile.class);
         Set<PlayerProfile> players = new HashSet<>(Set.of(player1, player2));
         stage.setPlayers(players);
 
-        doThrow(new RuntimeException("Database error")).when(stageRepository).save(stage);
+        StageDTO noNameDTO = new StageDTO();
+        noNameDTO.setStageName(""); // Set an empty stage name to trigger the exception
+        noNameDTO.setStartDate(LocalDateTime.now());
+        noNameDTO.setEndDate(LocalDateTime.now().plusDays(1));
 
+        // Act & Assert
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            stageService.createStage(noNameDTO, tournament);
+        });
+        assertEquals("Stage name is required", exception.getMessage());
+    }
+
+    @Test
+    void testCreateStage_StartDateIsNull_ThrowsException() {
+        // Arrange
+        stageDTO.setStartDate(null);
+
+        // Act & Assert
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            stageService.createStage(stageDTO, tournament);
+        });
+        assertEquals("Start date is required", exception.getMessage());
+    }
+
+    @Test
+    void testCreateStage_EndDateIsNull_ThrowsException() {
+        // Arrange
+        stageDTO.setEndDate(null);
+
+        // Act & Assert
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            stageService.createStage(stageDTO, tournament);
+        });
+        assertEquals("End date is required", exception.getMessage());
+    }
+
+    @Test
+    void testCreateStage_EndDateBeforeStartDate_ThrowsException() {
+        // Arrange
+        stageDTO.setStartDate(LocalDateTime.now().plusDays(1));
+        stageDTO.setEndDate(LocalDateTime.now());
+
+        // Act & Assert
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            stageService.createStage(stageDTO, tournament);
+        });
+        assertEquals("End date cannot be before start date", exception.getMessage());
+    }
+
+    @Test
+    void testCreateStage_LessThanTwoPlayers_ThrowsException() {
+        // Arrange
+        stageDTO.setPlayers(new HashSet<>()); // No players
+
+        // Act & Assert
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            stageService.createStage(stageDTO, tournament);
+        });
+        assertEquals("There must be more than 1 player", exception.getMessage());
+    }
+
+    @Test
+    void testCreateStage_SaveSuccess() {
+        // Arrange
+        when(stageRepository.save(any(Stage.class))).thenReturn(new Stage());
+
+        // Act
+        stageService.createStage(stageDTO, tournament);
+
+        // Assert
+        verify(stageRepository, times(1)).save(any(Stage.class));
+    }
+
+    @Test
+    void testCreateStage_SaveFailure_ThrowsException() {
         // Act & Assert
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
             stageService.startStage(stageId);

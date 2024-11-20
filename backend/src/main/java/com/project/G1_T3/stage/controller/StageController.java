@@ -1,16 +1,10 @@
 package com.project.G1_T3.stage.controller;
 
-import com.project.G1_T3.round.service.RoundService;
 import com.project.G1_T3.stage.model.Stage;
 import com.project.G1_T3.stage.service.StageService;
-import com.project.G1_T3.tournament.model.Tournament;
-import com.project.G1_T3.tournament.service.TournamentService;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.http.HttpStatus;
-
 import java.util.List;
 import java.util.UUID;
 
