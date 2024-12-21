@@ -1,4 +1,8 @@
 # Quagmire
+This project, developed for CS203: Software Engineering, implements a web-based Tournament Management System designed for dual sports/games like chess, badminton, or tennis.
+
+Quagmire is the go-to platform for arm wrestling fans, athletes, and event organisers. It's designed to make life easier for everyone involved in the sport. For players, it's a game-changer. You can quickly find tournaments that fit your schedule, and say goodbye to the hassle of repeatedly entering your details – Quagmire remembers them for you. Tournament organisers will love how Quagmire takes the headache out of event management. With features like automatic draw generation, you can focus on running a great tournament instead of drowning in paperwork.
+But Quagmire isn't just about convenience – it's on a mission to grow Singapore's arm wrestling community. The app's friendly match feature using advanced matchmaking algorithms helps you connect with local opponents at your skill level and in your vicinity, so you're always challenged but never overwhelmed. And to keep you motivated, Quagmire celebrates your progress with achievements for hitting key milestones. It's all about nurturing your skills and passion for the sport.
 
 ## 📹 Video Setup Instructions
 After you have downloaded all the necessary [prerequisites](#prerequisites), run docker desktop and follow the instructions.
